@@ -12,15 +12,15 @@ import io.github.hiwepy.opencli.parser.OpenCliParsedFields;
 import io.github.hiwepy.opencli.util.OpenCliStrings;
 import java.io.IOException;
 import java.util.Objects;
-import kong.unirest.core.HttpResponse;
-import kong.unirest.core.Unirest;
-import kong.unirest.core.UnirestException;
+import kong.unirest.HttpResponse;
+import kong.unirest.Unirest;
+import kong.unirest.UnirestException;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * 调用 opencli-admin 边缘 Agent 的 HTTP {@code POST /collect}。
  * <p>
- * 使用 Unirest（与 {@code openclaw-java-sdk} 依赖一致），JDK 8+ 可用，不依赖 {@code java.net.http}。
+ * 使用 {@code com.konghq:unirest-java} 3.x（与 openclaw-java-sdk 同系列，且兼容 JDK 8 的 2.3.x 线）。
  * </p>
  */
 @Slf4j
@@ -60,7 +60,8 @@ public final class OpenCliRemoteAgentHttpClient {
         try {
             HttpResponse<String> response =
                 Unirest.post(url)
-                    .requestTimeout(timeout)
+                    .connectTimeout(timeout)
+                    .socketTimeout(timeout)
                     .header("Content-Type", "application/json; charset=UTF-8")
                     .body(bodyJson)
                     .asString();
