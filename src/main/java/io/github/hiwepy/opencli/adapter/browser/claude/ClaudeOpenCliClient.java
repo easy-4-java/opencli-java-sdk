@@ -1,0 +1,109 @@
+package io.github.hiwepy.opencli.adapter.browser.claude;
+
+import io.github.hiwepy.opencli.adapter.browser.support.BrowserLlmOptions;
+import io.github.hiwepy.opencli.core.OpenCliAdapterChannel;
+import io.github.hiwepy.opencli.core.OpenCliArgSupport;
+import io.github.hiwepy.opencli.core.OpenCliExecutor;
+import io.github.hiwepy.opencli.core.OpenCliResult;
+import io.github.hiwepy.opencli.registry.OpenCliAdapterIds;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.Builder;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
+/**
+ * OpenCLI {@code claude} 浏览器适配器。
+ */
+@RequiredArgsConstructor
+public final class ClaudeOpenCliClient {
+
+    private final OpenCliExecutor executor;
+
+    private OpenCliAdapterChannel ch() {
+        return new OpenCliAdapterChannel(executor, OpenCliAdapterIds.CLAUDE);
+    }
+
+    @Data
+    @Builder
+    public static class ClaudeAskOptions {
+
+        private Integer timeoutSeconds;
+
+        /** 文档：{@code --new} 布尔开关（此处若 true 仅追加 flag，不传值）。 */
+        private Boolean newConversation;
+
+        private String model;
+
+        private Boolean adaptiveThinking;
+
+        private String attachmentPath;
+
+        private Boolean jsonOutput;
+
+        /**
+         * @param target argv
+         */
+        public void appendTo(List<String> target) {
+            if (Boolean.TRUE.equals(newConversation)) {
+                target.add("--new");
+            }
+            if (timeoutSeconds != null) {
+                OpenCliArgSupport.addOptionPair(target, "--timeout", String.valueOf(timeoutSeconds));
+            }
+            if (model != null) {
+                OpenCliArgSupport.addOptionPair(target, "--model", model);
+            }
+            if (Boolean.TRUE.equals(adaptiveThinking)) {
+                target.add("--think");
+            }
+            if (attachmentPath != null) {
+                OpenCliArgSupport.addOptionPair(target, "--file", attachmentPath);
+            }
+            if (Boolean.TRUE.equals(jsonOutput)) {
+                target.add("-f");
+                target.add("json");
+            }
+        }
+    }
+
+    public OpenCliResult ask(String prompt, ClaudeAskOptions options, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("ask");
+        args.add(prompt);
+        if (options != null) {
+            options.appendTo(args);
+        }
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
+    }
+
+    public OpenCliResult send(String prompt, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("send");
+        args.add(prompt);
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
+    }
+
+    public OpenCliResult newChat(List<String> more) {
+        return ch().invoke(OpenCliArgSupport.merge(List.of("new"), more));
+    }
+
+    public OpenCliResult status(List<String> more) {
+        return ch().invoke(OpenCliArgSupport.merge(List.of("status"), more));
+    }
+
+    public OpenCliResult read(List<String> more) {
+        return ch().invoke(OpenCliArgSupport.merge(List.of("read"), more));
+    }
+
+    public OpenCliResult history(List<String> more) {
+        return ch().invoke(OpenCliArgSupport.merge(List.of("history"), more));
+    }
+
+    public OpenCliResult detail(String conversationIdOrUrl, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("detail");
+        args.add(conversationIdOrUrl);
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
+    }
+}
