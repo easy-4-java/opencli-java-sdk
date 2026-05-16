@@ -1,5 +1,6 @@
 package io.github.hiwepy.opencli.adapter.desktop.codex;
 
+import io.github.hiwepy.opencli.util.OpenCliLists;
 import io.github.hiwepy.opencli.adapter.desktop.support.DesktopThreadSelection;
 import io.github.hiwepy.opencli.core.OpenCliAdapterChannel;
 import io.github.hiwepy.opencli.core.OpenCliArgSupport;
@@ -43,7 +44,7 @@ public final class CodexOpenCliClient {
      * @param additionalRawArgs 透传 CLI 附加参数，可为 null
      */
     public OpenCliResult newSession(List<String> additionalRawArgs) {
-        return ch().invoke(OpenCliArgSupport.merge(List.of("new"), additionalRawArgs));
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("new"), additionalRawArgs));
     }
 
     /** 同 {@link #newSession(List)}，无附加参数。 */

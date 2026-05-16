@@ -1,5 +1,6 @@
 package io.github.hiwepy.opencli.adapter.browser.claude;
 
+import io.github.hiwepy.opencli.util.OpenCliLists;
 import io.github.hiwepy.opencli.adapter.browser.support.BrowserLlmOptions;
 import io.github.hiwepy.opencli.core.OpenCliAdapterChannel;
 import io.github.hiwepy.opencli.core.OpenCliArgSupport;
@@ -85,19 +86,19 @@ public final class ClaudeOpenCliClient {
     }
 
     public OpenCliResult newChat(List<String> more) {
-        return ch().invoke(OpenCliArgSupport.merge(List.of("new"), more));
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("new"), more));
     }
 
     public OpenCliResult status(List<String> more) {
-        return ch().invoke(OpenCliArgSupport.merge(List.of("status"), more));
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("status"), more));
     }
 
     public OpenCliResult read(List<String> more) {
-        return ch().invoke(OpenCliArgSupport.merge(List.of("read"), more));
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("read"), more));
     }
 
     public OpenCliResult history(List<String> more) {
-        return ch().invoke(OpenCliArgSupport.merge(List.of("history"), more));
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("history"), more));
     }
 
     public OpenCliResult detail(String conversationIdOrUrl, List<String> more) {

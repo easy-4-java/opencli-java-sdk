@@ -1,5 +1,6 @@
 package io.github.hiwepy.opencli.adapter.browser.chatgpt;
 
+import io.github.hiwepy.opencli.util.OpenCliLists;
 import io.github.hiwepy.opencli.core.OpenCliAdapterChannel;
 import io.github.hiwepy.opencli.core.OpenCliArgSupport;
 import io.github.hiwepy.opencli.core.OpenCliExecutor;
@@ -101,11 +102,11 @@ public final class ChatgptOpenCliClient {
     }
 
     public OpenCliResult newChat(List<String> more) {
-        return ch().invoke(OpenCliArgSupport.merge(List.of("new"), more));
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("new"), more));
     }
 
     public OpenCliResult status(List<String> more) {
-        return ch().invoke(OpenCliArgSupport.merge(List.of("status"), more));
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("status"), more));
     }
 
     public OpenCliResult image(String prompt, List<String> more) {

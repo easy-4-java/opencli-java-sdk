@@ -1,5 +1,6 @@
 package io.github.hiwepy.opencli.adapter.desktop.cursor;
 
+import io.github.hiwepy.opencli.util.OpenCliLists;
 import io.github.hiwepy.opencli.adapter.desktop.support.DesktopThreadSelection;
 import io.github.hiwepy.opencli.core.OpenCliAdapterChannel;
 import io.github.hiwepy.opencli.core.OpenCliArgSupport;
@@ -39,7 +40,7 @@ public final class CursorOpenCliClient {
 
     /** 新建文件/标签（文档：{@code Cmd+N}）。 */
     public OpenCliResult newTab(List<String> additionalRawArgs) {
-        return ch().invoke(OpenCliArgSupport.merge(List.of("new"), additionalRawArgs));
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("new"), additionalRawArgs));
     }
 
     /** 同 {@link #newTab(List)}。 */

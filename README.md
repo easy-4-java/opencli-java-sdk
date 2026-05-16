@@ -1,6 +1,6 @@
 # opencli-java-sdk
 
-面向 [OpenCLI](https://github.com/partme-ai/opencli) 多适配器体系的 Java SDK（JDK 17），工程风格对齐同仓库的 `dreamina-java-sdk`：Commons Exec 子进程封装、`OpenCliResult` / `OpenCliTypedResult`、统一异常语义。
+面向 [OpenCLI](https://github.com/partme-ai/opencli) 多适配器体系的 Java SDK，工程风格对齐同仓库的 `dreamina-java-sdk`：Commons Exec 子进程封装、`OpenCliResult` / `OpenCliTypedResult`、统一异常语义。远程 HTTP 使用 **Unirest**（与 `openclaw-java-sdk` 一致），中心 WebSocket 使用 **Java-WebSocket**，可在 JDK 8 线编译运行。
 
 ## 功能概览
 
@@ -25,6 +25,31 @@
 ```bash
 cd opencli-java-sdk && mvn clean install
 ```
+
+## 多版本与 JDK（对齐 dreamina-java-sdk）
+
+各 Git 分支通过脚本生成对应 `pom.xml`，**版本前缀、JDK、依赖栈随线变化**，勿混用（例如 2.7.x 线不能用 JDK 17 的坐标去跑 3.3.x 线）。
+
+| 分支 | `artifact` 版本示例 | JDK | 说明 |
+|------|----------------------|-----|------|
+| `2.3.x` | `2.3.x.*-SNAPSHOT` | **8** | 与 Spring Boot 2.3.x 同线 |
+| `2.7.x` | `2.7.x.*-SNAPSHOT` | **11** | 与 Spring Boot 2.7.x 同线 |
+| `3.0.x` … `3.4.x` | `3.0.x.*` … `3.4.x.*` | **17** | 与 Spring Boot 3.0–3.4 一致 |
+| `3.5.x` / `4.0.x` | `3.5.x.*` / `4.0.x.*` | **21** | 与 Spring Boot 3.5+ / 4.x 及 SLF4J 2.x 对齐 |
+
+切分支后在本模块根目录执行：
+
+```bash
+python3 scripts/render-branch-pom.py <branch>   # 例: 3.3.x、2.7.x、4.0.x
+```
+
+发布到阿里云 Packages（各分支 `pom.xml` 已内置 `distributionManagement`）：
+
+```bash
+mvn clean deploy -Dmaven.test.skip=true
+```
+
+`settings.xml` 中配置私服 id：`2624322-release-6F6h6R`、`2624322-snapshot-3EoOv3`。
 
 ## 快速开始
 

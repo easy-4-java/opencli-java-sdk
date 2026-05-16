@@ -1,5 +1,6 @@
 package io.github.hiwepy.opencli.adapter.publicapi.binance;
 
+import io.github.hiwepy.opencli.util.OpenCliLists;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.hiwepy.opencli.core.OpenCliAdapterChannel;
 import io.github.hiwepy.opencli.core.OpenCliArgSupport;
@@ -25,23 +26,23 @@ public final class BinanceOpenCliClient {
     }
 
     public OpenCliResult price(String symbol, List<String> more) {
-        return ch().invoke(OpenCliArgSupport.merge(List.of("price", symbol), more));
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("price", symbol), more));
     }
 
     public OpenCliResult prices(List<String> more) {
-        return ch().invoke(OpenCliArgSupport.merge(List.of("prices"), more));
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("prices"), more));
     }
 
     public OpenCliResult ticker(List<String> more) {
-        return ch().invoke(OpenCliArgSupport.merge(List.of("ticker"), more));
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("ticker"), more));
     }
 
     public OpenCliResult pairs(List<String> more) {
-        return ch().invoke(OpenCliArgSupport.merge(List.of("pairs"), more));
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("pairs"), more));
     }
 
     public OpenCliResult trades(String symbol, Integer limit, List<String> more) {
-        List<String> args = new ArrayList<>(List.of("trades", symbol));
+        List<String> args = new ArrayList<>(OpenCliLists.of("trades", symbol));
         if (limit != null) {
             OpenCliArgSupport.addOptionPair(args, "--limit", String.valueOf(limit));
         }
@@ -49,7 +50,7 @@ public final class BinanceOpenCliClient {
     }
 
     public OpenCliResult depth(String symbol, Integer limit, List<String> more) {
-        List<String> args = new ArrayList<>(List.of("depth", symbol));
+        List<String> args = new ArrayList<>(OpenCliLists.of("depth", symbol));
         if (limit != null) {
             OpenCliArgSupport.addOptionPair(args, "--limit", String.valueOf(limit));
         }
@@ -57,7 +58,7 @@ public final class BinanceOpenCliClient {
     }
 
     public OpenCliResult asks(String symbol, Integer limit, List<String> more) {
-        List<String> args = new ArrayList<>(List.of("asks", symbol));
+        List<String> args = new ArrayList<>(OpenCliLists.of("asks", symbol));
         if (limit != null) {
             OpenCliArgSupport.addOptionPair(args, "--limit", String.valueOf(limit));
         }
@@ -65,7 +66,7 @@ public final class BinanceOpenCliClient {
     }
 
     public OpenCliResult klines(String symbol, String interval, Integer limit, List<String> more) {
-        List<String> args = new ArrayList<>(List.of("klines", symbol));
+        List<String> args = new ArrayList<>(OpenCliLists.of("klines", symbol));
         if (interval != null) {
             OpenCliArgSupport.addOptionPair(args, "--interval", interval);
         }
@@ -76,7 +77,7 @@ public final class BinanceOpenCliClient {
     }
 
     public OpenCliResult top(boolean json, List<String> more) {
-        List<String> args = new ArrayList<>(List.of("top"));
+        List<String> args = new ArrayList<>(OpenCliLists.of("top"));
         if (json) {
             args.add("-f");
             args.add("json");
@@ -85,11 +86,11 @@ public final class BinanceOpenCliClient {
     }
 
     public OpenCliResult gainers(List<String> more) {
-        return ch().invoke(OpenCliArgSupport.merge(List.of("gainers"), more));
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("gainers"), more));
     }
 
     public OpenCliResult losers(List<String> more) {
-        return ch().invoke(OpenCliArgSupport.merge(List.of("losers"), more));
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("losers"), more));
     }
 
     public OpenCliTypedResult<JsonNode> topTyped(List<String> more) {

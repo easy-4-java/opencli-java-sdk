@@ -1,5 +1,6 @@
 package io.github.hiwepy.opencli.remote;
 
+import io.github.hiwepy.opencli.util.OpenCliLists;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -15,13 +16,13 @@ class OpenCliArgvToCollectParserTest {
     void parsesPositionalAndNamedOptions() {
         OpenCliCollectRequest r =
             OpenCliArgvToCollectParser.parse(
-                List.of("arxiv", "search", "attention", "--limit", "5"),
+                OpenCliLists.of("arxiv", "search", "attention", "--limit", "5"),
                 "json",
                 "cdp",
                 "");
         assertEquals("arxiv", r.getSite());
         assertEquals("search", r.getCommand());
-        assertEquals(List.of("attention"), r.getPositionalArgs());
+        assertEquals(OpenCliLists.of("attention"), r.getPositionalArgs());
         assertEquals("5", String.valueOf(r.getArgs().get("limit")));
         assertEquals("json", r.getFormat());
         assertEquals("cdp", r.getMode());
@@ -31,7 +32,7 @@ class OpenCliArgvToCollectParserTest {
     void extractsFormatFromArgv() {
         OpenCliCollectRequest r =
             OpenCliArgvToCollectParser.parse(
-                List.of("npm", "package", "react", "-f", "yaml"),
+                OpenCliLists.of("npm", "package", "react", "-f", "yaml"),
                 "json",
                 "bridge",
                 "");
@@ -43,6 +44,6 @@ class OpenCliArgvToCollectParserTest {
     void requiresAdapterAndCommand() {
         assertThrows(
             IllegalArgumentException.class,
-            () -> OpenCliArgvToCollectParser.parse(List.of("only"), "json", "cdp", ""));
+            () -> OpenCliArgvToCollectParser.parse(OpenCliLists.of("only"), "json", "cdp", ""));
     }
 }

@@ -8,6 +8,7 @@ import io.github.hiwepy.opencli.OpenCliProperties;
 import io.github.hiwepy.opencli.core.OpenCliResult;
 import io.github.hiwepy.opencli.exception.OpenCliNonZeroExitException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
@@ -120,7 +121,7 @@ class OpenCliRemoteAgentHttpClientTest {
                             exchange.close();
                             return;
                         }
-                        exchange.getRequestBody().readAllBytes();
+                        drain(exchange.getRequestBody());
                         exchange
                             .getResponseHeaders()
                             .set("Content-Type", "application/json; charset=utf-8");
@@ -142,6 +143,21 @@ class OpenCliRemoteAgentHttpClientTest {
         @Override
         public void close() {
             server.stop(0);
+        }
+    }
+
+    /** JDK 8 兼容：丢弃请求体。 */
+    private static void drain(InputStream in) throws IOException {
+        if (in == null) {
+            return;
+        }
+        byte[] buf = new byte[8192];
+        try {
+            while (in.read(buf) != -1) {
+                // discard
+            }
+        } finally {
+            in.close();
         }
     }
 }

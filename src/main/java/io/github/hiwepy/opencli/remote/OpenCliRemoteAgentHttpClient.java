@@ -11,21 +11,16 @@ import io.github.hiwepy.opencli.exception.OpenCliNonZeroExitException;
 import io.github.hiwepy.opencli.parser.OpenCliParsedFields;
 import io.github.hiwepy.opencli.util.OpenCliStrings;
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.Objects;
+import kong.unirest.core.HttpResponse;
+import kong.unirest.core.Unirest;
+import kong.unirest.core.UnirestException;
 import lombok.extern.slf4j.Slf4j;
 
 /**
  * 调用 opencli-admin 边缘 Agent 的 HTTP {@code POST /collect}。
  * <p>
- * 与 {@code backend/agent_server.py} 对齐；响应中的 {@code items} 已由 Agent 解析为结构化行，
- * 本客户端将其序列化为 JSON 写入 {@link OpenCliResult#getStdout()}，便于与本地 {@code -f json}
- * 输出链路复用同一解析代码。
+ * 使用 Unirest（与 {@code openclaw-java-sdk} 依赖一致），JDK 8+ 可用，不依赖 {@code java.net.http}。
  * </p>
  */
 @Slf4j
@@ -35,14 +30,11 @@ public final class OpenCliRemoteAgentHttpClient {
 
     private final OpenCliProperties properties;
 
-    private final HttpClient httpClient;
-
     /**
      * @param properties 含 {@link OpenCliProperties#getRemoteAgentBaseUrl()} 等
      */
     public OpenCliRemoteAgentHttpClient(OpenCliProperties properties) {
         this.properties = Objects.requireNonNull(properties, "properties");
-        this.httpClient = HttpClient.newBuilder().build();
     }
 
     /**
@@ -58,40 +50,49 @@ public final class OpenCliRemoteAgentHttpClient {
             throw new IllegalStateException("opencli.remote-agent-base-url must be set for REMOTE_AGENT_HTTP");
         }
         String url = base.trim().replaceAll("/+$", "") + "/collect";
-        long timeoutMs = properties.getCommandTimeoutMillis();
-        if (timeoutMs <= 0) {
-            timeoutMs = 300_000L;
-        }
-        byte[] body;
+        int timeout = resolveTimeoutMillis();
+        String bodyJson;
         try {
-            body = MAPPER.writeValueAsBytes(request);
+            bodyJson = MAPPER.writeValueAsString(request);
         } catch (IOException e) {
             throw new OpenCliExecutableFailureException("Failed to serialize collect request: " + e.getMessage(), e);
         }
-        HttpRequest httpRequest =
-            HttpRequest.newBuilder(URI.create(url))
-                .timeout(Duration.ofMillis(timeoutMs))
-                .header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofByteArray(body))
-                .build();
         try {
-            HttpResponse<String> resp = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-            int status = resp.statusCode();
-            String respBody = resp.body() == null ? "" : resp.body();
+            HttpResponse<String> response =
+                Unirest.post(url)
+                    .requestTimeout(timeout)
+                    .header("Content-Type", "application/json; charset=UTF-8")
+                    .body(bodyJson)
+                    .asString();
+            int status = response.getStatus();
+            String respBody = response.getBody() == null ? "" : response.getBody();
             if (status < 200 || status >= 300) {
                 throw new OpenCliExecutableFailureException(
-                    "Agent HTTP " + status + " from " + url + ": " + respBody.substring(0, Math.min(500, respBody.length())), null);
+                    "Agent HTTP "
+                        + status
+                        + " from "
+                        + url
+                        + ": "
+                        + respBody.substring(0, Math.min(500, respBody.length())),
+                    null);
             }
             return mapResponse(respBody);
         } catch (OpenCliNonZeroExitException e) {
             throw e;
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new OpenCliExecutableFailureException("Interrupted during agent HTTP call: " + url, e);
         } catch (IOException e) {
+            throw new OpenCliExecutableFailureException("Failed to parse agent response: " + e.getMessage(), e);
+        } catch (UnirestException e) {
             log.warn("Agent HTTP failed url={} message={}", url, e.getMessage());
             throw new OpenCliExecutableFailureException("Agent HTTP I/O error: " + url + " — " + e.getMessage(), e);
         }
+    }
+
+    private int resolveTimeoutMillis() {
+        long timeoutMs = properties.getCommandTimeoutMillis();
+        if (timeoutMs <= 0) {
+            timeoutMs = 300_000L;
+        }
+        return (int) Math.min(timeoutMs, Integer.MAX_VALUE);
     }
 
     private OpenCliResult mapResponse(String respBody) throws IOException {
@@ -130,12 +131,6 @@ public final class OpenCliRemoteAgentHttpClient {
             .build();
     }
 
-    /**
-     * 按配置决定是否保留 Agent 响应原文（用于 {@link OpenCliResult#getRemoteRawHttpBody()}）。
-     *
-     * @param respBody HTTP 响应体字符串
-     * @return 需要保留时返回原文，否则 null
-     */
     private String captureRawIfEnabled(String respBody) {
         if (!properties.isRemoteCaptureRawHttpResponse()) {
             return null;

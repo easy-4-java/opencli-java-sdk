@@ -1,5 +1,6 @@
 package io.github.hiwepy.opencli.core;
 
+import io.github.hiwepy.opencli.util.OpenCliLists;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.List;
@@ -17,14 +18,14 @@ class OpenCliArgSupportTest {
         prefix.add("  q  ");
         prefix.add("");
         prefix.add(null);
-        List<String> out = OpenCliArgSupport.merge(prefix, List.of("--limit", "5"));
-        assertEquals(List.of("search", "q", "--limit", "5"), out);
+        List<String> out = OpenCliArgSupport.merge(prefix, OpenCliLists.of("--limit", "5"));
+        assertEquals(OpenCliLists.of("search", "q", "--limit", "5"), out);
     }
 
     @Test
     void addOptionEqualsProducesKeyValueToken() {
-        List<String> t = new java.util.ArrayList<>(List.of("x"));
+        List<String> t = new java.util.ArrayList<>(OpenCliLists.of("x"));
         OpenCliArgSupport.addOptionEquals(t, "--limit", "10");
-        assertEquals(List.of("x", "--limit=10"), t);
+        assertEquals(OpenCliLists.of("x", "--limit=10"), t);
     }
 }

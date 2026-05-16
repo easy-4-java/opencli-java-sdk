@@ -1,5 +1,6 @@
 package io.github.hiwepy.opencli;
 
+import io.github.hiwepy.opencli.util.OpenCliLists;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
@@ -16,7 +17,7 @@ class OpenCliPropertiesCopyTest {
         p.setExecutionTarget(OpenCliExecutionTarget.REMOTE_AGENT_HTTP);
         p.setExecutable("/usr/bin/opencli");
         p.getEnvironment().put("OPENCLI_CDP_ENDPOINT", "http://127.0.0.1:9222");
-        p.setLeadingArguments(java.util.List.of("--verbose"));
+        p.setLeadingArguments(OpenCliLists.of("--verbose"));
 
         OpenCliProperties c = p.copyForLocalCliExecution();
         assertSame(OpenCliExecutionTarget.LOCAL_PROCESS, c.getExecutionTarget());

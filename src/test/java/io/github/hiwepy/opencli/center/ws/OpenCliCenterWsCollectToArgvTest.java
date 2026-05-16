@@ -1,9 +1,12 @@
 package io.github.hiwepy.opencli.center.ws;
 
+import io.github.hiwepy.opencli.util.OpenCliLists;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import io.github.hiwepy.opencli.util.OpenCliLists;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -15,14 +18,16 @@ class OpenCliCenterWsCollectToArgvTest {
 
     @Test
     void buildsArgvLikeAgentServer() {
+        Map<String, Object> args = new HashMap<>();
+        args.put("limit", 5);
         List<String> argv =
             OpenCliCenterWsCollectToArgv.toArgv(
                 "npm",
                 "package",
-                List.of("react"),
-                Map.of("limit", 5),
+                OpenCliLists.of("react"),
+                args,
                 "json");
-        assertEquals(List.of("npm", "package", "react", "--limit", "5", "-f", "json"), argv);
+        assertEquals(OpenCliLists.of("npm", "package", "react", "--limit", "5", "-f", "json"), argv);
     }
 
     @Test
@@ -30,6 +35,7 @@ class OpenCliCenterWsCollectToArgvTest {
         assertThrows(
             IllegalArgumentException.class,
             () ->
-                OpenCliCenterWsCollectToArgv.toArgv("", "cmd", List.of(), Map.of(), "json"));
+                OpenCliCenterWsCollectToArgv.toArgv(
+                    "", "cmd", OpenCliLists.of(), new HashMap<String, Object>(), "json"));
     }
 }

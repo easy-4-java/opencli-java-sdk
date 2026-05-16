@@ -1,5 +1,6 @@
 package io.github.hiwepy.opencli.adapter.browser.gemini;
 
+import io.github.hiwepy.opencli.util.OpenCliLists;
 import io.github.hiwepy.opencli.adapter.browser.support.BrowserLlmOptions;
 import io.github.hiwepy.opencli.core.OpenCliAdapterChannel;
 import io.github.hiwepy.opencli.core.OpenCliArgSupport;
@@ -26,7 +27,7 @@ public final class GeminiOpenCliClient {
 
     /** 新开 Gemini Web Chat。 */
     public OpenCliResult newChat(List<String> additionalRawArgs) {
-        return ch().invoke(OpenCliArgSupport.merge(List.of("new"), additionalRawArgs));
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("new"), additionalRawArgs));
     }
 
     /** @see #newChat(List) */

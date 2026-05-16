@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.hiwepy.opencli.util.OpenCliStrings;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -30,7 +31,7 @@ public final class OpenCliWsCollectStdoutItems {
         }
         ObjectNode row = MAPPER.createObjectNode();
         row.put("content", stdout == null ? "" : stdout);
-        return List.of(row);
+        return Collections.singletonList(row);
     }
 
     /**

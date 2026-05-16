@@ -1,5 +1,6 @@
 package io.github.hiwepy.opencli.adapter.publicapi.wikipedia;
 
+import io.github.hiwepy.opencli.util.OpenCliLists;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.hiwepy.opencli.core.OpenCliAdapterChannel;
 import io.github.hiwepy.opencli.core.OpenCliArgSupport;
@@ -42,7 +43,7 @@ public final class WikipediaOpenCliClient {
     }
 
     public OpenCliResult summary(String title, String lang, List<String> more) {
-        List<String> args = new ArrayList<>(List.of("summary", title));
+        List<String> args = new ArrayList<>(OpenCliLists.of("summary", title));
         if (lang != null) {
             OpenCliArgSupport.addOptionPair(args, "--lang", lang);
         }
@@ -50,11 +51,11 @@ public final class WikipediaOpenCliClient {
     }
 
     public OpenCliResult random(List<String> more) {
-        return ch().invoke(OpenCliArgSupport.merge(List.of("random"), more));
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("random"), more));
     }
 
     public OpenCliResult trending(List<String> more) {
-        return ch().invoke(OpenCliArgSupport.merge(List.of("trending"), more));
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("trending"), more));
     }
 
     public OpenCliResult page(String title, String lang, Integer paragraphs, List<String> more) {

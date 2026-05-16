@@ -1,5 +1,6 @@
 package io.github.hiwepy.opencli.adapter.browser.jimeng;
 
+import io.github.hiwepy.opencli.util.OpenCliLists;
 import io.github.hiwepy.opencli.core.OpenCliAdapterChannel;
 import io.github.hiwepy.opencli.core.OpenCliArgSupport;
 import io.github.hiwepy.opencli.core.OpenCliExecutor;
@@ -62,7 +63,7 @@ public final class JimengOpenCliClient {
 
     /** 文生图 {@code generate}。 */
     public OpenCliResult generate(String prompt, JimengGenerateOptions opt, List<String> more) {
-        List<String> prefix = List.of("generate", prompt);
+        List<String> prefix = OpenCliLists.of("generate", prompt);
         return ch().invoke(withGen(opt, prefix, more));
     }
 
@@ -72,14 +73,14 @@ public final class JimengOpenCliClient {
         String commaSeparatedImages,
         JimengGenerateOptions opt,
         List<String> more) {
-        List<String> prefix = new ArrayList<>(List.of("generate-image2image", prompt));
+        List<String> prefix = new ArrayList<>(OpenCliLists.of("generate-image2image", prompt));
         prefix.add("--images=" + commaSeparatedImages);
         return ch().invoke(withGen(opt, prefix, more));
     }
 
     /** 文生视频。 */
     public OpenCliResult generateVideo(String prompt, JimengGenerateOptions opt, List<String> more) {
-        return ch().invoke(withGen(opt, List.of("generate-video", prompt), more));
+        return ch().invoke(withGen(opt, OpenCliLists.of("generate-video", prompt), more));
     }
 
     /** 图生视频。 */
@@ -88,19 +89,19 @@ public final class JimengOpenCliClient {
         String imagePath,
         JimengGenerateOptions opt,
         List<String> more) {
-        List<String> prefix = new ArrayList<>(List.of("generate-image2video", prompt));
+        List<String> prefix = new ArrayList<>(OpenCliLists.of("generate-image2video", prompt));
         prefix.add("--image=" + imagePath);
         return ch().invoke(withGen(opt, prefix, more));
     }
 
     /** 配音。 */
     public OpenCliResult generateAudio(String prompt, JimengGenerateOptions opt, List<String> more) {
-        return ch().invoke(withGen(opt, List.of("generate-audio", prompt), more));
+        return ch().invoke(withGen(opt, OpenCliLists.of("generate-audio", prompt), more));
     }
 
     /** 数字人。 */
     public OpenCliResult generateDigitalHuman(String prompt, JimengGenerateOptions opt, List<String> more) {
-        return ch().invoke(withGen(opt, List.of("generate-digital-human", prompt), more));
+        return ch().invoke(withGen(opt, OpenCliLists.of("generate-digital-human", prompt), more));
     }
 
     /**
@@ -111,7 +112,7 @@ public final class JimengOpenCliClient {
      * @param more               透传
      */
     public OpenCliResult generateActionCopy(String referenceImagePath, JimengGenerateOptions opt, List<String> more) {
-        List<String> prefix = List.of("generate-action-copy", referenceImagePath);
+        List<String> prefix = OpenCliLists.of("generate-action-copy", referenceImagePath);
         return ch().invoke(withGen(opt, prefix, more));
     }
 
@@ -140,11 +141,11 @@ public final class JimengOpenCliClient {
     }
 
     public OpenCliResult workspaces(List<String> more) {
-        return ch().invoke(OpenCliArgSupport.merge(List.of("workspaces"), more));
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("workspaces"), more));
     }
 
     public OpenCliResult userCredit(List<String> more) {
-        return ch().invoke(OpenCliArgSupport.merge(List.of("user_credit"), more));
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("user_credit"), more));
     }
 
     public OpenCliResult userAssets(String tab, Integer waitSeconds, List<String> more) {
