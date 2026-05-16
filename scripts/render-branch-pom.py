@@ -80,12 +80,7 @@ COMMON_META = """    <licenses>
 UNIREST_WS_DEPS = """
         <dependency>
             <groupId>com.konghq</groupId>
-            <artifactId>unirest-java-core</artifactId>
-            <version>${unirest.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.konghq</groupId>
-            <artifactId>unirest-modules-jackson</artifactId>
+            <artifactId>unirest-java</artifactId>
             <version>${unirest.version}</version>
         </dependency>
         <dependency>
@@ -326,7 +321,7 @@ def write_pom(
 
 def render(branch: str) -> None:
     snap = SNAPSHOT_SUFFIX
-    common_unirest = "4.4.5"
+    common_unirest = "3.14.5"
     common_ws = "1.5.7"
     if branch == "2.3.x":
         write_pom(
