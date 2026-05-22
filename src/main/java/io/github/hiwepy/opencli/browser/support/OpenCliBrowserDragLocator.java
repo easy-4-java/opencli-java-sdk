@@ -40,20 +40,10 @@ public class OpenCliBrowserDragLocator {
         String label,
         String text,
         String testId) {
-        if (role != null) {
-            OpenCliArgSupport.addOptionPair(target, "--" + prefix + "-role", role);
-        }
-        if (name != null) {
-            OpenCliArgSupport.addOptionPair(target, "--" + prefix + "-name", name);
-        }
-        if (label != null) {
-            OpenCliArgSupport.addOptionPair(target, "--" + prefix + "-label", label);
-        }
-        if (text != null) {
-            OpenCliArgSupport.addOptionPair(target, "--" + prefix + "-text", text);
-        }
-        if (testId != null) {
-            OpenCliArgSupport.addOptionPair(target, "--" + prefix + "-testid", testId);
-        }
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--" + prefix + "-role", role);
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--" + prefix + "-name", name);
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--" + prefix + "-label", label);
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--" + prefix + "-text", text);
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--" + prefix + "-testid", testId);
     }
 }

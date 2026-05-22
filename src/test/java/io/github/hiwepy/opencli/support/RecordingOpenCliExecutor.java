@@ -26,7 +26,7 @@ public final class RecordingOpenCliExecutor extends OpenCliExecutor {
 
     public List<String> lastInvocation() {
         List<List<String>> all = getInvocations();
-        return all.isEmpty() ? List.of() : all.get(all.size() - 1);
+        return all.isEmpty() ? Collections.emptyList() : all.get(all.size() - 1);
     }
 
     @Override

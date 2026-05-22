@@ -22,14 +22,14 @@ public final class OpenCliArgSupport {
      */
     public static List<String> merge(List<String> prefix, List<String> additionalRawArgs) {
         List<String> out = new ArrayList<>();
-        if (prefix != null) {
+        if (Objects.nonNull(prefix)) {
             for (String s : prefix) {
                 if (OpenCliStrings.isNotBlank(s)) {
                     out.add(s.trim());
                 }
             }
         }
-        if (additionalRawArgs != null) {
+        if (Objects.nonNull(additionalRawArgs)) {
             for (String s : additionalRawArgs) {
                 if (OpenCliStrings.isNotBlank(s)) {
                     out.add(s.trim());
@@ -72,5 +72,31 @@ public final class OpenCliArgSupport {
         Objects.requireNonNull(value, "value");
         target.add(flag);
         target.add(value);
+    }
+
+    /**
+     * 当 {@code value} 非 null 时追加 {@code --flag value}。
+     *
+     * @param target 目标 argv 列表
+     * @param flag   选项名
+     * @param value  可为 null
+     */
+    public static void addOptionPairIfPresent(List<String> target, String flag, Object value) {
+        if (Objects.nonNull(value)) {
+            addOptionPair(target, flag, String.valueOf(value));
+        }
+    }
+
+    /**
+     * 当 {@code enabled} 为 {@code true} 时追加 boolean flag（无值）。
+     *
+     * @param target  目标 argv 列表
+     * @param flag    如 {@code --follow}
+     * @param enabled 开关，null/false 时不追加
+     */
+    public static void addFlagIfTrue(List<String> target, String flag, Boolean enabled) {
+        if (Boolean.TRUE.equals(enabled)) {
+            Objects.requireNonNull(target, "target").add(flag);
+        }
     }
 }

@@ -16,12 +16,16 @@ import io.github.hiwepy.opencli.util.OpenCliLists;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import lombok.Builder;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 具名浏览器会话上的子命令封装，对应 {@code opencli browser <session> <subcommand> ...}。
  */
 @RequiredArgsConstructor
+@Slf4j
 public final class OpenCliBrowserSession {
 
     private final OpenCliExecutor executor;
@@ -31,7 +35,7 @@ public final class OpenCliBrowserSession {
     private List<String> sessionPrefix() {
         List<String> tokens = new ArrayList<>();
         tokens.add("browser");
-        if (windowMode != null) {
+        if (Objects.nonNull(windowMode)) {
             OpenCliArgSupport.addOptionPair(tokens, "--window", windowMode);
         }
         tokens.add(sessionName);
@@ -41,15 +45,36 @@ public final class OpenCliBrowserSession {
     private OpenCliResult invokeSub(List<String> subcommandAndOptions) {
         List<String> tokens = sessionPrefix();
         tokens.addAll(subcommandAndOptions);
+        log.debug("OpenCLI browser session={} subcommandSummary={}", sessionName, summarizeSubcommand(tokens));
         return executor.invoke(tokens);
+    }
+
+    private static String summarizeSubcommand(List<String> tokens) {
+        int start = tokens.indexOf("browser");
+        int from = start >= 0 && start + 2 < tokens.size() ? start + 2 : 0;
+        int limit = Math.min(tokens.size(), from + 3);
+        if (from >= tokens.size()) {
+            return "(root)";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = from; i < limit; i++) {
+            if (i > from) {
+                sb.append(' ');
+            }
+            sb.append(tokens.get(i));
+        }
+        if (tokens.size() > limit) {
+            sb.append(" ...");
+        }
+        return sb.toString();
     }
 
     private static void appendTabAndLocator(
         List<String> args, OpenCliBrowserTabOptions tab, OpenCliBrowserSemanticLocator locator) {
-        if (tab != null) {
+        if (Objects.nonNull(tab)) {
             tab.appendTo(args);
         }
-        if (locator != null) {
+        if (Objects.nonNull(locator)) {
             locator.appendTo(args);
         }
     }
@@ -745,8 +770,8 @@ public final class OpenCliBrowserSession {
     /**
      * {@code browser network} 选项块。
      */
-    @lombok.Data
-    @lombok.Builder
+    @Data
+    @Builder
     public static class OpenCliBrowserNetworkOptions {
 
         private String detailKey;
@@ -761,44 +786,24 @@ public final class OpenCliBrowserSession {
         private String ttlMs;
 
         public void appendTo(List<String> target) {
-            if (detailKey != null) {
-                OpenCliArgSupport.addOptionPair(target, "--detail", detailKey);
-            }
-            if (Boolean.TRUE.equals(all)) {
-                target.add("--all");
-            }
-            if (Boolean.TRUE.equals(raw)) {
-                target.add("--raw");
-            }
-            if (filterFields != null) {
-                OpenCliArgSupport.addOptionPair(target, "--filter", filterFields);
-            }
-            if (since != null) {
-                OpenCliArgSupport.addOptionPair(target, "--since", since);
-            }
-            if (until != null) {
-                OpenCliArgSupport.addOptionPair(target, "--until", until);
-            }
-            if (Boolean.TRUE.equals(follow)) {
-                target.add("--follow");
-            }
-            if (Boolean.TRUE.equals(failed)) {
-                target.add("--failed");
-            }
-            if (maxBody != null) {
-                OpenCliArgSupport.addOptionPair(target, "--max-body", maxBody);
-            }
-            if (ttlMs != null) {
-                OpenCliArgSupport.addOptionPair(target, "--ttl", ttlMs);
-            }
+            OpenCliArgSupport.addOptionPairIfPresent(target, "--detail", detailKey);
+            OpenCliArgSupport.addFlagIfTrue(target, "--all", all);
+            OpenCliArgSupport.addFlagIfTrue(target, "--raw", raw);
+            OpenCliArgSupport.addOptionPairIfPresent(target, "--filter", filterFields);
+            OpenCliArgSupport.addOptionPairIfPresent(target, "--since", since);
+            OpenCliArgSupport.addOptionPairIfPresent(target, "--until", until);
+            OpenCliArgSupport.addFlagIfTrue(target, "--follow", follow);
+            OpenCliArgSupport.addFlagIfTrue(target, "--failed", failed);
+            OpenCliArgSupport.addOptionPairIfPresent(target, "--max-body", maxBody);
+            OpenCliArgSupport.addOptionPairIfPresent(target, "--ttl", ttlMs);
         }
     }
 
     /**
      * {@code browser verify} 选项块。
      */
-    @lombok.Data
-    @lombok.Builder
+    @Data
+    @Builder
     public static class OpenCliBrowserVerifyOptions {
 
         private Boolean writeFixture;
@@ -809,24 +814,12 @@ public final class OpenCliBrowserSession {
         private String trace;
 
         public void appendTo(List<String> target) {
-            if (Boolean.TRUE.equals(writeFixture)) {
-                target.add("--write-fixture");
-            }
-            if (Boolean.TRUE.equals(updateFixture)) {
-                target.add("--update-fixture");
-            }
-            if (Boolean.TRUE.equals(noFixture)) {
-                target.add("--no-fixture");
-            }
-            if (Boolean.TRUE.equals(strictMemory)) {
-                target.add("--strict-memory");
-            }
-            if (seedArgs != null) {
-                OpenCliArgSupport.addOptionPair(target, "--seed-args", seedArgs);
-            }
-            if (trace != null) {
-                OpenCliArgSupport.addOptionPair(target, "--trace", trace);
-            }
+            OpenCliArgSupport.addFlagIfTrue(target, "--write-fixture", writeFixture);
+            OpenCliArgSupport.addFlagIfTrue(target, "--update-fixture", updateFixture);
+            OpenCliArgSupport.addFlagIfTrue(target, "--no-fixture", noFixture);
+            OpenCliArgSupport.addFlagIfTrue(target, "--strict-memory", strictMemory);
+            OpenCliArgSupport.addOptionPairIfPresent(target, "--seed-args", seedArgs);
+            OpenCliArgSupport.addOptionPairIfPresent(target, "--trace", trace);
         }
     }
 }

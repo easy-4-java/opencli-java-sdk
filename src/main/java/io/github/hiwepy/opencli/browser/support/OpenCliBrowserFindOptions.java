@@ -26,14 +26,8 @@ public final class OpenCliBrowserFindOptions {
      * @param target 可变 argv 列表
      */
     public void appendTo(List<String> target) {
-        if (css != null) {
-            OpenCliArgSupport.addOptionPair(target, "--css", css);
-        }
-        if (limit != null) {
-            OpenCliArgSupport.addOptionPair(target, "--limit", String.valueOf(limit));
-        }
-        if (textMax != null) {
-            OpenCliArgSupport.addOptionPair(target, "--text-max", String.valueOf(textMax));
-        }
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--css", css);
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--limit", limit);
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--text-max", textMax);
     }
 }

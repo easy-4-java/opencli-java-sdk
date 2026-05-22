@@ -28,17 +28,9 @@ public final class OpenCliBrowserScreenshotOptions {
      * @param target 可变 argv 列表
      */
     public void appendTo(List<String> target) {
-        if (Boolean.TRUE.equals(annotate)) {
-            target.add("--annotate");
-        }
-        if (Boolean.TRUE.equals(fullPage)) {
-            target.add("--full-page");
-        }
-        if (width != null) {
-            OpenCliArgSupport.addOptionPair(target, "--width", String.valueOf(width));
-        }
-        if (height != null) {
-            OpenCliArgSupport.addOptionPair(target, "--height", String.valueOf(height));
-        }
+        OpenCliArgSupport.addFlagIfTrue(target, "--annotate", annotate);
+        OpenCliArgSupport.addFlagIfTrue(target, "--full-page", fullPage);
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--width", width);
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--height", height);
     }
 }

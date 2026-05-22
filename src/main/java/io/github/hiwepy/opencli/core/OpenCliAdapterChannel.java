@@ -4,10 +4,12 @@ import io.github.hiwepy.opencli.util.OpenCliStrings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 针对单个 OpenCLI adapter 的轻量通道：自动在 argv 前插入 adapter id。
  */
+@Slf4j
 public final class OpenCliAdapterChannel {
 
     private final OpenCliExecutor executor;
@@ -47,6 +49,7 @@ public final class OpenCliAdapterChannel {
                 tokens.add(s.trim());
             }
         }
+        log.debug("OpenCLI adapter invoke adapterId={} subcommandSummary={}", adapterId, summarizeSubcommand(tokens));
         return executor.invoke(tokens);
     }
 
@@ -69,7 +72,7 @@ public final class OpenCliAdapterChannel {
      */
     public OpenCliResult invoke(String... subcommandAndArgs) {
         List<String> list = new ArrayList<>();
-        if (subcommandAndArgs != null) {
+        if (Objects.nonNull(subcommandAndArgs)) {
             for (String s : subcommandAndArgs) {
                 if (OpenCliStrings.isNotBlank(s)) {
                     list.add(s.trim());
@@ -77,5 +80,23 @@ public final class OpenCliAdapterChannel {
             }
         }
         return invoke(list);
+    }
+
+    private static String summarizeSubcommand(List<String> tokens) {
+        if (tokens.size() <= 1) {
+            return "(root)";
+        }
+        int limit = Math.min(tokens.size(), 4);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 1; i < limit; i++) {
+            if (i > 1) {
+                sb.append(' ');
+            }
+            sb.append(tokens.get(i));
+        }
+        if (tokens.size() > limit) {
+            sb.append(" ...");
+        }
+        return sb.toString();
     }
 }

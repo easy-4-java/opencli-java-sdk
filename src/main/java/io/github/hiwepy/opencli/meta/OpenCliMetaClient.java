@@ -6,6 +6,7 @@ import io.github.hiwepy.opencli.core.OpenCliResult;
 import io.github.hiwepy.opencli.util.OpenCliLists;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -28,7 +29,7 @@ public final class OpenCliMetaClient {
     public OpenCliResult list(String format) {
         List<String> args = new ArrayList<>();
         args.add("list");
-        if (format != null) {
+        if (Objects.nonNull(format)) {
             args.add("-f");
             args.add(format);
         }
@@ -48,7 +49,7 @@ public final class OpenCliMetaClient {
     public OpenCliResult validate(String target) {
         List<String> args = new ArrayList<>();
         args.add("validate");
-        if (target != null) {
+        if (Objects.nonNull(target)) {
             args.add(target);
         }
         return invokeRoot(args);
@@ -63,7 +64,7 @@ public final class OpenCliMetaClient {
     public OpenCliResult verify(String target, boolean smoke) {
         List<String> args = new ArrayList<>();
         args.add("verify");
-        if (target != null) {
+        if (Objects.nonNull(target)) {
             args.add(target);
         }
         if (smoke) {
@@ -115,13 +116,13 @@ public final class OpenCliMetaClient {
     public OpenCliResult conventionAudit(String target, String site, String format, boolean strict) {
         List<String> args = new ArrayList<>();
         args.add("convention-audit");
-        if (target != null) {
+        if (Objects.nonNull(target)) {
             args.add(target);
         }
-        if (site != null) {
+        if (Objects.nonNull(site)) {
             OpenCliArgSupport.addOptionPair(args, "--site", site);
         }
-        if (format != null) {
+        if (Objects.nonNull(format)) {
             args.add("-f");
             args.add(format);
         }

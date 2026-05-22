@@ -6,6 +6,7 @@ import io.github.hiwepy.opencli.core.OpenCliResult;
 import io.github.hiwepy.opencli.util.OpenCliLists;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -85,9 +86,8 @@ public final class OpenCliExternalClient {
      * @return 执行结果
      */
     public OpenCliResult passthrough(OpenCliExternalPassthroughOptions options) {
-        if (options == null || options.getExternalCliName() == null) {
-            throw new IllegalArgumentException("externalCliName required");
-        }
+        Objects.requireNonNull(options, "options");
+        Objects.requireNonNull(options.getExternalCliName(), "externalCliName");
         return passthrough(options.getExternalCliName(), options.getArgs());
     }
 }

@@ -26,14 +26,8 @@ public final class OpenCliBrowserExtractOptions {
      * @param target 可变 argv 列表
      */
     public void appendTo(List<String> target) {
-        if (selector != null) {
-            OpenCliArgSupport.addOptionPair(target, "--selector", selector);
-        }
-        if (chunkSize != null) {
-            OpenCliArgSupport.addOptionPair(target, "--chunk-size", String.valueOf(chunkSize));
-        }
-        if (start != null) {
-            OpenCliArgSupport.addOptionPair(target, "--start", String.valueOf(start));
-        }
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--selector", selector);
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--chunk-size", chunkSize);
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--start", start);
     }
 }

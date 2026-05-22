@@ -35,23 +35,11 @@ public final class OpenCliBrowserGetHtmlOptions {
      * @param target 可变 argv 列表
      */
     public void appendTo(List<String> target) {
-        if (selector != null) {
-            OpenCliArgSupport.addOptionPair(target, "--selector", selector);
-        }
-        if (as != null) {
-            OpenCliArgSupport.addOptionPair(target, "--as", as);
-        }
-        if (max != null) {
-            OpenCliArgSupport.addOptionPair(target, "--max", String.valueOf(max));
-        }
-        if (depth != null) {
-            OpenCliArgSupport.addOptionPair(target, "--depth", String.valueOf(depth));
-        }
-        if (childrenMax != null) {
-            OpenCliArgSupport.addOptionPair(target, "--children-max", String.valueOf(childrenMax));
-        }
-        if (textMax != null) {
-            OpenCliArgSupport.addOptionPair(target, "--text-max", String.valueOf(textMax));
-        }
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--selector", selector);
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--as", as);
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--max", max);
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--depth", depth);
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--children-max", childrenMax);
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--text-max", textMax);
     }
 }
