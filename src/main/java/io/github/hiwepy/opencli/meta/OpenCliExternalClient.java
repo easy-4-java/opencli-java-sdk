@@ -77,4 +77,17 @@ public final class OpenCliExternalClient {
         }
         return executor.invoke(tokens);
     }
+
+    /**
+     * 透传调用（Options 形式，供测试与 SDK 调用方使用）。
+     *
+     * @param options 外部 CLI 名与参数，不得为 null
+     * @return 执行结果
+     */
+    public OpenCliResult passthrough(OpenCliExternalPassthroughOptions options) {
+        if (options == null || options.getExternalCliName() == null) {
+            throw new IllegalArgumentException("externalCliName required");
+        }
+        return passthrough(options.getExternalCliName(), options.getArgs());
+    }
 }

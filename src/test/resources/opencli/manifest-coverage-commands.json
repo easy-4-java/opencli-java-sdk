@@ -2,6952 +2,6543 @@
   {
     "site": "12306",
     "subcommand": "me",
-    "invokeArgs": [
-      "me"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "12306",
     "subcommand": "orders",
-    "invokeArgs": [
-      "orders"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "12306",
     "subcommand": "passengers",
-    "invokeArgs": [
-      "passengers"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "12306",
     "subcommand": "price",
-    "invokeArgs": [
-      "price",
-      "__coverage__",
-      "--from",
-      "__coverage__",
-      "--to",
-      "__coverage__",
-      "--date",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "from": "__coverage__",
+      "to": "__coverage__",
+      "date": "__coverage__"
+    }
   },
   {
     "site": "12306",
     "subcommand": "stations",
-    "invokeArgs": [
-      "stations",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "12306",
     "subcommand": "train",
-    "invokeArgs": [
-      "train",
-      "__coverage__",
-      "--from",
-      "__coverage__",
-      "--to",
-      "__coverage__",
-      "--date",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "from": "__coverage__",
+      "to": "__coverage__",
+      "date": "__coverage__"
+    }
   },
   {
     "site": "12306",
     "subcommand": "trains",
-    "invokeArgs": [
-      "trains",
+    "positionals": [
       "__coverage__",
-      "__coverage__",
-      "--date",
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "date": "__coverage__"
+    }
   },
   {
     "site": "1688",
     "subcommand": "assets",
-    "invokeArgs": [
-      "assets",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "1688",
     "subcommand": "download",
-    "invokeArgs": [
-      "download",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "1688",
     "subcommand": "item",
-    "invokeArgs": [
-      "item",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "1688",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "1688",
     "subcommand": "store",
-    "invokeArgs": [
-      "store",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "1point3acres",
     "subcommand": "digest",
-    "invokeArgs": [
-      "digest"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "1point3acres",
     "subcommand": "forum",
-    "invokeArgs": [
-      "forum",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "1point3acres",
     "subcommand": "forums",
-    "invokeArgs": [
-      "forums"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "1point3acres",
     "subcommand": "hot",
-    "invokeArgs": [
-      "hot"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "1point3acres",
     "subcommand": "latest",
-    "invokeArgs": [
-      "latest"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "1point3acres",
     "subcommand": "notifications",
-    "invokeArgs": [
-      "notifications"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "1point3acres",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "1point3acres",
     "subcommand": "thread",
-    "invokeArgs": [
-      "thread",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "1point3acres",
     "subcommand": "user",
-    "invokeArgs": [
-      "user",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "36kr",
     "subcommand": "article",
-    "invokeArgs": [
-      "article",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "36kr",
     "subcommand": "hot",
-    "invokeArgs": [
-      "hot"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "36kr",
     "subcommand": "news",
-    "invokeArgs": [
-      "news"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "36kr",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "51job",
     "subcommand": "company",
-    "invokeArgs": [
-      "company",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "51job",
     "subcommand": "detail",
-    "invokeArgs": [
-      "detail",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "51job",
     "subcommand": "hot",
-    "invokeArgs": [
-      "hot"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "51job",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "aibase",
     "subcommand": "news",
-    "invokeArgs": [
-      "news"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "amazon",
     "subcommand": "bestsellers",
-    "invokeArgs": [
-      "bestsellers"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "amazon",
     "subcommand": "discussion",
-    "invokeArgs": [
-      "discussion",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "amazon",
     "subcommand": "movers-shakers",
-    "invokeArgs": [
-      "movers-shakers"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "amazon",
     "subcommand": "new-releases",
-    "invokeArgs": [
-      "new-releases"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "amazon",
     "subcommand": "offer",
-    "invokeArgs": [
-      "offer",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "amazon",
     "subcommand": "product",
-    "invokeArgs": [
-      "product",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "amazon",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "antigravity",
     "subcommand": "dump",
-    "invokeArgs": [
-      "dump"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "antigravity",
     "subcommand": "extract-code",
-    "invokeArgs": [
-      "extract-code"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "antigravity",
     "subcommand": "model",
-    "invokeArgs": [
-      "model",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "antigravity",
     "subcommand": "new",
-    "invokeArgs": [
-      "new"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "antigravity",
     "subcommand": "read",
-    "invokeArgs": [
-      "read"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "antigravity",
     "subcommand": "send",
-    "invokeArgs": [
-      "send",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "antigravity",
     "subcommand": "status",
-    "invokeArgs": [
-      "status"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "antigravity",
     "subcommand": "watch",
-    "invokeArgs": [
-      "watch"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "apple-podcasts",
     "subcommand": "episodes",
-    "invokeArgs": [
-      "episodes",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "apple-podcasts",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "apple-podcasts",
     "subcommand": "top",
-    "invokeArgs": [
-      "top"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "arxiv",
     "subcommand": "author",
-    "invokeArgs": [
-      "author",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "arxiv",
     "subcommand": "paper",
-    "invokeArgs": [
-      "paper",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "arxiv",
     "subcommand": "recent",
-    "invokeArgs": [
-      "recent",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "arxiv",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "baidu-scholar",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "band",
     "subcommand": "bands",
-    "invokeArgs": [
-      "bands"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "band",
     "subcommand": "mentions",
-    "invokeArgs": [
-      "mentions"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "band",
     "subcommand": "post",
-    "invokeArgs": [
-      "post",
+    "positionals": [
       "1",
       "1"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "band",
     "subcommand": "posts",
-    "invokeArgs": [
-      "posts",
+    "positionals": [
       "1"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "barchart",
     "subcommand": "flow",
-    "invokeArgs": [
-      "flow"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "barchart",
     "subcommand": "greeks",
-    "invokeArgs": [
-      "greeks",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "barchart",
     "subcommand": "options",
-    "invokeArgs": [
-      "options",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "barchart",
     "subcommand": "quote",
-    "invokeArgs": [
-      "quote",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "bbc",
     "subcommand": "news",
-    "invokeArgs": [
-      "news"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "bbc",
     "subcommand": "topic",
-    "invokeArgs": [
-      "topic",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "bilibili",
     "subcommand": "comment",
-    "invokeArgs": [
-      "comment",
+    "positionals": [
       "__coverage__",
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "bilibili",
     "subcommand": "comments",
-    "invokeArgs": [
-      "comments",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "bilibili",
     "subcommand": "download",
-    "invokeArgs": [
-      "download",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "bilibili",
     "subcommand": "dynamic",
-    "invokeArgs": [
-      "dynamic"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "bilibili",
     "subcommand": "favorite",
-    "invokeArgs": [
-      "favorite"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "bilibili",
     "subcommand": "feed",
-    "invokeArgs": [
-      "feed"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "bilibili",
     "subcommand": "feed-detail",
-    "invokeArgs": [
-      "feed-detail",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "bilibili",
     "subcommand": "following",
-    "invokeArgs": [
-      "following"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "bilibili",
     "subcommand": "history",
-    "invokeArgs": [
-      "history"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "bilibili",
     "subcommand": "hot",
-    "invokeArgs": [
-      "hot"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "bilibili",
     "subcommand": "me",
-    "invokeArgs": [
-      "me"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "bilibili",
     "subcommand": "ranking",
-    "invokeArgs": [
-      "ranking"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "bilibili",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "bilibili",
     "subcommand": "subtitle",
-    "invokeArgs": [
-      "subtitle",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "bilibili",
     "subcommand": "summary",
-    "invokeArgs": [
-      "summary",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "bilibili",
     "subcommand": "user-videos",
-    "invokeArgs": [
-      "user-videos",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "bilibili",
     "subcommand": "video",
-    "invokeArgs": [
-      "video",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "binance",
     "subcommand": "asks",
-    "invokeArgs": [
-      "asks",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "binance",
     "subcommand": "depth",
-    "invokeArgs": [
-      "depth",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "binance",
     "subcommand": "gainers",
-    "invokeArgs": [
-      "gainers"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "binance",
     "subcommand": "klines",
-    "invokeArgs": [
-      "klines",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "binance",
     "subcommand": "losers",
-    "invokeArgs": [
-      "losers"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "binance",
     "subcommand": "pairs",
-    "invokeArgs": [
-      "pairs"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "binance",
     "subcommand": "price",
-    "invokeArgs": [
-      "price",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "binance",
     "subcommand": "prices",
-    "invokeArgs": [
-      "prices"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "binance",
     "subcommand": "ticker",
-    "invokeArgs": [
-      "ticker"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "binance",
     "subcommand": "top",
-    "invokeArgs": [
-      "top"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "binance",
     "subcommand": "trades",
-    "invokeArgs": [
-      "trades",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "bloomberg",
     "subcommand": "businessweek",
-    "invokeArgs": [
-      "businessweek"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "bloomberg",
     "subcommand": "economics",
-    "invokeArgs": [
-      "economics"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "bloomberg",
     "subcommand": "feeds",
-    "invokeArgs": [
-      "feeds"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "bloomberg",
     "subcommand": "industries",
-    "invokeArgs": [
-      "industries"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "bloomberg",
     "subcommand": "main",
-    "invokeArgs": [
-      "main"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "bloomberg",
     "subcommand": "markets",
-    "invokeArgs": [
-      "markets"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "bloomberg",
     "subcommand": "news",
-    "invokeArgs": [
-      "news",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "bloomberg",
     "subcommand": "opinions",
-    "invokeArgs": [
-      "opinions"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "bloomberg",
     "subcommand": "politics",
-    "invokeArgs": [
-      "politics"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "bloomberg",
     "subcommand": "tech",
-    "invokeArgs": [
-      "tech"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "bluesky",
     "subcommand": "feeds",
-    "invokeArgs": [
-      "feeds"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "bluesky",
     "subcommand": "followers",
-    "invokeArgs": [
-      "followers",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "bluesky",
     "subcommand": "following",
-    "invokeArgs": [
-      "following",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "bluesky",
     "subcommand": "profile",
-    "invokeArgs": [
-      "profile",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "bluesky",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "bluesky",
     "subcommand": "starter-packs",
-    "invokeArgs": [
-      "starter-packs",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "bluesky",
     "subcommand": "thread",
-    "invokeArgs": [
-      "thread",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "bluesky",
     "subcommand": "trending",
-    "invokeArgs": [
-      "trending"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "bluesky",
     "subcommand": "user",
-    "invokeArgs": [
-      "user",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "booking",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
-      "__coverage__",
-      "--checkin",
-      "__coverage__",
-      "--checkout",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "checkin": "__coverage__",
+      "checkout": "__coverage__"
+    }
   },
   {
     "site": "boss",
     "subcommand": "batchgreet",
-    "invokeArgs": [
-      "batchgreet"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "boss",
     "subcommand": "chatlist",
-    "invokeArgs": [
-      "chatlist"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "boss",
     "subcommand": "chatmsg",
-    "invokeArgs": [
-      "chatmsg",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "boss",
     "subcommand": "detail",
-    "invokeArgs": [
-      "detail",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "boss",
     "subcommand": "exchange",
-    "invokeArgs": [
-      "exchange",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "boss",
     "subcommand": "greet",
-    "invokeArgs": [
-      "greet",
-      "__coverage__",
-      "--security-id",
-      "__coverage__",
-      "--job-id",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "security-id": "__coverage__",
+      "job-id": "__coverage__"
+    }
   },
   {
     "site": "boss",
     "subcommand": "invite",
-    "invokeArgs": [
-      "invite",
-      "__coverage__",
-      "--time",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "time": "__coverage__"
+    }
   },
   {
     "site": "boss",
     "subcommand": "joblist",
-    "invokeArgs": [
-      "joblist"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "boss",
     "subcommand": "mark",
-    "invokeArgs": [
-      "mark",
-      "__coverage__",
-      "--label",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "label": "__coverage__"
+    }
   },
   {
     "site": "boss",
     "subcommand": "recommend",
-    "invokeArgs": [
-      "recommend"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "boss",
     "subcommand": "resume",
-    "invokeArgs": [
-      "resume",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "boss",
     "subcommand": "search",
-    "invokeArgs": [
-      "search"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "boss",
     "subcommand": "send",
-    "invokeArgs": [
-      "send",
+    "positionals": [
       "__coverage__",
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "boss",
     "subcommand": "stats",
-    "invokeArgs": [
-      "stats"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "brave",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "chaoxing",
     "subcommand": "assignments",
-    "invokeArgs": [
-      "assignments"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "chaoxing",
     "subcommand": "exams",
-    "invokeArgs": [
-      "exams"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "chatgpt",
     "subcommand": "ask",
-    "invokeArgs": [
-      "ask",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "chatgpt",
     "subcommand": "detail",
-    "invokeArgs": [
-      "detail",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "chatgpt",
     "subcommand": "history",
-    "invokeArgs": [
-      "history"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "chatgpt",
     "subcommand": "image",
-    "invokeArgs": [
-      "image",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "chatgpt",
     "subcommand": "new",
-    "invokeArgs": [
-      "new"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "chatgpt",
     "subcommand": "read",
-    "invokeArgs": [
-      "read"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "chatgpt",
     "subcommand": "send",
-    "invokeArgs": [
-      "send",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "chatgpt",
     "subcommand": "status",
-    "invokeArgs": [
-      "status"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "chatgpt-app",
     "subcommand": "ask",
-    "invokeArgs": [
-      "ask",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "chatgpt-app",
     "subcommand": "model",
-    "invokeArgs": [
-      "model",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "chatgpt-app",
     "subcommand": "new",
-    "invokeArgs": [
-      "new"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "chatgpt-app",
     "subcommand": "read",
-    "invokeArgs": [
-      "read"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "chatgpt-app",
     "subcommand": "send",
-    "invokeArgs": [
-      "send",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "chatgpt-app",
     "subcommand": "status",
-    "invokeArgs": [
-      "status"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "chatwise",
     "subcommand": "ask",
-    "invokeArgs": [
-      "ask",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "chatwise",
     "subcommand": "export",
-    "invokeArgs": [
-      "export"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "chatwise",
     "subcommand": "history",
-    "invokeArgs": [
-      "history"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "chatwise",
     "subcommand": "model",
-    "invokeArgs": [
-      "model"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "chatwise",
     "subcommand": "new",
-    "invokeArgs": [
-      "new"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "chatwise",
     "subcommand": "read",
-    "invokeArgs": [
-      "read"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "chatwise",
     "subcommand": "screenshot",
-    "invokeArgs": [
-      "screenshot"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "chatwise",
     "subcommand": "send",
-    "invokeArgs": [
-      "send",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "chatwise",
     "subcommand": "status",
-    "invokeArgs": [
-      "status"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "chess",
     "subcommand": "analyze",
-    "invokeArgs": [
-      "analyze",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "chess",
     "subcommand": "game",
-    "invokeArgs": [
-      "game",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "chess",
     "subcommand": "games",
-    "invokeArgs": [
-      "games",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "chess",
     "subcommand": "stats",
-    "invokeArgs": [
-      "stats",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "claude",
     "subcommand": "ask",
-    "invokeArgs": [
-      "ask",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "claude",
     "subcommand": "detail",
-    "invokeArgs": [
-      "detail",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "claude",
     "subcommand": "history",
-    "invokeArgs": [
-      "history"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "claude",
     "subcommand": "new",
-    "invokeArgs": [
-      "new"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "claude",
     "subcommand": "read",
-    "invokeArgs": [
-      "read"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "claude",
     "subcommand": "send",
-    "invokeArgs": [
-      "send",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "claude",
     "subcommand": "status",
-    "invokeArgs": [
-      "status"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "cnki",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "codex",
     "subcommand": "ask",
-    "invokeArgs": [
-      "ask",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "codex",
     "subcommand": "dump",
-    "invokeArgs": [
-      "dump"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "codex",
     "subcommand": "export",
-    "invokeArgs": [
-      "export"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "codex",
     "subcommand": "extract-diff",
-    "invokeArgs": [
-      "extract-diff"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "codex",
     "subcommand": "history",
-    "invokeArgs": [
-      "history"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "codex",
     "subcommand": "model",
-    "invokeArgs": [
-      "model"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "codex",
     "subcommand": "new",
-    "invokeArgs": [
-      "new"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "codex",
     "subcommand": "projects",
-    "invokeArgs": [
-      "projects"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "codex",
     "subcommand": "read",
-    "invokeArgs": [
-      "read"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "codex",
     "subcommand": "screenshot",
-    "invokeArgs": [
-      "screenshot"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "codex",
     "subcommand": "send",
-    "invokeArgs": [
-      "send",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "codex",
     "subcommand": "status",
-    "invokeArgs": [
-      "status"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "coingecko",
     "subcommand": "categories",
-    "invokeArgs": [
-      "categories"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "coingecko",
     "subcommand": "coin",
-    "invokeArgs": [
-      "coin",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "coingecko",
     "subcommand": "derivatives",
-    "invokeArgs": [
-      "derivatives"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "coingecko",
     "subcommand": "exchanges",
-    "invokeArgs": [
-      "exchanges"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "coingecko",
     "subcommand": "global",
-    "invokeArgs": [
-      "global"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "coingecko",
     "subcommand": "top",
-    "invokeArgs": [
-      "top"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "coingecko",
     "subcommand": "trending",
-    "invokeArgs": [
-      "trending"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "confluence",
     "subcommand": "create",
-    "invokeArgs": [
-      "create",
-      "--space",
-      "__coverage__",
-      "--title",
-      "__coverage__",
-      "--file",
-      "__coverage__"
-    ]
+    "positionals": [],
+    "options": {
+      "space": "__coverage__",
+      "title": "__coverage__",
+      "file": "__coverage__"
+    }
   },
   {
     "site": "confluence",
     "subcommand": "page",
-    "invokeArgs": [
-      "page",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "confluence",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "confluence",
     "subcommand": "update",
-    "invokeArgs": [
-      "update",
-      "__coverage__",
-      "--file",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "file": "__coverage__"
+    }
   },
   {
     "site": "coupang",
     "subcommand": "add-to-cart",
-    "invokeArgs": [
-      "add-to-cart"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "coupang",
     "subcommand": "product",
-    "invokeArgs": [
-      "product"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "coupang",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "crates",
     "subcommand": "crate",
-    "invokeArgs": [
-      "crate",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "crates",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "ctrip",
     "subcommand": "flight",
-    "invokeArgs": [
-      "flight",
+    "positionals": [
       "__coverage__",
-      "__coverage__",
-      "--date",
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "date": "__coverage__"
+    }
   },
   {
     "site": "ctrip",
     "subcommand": "hotel-search",
-    "invokeArgs": [
-      "hotel-search",
-      "__coverage__",
-      "--checkin",
-      "__coverage__",
-      "--checkout",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "checkin": "__coverage__",
+      "checkout": "__coverage__"
+    }
   },
   {
     "site": "ctrip",
     "subcommand": "hotel-suggest",
-    "invokeArgs": [
-      "hotel-suggest",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "ctrip",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "cursor",
     "subcommand": "ask",
-    "invokeArgs": [
-      "ask",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "cursor",
     "subcommand": "composer",
-    "invokeArgs": [
-      "composer",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "cursor",
     "subcommand": "dump",
-    "invokeArgs": [
-      "dump"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "cursor",
     "subcommand": "export",
-    "invokeArgs": [
-      "export"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "cursor",
     "subcommand": "extract-code",
-    "invokeArgs": [
-      "extract-code"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "cursor",
     "subcommand": "history",
-    "invokeArgs": [
-      "history"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "cursor",
     "subcommand": "model",
-    "invokeArgs": [
-      "model"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "cursor",
     "subcommand": "new",
-    "invokeArgs": [
-      "new"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "cursor",
     "subcommand": "read",
-    "invokeArgs": [
-      "read"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "cursor",
     "subcommand": "screenshot",
-    "invokeArgs": [
-      "screenshot"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "cursor",
     "subcommand": "send",
-    "invokeArgs": [
-      "send",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "cursor",
     "subcommand": "status",
-    "invokeArgs": [
-      "status"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "dblp",
     "subcommand": "author",
-    "invokeArgs": [
-      "author"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "dblp",
     "subcommand": "paper",
-    "invokeArgs": [
-      "paper",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "dblp",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "dblp",
     "subcommand": "venue",
-    "invokeArgs": [
-      "venue",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "deepseek",
     "subcommand": "ask",
-    "invokeArgs": [
-      "ask",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "deepseek",
     "subcommand": "detail",
-    "invokeArgs": [
-      "detail",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "deepseek",
     "subcommand": "history",
-    "invokeArgs": [
-      "history"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "deepseek",
     "subcommand": "new",
-    "invokeArgs": [
-      "new"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "deepseek",
     "subcommand": "read",
-    "invokeArgs": [
-      "read"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "deepseek",
     "subcommand": "send",
-    "invokeArgs": [
-      "send",
+    "positionals": [
       "__coverage__",
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "deepseek",
     "subcommand": "status",
-    "invokeArgs": [
-      "status"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "defillama",
     "subcommand": "protocol",
-    "invokeArgs": [
-      "protocol",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "defillama",
     "subcommand": "protocols",
-    "invokeArgs": [
-      "protocols"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "devto",
     "subcommand": "latest",
-    "invokeArgs": [
-      "latest"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "devto",
     "subcommand": "read",
-    "invokeArgs": [
-      "read",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "devto",
     "subcommand": "tag",
-    "invokeArgs": [
-      "tag",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "devto",
     "subcommand": "top",
-    "invokeArgs": [
-      "top"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "devto",
     "subcommand": "user",
-    "invokeArgs": [
-      "user",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "dianping",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "dianping",
     "subcommand": "shop",
-    "invokeArgs": [
-      "shop",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "dictionary",
     "subcommand": "examples",
-    "invokeArgs": [
-      "examples",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "dictionary",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "dictionary",
     "subcommand": "synonyms",
-    "invokeArgs": [
-      "synonyms",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "discord-app",
     "subcommand": "channels",
-    "invokeArgs": [
-      "channels"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "discord-app",
     "subcommand": "delete",
-    "invokeArgs": [
-      "delete",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "discord-app",
     "subcommand": "members",
-    "invokeArgs": [
-      "members"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "discord-app",
     "subcommand": "read",
-    "invokeArgs": [
-      "read"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "discord-app",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "discord-app",
     "subcommand": "send",
-    "invokeArgs": [
-      "send",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "discord-app",
     "subcommand": "servers",
-    "invokeArgs": [
-      "servers"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "discord-app",
     "subcommand": "status",
-    "invokeArgs": [
-      "status"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "dockerhub",
     "subcommand": "image",
-    "invokeArgs": [
-      "image",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "dockerhub",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "douban",
     "subcommand": "book-hot",
-    "invokeArgs": [
-      "book-hot"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "douban",
     "subcommand": "download",
-    "invokeArgs": [
-      "download",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "douban",
     "subcommand": "marks",
-    "invokeArgs": [
-      "marks"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "douban",
     "subcommand": "movie-hot",
-    "invokeArgs": [
-      "movie-hot"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "douban",
     "subcommand": "photos",
-    "invokeArgs": [
-      "photos",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "douban",
     "subcommand": "reviews",
-    "invokeArgs": [
-      "reviews"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "douban",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "douban",
     "subcommand": "subject",
-    "invokeArgs": [
-      "subject",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "douban",
     "subcommand": "top250",
-    "invokeArgs": [
-      "top250"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "doubao",
     "subcommand": "ask",
-    "invokeArgs": [
-      "ask",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "doubao",
     "subcommand": "detail",
-    "invokeArgs": [
-      "detail",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "doubao",
     "subcommand": "history",
-    "invokeArgs": [
-      "history"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "doubao",
     "subcommand": "meeting-summary",
-    "invokeArgs": [
-      "meeting-summary",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "doubao",
     "subcommand": "meeting-transcript",
-    "invokeArgs": [
-      "meeting-transcript",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "doubao",
     "subcommand": "new",
-    "invokeArgs": [
-      "new"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "doubao",
     "subcommand": "read",
-    "invokeArgs": [
-      "read"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "doubao",
     "subcommand": "send",
-    "invokeArgs": [
-      "send",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "doubao",
     "subcommand": "status",
-    "invokeArgs": [
-      "status"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "doubao-app",
     "subcommand": "ask",
-    "invokeArgs": [
-      "ask",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "doubao-app",
     "subcommand": "dump",
-    "invokeArgs": [
-      "dump"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "doubao-app",
     "subcommand": "new",
-    "invokeArgs": [
-      "new"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "doubao-app",
     "subcommand": "read",
-    "invokeArgs": [
-      "read"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "doubao-app",
     "subcommand": "screenshot",
-    "invokeArgs": [
-      "screenshot"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "doubao-app",
     "subcommand": "send",
-    "invokeArgs": [
-      "send",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "doubao-app",
     "subcommand": "status",
-    "invokeArgs": [
-      "status"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "douyin",
     "subcommand": "activities",
-    "invokeArgs": [
-      "activities"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "douyin",
     "subcommand": "collections",
-    "invokeArgs": [
-      "collections"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "douyin",
     "subcommand": "delete",
-    "invokeArgs": [
-      "delete",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "douyin",
     "subcommand": "draft",
-    "invokeArgs": [
-      "draft",
-      "__coverage__",
-      "--title",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "title": "__coverage__"
+    }
   },
   {
     "site": "douyin",
     "subcommand": "drafts",
-    "invokeArgs": [
-      "drafts"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "douyin",
     "subcommand": "hashtag",
-    "invokeArgs": [
-      "hashtag",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "douyin",
     "subcommand": "location",
-    "invokeArgs": [
-      "location",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "douyin",
     "subcommand": "profile",
-    "invokeArgs": [
-      "profile"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "douyin",
     "subcommand": "publish",
-    "invokeArgs": [
-      "publish",
-      "__coverage__",
-      "--title",
-      "__coverage__",
-      "--schedule",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "title": "__coverage__",
+      "schedule": "__coverage__"
+    }
   },
   {
     "site": "douyin",
     "subcommand": "stats",
-    "invokeArgs": [
-      "stats",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "douyin",
     "subcommand": "update",
-    "invokeArgs": [
-      "update",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "douyin",
     "subcommand": "user-videos",
-    "invokeArgs": [
-      "user-videos",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "douyin",
     "subcommand": "videos",
-    "invokeArgs": [
-      "videos"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "duckduckgo",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "duckduckgo",
     "subcommand": "suggest",
-    "invokeArgs": [
-      "suggest",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "eastmoney",
     "subcommand": "announcement",
-    "invokeArgs": [
-      "announcement"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "eastmoney",
     "subcommand": "convertible",
-    "invokeArgs": [
-      "convertible"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "eastmoney",
     "subcommand": "etf",
-    "invokeArgs": [
-      "etf"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "eastmoney",
     "subcommand": "holders",
-    "invokeArgs": [
-      "holders",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "eastmoney",
     "subcommand": "hot-rank",
-    "invokeArgs": [
-      "hot-rank"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "eastmoney",
     "subcommand": "index-board",
-    "invokeArgs": [
-      "index-board"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "eastmoney",
     "subcommand": "kline",
-    "invokeArgs": [
-      "kline",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "eastmoney",
     "subcommand": "kuaixun",
-    "invokeArgs": [
-      "kuaixun"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "eastmoney",
     "subcommand": "longhu",
-    "invokeArgs": [
-      "longhu"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "eastmoney",
     "subcommand": "money-flow",
-    "invokeArgs": [
-      "money-flow"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "eastmoney",
     "subcommand": "northbound",
-    "invokeArgs": [
-      "northbound"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "eastmoney",
     "subcommand": "quote",
-    "invokeArgs": [
-      "quote",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "eastmoney",
     "subcommand": "rank",
-    "invokeArgs": [
-      "rank"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "eastmoney",
     "subcommand": "sectors",
-    "invokeArgs": [
-      "sectors"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "endoflife",
     "subcommand": "product",
-    "invokeArgs": [
-      "product",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "facebook",
     "subcommand": "add-friend",
-    "invokeArgs": [
-      "add-friend",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "facebook",
     "subcommand": "events",
-    "invokeArgs": [
-      "events"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "facebook",
     "subcommand": "feed",
-    "invokeArgs": [
-      "feed"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "facebook",
     "subcommand": "friends",
-    "invokeArgs": [
-      "friends"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "facebook",
     "subcommand": "groups",
-    "invokeArgs": [
-      "groups"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "facebook",
     "subcommand": "join-group",
-    "invokeArgs": [
-      "join-group",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "facebook",
     "subcommand": "marketplace-inbox",
-    "invokeArgs": [
-      "marketplace-inbox"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "facebook",
     "subcommand": "marketplace-listings",
-    "invokeArgs": [
-      "marketplace-listings"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "facebook",
     "subcommand": "memories",
-    "invokeArgs": [
-      "memories"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "facebook",
     "subcommand": "notifications",
-    "invokeArgs": [
-      "notifications"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "facebook",
     "subcommand": "profile",
-    "invokeArgs": [
-      "profile",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "facebook",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "flathub",
     "subcommand": "app",
-    "invokeArgs": [
-      "app",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "flathub",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "flomo",
     "subcommand": "memos",
-    "invokeArgs": [
-      "memos"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "gemini",
     "subcommand": "ask",
-    "invokeArgs": [
-      "ask",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "gemini",
     "subcommand": "deep-research",
-    "invokeArgs": [
-      "deep-research",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "gemini",
     "subcommand": "deep-research-result",
-    "invokeArgs": [
-      "deep-research-result"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "gemini",
     "subcommand": "image",
-    "invokeArgs": [
-      "image",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "gemini",
     "subcommand": "new",
-    "invokeArgs": [
-      "new"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "geogebra",
     "subcommand": "add-circle",
-    "invokeArgs": [
-      "add-circle",
-      "--center",
-      "__coverage__"
-    ]
+    "positionals": [],
+    "options": {
+      "center": "__coverage__"
+    }
   },
   {
     "site": "geogebra",
     "subcommand": "add-line",
-    "invokeArgs": [
-      "add-line",
-      "--points",
-      "__coverage__"
-    ]
+    "positionals": [],
+    "options": {
+      "points": "__coverage__"
+    }
   },
   {
     "site": "geogebra",
     "subcommand": "add-point",
-    "invokeArgs": [
-      "add-point",
-      "--name",
-      "__coverage__",
-      "--coords",
-      "__coverage__"
-    ]
+    "positionals": [],
+    "options": {
+      "name": "__coverage__",
+      "coords": "__coverage__"
+    }
   },
   {
     "site": "geogebra",
     "subcommand": "add-polygon",
-    "invokeArgs": [
-      "add-polygon",
-      "--points",
-      "__coverage__"
-    ]
+    "positionals": [],
+    "options": {
+      "points": "__coverage__"
+    }
   },
   {
     "site": "geogebra",
     "subcommand": "eval",
-    "invokeArgs": [
-      "eval",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "geogebra",
     "subcommand": "hexagon",
-    "invokeArgs": [
-      "hexagon"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "geogebra",
     "subcommand": "info",
-    "invokeArgs": [
-      "info",
-      "--name",
-      "__coverage__"
-    ]
+    "positionals": [],
+    "options": {
+      "name": "__coverage__"
+    }
   },
   {
     "site": "geogebra",
     "subcommand": "list",
-    "invokeArgs": [
-      "list"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "geogebra",
     "subcommand": "triangle",
-    "invokeArgs": [
-      "triangle"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "gitee",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "gitee",
     "subcommand": "trending",
-    "invokeArgs": [
-      "trending"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "gitee",
     "subcommand": "user",
-    "invokeArgs": [
-      "user",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "google",
     "subcommand": "news",
-    "invokeArgs": [
-      "news"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "google",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "google",
     "subcommand": "suggest",
-    "invokeArgs": [
-      "suggest",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "google",
     "subcommand": "trends",
-    "invokeArgs": [
-      "trends"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "google-scholar",
     "subcommand": "cite",
-    "invokeArgs": [
-      "cite",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "google-scholar",
     "subcommand": "profile",
-    "invokeArgs": [
-      "profile",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "google-scholar",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "goproxy",
     "subcommand": "module",
-    "invokeArgs": [
-      "module",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "goproxy",
     "subcommand": "versions",
-    "invokeArgs": [
-      "versions",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "gov-law",
     "subcommand": "recent",
-    "invokeArgs": [
-      "recent"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "gov-law",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "gov-policy",
     "subcommand": "recent",
-    "invokeArgs": [
-      "recent"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "gov-policy",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "grok",
     "subcommand": "ask",
-    "invokeArgs": [
-      "ask",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "grok",
     "subcommand": "detail",
-    "invokeArgs": [
-      "detail",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "grok",
     "subcommand": "history",
-    "invokeArgs": [
-      "history"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "grok",
     "subcommand": "image",
-    "invokeArgs": [
-      "image",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "grok",
     "subcommand": "new",
-    "invokeArgs": [
-      "new"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "grok",
     "subcommand": "read",
-    "invokeArgs": [
-      "read"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "grok",
     "subcommand": "send",
-    "invokeArgs": [
-      "send",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "grok",
     "subcommand": "status",
-    "invokeArgs": [
-      "status"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "hackernews",
     "subcommand": "ask",
-    "invokeArgs": [
-      "ask"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "hackernews",
     "subcommand": "best",
-    "invokeArgs": [
-      "best"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "hackernews",
     "subcommand": "jobs",
-    "invokeArgs": [
-      "jobs"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "hackernews",
     "subcommand": "new",
-    "invokeArgs": [
-      "new"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "hackernews",
     "subcommand": "read",
-    "invokeArgs": [
-      "read",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "hackernews",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "hackernews",
     "subcommand": "show",
-    "invokeArgs": [
-      "show"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "hackernews",
     "subcommand": "top",
-    "invokeArgs": [
-      "top"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "hackernews",
     "subcommand": "user",
-    "invokeArgs": [
-      "user",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "hf",
     "subcommand": "datasets",
-    "invokeArgs": [
-      "datasets"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "hf",
     "subcommand": "models",
-    "invokeArgs": [
-      "models"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "hf",
     "subcommand": "paper",
-    "invokeArgs": [
-      "paper",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "hf",
     "subcommand": "spaces",
-    "invokeArgs": [
-      "spaces"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "hf",
     "subcommand": "top",
-    "invokeArgs": [
-      "top"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "homebrew",
     "subcommand": "cask",
-    "invokeArgs": [
-      "cask",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "homebrew",
     "subcommand": "formula",
-    "invokeArgs": [
-      "formula",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "homebrew",
     "subcommand": "popular",
-    "invokeArgs": [
-      "popular"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "hupu",
     "subcommand": "detail",
-    "invokeArgs": [
-      "detail",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "hupu",
     "subcommand": "hot",
-    "invokeArgs": [
-      "hot"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "hupu",
     "subcommand": "like",
-    "invokeArgs": [
-      "like",
+    "positionals": [
       "__coverage__",
-      "__coverage__",
-      "--fid",
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "fid": "__coverage__"
+    }
   },
   {
     "site": "hupu",
     "subcommand": "mentions",
-    "invokeArgs": [
-      "mentions"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "hupu",
     "subcommand": "reply",
-    "invokeArgs": [
-      "reply",
-      "__coverage__",
-      "--topic_id",
+    "positionals": [
       "__coverage__",
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "topic_id": "__coverage__"
+    }
   },
   {
     "site": "hupu",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "hupu",
     "subcommand": "unlike",
-    "invokeArgs": [
-      "unlike",
+    "positionals": [
       "__coverage__",
-      "__coverage__",
-      "--fid",
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "fid": "__coverage__"
+    }
   },
   {
     "site": "imdb",
     "subcommand": "person",
-    "invokeArgs": [
-      "person",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "imdb",
     "subcommand": "reviews",
-    "invokeArgs": [
-      "reviews",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "imdb",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "imdb",
     "subcommand": "title",
-    "invokeArgs": [
-      "title",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "imdb",
     "subcommand": "top",
-    "invokeArgs": [
-      "top"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "imdb",
     "subcommand": "trending",
-    "invokeArgs": [
-      "trending"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "indeed",
     "subcommand": "job",
-    "invokeArgs": [
-      "job",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "indeed",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "instagram",
     "subcommand": "collection-create",
-    "invokeArgs": [
-      "collection-create",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "instagram",
     "subcommand": "collection-delete",
-    "invokeArgs": [
-      "collection-delete",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "instagram",
     "subcommand": "comment",
-    "invokeArgs": [
-      "comment",
+    "positionals": [
       "__coverage__",
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "instagram",
     "subcommand": "download",
-    "invokeArgs": [
-      "download",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "instagram",
     "subcommand": "explore",
-    "invokeArgs": [
-      "explore"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "instagram",
     "subcommand": "follow",
-    "invokeArgs": [
-      "follow",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "instagram",
     "subcommand": "followers",
-    "invokeArgs": [
-      "followers",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "instagram",
     "subcommand": "following",
-    "invokeArgs": [
-      "following",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "instagram",
     "subcommand": "like",
-    "invokeArgs": [
-      "like",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "instagram",
     "subcommand": "note",
-    "invokeArgs": [
-      "note",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "instagram",
     "subcommand": "post",
-    "invokeArgs": [
-      "post"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "instagram",
     "subcommand": "profile",
-    "invokeArgs": [
-      "profile",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "instagram",
     "subcommand": "reel",
-    "invokeArgs": [
-      "reel"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "instagram",
     "subcommand": "save",
-    "invokeArgs": [
-      "save",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "instagram",
     "subcommand": "saved",
-    "invokeArgs": [
-      "saved"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "instagram",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "instagram",
     "subcommand": "story",
-    "invokeArgs": [
-      "story"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "instagram",
     "subcommand": "unfollow",
-    "invokeArgs": [
-      "unfollow",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "instagram",
     "subcommand": "unlike",
-    "invokeArgs": [
-      "unlike",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "instagram",
     "subcommand": "unsave",
-    "invokeArgs": [
-      "unsave",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "instagram",
     "subcommand": "user",
-    "invokeArgs": [
-      "user",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "jd",
     "subcommand": "add-cart",
-    "invokeArgs": [
-      "add-cart",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "jd",
     "subcommand": "cart",
-    "invokeArgs": [
-      "cart"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "jd",
     "subcommand": "detail",
-    "invokeArgs": [
-      "detail",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "jd",
     "subcommand": "item",
-    "invokeArgs": [
-      "item",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "jd",
     "subcommand": "reviews",
-    "invokeArgs": [
-      "reviews",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "jd",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "jianyu",
     "subcommand": "detail",
-    "invokeArgs": [
-      "detail",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "jianyu",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "jike",
     "subcommand": "comment",
-    "invokeArgs": [
-      "comment",
+    "positionals": [
       "__coverage__",
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "jike",
     "subcommand": "create",
-    "invokeArgs": [
-      "create",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "jike",
     "subcommand": "feed",
-    "invokeArgs": [
-      "feed"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "jike",
     "subcommand": "like",
-    "invokeArgs": [
-      "like",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "jike",
     "subcommand": "notifications",
-    "invokeArgs": [
-      "notifications"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "jike",
     "subcommand": "post",
-    "invokeArgs": [
-      "post",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "jike",
     "subcommand": "repost",
-    "invokeArgs": [
-      "repost",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "jike",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "jike",
     "subcommand": "topic",
-    "invokeArgs": [
-      "topic",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "jike",
     "subcommand": "user",
-    "invokeArgs": [
-      "user",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "jimeng",
     "subcommand": "generate",
-    "invokeArgs": [
-      "generate",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "jimeng",
     "subcommand": "generate-action-copy",
-    "invokeArgs": [
-      "generate-action-copy",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "jimeng",
     "subcommand": "generate-audio",
-    "invokeArgs": [
-      "generate-audio",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "jimeng",
     "subcommand": "generate-digital-human",
-    "invokeArgs": [
-      "generate-digital-human",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "jimeng",
     "subcommand": "generate-image2image",
-    "invokeArgs": [
-      "generate-image2image",
-      "__coverage__",
-      "--images",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "images": "__coverage__"
+    }
   },
   {
     "site": "jimeng",
     "subcommand": "generate-image2video",
-    "invokeArgs": [
-      "generate-image2video",
-      "__coverage__",
-      "--image",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "image": "__coverage__"
+    }
   },
   {
     "site": "jimeng",
     "subcommand": "generate-video",
-    "invokeArgs": [
-      "generate-video",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "jimeng",
     "subcommand": "history",
-    "invokeArgs": [
-      "history"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "jimeng",
     "subcommand": "new",
-    "invokeArgs": [
-      "new"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "jimeng",
     "subcommand": "user_assets",
-    "invokeArgs": [
-      "user_assets"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "jimeng",
     "subcommand": "user_credit",
-    "invokeArgs": [
-      "user_credit"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "jimeng",
     "subcommand": "user_subscription",
-    "invokeArgs": [
-      "user_subscription"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "jimeng",
     "subcommand": "workspaces",
-    "invokeArgs": [
-      "workspaces"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "jira",
     "subcommand": "attachments",
-    "invokeArgs": [
-      "attachments",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "jira",
     "subcommand": "comments",
-    "invokeArgs": [
-      "comments",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "jira",
     "subcommand": "issue",
-    "invokeArgs": [
-      "issue",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "jira",
     "subcommand": "links",
-    "invokeArgs": [
-      "links",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "jira",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "ke",
     "subcommand": "chengjiao",
-    "invokeArgs": [
-      "chengjiao"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "ke",
     "subcommand": "ershoufang",
-    "invokeArgs": [
-      "ershoufang"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "ke",
     "subcommand": "xiaoqu",
-    "invokeArgs": [
-      "xiaoqu"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "ke",
     "subcommand": "zufang",
-    "invokeArgs": [
-      "zufang"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "lesswrong",
     "subcommand": "comments",
-    "invokeArgs": [
-      "comments",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "lesswrong",
     "subcommand": "curated",
-    "invokeArgs": [
-      "curated"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "lesswrong",
     "subcommand": "frontpage",
-    "invokeArgs": [
-      "frontpage"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "lesswrong",
     "subcommand": "new",
-    "invokeArgs": [
-      "new"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "lesswrong",
     "subcommand": "read",
-    "invokeArgs": [
-      "read",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "lesswrong",
     "subcommand": "sequences",
-    "invokeArgs": [
-      "sequences"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "lesswrong",
     "subcommand": "shortform",
-    "invokeArgs": [
-      "shortform"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "lesswrong",
     "subcommand": "tag",
-    "invokeArgs": [
-      "tag",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "lesswrong",
     "subcommand": "tags",
-    "invokeArgs": [
-      "tags"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "lesswrong",
     "subcommand": "top",
-    "invokeArgs": [
-      "top"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "lesswrong",
     "subcommand": "top-month",
-    "invokeArgs": [
-      "top-month"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "lesswrong",
     "subcommand": "top-week",
-    "invokeArgs": [
-      "top-week"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "lesswrong",
     "subcommand": "top-year",
-    "invokeArgs": [
-      "top-year"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "lesswrong",
     "subcommand": "user",
-    "invokeArgs": [
-      "user",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "lesswrong",
     "subcommand": "user-posts",
-    "invokeArgs": [
-      "user-posts",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "lichess",
     "subcommand": "top",
-    "invokeArgs": [
-      "top",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "lichess",
     "subcommand": "user",
-    "invokeArgs": [
-      "user",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "linkedin",
     "subcommand": "connect",
-    "invokeArgs": [
-      "connect",
-      "__coverage__",
-      "--expected-name",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "expected-name": "__coverage__"
+    }
   },
   {
     "site": "linkedin",
     "subcommand": "inbox",
-    "invokeArgs": [
-      "inbox"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "linkedin",
     "subcommand": "people-search",
-    "invokeArgs": [
-      "people-search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "linkedin",
     "subcommand": "safe-send",
-    "invokeArgs": [
-      "safe-send",
-      "--thread-url",
-      "__coverage__",
-      "--expected-name",
-      "__coverage__",
-      "--message",
-      "__coverage__"
-    ]
+    "positionals": [],
+    "options": {
+      "thread-url": "__coverage__",
+      "expected-name": "__coverage__",
+      "message": "__coverage__"
+    }
   },
   {
     "site": "linkedin",
     "subcommand": "salesnav-inbox",
-    "invokeArgs": [
-      "salesnav-inbox"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "linkedin",
     "subcommand": "salesnav-message",
-    "invokeArgs": [
-      "salesnav-message",
-      "__coverage__",
-      "--subject",
-      "__coverage__",
-      "--body",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "subject": "__coverage__",
+      "body": "__coverage__"
+    }
   },
   {
     "site": "linkedin",
     "subcommand": "salesnav-search",
-    "invokeArgs": [
-      "salesnav-search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "linkedin",
     "subcommand": "salesnav-thread",
-    "invokeArgs": [
-      "salesnav-thread",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "linkedin",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "linkedin",
     "subcommand": "sent-invitations",
-    "invokeArgs": [
-      "sent-invitations"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "linkedin",
     "subcommand": "thread-snapshot",
-    "invokeArgs": [
-      "thread-snapshot",
-      "--thread-url",
-      "__coverage__"
-    ]
+    "positionals": [],
+    "options": {
+      "thread-url": "__coverage__"
+    }
   },
   {
     "site": "linkedin",
     "subcommand": "timeline",
-    "invokeArgs": [
-      "timeline"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "linkedin-learning",
     "subcommand": "course",
-    "invokeArgs": [
-      "course",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "linkedin-learning",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "linkedin-learning",
     "subcommand": "trending",
-    "invokeArgs": [
-      "trending"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "linux-do",
     "subcommand": "categories",
-    "invokeArgs": [
-      "categories"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "linux-do",
     "subcommand": "feed",
-    "invokeArgs": [
-      "feed"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "linux-do",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "linux-do",
     "subcommand": "tags",
-    "invokeArgs": [
-      "tags"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "linux-do",
     "subcommand": "topic",
-    "invokeArgs": [
-      "topic",
+    "positionals": [
       "1"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "linux-do",
     "subcommand": "topic-content",
-    "invokeArgs": [
-      "topic-content",
+    "positionals": [
       "1"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "linux-do",
     "subcommand": "user-posts",
-    "invokeArgs": [
-      "user-posts",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "linux-do",
     "subcommand": "user-topics",
-    "invokeArgs": [
-      "user-topics",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "lobsters",
     "subcommand": "active",
-    "invokeArgs": [
-      "active"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "lobsters",
     "subcommand": "domain",
-    "invokeArgs": [
-      "domain",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "lobsters",
     "subcommand": "hot",
-    "invokeArgs": [
-      "hot"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "lobsters",
     "subcommand": "newest",
-    "invokeArgs": [
-      "newest"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "lobsters",
     "subcommand": "read",
-    "invokeArgs": [
-      "read",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "lobsters",
     "subcommand": "tag",
-    "invokeArgs": [
-      "tag",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "maimai",
     "subcommand": "search-talents",
-    "invokeArgs": [
-      "search-talents",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "maven",
     "subcommand": "artifact",
-    "invokeArgs": [
-      "artifact",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "maven",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "mdn",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "medium",
     "subcommand": "feed",
-    "invokeArgs": [
-      "feed"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "medium",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "medium",
     "subcommand": "tag",
-    "invokeArgs": [
-      "tag",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "medium",
     "subcommand": "user",
-    "invokeArgs": [
-      "user",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "mubu",
     "subcommand": "doc",
-    "invokeArgs": [
-      "doc",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "mubu",
     "subcommand": "docs",
-    "invokeArgs": [
-      "docs"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "mubu",
     "subcommand": "notes",
-    "invokeArgs": [
-      "notes"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "mubu",
     "subcommand": "recent",
-    "invokeArgs": [
-      "recent"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "mubu",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "notebooklm",
     "subcommand": "add-source",
-    "invokeArgs": [
-      "add-source",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "notebooklm",
     "subcommand": "create",
-    "invokeArgs": [
-      "create",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "notebooklm",
     "subcommand": "current",
-    "invokeArgs": [
-      "current"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "notebooklm",
     "subcommand": "generate-audio",
-    "invokeArgs": [
-      "generate-audio",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "notebooklm",
     "subcommand": "generate-slides",
-    "invokeArgs": [
-      "generate-slides",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "notebooklm",
     "subcommand": "get",
-    "invokeArgs": [
-      "get"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "notebooklm",
     "subcommand": "history",
-    "invokeArgs": [
-      "history"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "notebooklm",
     "subcommand": "list",
-    "invokeArgs": [
-      "list"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "notebooklm",
     "subcommand": "note-list",
-    "invokeArgs": [
-      "note-list"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "notebooklm",
     "subcommand": "notes-get",
-    "invokeArgs": [
-      "notes-get",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "notebooklm",
     "subcommand": "open",
-    "invokeArgs": [
-      "open",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "notebooklm",
     "subcommand": "source-fulltext",
-    "invokeArgs": [
-      "source-fulltext",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "notebooklm",
     "subcommand": "source-get",
-    "invokeArgs": [
-      "source-get",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "notebooklm",
     "subcommand": "source-guide",
-    "invokeArgs": [
-      "source-guide",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "notebooklm",
     "subcommand": "source-list",
-    "invokeArgs": [
-      "source-list"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "notebooklm",
     "subcommand": "status",
-    "invokeArgs": [
-      "status"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "notebooklm",
     "subcommand": "summary",
-    "invokeArgs": [
-      "summary"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "notebooklm",
     "subcommand": "write-note",
-    "invokeArgs": [
-      "write-note",
-      "__coverage__",
-      "--title",
-      "__coverage__",
-      "--content",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "title": "__coverage__",
+      "content": "__coverage__"
+    }
   },
   {
     "site": "nowcoder",
     "subcommand": "companies",
-    "invokeArgs": [
-      "companies"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "nowcoder",
     "subcommand": "creators",
-    "invokeArgs": [
-      "creators"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "nowcoder",
     "subcommand": "detail",
-    "invokeArgs": [
-      "detail",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "nowcoder",
     "subcommand": "experience",
-    "invokeArgs": [
-      "experience"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "nowcoder",
     "subcommand": "hot",
-    "invokeArgs": [
-      "hot"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "nowcoder",
     "subcommand": "jobs",
-    "invokeArgs": [
-      "jobs"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "nowcoder",
     "subcommand": "notifications",
-    "invokeArgs": [
-      "notifications"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "nowcoder",
     "subcommand": "papers",
-    "invokeArgs": [
-      "papers"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "nowcoder",
     "subcommand": "practice",
-    "invokeArgs": [
-      "practice"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "nowcoder",
     "subcommand": "recommend",
-    "invokeArgs": [
-      "recommend"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "nowcoder",
     "subcommand": "referral",
-    "invokeArgs": [
-      "referral"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "nowcoder",
     "subcommand": "salary",
-    "invokeArgs": [
-      "salary"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "nowcoder",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "nowcoder",
     "subcommand": "suggest",
-    "invokeArgs": [
-      "suggest",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "nowcoder",
     "subcommand": "topics",
-    "invokeArgs": [
-      "topics"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "nowcoder",
     "subcommand": "trending",
-    "invokeArgs": [
-      "trending"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "npm",
     "subcommand": "downloads",
-    "invokeArgs": [
-      "downloads",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "npm",
     "subcommand": "package",
-    "invokeArgs": [
-      "package",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "npm",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "nuget",
     "subcommand": "package",
-    "invokeArgs": [
-      "package",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "nuget",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "nvd",
     "subcommand": "cve",
-    "invokeArgs": [
-      "cve",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "oeis",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "oeis",
     "subcommand": "sequence",
-    "invokeArgs": [
-      "sequence",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "ones",
     "subcommand": "login",
-    "invokeArgs": [
-      "login"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "ones",
     "subcommand": "logout",
-    "invokeArgs": [
-      "logout"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "ones",
     "subcommand": "me",
-    "invokeArgs": [
-      "me"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "ones",
     "subcommand": "my-tasks",
-    "invokeArgs": [
-      "my-tasks"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "ones",
     "subcommand": "task",
-    "invokeArgs": [
-      "task",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "ones",
     "subcommand": "tasks",
-    "invokeArgs": [
-      "tasks"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "ones",
     "subcommand": "token-info",
-    "invokeArgs": [
-      "token-info"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "ones",
     "subcommand": "worklog",
-    "invokeArgs": [
-      "worklog",
+    "positionals": [
       "__coverage__",
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "openalex",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "openalex",
     "subcommand": "work",
-    "invokeArgs": [
-      "work",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "openfda",
     "subcommand": "drug-label",
-    "invokeArgs": [
-      "drug-label",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "openfda",
     "subcommand": "food-recall",
-    "invokeArgs": [
-      "food-recall"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "openreview",
     "subcommand": "author",
-    "invokeArgs": [
-      "author",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "openreview",
     "subcommand": "paper",
-    "invokeArgs": [
-      "paper",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "openreview",
     "subcommand": "reviews",
-    "invokeArgs": [
-      "reviews",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "openreview",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "openreview",
     "subcommand": "venue",
-    "invokeArgs": [
-      "venue",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "osv",
     "subcommand": "query",
-    "invokeArgs": [
-      "query",
-      "__coverage__",
-      "--ecosystem",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "ecosystem": "__coverage__"
+    }
   },
   {
     "site": "osv",
     "subcommand": "vulnerability",
-    "invokeArgs": [
-      "vulnerability",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "packagist",
     "subcommand": "package",
-    "invokeArgs": [
-      "package",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "packagist",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "paperreview",
     "subcommand": "feedback",
-    "invokeArgs": [
-      "feedback",
-      "__coverage__",
-      "--helpfulness",
-      "1",
-      "--critical-error",
-      "__coverage__",
-      "--actionable-suggestions",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "helpfulness": 1,
+      "critical-error": "__coverage__",
+      "actionable-suggestions": "__coverage__"
+    }
   },
   {
     "site": "paperreview",
     "subcommand": "review",
-    "invokeArgs": [
-      "review",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "paperreview",
     "subcommand": "submit",
-    "invokeArgs": [
-      "submit",
-      "__coverage__",
-      "--email",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "email": "__coverage__"
+    }
   },
   {
     "site": "pixiv",
     "subcommand": "detail",
-    "invokeArgs": [
-      "detail",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "pixiv",
     "subcommand": "download",
-    "invokeArgs": [
-      "download",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "pixiv",
     "subcommand": "illusts",
-    "invokeArgs": [
-      "illusts",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "pixiv",
     "subcommand": "ranking",
-    "invokeArgs": [
-      "ranking"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "pixiv",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "pixiv",
     "subcommand": "user",
-    "invokeArgs": [
-      "user",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "powerchina",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "producthunt",
     "subcommand": "browse",
-    "invokeArgs": [
-      "browse",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "producthunt",
     "subcommand": "hot",
-    "invokeArgs": [
-      "hot"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "producthunt",
     "subcommand": "posts",
-    "invokeArgs": [
-      "posts"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "producthunt",
     "subcommand": "today",
-    "invokeArgs": [
-      "today"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "pubmed",
     "subcommand": "article",
-    "invokeArgs": [
-      "article",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "pubmed",
     "subcommand": "author",
-    "invokeArgs": [
-      "author",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "pubmed",
     "subcommand": "citations",
-    "invokeArgs": [
-      "citations",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "pubmed",
     "subcommand": "related",
-    "invokeArgs": [
-      "related",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "pubmed",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "pypi",
     "subcommand": "downloads",
-    "invokeArgs": [
-      "downloads",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "pypi",
     "subcommand": "package",
-    "invokeArgs": [
-      "package",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "quark",
     "subcommand": "ls",
-    "invokeArgs": [
-      "ls"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "quark",
     "subcommand": "mkdir",
-    "invokeArgs": [
-      "mkdir",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "quark",
     "subcommand": "mv",
-    "invokeArgs": [
-      "mv",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "quark",
     "subcommand": "rename",
-    "invokeArgs": [
-      "rename",
-      "__coverage__",
-      "--name",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "name": "__coverage__"
+    }
   },
   {
     "site": "quark",
     "subcommand": "rm",
-    "invokeArgs": [
-      "rm",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "quark",
     "subcommand": "save",
-    "invokeArgs": [
-      "save",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "quark",
     "subcommand": "share-tree",
-    "invokeArgs": [
-      "share-tree",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "qwen",
     "subcommand": "ask",
-    "invokeArgs": [
-      "ask",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "qwen",
     "subcommand": "detail",
-    "invokeArgs": [
-      "detail",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "qwen",
     "subcommand": "history",
-    "invokeArgs": [
-      "history"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "qwen",
     "subcommand": "image",
-    "invokeArgs": [
-      "image",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "qwen",
     "subcommand": "new",
-    "invokeArgs": [
-      "new"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "qwen",
     "subcommand": "read",
-    "invokeArgs": [
-      "read"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "qwen",
     "subcommand": "send",
-    "invokeArgs": [
-      "send",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "qwen",
     "subcommand": "status",
-    "invokeArgs": [
-      "status"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "reddit",
     "subcommand": "comment",
-    "invokeArgs": [
-      "comment",
+    "positionals": [
       "__coverage__",
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "reddit",
     "subcommand": "frontpage",
-    "invokeArgs": [
-      "frontpage"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "reddit",
     "subcommand": "home",
-    "invokeArgs": [
-      "home"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "reddit",
     "subcommand": "hot",
-    "invokeArgs": [
-      "hot"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "reddit",
     "subcommand": "popular",
-    "invokeArgs": [
-      "popular"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "reddit",
     "subcommand": "read",
-    "invokeArgs": [
-      "read",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "reddit",
     "subcommand": "reply",
-    "invokeArgs": [
-      "reply",
+    "positionals": [
       "__coverage__",
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "reddit",
     "subcommand": "save",
-    "invokeArgs": [
-      "save",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "reddit",
     "subcommand": "saved",
-    "invokeArgs": [
-      "saved"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "reddit",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "reddit",
     "subcommand": "subreddit",
-    "invokeArgs": [
-      "subreddit",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "reddit",
     "subcommand": "subreddit-info",
-    "invokeArgs": [
-      "subreddit-info",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "reddit",
     "subcommand": "subscribe",
-    "invokeArgs": [
-      "subscribe",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "reddit",
     "subcommand": "subscribed",
-    "invokeArgs": [
-      "subscribed"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "reddit",
     "subcommand": "upvote",
-    "invokeArgs": [
-      "upvote",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "reddit",
     "subcommand": "upvoted",
-    "invokeArgs": [
-      "upvoted"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "reddit",
     "subcommand": "user",
-    "invokeArgs": [
-      "user",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "reddit",
     "subcommand": "user-comments",
-    "invokeArgs": [
-      "user-comments",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "reddit",
     "subcommand": "user-posts",
-    "invokeArgs": [
-      "user-posts",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "reddit",
     "subcommand": "whoami",
-    "invokeArgs": [
-      "whoami"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "rednote",
     "subcommand": "comments",
-    "invokeArgs": [
-      "comments",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "rednote",
     "subcommand": "download",
-    "invokeArgs": [
-      "download",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "rednote",
     "subcommand": "feed",
-    "invokeArgs": [
-      "feed"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "rednote",
     "subcommand": "note",
-    "invokeArgs": [
-      "note",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "rednote",
     "subcommand": "notifications",
-    "invokeArgs": [
-      "notifications"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "rednote",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "rednote",
     "subcommand": "user",
-    "invokeArgs": [
-      "user",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "rest-countries",
     "subcommand": "country",
-    "invokeArgs": [
-      "country",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "rest-countries",
     "subcommand": "region",
-    "invokeArgs": [
-      "region",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "reuters",
     "subcommand": "article-detail",
-    "invokeArgs": [
-      "article-detail",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "reuters",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "rfc",
     "subcommand": "rfc",
-    "invokeArgs": [
-      "rfc",
+    "positionals": [
       "1"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "rubygems",
     "subcommand": "gem",
-    "invokeArgs": [
-      "gem",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "rubygems",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "sinablog",
     "subcommand": "article",
-    "invokeArgs": [
-      "article",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "sinablog",
     "subcommand": "hot",
-    "invokeArgs": [
-      "hot"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "sinablog",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "sinablog",
     "subcommand": "user",
-    "invokeArgs": [
-      "user",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "sinafinance",
     "subcommand": "news",
-    "invokeArgs": [
-      "news"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "sinafinance",
     "subcommand": "rolling-news",
-    "invokeArgs": [
-      "rolling-news"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "sinafinance",
     "subcommand": "stock",
-    "invokeArgs": [
-      "stock",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "sinafinance",
     "subcommand": "stock-rank",
-    "invokeArgs": [
-      "stock-rank"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "smzdm",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "spotify",
     "subcommand": "auth",
-    "invokeArgs": [
-      "auth"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "spotify",
     "subcommand": "next",
-    "invokeArgs": [
-      "next"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "spotify",
     "subcommand": "pause",
-    "invokeArgs": [
-      "pause"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "spotify",
     "subcommand": "play",
-    "invokeArgs": [
-      "play"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "spotify",
     "subcommand": "prev",
-    "invokeArgs": [
-      "prev"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "spotify",
     "subcommand": "queue",
-    "invokeArgs": [
-      "queue",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "spotify",
     "subcommand": "repeat",
-    "invokeArgs": [
-      "repeat"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "spotify",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "spotify",
     "subcommand": "shuffle",
-    "invokeArgs": [
-      "shuffle"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "spotify",
     "subcommand": "status",
-    "invokeArgs": [
-      "status"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "spotify",
     "subcommand": "volume",
-    "invokeArgs": [
-      "volume"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "stackoverflow",
     "subcommand": "bounties",
-    "invokeArgs": [
-      "bounties"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "stackoverflow",
     "subcommand": "hot",
-    "invokeArgs": [
-      "hot"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "stackoverflow",
     "subcommand": "read",
-    "invokeArgs": [
-      "read",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "stackoverflow",
     "subcommand": "related",
-    "invokeArgs": [
-      "related",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "stackoverflow",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "stackoverflow",
     "subcommand": "tag",
-    "invokeArgs": [
-      "tag",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "stackoverflow",
     "subcommand": "unanswered",
-    "invokeArgs": [
-      "unanswered"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "stackoverflow",
     "subcommand": "user",
-    "invokeArgs": [
-      "user",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "steam",
     "subcommand": "app",
-    "invokeArgs": [
-      "app",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "steam",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "steam",
     "subcommand": "top-sellers",
-    "invokeArgs": [
-      "top-sellers"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "substack",
     "subcommand": "feed",
-    "invokeArgs": [
-      "feed"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "substack",
     "subcommand": "publication",
-    "invokeArgs": [
-      "publication",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "substack",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "suno",
     "subcommand": "download",
-    "invokeArgs": [
-      "download",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "suno",
     "subcommand": "generate",
-    "invokeArgs": [
-      "generate"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "suno",
     "subcommand": "list",
-    "invokeArgs": [
-      "list"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "suno",
     "subcommand": "status",
-    "invokeArgs": [
-      "status"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "taobao",
     "subcommand": "add-cart",
-    "invokeArgs": [
-      "add-cart",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "taobao",
     "subcommand": "cart",
-    "invokeArgs": [
-      "cart"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "taobao",
     "subcommand": "detail",
-    "invokeArgs": [
-      "detail",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "taobao",
     "subcommand": "reviews",
-    "invokeArgs": [
-      "reviews",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "taobao",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "tdx",
     "subcommand": "hot-rank",
-    "invokeArgs": [
-      "hot-rank"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "ths",
     "subcommand": "hot-rank",
-    "invokeArgs": [
-      "hot-rank"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "tieba",
     "subcommand": "hot",
-    "invokeArgs": [
-      "hot"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "tieba",
     "subcommand": "posts",
-    "invokeArgs": [
-      "posts",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "tieba",
     "subcommand": "read",
-    "invokeArgs": [
-      "read",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "tieba",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "tiktok",
     "subcommand": "comment",
-    "invokeArgs": [
-      "comment",
+    "positionals": [
       "__coverage__",
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "tiktok",
     "subcommand": "creator-videos",
-    "invokeArgs": [
-      "creator-videos"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "tiktok",
     "subcommand": "explore",
-    "invokeArgs": [
-      "explore"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "tiktok",
     "subcommand": "follow",
-    "invokeArgs": [
-      "follow",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "tiktok",
     "subcommand": "following",
-    "invokeArgs": [
-      "following"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "tiktok",
     "subcommand": "friends",
-    "invokeArgs": [
-      "friends"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "tiktok",
     "subcommand": "like",
-    "invokeArgs": [
-      "like",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "tiktok",
     "subcommand": "live",
-    "invokeArgs": [
-      "live"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "tiktok",
     "subcommand": "notifications",
-    "invokeArgs": [
-      "notifications"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "tiktok",
     "subcommand": "profile",
-    "invokeArgs": [
-      "profile",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "tiktok",
     "subcommand": "save",
-    "invokeArgs": [
-      "save",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "tiktok",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "tiktok",
     "subcommand": "unfollow",
-    "invokeArgs": [
-      "unfollow",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "tiktok",
     "subcommand": "unlike",
-    "invokeArgs": [
-      "unlike",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "tiktok",
     "subcommand": "unsave",
-    "invokeArgs": [
-      "unsave",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "tiktok",
     "subcommand": "user",
-    "invokeArgs": [
-      "user",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "toutiao",
     "subcommand": "articles",
-    "invokeArgs": [
-      "articles"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "toutiao",
     "subcommand": "hot",
-    "invokeArgs": [
-      "hot"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "tvmaze",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "tvmaze",
     "subcommand": "show",
-    "invokeArgs": [
-      "show",
+    "positionals": [
       "1"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "accept",
-    "invokeArgs": [
-      "accept",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "article",
-    "invokeArgs": [
-      "article",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "block",
-    "invokeArgs": [
-      "block",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "bookmark",
-    "invokeArgs": [
-      "bookmark",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "bookmark-folder",
-    "invokeArgs": [
-      "bookmark-folder",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "bookmark-folders",
-    "invokeArgs": [
-      "bookmark-folders"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "bookmarks",
-    "invokeArgs": [
-      "bookmarks"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "delete",
-    "invokeArgs": [
-      "delete",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "device-follow",
-    "invokeArgs": [
-      "device-follow"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "download",
-    "invokeArgs": [
-      "download"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "follow",
-    "invokeArgs": [
-      "follow",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "followers",
-    "invokeArgs": [
-      "followers"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "following",
-    "invokeArgs": [
-      "following"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "hide-reply",
-    "invokeArgs": [
-      "hide-reply",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "like",
-    "invokeArgs": [
-      "like",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "likes",
-    "invokeArgs": [
-      "likes"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "list-add",
-    "invokeArgs": [
-      "list-add",
+    "positionals": [
       "__coverage__",
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "list-create",
-    "invokeArgs": [
-      "list-create",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "list-remove",
-    "invokeArgs": [
-      "list-remove",
+    "positionals": [
       "__coverage__",
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "list-tweets",
-    "invokeArgs": [
-      "list-tweets",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "lists",
-    "invokeArgs": [
-      "lists"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "notifications",
-    "invokeArgs": [
-      "notifications"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "post",
-    "invokeArgs": [
-      "post",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "profile",
-    "invokeArgs": [
-      "profile"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "quote",
-    "invokeArgs": [
-      "quote",
+    "positionals": [
       "__coverage__",
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "reply",
-    "invokeArgs": [
-      "reply",
+    "positionals": [
       "__coverage__",
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "reply-dm",
-    "invokeArgs": [
-      "reply-dm",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "retweet",
-    "invokeArgs": [
-      "retweet",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "thread",
-    "invokeArgs": [
-      "thread",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "timeline",
-    "invokeArgs": [
-      "timeline"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "trending",
-    "invokeArgs": [
-      "trending"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "tweets",
-    "invokeArgs": [
-      "tweets"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "unblock",
-    "invokeArgs": [
-      "unblock",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "unbookmark",
-    "invokeArgs": [
-      "unbookmark",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "unfollow",
-    "invokeArgs": [
-      "unfollow",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "unlike",
-    "invokeArgs": [
-      "unlike",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "twitter",
     "subcommand": "unretweet",
-    "invokeArgs": [
-      "unretweet",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "uisdc",
     "subcommand": "news",
-    "invokeArgs": [
-      "news"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "uiverse",
     "subcommand": "code",
-    "invokeArgs": [
-      "code",
-      "__coverage__",
-      "--target",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "target": "__coverage__"
+    }
   },
   {
     "site": "uiverse",
     "subcommand": "preview",
-    "invokeArgs": [
-      "preview",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "upwork",
     "subcommand": "detail",
-    "invokeArgs": [
-      "detail",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "upwork",
     "subcommand": "feed",
-    "invokeArgs": [
-      "feed"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "upwork",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "v2ex",
     "subcommand": "daily",
-    "invokeArgs": [
-      "daily"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "v2ex",
     "subcommand": "hot",
-    "invokeArgs": [
-      "hot"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "v2ex",
     "subcommand": "latest",
-    "invokeArgs": [
-      "latest"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "v2ex",
     "subcommand": "me",
-    "invokeArgs": [
-      "me"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "v2ex",
     "subcommand": "member",
-    "invokeArgs": [
-      "member",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "v2ex",
     "subcommand": "node",
-    "invokeArgs": [
-      "node",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "v2ex",
     "subcommand": "nodes",
-    "invokeArgs": [
-      "nodes"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "v2ex",
     "subcommand": "notifications",
-    "invokeArgs": [
-      "notifications"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "v2ex",
     "subcommand": "replies",
-    "invokeArgs": [
-      "replies",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "v2ex",
     "subcommand": "topic",
-    "invokeArgs": [
-      "topic",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "v2ex",
     "subcommand": "user",
-    "invokeArgs": [
-      "user",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "wanfang",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "web",
     "subcommand": "read",
-    "invokeArgs": [
-      "read",
-      "--url",
-      "__coverage__"
-    ]
+    "positionals": [],
+    "options": {
+      "url": "__coverage__"
+    }
   },
   {
     "site": "weibo",
     "subcommand": "comments",
-    "invokeArgs": [
-      "comments",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "weibo",
     "subcommand": "delete",
-    "invokeArgs": [
-      "delete",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "weibo",
     "subcommand": "favorites",
-    "invokeArgs": [
-      "favorites"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "weibo",
     "subcommand": "feed",
-    "invokeArgs": [
-      "feed"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "weibo",
     "subcommand": "hot",
-    "invokeArgs": [
-      "hot"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "weibo",
     "subcommand": "me",
-    "invokeArgs": [
-      "me"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "weibo",
     "subcommand": "post",
-    "invokeArgs": [
-      "post",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "weibo",
     "subcommand": "publish",
-    "invokeArgs": [
-      "publish",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "weibo",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "weibo",
     "subcommand": "user",
-    "invokeArgs": [
-      "user",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "weibo",
     "subcommand": "user-posts",
-    "invokeArgs": [
-      "user-posts",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "weixin",
     "subcommand": "create-draft",
-    "invokeArgs": [
-      "create-draft",
-      "--title",
-      "__coverage__",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "title": "__coverage__"
+    }
   },
   {
     "site": "weixin",
     "subcommand": "download",
-    "invokeArgs": [
-      "download",
-      "--url",
-      "__coverage__"
-    ]
+    "positionals": [],
+    "options": {
+      "url": "__coverage__"
+    }
   },
   {
     "site": "weixin",
     "subcommand": "drafts",
-    "invokeArgs": [
-      "drafts"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "weixin",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "weread",
     "subcommand": "ai-outline",
-    "invokeArgs": [
-      "ai-outline",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "weread",
     "subcommand": "book",
-    "invokeArgs": [
-      "book",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "weread",
     "subcommand": "highlights",
-    "invokeArgs": [
-      "highlights",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "weread",
     "subcommand": "notebooks",
-    "invokeArgs": [
-      "notebooks"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "weread",
     "subcommand": "notes",
-    "invokeArgs": [
-      "notes",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "weread",
     "subcommand": "ranking",
-    "invokeArgs": [
-      "ranking"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "weread",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "weread",
     "subcommand": "shelf",
-    "invokeArgs": [
-      "shelf"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "weread-official",
     "subcommand": "book",
-    "invokeArgs": [
-      "book",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "weread-official",
     "subcommand": "discover",
-    "invokeArgs": [
-      "discover"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "weread-official",
     "subcommand": "list-apis",
-    "invokeArgs": [
-      "list-apis"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "weread-official",
     "subcommand": "notes",
-    "invokeArgs": [
-      "notes"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "weread-official",
     "subcommand": "readdata",
-    "invokeArgs": [
-      "readdata"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "weread-official",
     "subcommand": "review",
-    "invokeArgs": [
-      "review",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "weread-official",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "weread-official",
     "subcommand": "shelf",
-    "invokeArgs": [
-      "shelf"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "wikidata",
     "subcommand": "entity",
-    "invokeArgs": [
-      "entity",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "wikidata",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "wikipedia",
     "subcommand": "page",
-    "invokeArgs": [
-      "page",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "wikipedia",
     "subcommand": "random",
-    "invokeArgs": [
-      "random"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "wikipedia",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "wikipedia",
     "subcommand": "summary",
-    "invokeArgs": [
-      "summary",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "wikipedia",
     "subcommand": "trending",
-    "invokeArgs": [
-      "trending"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "wttr",
     "subcommand": "current",
-    "invokeArgs": [
-      "current",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "wttr",
     "subcommand": "forecast",
-    "invokeArgs": [
-      "forecast",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xianyu",
     "subcommand": "chat",
-    "invokeArgs": [
-      "chat",
+    "positionals": [
       "__coverage__",
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xianyu",
     "subcommand": "inbox",
-    "invokeArgs": [
-      "inbox"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "xianyu",
     "subcommand": "item",
-    "invokeArgs": [
-      "item",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xianyu",
     "subcommand": "messages",
-    "invokeArgs": [
-      "messages"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "xianyu",
     "subcommand": "publish",
-    "invokeArgs": [
-      "publish",
+    "positionals": [
       "__coverage__",
       "__coverage__",
       "__coverage__",
       "__coverage__",
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xianyu",
     "subcommand": "reply",
-    "invokeArgs": [
-      "reply",
-      "--text",
-      "__coverage__"
-    ]
+    "positionals": [],
+    "options": {
+      "text": "__coverage__"
+    }
   },
   {
     "site": "xianyu",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xiaoe",
     "subcommand": "catalog",
-    "invokeArgs": [
-      "catalog",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xiaoe",
     "subcommand": "content",
-    "invokeArgs": [
-      "content",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xiaoe",
     "subcommand": "courses",
-    "invokeArgs": [
-      "courses"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "xiaoe",
     "subcommand": "detail",
-    "invokeArgs": [
-      "detail",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xiaoe",
     "subcommand": "play-url",
-    "invokeArgs": [
-      "play-url",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xiaohongshu",
     "subcommand": "comments",
-    "invokeArgs": [
-      "comments",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xiaohongshu",
     "subcommand": "creator-note-detail",
-    "invokeArgs": [
-      "creator-note-detail",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xiaohongshu",
     "subcommand": "creator-notes",
-    "invokeArgs": [
-      "creator-notes"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "xiaohongshu",
     "subcommand": "creator-notes-summary",
-    "invokeArgs": [
-      "creator-notes-summary"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "xiaohongshu",
     "subcommand": "creator-profile",
-    "invokeArgs": [
-      "creator-profile"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "xiaohongshu",
     "subcommand": "creator-stats",
-    "invokeArgs": [
-      "creator-stats"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "xiaohongshu",
     "subcommand": "delete-note",
-    "invokeArgs": [
-      "delete-note",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xiaohongshu",
     "subcommand": "download",
-    "invokeArgs": [
-      "download",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xiaohongshu",
     "subcommand": "feed",
-    "invokeArgs": [
-      "feed"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "xiaohongshu",
     "subcommand": "note",
-    "invokeArgs": [
-      "note",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xiaohongshu",
     "subcommand": "notifications",
-    "invokeArgs": [
-      "notifications"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "xiaohongshu",
     "subcommand": "publish",
-    "invokeArgs": [
-      "publish",
-      "--title",
-      "__coverage__",
-      "__coverage__",
-      "--images",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {
+      "title": "__coverage__",
+      "images": "__coverage__"
+    }
   },
   {
     "site": "xiaohongshu",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xiaohongshu",
     "subcommand": "user",
-    "invokeArgs": [
-      "user",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xiaoyuzhou",
     "subcommand": "download",
-    "invokeArgs": [
-      "download",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xiaoyuzhou",
     "subcommand": "episode",
-    "invokeArgs": [
-      "episode",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xiaoyuzhou",
     "subcommand": "podcast",
-    "invokeArgs": [
-      "podcast",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xiaoyuzhou",
     "subcommand": "podcast-episodes",
-    "invokeArgs": [
-      "podcast-episodes",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xiaoyuzhou",
     "subcommand": "transcript",
-    "invokeArgs": [
-      "transcript",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xueqiu",
     "subcommand": "comments",
-    "invokeArgs": [
-      "comments",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xueqiu",
     "subcommand": "earnings-date",
-    "invokeArgs": [
-      "earnings-date",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xueqiu",
     "subcommand": "feed",
-    "invokeArgs": [
-      "feed"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "xueqiu",
     "subcommand": "fund-holdings",
-    "invokeArgs": [
-      "fund-holdings"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "xueqiu",
     "subcommand": "fund-snapshot",
-    "invokeArgs": [
-      "fund-snapshot"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "xueqiu",
     "subcommand": "groups",
-    "invokeArgs": [
-      "groups"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "xueqiu",
     "subcommand": "hot",
-    "invokeArgs": [
-      "hot"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "xueqiu",
     "subcommand": "hot-stock",
-    "invokeArgs": [
-      "hot-stock"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "xueqiu",
     "subcommand": "kline",
-    "invokeArgs": [
-      "kline",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xueqiu",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xueqiu",
     "subcommand": "stock",
-    "invokeArgs": [
-      "stock",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "xueqiu",
     "subcommand": "watchlist",
-    "invokeArgs": [
-      "watchlist"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "yahoo",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "yahoo-finance",
     "subcommand": "quote",
-    "invokeArgs": [
-      "quote",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "yollomi",
     "subcommand": "background",
-    "invokeArgs": [
-      "background",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "yollomi",
     "subcommand": "edit",
-    "invokeArgs": [
-      "edit",
+    "positionals": [
       "__coverage__",
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "yollomi",
     "subcommand": "face-swap",
-    "invokeArgs": [
-      "face-swap",
-      "--source",
-      "__coverage__",
-      "--target",
-      "__coverage__"
-    ]
+    "positionals": [],
+    "options": {
+      "source": "__coverage__",
+      "target": "__coverage__"
+    }
   },
   {
     "site": "yollomi",
     "subcommand": "generate",
-    "invokeArgs": [
-      "generate",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "yollomi",
     "subcommand": "models",
-    "invokeArgs": [
-      "models"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "yollomi",
     "subcommand": "object-remover",
-    "invokeArgs": [
-      "object-remover",
+    "positionals": [
       "__coverage__",
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "yollomi",
     "subcommand": "remove-bg",
-    "invokeArgs": [
-      "remove-bg",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "yollomi",
     "subcommand": "restore",
-    "invokeArgs": [
-      "restore",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "yollomi",
     "subcommand": "try-on",
-    "invokeArgs": [
-      "try-on",
-      "--person",
-      "__coverage__",
-      "--cloth",
-      "__coverage__"
-    ]
+    "positionals": [],
+    "options": {
+      "person": "__coverage__",
+      "cloth": "__coverage__"
+    }
   },
   {
     "site": "yollomi",
     "subcommand": "upload",
-    "invokeArgs": [
-      "upload",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "yollomi",
     "subcommand": "upscale",
-    "invokeArgs": [
-      "upscale",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "yollomi",
     "subcommand": "video",
-    "invokeArgs": [
-      "video",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "youdao",
     "subcommand": "note",
-    "invokeArgs": [
-      "note",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "youtube",
     "subcommand": "channel",
-    "invokeArgs": [
-      "channel",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "youtube",
     "subcommand": "comments",
-    "invokeArgs": [
-      "comments",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "youtube",
     "subcommand": "feed",
-    "invokeArgs": [
-      "feed"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "youtube",
     "subcommand": "history",
-    "invokeArgs": [
-      "history"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "youtube",
     "subcommand": "like",
-    "invokeArgs": [
-      "like",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "youtube",
     "subcommand": "playlist",
-    "invokeArgs": [
-      "playlist",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "youtube",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "youtube",
     "subcommand": "subscribe",
-    "invokeArgs": [
-      "subscribe",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "youtube",
     "subcommand": "subscriptions",
-    "invokeArgs": [
-      "subscriptions"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "youtube",
     "subcommand": "transcript",
-    "invokeArgs": [
-      "transcript",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "youtube",
     "subcommand": "unlike",
-    "invokeArgs": [
-      "unlike",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "youtube",
     "subcommand": "unsubscribe",
-    "invokeArgs": [
-      "unsubscribe",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "youtube",
     "subcommand": "video",
-    "invokeArgs": [
-      "video",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "youtube",
     "subcommand": "watch-later",
-    "invokeArgs": [
-      "watch-later"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "yuanbao",
     "subcommand": "ask",
-    "invokeArgs": [
-      "ask",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "yuanbao",
     "subcommand": "detail",
-    "invokeArgs": [
-      "detail",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "yuanbao",
     "subcommand": "history",
-    "invokeArgs": [
-      "history"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "yuanbao",
     "subcommand": "new",
-    "invokeArgs": [
-      "new"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "yuanbao",
     "subcommand": "read",
-    "invokeArgs": [
-      "read"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "yuanbao",
     "subcommand": "send",
-    "invokeArgs": [
-      "send",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "yuanbao",
     "subcommand": "status",
-    "invokeArgs": [
-      "status"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "zhihu",
     "subcommand": "answer",
-    "invokeArgs": [
-      "answer",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "zhihu",
     "subcommand": "answer-comments",
-    "invokeArgs": [
-      "answer-comments",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "zhihu",
     "subcommand": "answer-detail",
-    "invokeArgs": [
-      "answer-detail",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "zhihu",
     "subcommand": "collection",
-    "invokeArgs": [
-      "collection",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "zhihu",
     "subcommand": "collections",
-    "invokeArgs": [
-      "collections"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "zhihu",
     "subcommand": "comment",
-    "invokeArgs": [
-      "comment",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "zhihu",
     "subcommand": "download",
-    "invokeArgs": [
-      "download",
-      "--url",
-      "__coverage__"
-    ]
+    "positionals": [],
+    "options": {
+      "url": "__coverage__"
+    }
   },
   {
     "site": "zhihu",
     "subcommand": "favorite",
-    "invokeArgs": [
-      "favorite",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "zhihu",
     "subcommand": "follow",
-    "invokeArgs": [
-      "follow",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "zhihu",
     "subcommand": "hot",
-    "invokeArgs": [
-      "hot"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "zhihu",
     "subcommand": "like",
-    "invokeArgs": [
-      "like",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "zhihu",
     "subcommand": "question",
-    "invokeArgs": [
-      "question",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "zhihu",
     "subcommand": "recommend",
-    "invokeArgs": [
-      "recommend"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "zhihu",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "zlibrary",
     "subcommand": "info",
-    "invokeArgs": [
-      "info",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "zlibrary",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "zsxq",
     "subcommand": "dynamics",
-    "invokeArgs": [
-      "dynamics"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "zsxq",
     "subcommand": "groups",
-    "invokeArgs": [
-      "groups"
-    ]
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "zsxq",
     "subcommand": "search",
-    "invokeArgs": [
-      "search",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "zsxq",
     "subcommand": "topic",
-    "invokeArgs": [
-      "topic",
+    "positionals": [
       "__coverage__"
-    ]
+    ],
+    "options": {}
   },
   {
     "site": "zsxq",
     "subcommand": "topics",
-    "invokeArgs": [
-      "topics"
-    ]
+    "positionals": [],
+    "options": {}
   }
 ]
