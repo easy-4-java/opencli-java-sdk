@@ -79,8 +79,8 @@ public final class OpenCliAdapterCommandRequest {
             return;
         }
         String flag = name.startsWith("-") ? name.trim() : "--" + name.trim();
-        if (value instanceof Boolean bool) {
-            if (bool) {
+        if (value instanceof Boolean) {
+            if (((Boolean) value).booleanValue()) {
                 target.add(flag);
             }
             return;
