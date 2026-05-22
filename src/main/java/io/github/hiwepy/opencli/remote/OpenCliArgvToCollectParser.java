@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 将 {@link io.github.hiwepy.opencli.core.OpenCliExecutor#invoke(List)} 使用的 argv 列表
@@ -22,6 +23,7 @@ import java.util.Objects;
  * Agent 会自行追加 {@code -f &lt;format&gt;}，故本解析器会Consuming 调用方已写的 {@code -f}，避免重复。
  * </p>
  */
+@Slf4j
 public final class OpenCliArgvToCollectParser {
 
     private OpenCliArgvToCollectParser() {
@@ -58,7 +60,8 @@ public final class OpenCliArgvToCollectParser {
         int i = 2;
         while (i < adapterAndRest.size()) {
             String raw = adapterAndRest.get(i);
-            if (raw == null || raw.isEmpty()) {
+            if (Objects.isNull(raw) || raw.isEmpty()) {
+                log.warn("Skipping null or empty argv token at index={}", i);
                 i++;
                 continue;
             }
@@ -100,7 +103,7 @@ public final class OpenCliArgvToCollectParser {
                     continue;
                 }
                 String next = i + 1 < adapterAndRest.size() ? adapterAndRest.get(i + 1) : null;
-                if (next != null && !next.trim().startsWith("-")) {
+                if (Objects.nonNull(next) && !next.trim().startsWith("-")) {
                     args.put(key, next.trim());
                     i += 2;
                 } else {
@@ -121,11 +124,19 @@ public final class OpenCliArgvToCollectParser {
         if (OpenCliStrings.isNotBlank(cdpEndpoint)) {
             b.cdpEndpoint(cdpEndpoint.trim());
         }
-        return b.build();
+        OpenCliCollectRequest request = b.build();
+        log.debug(
+            "Parsed collect request site={} command={} format={} positionalCount={} argCount={}",
+            site,
+            command,
+            format,
+            positional.size(),
+            args.size());
+        return request;
     }
 
     private static String normalizeKey(String key) {
-        if (key == null || key.isEmpty()) {
+        if (Objects.isNull(key) || key.isEmpty()) {
             throw new IllegalArgumentException("empty option key");
         }
         return key.toLowerCase(Locale.ROOT);

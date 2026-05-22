@@ -85,7 +85,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
         shutdownRequested = true;
         WebSocketClient client = activeClient;
         activeClient = null;
-        if (client != null) {
+        if (Objects.nonNull(client)) {
             try {
                 client.close();
             } catch (Exception e) {
@@ -207,7 +207,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
             throw new IllegalStateException("Timeout waiting for 'registered' from center");
         }
         Throwable hf = handshakeFailure.get();
-        if (hf != null) {
+        if (Objects.nonNull(hf)) {
             client.close();
             if (hf instanceof Exception) {
                 throw (Exception) hf;
@@ -230,12 +230,12 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
             throw new IllegalStateException("agentAdvertiseUrl must be an http(s) URL");
         }
         String mode = connectionProperties.getMode();
-        if (mode != null && !mode.isEmpty() && !"bridge".equals(mode) && !"cdp".equals(mode)) {
+        if (Objects.nonNull(mode) && !mode.isEmpty() && !"bridge".equals(mode) && !"cdp".equals(mode)) {
             throw new IllegalStateException("mode must be 'bridge' or 'cdp'");
         }
         if (connectionProperties.getWebSocketPath() == OpenCliCenterWebSocketPath.NODES_WS) {
             String nt = connectionProperties.getNodeType();
-            if (nt != null
+            if (Objects.nonNull(nt)
                 && !nt.isEmpty()
                 && !"docker".equalsIgnoreCase(nt)
                 && !"shell".equalsIgnoreCase(nt)) {
@@ -253,7 +253,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
             OpenCliStrings.isBlank(connectionProperties.getMode())
                 ? "cdp"
                 : connectionProperties.getMode().trim());
-        reg.put("label", connectionProperties.getLabel() == null ? "" : connectionProperties.getLabel());
+        reg.put("label", Objects.isNull(connectionProperties.getLabel()) ? "" : connectionProperties.getLabel());
         reg.put(
             "node_type",
             OpenCliStrings.isBlank(connectionProperties.getNodeType())
@@ -308,14 +308,14 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
         } catch (OpenCliNonZeroExitException e) {
             OpenCliResult partial = e.getPartialResult();
             String err =
-                partial != null && OpenCliStrings.isNotBlank(partial.getStderr())
+                Objects.nonNull(partial) && OpenCliStrings.isNotBlank(partial.getStderr())
                     ? partial.getStderr()
                     : e.getMessage();
             sendResult(ws, requestId, false, Collections.<JsonNode>emptyList(), err);
         } catch (OpenCliException e) {
             OpenCliResult partial = e.getPartialResult();
             String err =
-                partial != null && OpenCliStrings.isNotBlank(partial.getStderr())
+                Objects.nonNull(partial) && OpenCliStrings.isNotBlank(partial.getStderr())
                     ? partial.getStderr()
                     : e.getMessage();
             sendResult(ws, requestId, false, Collections.<JsonNode>emptyList(), err);
@@ -327,7 +327,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
 
     private static Map<String, Object> readArgsMap(JsonNode argsNode) {
         Map<String, Object> m = new LinkedHashMap<>();
-        if (argsNode == null || !argsNode.isObject()) {
+        if (Objects.isNull(argsNode) || !argsNode.isObject()) {
             return m;
         }
         Iterator<Map.Entry<String, JsonNode>> it = argsNode.fields();
@@ -339,7 +339,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
     }
 
     private static Object readArgValue(JsonNode n) {
-        if (n == null || n.isNull()) {
+        if (Objects.isNull(n) || n.isNull()) {
             return null;
         }
         if (n.isBoolean()) {
@@ -362,11 +362,11 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
 
     private static List<String> readPositionalList(JsonNode node) {
         List<String> list = new ArrayList<>();
-        if (node == null || !node.isArray()) {
+        if (Objects.isNull(node) || !node.isArray()) {
             return list;
         }
         for (JsonNode n : node) {
-            if (n != null && !n.isNull()) {
+            if (Objects.nonNull(n) && !n.isNull()) {
                 list.add(n.asText());
             }
         }
@@ -381,13 +381,13 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
             out.put("request_id", requestId);
             out.put("success", success);
             ArrayNode arr = MAPPER.createArrayNode();
-            if (items != null) {
+            if (Objects.nonNull(items)) {
                 for (JsonNode i : items) {
                     arr.add(i);
                 }
             }
             out.set("items", arr);
-            if (error == null || error.isEmpty()) {
+            if (Objects.isNull(error) || error.isEmpty()) {
                 out.putNull("error");
             } else {
                 out.put("error", error);

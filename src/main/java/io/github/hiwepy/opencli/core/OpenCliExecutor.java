@@ -66,6 +66,7 @@ public class OpenCliExecutor {
     public OpenCliResult invoke(List<String> adapterAndRest) {
         Objects.requireNonNull(adapterAndRest, "adapterAndRest");
         if (properties.getExecutionTarget() == OpenCliExecutionTarget.REMOTE_AGENT_HTTP) {
+            log.debug("OpenCLI invoke remote agent argvSize={}", adapterAndRest.size());
             OpenCliCollectRequest req =
                 OpenCliArgvToCollectParser.parse(
                     adapterAndRest,
@@ -74,6 +75,7 @@ public class OpenCliExecutor {
                     properties.getRemoteCdpEndpoint());
             return remoteAgent().collect(req);
         }
+        log.debug("OpenCLI invoke local argvSize={}", adapterAndRest.size());
         CommandLine cmd = buildCommandLine(adapterAndRest);
         return run(cmd);
     }
@@ -82,9 +84,9 @@ public class OpenCliExecutor {
      * @return 远程 Agent HTTP 客户端（懒加载）
      */
     private OpenCliRemoteAgentHttpClient remoteAgent() {
-        if (remoteAgentHttpClient == null) {
+        if (Objects.isNull(remoteAgentHttpClient)) {
             synchronized (this) {
-                if (remoteAgentHttpClient == null) {
+                if (Objects.isNull(remoteAgentHttpClient)) {
                     remoteAgentHttpClient = new OpenCliRemoteAgentHttpClient(properties);
                 }
             }
@@ -100,7 +102,7 @@ public class OpenCliExecutor {
      */
     public OpenCliResult invoke(String... adapterAndRest) {
         List<String> list = new ArrayList<>();
-        if (adapterAndRest != null) {
+        if (Objects.nonNull(adapterAndRest)) {
             for (String s : adapterAndRest) {
                 if (OpenCliStrings.isNotBlank(s)) {
                     list.add(s.trim());
@@ -128,7 +130,7 @@ public class OpenCliExecutor {
     }
 
     private static void appendCleanArgs(CommandLine cmd, List<String> args) {
-        if (args == null || args.isEmpty()) {
+        if (Objects.isNull(args) || args.isEmpty()) {
             return;
         }
         for (String a : args) {
@@ -192,6 +194,7 @@ public class OpenCliExecutor {
                 "OpenCLI could not be started (check PATH or executable path): " + commandLine, e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            log.warn("OpenCLI interrupted commandLine={}", commandLine);
             throw new OpenCliException("Interrupted while awaiting OpenCLI subprocess", e, null);
         }
 
@@ -200,6 +203,7 @@ public class OpenCliExecutor {
         OpenCliParsedFields parsed = OpenCliOutputParser.parseBestEffort(stdoutStr, stderrStr);
 
         if (watchdog.killedProcess()) {
+            log.warn("OpenCLI timed out commandLine={} timeoutMs={}", commandLine, timeoutMs);
             OpenCliResult partial = snapshot(stdoutStr, stderrStr, readExitQuietly(handler), parsed);
             throw new OpenCliTimeoutException(
                 "OpenCLI timed out after " + timeoutMs + " ms: " + commandLine, partial);
@@ -208,11 +212,13 @@ public class OpenCliExecutor {
         Exception asyncFailure = handler.getException();
         if (asyncFailure instanceof ExecuteException) {
             ExecuteException ex = (ExecuteException) asyncFailure;
+            log.warn("OpenCLI failed exitCode={} commandLine={}", ex.getExitValue(), commandLine);
             OpenCliResult failed = snapshot(stdoutStr, stderrStr, normalizeExitValue(ex.getExitValue()), parsed);
             throw new OpenCliNonZeroExitException(
                 "OpenCLI failed (exitCode=" + ex.getExitValue() + "): " + commandLine, failed);
         }
-        if (asyncFailure != null) {
+        if (Objects.nonNull(asyncFailure)) {
+            log.error("OpenCLI async failure commandLine={}", commandLine, asyncFailure);
             OpenCliResult snapshot = snapshot(stdoutStr, stderrStr, readExitQuietly(handler), parsed);
             throw new OpenCliException(
                 "OpenCLI async failure: " + commandLine + " cause=" + asyncFailure.getMessage(),
@@ -230,6 +236,7 @@ public class OpenCliExecutor {
         }
 
         if (exit != 0) {
+            log.warn("OpenCLI non-zero exit exitCode={} commandLine={}", exit, commandLine);
             OpenCliResult failed = snapshot(stdoutStr, stderrStr, exit, parsed);
             throw new OpenCliNonZeroExitException(
                 "OpenCLI non-zero exit (exitCode=" + exit + "): " + commandLine, failed);
@@ -246,9 +253,9 @@ public class OpenCliExecutor {
 
     private Map<String, String> buildEnvironment() {
         Map<String, String> env = new HashMap<>(System.getenv());
-        if (properties.getEnvironment() != null) {
+        if (Objects.nonNull(properties.getEnvironment())) {
             for (Map.Entry<String, String> e : properties.getEnvironment().entrySet()) {
-                if (e.getKey() != null && e.getValue() != null) {
+                if (Objects.nonNull(e.getKey()) && Objects.nonNull(e.getValue())) {
                     env.put(e.getKey(), e.getValue());
                 }
             }
@@ -274,8 +281,8 @@ public class OpenCliExecutor {
     private static OpenCliResult snapshot(
         String stdoutStr, String stderrStr, Integer exitCode, OpenCliParsedFields parsed) {
         return OpenCliResult.builder()
-            .stdout(stdoutStr == null ? "" : stdoutStr)
-            .stderr(stderrStr == null ? "" : stderrStr)
+            .stdout(Objects.isNull(stdoutStr) ? "" : stdoutStr)
+            .stderr(Objects.isNull(stderrStr) ? "" : stderrStr)
             .exitCode(exitCode)
             .success(false)
             .parsed(parsed)

@@ -66,21 +66,24 @@ public final class OpenCliRemoteAgentHttpClient {
                     .body(bodyJson)
                     .asString();
             int status = response.getStatus();
-            String respBody = response.getBody() == null ? "" : response.getBody();
+            String respBody = Objects.isNull(response.getBody()) ? "" : response.getBody();
             if (status < 200 || status >= 300) {
+                String preview = respBody.substring(0, Math.min(500, respBody.length()));
+                log.warn("Agent HTTP non-2xx status={} url={} bodyPreview={}", status, url, preview);
                 throw new OpenCliExecutableFailureException(
                     "Agent HTTP "
                         + status
                         + " from "
                         + url
                         + ": "
-                        + respBody.substring(0, Math.min(500, respBody.length())),
+                        + preview,
                     null);
             }
-            return mapResponse(respBody);
+            return mapResponse(respBody, url);
         } catch (OpenCliNonZeroExitException e) {
             throw e;
         } catch (IOException e) {
+            log.warn("Agent response parse failed url={} message={}", url, e.getMessage());
             throw new OpenCliExecutableFailureException("Failed to parse agent response: " + e.getMessage(), e);
         } catch (UnirestException e) {
             log.warn("Agent HTTP failed url={} message={}", url, e.getMessage());
@@ -96,13 +99,19 @@ public final class OpenCliRemoteAgentHttpClient {
         return (int) Math.min(timeoutMs, Integer.MAX_VALUE);
     }
 
-    private OpenCliResult mapResponse(String respBody) throws IOException {
+    private OpenCliResult mapResponse(String respBody, String url) throws IOException {
         String rawCapture = captureRawIfEnabled(respBody);
-        AgentCollectEnvelope env = MAPPER.readValue(respBody, AgentCollectEnvelope.class);
-        boolean success = env.success != null && env.success;
-        String err = env.error == null ? "" : env.error;
+        AgentCollectEnvelope env;
+        try {
+            env = MAPPER.readValue(respBody, AgentCollectEnvelope.class);
+        } catch (IOException e) {
+            log.warn("Agent response envelope parse failed url={} message={}", url, e.getMessage());
+            throw e;
+        }
+        boolean success = Objects.nonNull(env.success) && env.success;
+        String err = Objects.isNull(env.error) ? "" : env.error;
         String stdout;
-        if (env.items == null || env.items.isNull()) {
+        if (Objects.isNull(env.items) || env.items.isNull()) {
             stdout = "[]";
         } else if (env.items.isArray()) {
             stdout = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(env.items);
@@ -111,6 +120,11 @@ public final class OpenCliRemoteAgentHttpClient {
         }
         OpenCliParsedFields parsed = OpenCliOutputParser.parseBestEffort(stdout, err);
         if (!success) {
+            log.warn(
+                "Agent collect reported failure url={} error={} stdoutLength={}",
+                url,
+                err,
+                stdout.length());
             OpenCliResult failed =
                 OpenCliResult.builder()
                     .stdout(stdout)
