@@ -1,0 +1,6953 @@
+[
+  {
+    "site": "12306",
+    "subcommand": "me",
+    "invokeArgs": [
+      "me"
+    ]
+  },
+  {
+    "site": "12306",
+    "subcommand": "orders",
+    "invokeArgs": [
+      "orders"
+    ]
+  },
+  {
+    "site": "12306",
+    "subcommand": "passengers",
+    "invokeArgs": [
+      "passengers"
+    ]
+  },
+  {
+    "site": "12306",
+    "subcommand": "price",
+    "invokeArgs": [
+      "price",
+      "__coverage__",
+      "--from",
+      "__coverage__",
+      "--to",
+      "__coverage__",
+      "--date",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "12306",
+    "subcommand": "stations",
+    "invokeArgs": [
+      "stations",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "12306",
+    "subcommand": "train",
+    "invokeArgs": [
+      "train",
+      "__coverage__",
+      "--from",
+      "__coverage__",
+      "--to",
+      "__coverage__",
+      "--date",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "12306",
+    "subcommand": "trains",
+    "invokeArgs": [
+      "trains",
+      "__coverage__",
+      "__coverage__",
+      "--date",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "1688",
+    "subcommand": "assets",
+    "invokeArgs": [
+      "assets",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "1688",
+    "subcommand": "download",
+    "invokeArgs": [
+      "download",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "1688",
+    "subcommand": "item",
+    "invokeArgs": [
+      "item",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "1688",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "1688",
+    "subcommand": "store",
+    "invokeArgs": [
+      "store",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "1point3acres",
+    "subcommand": "digest",
+    "invokeArgs": [
+      "digest"
+    ]
+  },
+  {
+    "site": "1point3acres",
+    "subcommand": "forum",
+    "invokeArgs": [
+      "forum",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "1point3acres",
+    "subcommand": "forums",
+    "invokeArgs": [
+      "forums"
+    ]
+  },
+  {
+    "site": "1point3acres",
+    "subcommand": "hot",
+    "invokeArgs": [
+      "hot"
+    ]
+  },
+  {
+    "site": "1point3acres",
+    "subcommand": "latest",
+    "invokeArgs": [
+      "latest"
+    ]
+  },
+  {
+    "site": "1point3acres",
+    "subcommand": "notifications",
+    "invokeArgs": [
+      "notifications"
+    ]
+  },
+  {
+    "site": "1point3acres",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "1point3acres",
+    "subcommand": "thread",
+    "invokeArgs": [
+      "thread",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "1point3acres",
+    "subcommand": "user",
+    "invokeArgs": [
+      "user",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "36kr",
+    "subcommand": "article",
+    "invokeArgs": [
+      "article",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "36kr",
+    "subcommand": "hot",
+    "invokeArgs": [
+      "hot"
+    ]
+  },
+  {
+    "site": "36kr",
+    "subcommand": "news",
+    "invokeArgs": [
+      "news"
+    ]
+  },
+  {
+    "site": "36kr",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "51job",
+    "subcommand": "company",
+    "invokeArgs": [
+      "company",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "51job",
+    "subcommand": "detail",
+    "invokeArgs": [
+      "detail",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "51job",
+    "subcommand": "hot",
+    "invokeArgs": [
+      "hot"
+    ]
+  },
+  {
+    "site": "51job",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "aibase",
+    "subcommand": "news",
+    "invokeArgs": [
+      "news"
+    ]
+  },
+  {
+    "site": "amazon",
+    "subcommand": "bestsellers",
+    "invokeArgs": [
+      "bestsellers"
+    ]
+  },
+  {
+    "site": "amazon",
+    "subcommand": "discussion",
+    "invokeArgs": [
+      "discussion",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "amazon",
+    "subcommand": "movers-shakers",
+    "invokeArgs": [
+      "movers-shakers"
+    ]
+  },
+  {
+    "site": "amazon",
+    "subcommand": "new-releases",
+    "invokeArgs": [
+      "new-releases"
+    ]
+  },
+  {
+    "site": "amazon",
+    "subcommand": "offer",
+    "invokeArgs": [
+      "offer",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "amazon",
+    "subcommand": "product",
+    "invokeArgs": [
+      "product",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "amazon",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "dump",
+    "invokeArgs": [
+      "dump"
+    ]
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "extract-code",
+    "invokeArgs": [
+      "extract-code"
+    ]
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "model",
+    "invokeArgs": [
+      "model",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "new",
+    "invokeArgs": [
+      "new"
+    ]
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "read",
+    "invokeArgs": [
+      "read"
+    ]
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "send",
+    "invokeArgs": [
+      "send",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "status",
+    "invokeArgs": [
+      "status"
+    ]
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "watch",
+    "invokeArgs": [
+      "watch"
+    ]
+  },
+  {
+    "site": "apple-podcasts",
+    "subcommand": "episodes",
+    "invokeArgs": [
+      "episodes",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "apple-podcasts",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "apple-podcasts",
+    "subcommand": "top",
+    "invokeArgs": [
+      "top"
+    ]
+  },
+  {
+    "site": "arxiv",
+    "subcommand": "author",
+    "invokeArgs": [
+      "author",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "arxiv",
+    "subcommand": "paper",
+    "invokeArgs": [
+      "paper",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "arxiv",
+    "subcommand": "recent",
+    "invokeArgs": [
+      "recent",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "arxiv",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "baidu-scholar",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "band",
+    "subcommand": "bands",
+    "invokeArgs": [
+      "bands"
+    ]
+  },
+  {
+    "site": "band",
+    "subcommand": "mentions",
+    "invokeArgs": [
+      "mentions"
+    ]
+  },
+  {
+    "site": "band",
+    "subcommand": "post",
+    "invokeArgs": [
+      "post",
+      "1",
+      "1"
+    ]
+  },
+  {
+    "site": "band",
+    "subcommand": "posts",
+    "invokeArgs": [
+      "posts",
+      "1"
+    ]
+  },
+  {
+    "site": "barchart",
+    "subcommand": "flow",
+    "invokeArgs": [
+      "flow"
+    ]
+  },
+  {
+    "site": "barchart",
+    "subcommand": "greeks",
+    "invokeArgs": [
+      "greeks",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "barchart",
+    "subcommand": "options",
+    "invokeArgs": [
+      "options",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "barchart",
+    "subcommand": "quote",
+    "invokeArgs": [
+      "quote",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "bbc",
+    "subcommand": "news",
+    "invokeArgs": [
+      "news"
+    ]
+  },
+  {
+    "site": "bbc",
+    "subcommand": "topic",
+    "invokeArgs": [
+      "topic",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "bilibili",
+    "subcommand": "comment",
+    "invokeArgs": [
+      "comment",
+      "__coverage__",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "bilibili",
+    "subcommand": "comments",
+    "invokeArgs": [
+      "comments",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "bilibili",
+    "subcommand": "download",
+    "invokeArgs": [
+      "download",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "bilibili",
+    "subcommand": "dynamic",
+    "invokeArgs": [
+      "dynamic"
+    ]
+  },
+  {
+    "site": "bilibili",
+    "subcommand": "favorite",
+    "invokeArgs": [
+      "favorite"
+    ]
+  },
+  {
+    "site": "bilibili",
+    "subcommand": "feed",
+    "invokeArgs": [
+      "feed"
+    ]
+  },
+  {
+    "site": "bilibili",
+    "subcommand": "feed-detail",
+    "invokeArgs": [
+      "feed-detail",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "bilibili",
+    "subcommand": "following",
+    "invokeArgs": [
+      "following"
+    ]
+  },
+  {
+    "site": "bilibili",
+    "subcommand": "history",
+    "invokeArgs": [
+      "history"
+    ]
+  },
+  {
+    "site": "bilibili",
+    "subcommand": "hot",
+    "invokeArgs": [
+      "hot"
+    ]
+  },
+  {
+    "site": "bilibili",
+    "subcommand": "me",
+    "invokeArgs": [
+      "me"
+    ]
+  },
+  {
+    "site": "bilibili",
+    "subcommand": "ranking",
+    "invokeArgs": [
+      "ranking"
+    ]
+  },
+  {
+    "site": "bilibili",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "bilibili",
+    "subcommand": "subtitle",
+    "invokeArgs": [
+      "subtitle",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "bilibili",
+    "subcommand": "summary",
+    "invokeArgs": [
+      "summary",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "bilibili",
+    "subcommand": "user-videos",
+    "invokeArgs": [
+      "user-videos",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "bilibili",
+    "subcommand": "video",
+    "invokeArgs": [
+      "video",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "binance",
+    "subcommand": "asks",
+    "invokeArgs": [
+      "asks",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "binance",
+    "subcommand": "depth",
+    "invokeArgs": [
+      "depth",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "binance",
+    "subcommand": "gainers",
+    "invokeArgs": [
+      "gainers"
+    ]
+  },
+  {
+    "site": "binance",
+    "subcommand": "klines",
+    "invokeArgs": [
+      "klines",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "binance",
+    "subcommand": "losers",
+    "invokeArgs": [
+      "losers"
+    ]
+  },
+  {
+    "site": "binance",
+    "subcommand": "pairs",
+    "invokeArgs": [
+      "pairs"
+    ]
+  },
+  {
+    "site": "binance",
+    "subcommand": "price",
+    "invokeArgs": [
+      "price",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "binance",
+    "subcommand": "prices",
+    "invokeArgs": [
+      "prices"
+    ]
+  },
+  {
+    "site": "binance",
+    "subcommand": "ticker",
+    "invokeArgs": [
+      "ticker"
+    ]
+  },
+  {
+    "site": "binance",
+    "subcommand": "top",
+    "invokeArgs": [
+      "top"
+    ]
+  },
+  {
+    "site": "binance",
+    "subcommand": "trades",
+    "invokeArgs": [
+      "trades",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "bloomberg",
+    "subcommand": "businessweek",
+    "invokeArgs": [
+      "businessweek"
+    ]
+  },
+  {
+    "site": "bloomberg",
+    "subcommand": "economics",
+    "invokeArgs": [
+      "economics"
+    ]
+  },
+  {
+    "site": "bloomberg",
+    "subcommand": "feeds",
+    "invokeArgs": [
+      "feeds"
+    ]
+  },
+  {
+    "site": "bloomberg",
+    "subcommand": "industries",
+    "invokeArgs": [
+      "industries"
+    ]
+  },
+  {
+    "site": "bloomberg",
+    "subcommand": "main",
+    "invokeArgs": [
+      "main"
+    ]
+  },
+  {
+    "site": "bloomberg",
+    "subcommand": "markets",
+    "invokeArgs": [
+      "markets"
+    ]
+  },
+  {
+    "site": "bloomberg",
+    "subcommand": "news",
+    "invokeArgs": [
+      "news",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "bloomberg",
+    "subcommand": "opinions",
+    "invokeArgs": [
+      "opinions"
+    ]
+  },
+  {
+    "site": "bloomberg",
+    "subcommand": "politics",
+    "invokeArgs": [
+      "politics"
+    ]
+  },
+  {
+    "site": "bloomberg",
+    "subcommand": "tech",
+    "invokeArgs": [
+      "tech"
+    ]
+  },
+  {
+    "site": "bluesky",
+    "subcommand": "feeds",
+    "invokeArgs": [
+      "feeds"
+    ]
+  },
+  {
+    "site": "bluesky",
+    "subcommand": "followers",
+    "invokeArgs": [
+      "followers",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "bluesky",
+    "subcommand": "following",
+    "invokeArgs": [
+      "following",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "bluesky",
+    "subcommand": "profile",
+    "invokeArgs": [
+      "profile",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "bluesky",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "bluesky",
+    "subcommand": "starter-packs",
+    "invokeArgs": [
+      "starter-packs",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "bluesky",
+    "subcommand": "thread",
+    "invokeArgs": [
+      "thread",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "bluesky",
+    "subcommand": "trending",
+    "invokeArgs": [
+      "trending"
+    ]
+  },
+  {
+    "site": "bluesky",
+    "subcommand": "user",
+    "invokeArgs": [
+      "user",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "booking",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__",
+      "--checkin",
+      "__coverage__",
+      "--checkout",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "boss",
+    "subcommand": "batchgreet",
+    "invokeArgs": [
+      "batchgreet"
+    ]
+  },
+  {
+    "site": "boss",
+    "subcommand": "chatlist",
+    "invokeArgs": [
+      "chatlist"
+    ]
+  },
+  {
+    "site": "boss",
+    "subcommand": "chatmsg",
+    "invokeArgs": [
+      "chatmsg",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "boss",
+    "subcommand": "detail",
+    "invokeArgs": [
+      "detail",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "boss",
+    "subcommand": "exchange",
+    "invokeArgs": [
+      "exchange",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "boss",
+    "subcommand": "greet",
+    "invokeArgs": [
+      "greet",
+      "__coverage__",
+      "--security-id",
+      "__coverage__",
+      "--job-id",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "boss",
+    "subcommand": "invite",
+    "invokeArgs": [
+      "invite",
+      "__coverage__",
+      "--time",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "boss",
+    "subcommand": "joblist",
+    "invokeArgs": [
+      "joblist"
+    ]
+  },
+  {
+    "site": "boss",
+    "subcommand": "mark",
+    "invokeArgs": [
+      "mark",
+      "__coverage__",
+      "--label",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "boss",
+    "subcommand": "recommend",
+    "invokeArgs": [
+      "recommend"
+    ]
+  },
+  {
+    "site": "boss",
+    "subcommand": "resume",
+    "invokeArgs": [
+      "resume",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "boss",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search"
+    ]
+  },
+  {
+    "site": "boss",
+    "subcommand": "send",
+    "invokeArgs": [
+      "send",
+      "__coverage__",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "boss",
+    "subcommand": "stats",
+    "invokeArgs": [
+      "stats"
+    ]
+  },
+  {
+    "site": "brave",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "chaoxing",
+    "subcommand": "assignments",
+    "invokeArgs": [
+      "assignments"
+    ]
+  },
+  {
+    "site": "chaoxing",
+    "subcommand": "exams",
+    "invokeArgs": [
+      "exams"
+    ]
+  },
+  {
+    "site": "chatgpt",
+    "subcommand": "ask",
+    "invokeArgs": [
+      "ask",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "chatgpt",
+    "subcommand": "detail",
+    "invokeArgs": [
+      "detail",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "chatgpt",
+    "subcommand": "history",
+    "invokeArgs": [
+      "history"
+    ]
+  },
+  {
+    "site": "chatgpt",
+    "subcommand": "image",
+    "invokeArgs": [
+      "image",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "chatgpt",
+    "subcommand": "new",
+    "invokeArgs": [
+      "new"
+    ]
+  },
+  {
+    "site": "chatgpt",
+    "subcommand": "read",
+    "invokeArgs": [
+      "read"
+    ]
+  },
+  {
+    "site": "chatgpt",
+    "subcommand": "send",
+    "invokeArgs": [
+      "send",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "chatgpt",
+    "subcommand": "status",
+    "invokeArgs": [
+      "status"
+    ]
+  },
+  {
+    "site": "chatgpt-app",
+    "subcommand": "ask",
+    "invokeArgs": [
+      "ask",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "chatgpt-app",
+    "subcommand": "model",
+    "invokeArgs": [
+      "model",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "chatgpt-app",
+    "subcommand": "new",
+    "invokeArgs": [
+      "new"
+    ]
+  },
+  {
+    "site": "chatgpt-app",
+    "subcommand": "read",
+    "invokeArgs": [
+      "read"
+    ]
+  },
+  {
+    "site": "chatgpt-app",
+    "subcommand": "send",
+    "invokeArgs": [
+      "send",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "chatgpt-app",
+    "subcommand": "status",
+    "invokeArgs": [
+      "status"
+    ]
+  },
+  {
+    "site": "chatwise",
+    "subcommand": "ask",
+    "invokeArgs": [
+      "ask",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "chatwise",
+    "subcommand": "export",
+    "invokeArgs": [
+      "export"
+    ]
+  },
+  {
+    "site": "chatwise",
+    "subcommand": "history",
+    "invokeArgs": [
+      "history"
+    ]
+  },
+  {
+    "site": "chatwise",
+    "subcommand": "model",
+    "invokeArgs": [
+      "model"
+    ]
+  },
+  {
+    "site": "chatwise",
+    "subcommand": "new",
+    "invokeArgs": [
+      "new"
+    ]
+  },
+  {
+    "site": "chatwise",
+    "subcommand": "read",
+    "invokeArgs": [
+      "read"
+    ]
+  },
+  {
+    "site": "chatwise",
+    "subcommand": "screenshot",
+    "invokeArgs": [
+      "screenshot"
+    ]
+  },
+  {
+    "site": "chatwise",
+    "subcommand": "send",
+    "invokeArgs": [
+      "send",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "chatwise",
+    "subcommand": "status",
+    "invokeArgs": [
+      "status"
+    ]
+  },
+  {
+    "site": "chess",
+    "subcommand": "analyze",
+    "invokeArgs": [
+      "analyze",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "chess",
+    "subcommand": "game",
+    "invokeArgs": [
+      "game",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "chess",
+    "subcommand": "games",
+    "invokeArgs": [
+      "games",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "chess",
+    "subcommand": "stats",
+    "invokeArgs": [
+      "stats",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "claude",
+    "subcommand": "ask",
+    "invokeArgs": [
+      "ask",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "claude",
+    "subcommand": "detail",
+    "invokeArgs": [
+      "detail",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "claude",
+    "subcommand": "history",
+    "invokeArgs": [
+      "history"
+    ]
+  },
+  {
+    "site": "claude",
+    "subcommand": "new",
+    "invokeArgs": [
+      "new"
+    ]
+  },
+  {
+    "site": "claude",
+    "subcommand": "read",
+    "invokeArgs": [
+      "read"
+    ]
+  },
+  {
+    "site": "claude",
+    "subcommand": "send",
+    "invokeArgs": [
+      "send",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "claude",
+    "subcommand": "status",
+    "invokeArgs": [
+      "status"
+    ]
+  },
+  {
+    "site": "cnki",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "codex",
+    "subcommand": "ask",
+    "invokeArgs": [
+      "ask",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "codex",
+    "subcommand": "dump",
+    "invokeArgs": [
+      "dump"
+    ]
+  },
+  {
+    "site": "codex",
+    "subcommand": "export",
+    "invokeArgs": [
+      "export"
+    ]
+  },
+  {
+    "site": "codex",
+    "subcommand": "extract-diff",
+    "invokeArgs": [
+      "extract-diff"
+    ]
+  },
+  {
+    "site": "codex",
+    "subcommand": "history",
+    "invokeArgs": [
+      "history"
+    ]
+  },
+  {
+    "site": "codex",
+    "subcommand": "model",
+    "invokeArgs": [
+      "model"
+    ]
+  },
+  {
+    "site": "codex",
+    "subcommand": "new",
+    "invokeArgs": [
+      "new"
+    ]
+  },
+  {
+    "site": "codex",
+    "subcommand": "projects",
+    "invokeArgs": [
+      "projects"
+    ]
+  },
+  {
+    "site": "codex",
+    "subcommand": "read",
+    "invokeArgs": [
+      "read"
+    ]
+  },
+  {
+    "site": "codex",
+    "subcommand": "screenshot",
+    "invokeArgs": [
+      "screenshot"
+    ]
+  },
+  {
+    "site": "codex",
+    "subcommand": "send",
+    "invokeArgs": [
+      "send",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "codex",
+    "subcommand": "status",
+    "invokeArgs": [
+      "status"
+    ]
+  },
+  {
+    "site": "coingecko",
+    "subcommand": "categories",
+    "invokeArgs": [
+      "categories"
+    ]
+  },
+  {
+    "site": "coingecko",
+    "subcommand": "coin",
+    "invokeArgs": [
+      "coin",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "coingecko",
+    "subcommand": "derivatives",
+    "invokeArgs": [
+      "derivatives"
+    ]
+  },
+  {
+    "site": "coingecko",
+    "subcommand": "exchanges",
+    "invokeArgs": [
+      "exchanges"
+    ]
+  },
+  {
+    "site": "coingecko",
+    "subcommand": "global",
+    "invokeArgs": [
+      "global"
+    ]
+  },
+  {
+    "site": "coingecko",
+    "subcommand": "top",
+    "invokeArgs": [
+      "top"
+    ]
+  },
+  {
+    "site": "coingecko",
+    "subcommand": "trending",
+    "invokeArgs": [
+      "trending"
+    ]
+  },
+  {
+    "site": "confluence",
+    "subcommand": "create",
+    "invokeArgs": [
+      "create",
+      "--space",
+      "__coverage__",
+      "--title",
+      "__coverage__",
+      "--file",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "confluence",
+    "subcommand": "page",
+    "invokeArgs": [
+      "page",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "confluence",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "confluence",
+    "subcommand": "update",
+    "invokeArgs": [
+      "update",
+      "__coverage__",
+      "--file",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "coupang",
+    "subcommand": "add-to-cart",
+    "invokeArgs": [
+      "add-to-cart"
+    ]
+  },
+  {
+    "site": "coupang",
+    "subcommand": "product",
+    "invokeArgs": [
+      "product"
+    ]
+  },
+  {
+    "site": "coupang",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "crates",
+    "subcommand": "crate",
+    "invokeArgs": [
+      "crate",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "crates",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "ctrip",
+    "subcommand": "flight",
+    "invokeArgs": [
+      "flight",
+      "__coverage__",
+      "__coverage__",
+      "--date",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "ctrip",
+    "subcommand": "hotel-search",
+    "invokeArgs": [
+      "hotel-search",
+      "__coverage__",
+      "--checkin",
+      "__coverage__",
+      "--checkout",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "ctrip",
+    "subcommand": "hotel-suggest",
+    "invokeArgs": [
+      "hotel-suggest",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "ctrip",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "cursor",
+    "subcommand": "ask",
+    "invokeArgs": [
+      "ask",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "cursor",
+    "subcommand": "composer",
+    "invokeArgs": [
+      "composer",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "cursor",
+    "subcommand": "dump",
+    "invokeArgs": [
+      "dump"
+    ]
+  },
+  {
+    "site": "cursor",
+    "subcommand": "export",
+    "invokeArgs": [
+      "export"
+    ]
+  },
+  {
+    "site": "cursor",
+    "subcommand": "extract-code",
+    "invokeArgs": [
+      "extract-code"
+    ]
+  },
+  {
+    "site": "cursor",
+    "subcommand": "history",
+    "invokeArgs": [
+      "history"
+    ]
+  },
+  {
+    "site": "cursor",
+    "subcommand": "model",
+    "invokeArgs": [
+      "model"
+    ]
+  },
+  {
+    "site": "cursor",
+    "subcommand": "new",
+    "invokeArgs": [
+      "new"
+    ]
+  },
+  {
+    "site": "cursor",
+    "subcommand": "read",
+    "invokeArgs": [
+      "read"
+    ]
+  },
+  {
+    "site": "cursor",
+    "subcommand": "screenshot",
+    "invokeArgs": [
+      "screenshot"
+    ]
+  },
+  {
+    "site": "cursor",
+    "subcommand": "send",
+    "invokeArgs": [
+      "send",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "cursor",
+    "subcommand": "status",
+    "invokeArgs": [
+      "status"
+    ]
+  },
+  {
+    "site": "dblp",
+    "subcommand": "author",
+    "invokeArgs": [
+      "author"
+    ]
+  },
+  {
+    "site": "dblp",
+    "subcommand": "paper",
+    "invokeArgs": [
+      "paper",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "dblp",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "dblp",
+    "subcommand": "venue",
+    "invokeArgs": [
+      "venue",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "deepseek",
+    "subcommand": "ask",
+    "invokeArgs": [
+      "ask",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "deepseek",
+    "subcommand": "detail",
+    "invokeArgs": [
+      "detail",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "deepseek",
+    "subcommand": "history",
+    "invokeArgs": [
+      "history"
+    ]
+  },
+  {
+    "site": "deepseek",
+    "subcommand": "new",
+    "invokeArgs": [
+      "new"
+    ]
+  },
+  {
+    "site": "deepseek",
+    "subcommand": "read",
+    "invokeArgs": [
+      "read"
+    ]
+  },
+  {
+    "site": "deepseek",
+    "subcommand": "send",
+    "invokeArgs": [
+      "send",
+      "__coverage__",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "deepseek",
+    "subcommand": "status",
+    "invokeArgs": [
+      "status"
+    ]
+  },
+  {
+    "site": "defillama",
+    "subcommand": "protocol",
+    "invokeArgs": [
+      "protocol",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "defillama",
+    "subcommand": "protocols",
+    "invokeArgs": [
+      "protocols"
+    ]
+  },
+  {
+    "site": "devto",
+    "subcommand": "latest",
+    "invokeArgs": [
+      "latest"
+    ]
+  },
+  {
+    "site": "devto",
+    "subcommand": "read",
+    "invokeArgs": [
+      "read",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "devto",
+    "subcommand": "tag",
+    "invokeArgs": [
+      "tag",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "devto",
+    "subcommand": "top",
+    "invokeArgs": [
+      "top"
+    ]
+  },
+  {
+    "site": "devto",
+    "subcommand": "user",
+    "invokeArgs": [
+      "user",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "dianping",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "dianping",
+    "subcommand": "shop",
+    "invokeArgs": [
+      "shop",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "dictionary",
+    "subcommand": "examples",
+    "invokeArgs": [
+      "examples",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "dictionary",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "dictionary",
+    "subcommand": "synonyms",
+    "invokeArgs": [
+      "synonyms",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "discord-app",
+    "subcommand": "channels",
+    "invokeArgs": [
+      "channels"
+    ]
+  },
+  {
+    "site": "discord-app",
+    "subcommand": "delete",
+    "invokeArgs": [
+      "delete",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "discord-app",
+    "subcommand": "members",
+    "invokeArgs": [
+      "members"
+    ]
+  },
+  {
+    "site": "discord-app",
+    "subcommand": "read",
+    "invokeArgs": [
+      "read"
+    ]
+  },
+  {
+    "site": "discord-app",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "discord-app",
+    "subcommand": "send",
+    "invokeArgs": [
+      "send",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "discord-app",
+    "subcommand": "servers",
+    "invokeArgs": [
+      "servers"
+    ]
+  },
+  {
+    "site": "discord-app",
+    "subcommand": "status",
+    "invokeArgs": [
+      "status"
+    ]
+  },
+  {
+    "site": "dockerhub",
+    "subcommand": "image",
+    "invokeArgs": [
+      "image",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "dockerhub",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "douban",
+    "subcommand": "book-hot",
+    "invokeArgs": [
+      "book-hot"
+    ]
+  },
+  {
+    "site": "douban",
+    "subcommand": "download",
+    "invokeArgs": [
+      "download",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "douban",
+    "subcommand": "marks",
+    "invokeArgs": [
+      "marks"
+    ]
+  },
+  {
+    "site": "douban",
+    "subcommand": "movie-hot",
+    "invokeArgs": [
+      "movie-hot"
+    ]
+  },
+  {
+    "site": "douban",
+    "subcommand": "photos",
+    "invokeArgs": [
+      "photos",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "douban",
+    "subcommand": "reviews",
+    "invokeArgs": [
+      "reviews"
+    ]
+  },
+  {
+    "site": "douban",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "douban",
+    "subcommand": "subject",
+    "invokeArgs": [
+      "subject",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "douban",
+    "subcommand": "top250",
+    "invokeArgs": [
+      "top250"
+    ]
+  },
+  {
+    "site": "doubao",
+    "subcommand": "ask",
+    "invokeArgs": [
+      "ask",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "doubao",
+    "subcommand": "detail",
+    "invokeArgs": [
+      "detail",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "doubao",
+    "subcommand": "history",
+    "invokeArgs": [
+      "history"
+    ]
+  },
+  {
+    "site": "doubao",
+    "subcommand": "meeting-summary",
+    "invokeArgs": [
+      "meeting-summary",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "doubao",
+    "subcommand": "meeting-transcript",
+    "invokeArgs": [
+      "meeting-transcript",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "doubao",
+    "subcommand": "new",
+    "invokeArgs": [
+      "new"
+    ]
+  },
+  {
+    "site": "doubao",
+    "subcommand": "read",
+    "invokeArgs": [
+      "read"
+    ]
+  },
+  {
+    "site": "doubao",
+    "subcommand": "send",
+    "invokeArgs": [
+      "send",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "doubao",
+    "subcommand": "status",
+    "invokeArgs": [
+      "status"
+    ]
+  },
+  {
+    "site": "doubao-app",
+    "subcommand": "ask",
+    "invokeArgs": [
+      "ask",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "doubao-app",
+    "subcommand": "dump",
+    "invokeArgs": [
+      "dump"
+    ]
+  },
+  {
+    "site": "doubao-app",
+    "subcommand": "new",
+    "invokeArgs": [
+      "new"
+    ]
+  },
+  {
+    "site": "doubao-app",
+    "subcommand": "read",
+    "invokeArgs": [
+      "read"
+    ]
+  },
+  {
+    "site": "doubao-app",
+    "subcommand": "screenshot",
+    "invokeArgs": [
+      "screenshot"
+    ]
+  },
+  {
+    "site": "doubao-app",
+    "subcommand": "send",
+    "invokeArgs": [
+      "send",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "doubao-app",
+    "subcommand": "status",
+    "invokeArgs": [
+      "status"
+    ]
+  },
+  {
+    "site": "douyin",
+    "subcommand": "activities",
+    "invokeArgs": [
+      "activities"
+    ]
+  },
+  {
+    "site": "douyin",
+    "subcommand": "collections",
+    "invokeArgs": [
+      "collections"
+    ]
+  },
+  {
+    "site": "douyin",
+    "subcommand": "delete",
+    "invokeArgs": [
+      "delete",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "douyin",
+    "subcommand": "draft",
+    "invokeArgs": [
+      "draft",
+      "__coverage__",
+      "--title",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "douyin",
+    "subcommand": "drafts",
+    "invokeArgs": [
+      "drafts"
+    ]
+  },
+  {
+    "site": "douyin",
+    "subcommand": "hashtag",
+    "invokeArgs": [
+      "hashtag",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "douyin",
+    "subcommand": "location",
+    "invokeArgs": [
+      "location",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "douyin",
+    "subcommand": "profile",
+    "invokeArgs": [
+      "profile"
+    ]
+  },
+  {
+    "site": "douyin",
+    "subcommand": "publish",
+    "invokeArgs": [
+      "publish",
+      "__coverage__",
+      "--title",
+      "__coverage__",
+      "--schedule",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "douyin",
+    "subcommand": "stats",
+    "invokeArgs": [
+      "stats",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "douyin",
+    "subcommand": "update",
+    "invokeArgs": [
+      "update",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "douyin",
+    "subcommand": "user-videos",
+    "invokeArgs": [
+      "user-videos",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "douyin",
+    "subcommand": "videos",
+    "invokeArgs": [
+      "videos"
+    ]
+  },
+  {
+    "site": "duckduckgo",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "duckduckgo",
+    "subcommand": "suggest",
+    "invokeArgs": [
+      "suggest",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "eastmoney",
+    "subcommand": "announcement",
+    "invokeArgs": [
+      "announcement"
+    ]
+  },
+  {
+    "site": "eastmoney",
+    "subcommand": "convertible",
+    "invokeArgs": [
+      "convertible"
+    ]
+  },
+  {
+    "site": "eastmoney",
+    "subcommand": "etf",
+    "invokeArgs": [
+      "etf"
+    ]
+  },
+  {
+    "site": "eastmoney",
+    "subcommand": "holders",
+    "invokeArgs": [
+      "holders",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "eastmoney",
+    "subcommand": "hot-rank",
+    "invokeArgs": [
+      "hot-rank"
+    ]
+  },
+  {
+    "site": "eastmoney",
+    "subcommand": "index-board",
+    "invokeArgs": [
+      "index-board"
+    ]
+  },
+  {
+    "site": "eastmoney",
+    "subcommand": "kline",
+    "invokeArgs": [
+      "kline",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "eastmoney",
+    "subcommand": "kuaixun",
+    "invokeArgs": [
+      "kuaixun"
+    ]
+  },
+  {
+    "site": "eastmoney",
+    "subcommand": "longhu",
+    "invokeArgs": [
+      "longhu"
+    ]
+  },
+  {
+    "site": "eastmoney",
+    "subcommand": "money-flow",
+    "invokeArgs": [
+      "money-flow"
+    ]
+  },
+  {
+    "site": "eastmoney",
+    "subcommand": "northbound",
+    "invokeArgs": [
+      "northbound"
+    ]
+  },
+  {
+    "site": "eastmoney",
+    "subcommand": "quote",
+    "invokeArgs": [
+      "quote",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "eastmoney",
+    "subcommand": "rank",
+    "invokeArgs": [
+      "rank"
+    ]
+  },
+  {
+    "site": "eastmoney",
+    "subcommand": "sectors",
+    "invokeArgs": [
+      "sectors"
+    ]
+  },
+  {
+    "site": "endoflife",
+    "subcommand": "product",
+    "invokeArgs": [
+      "product",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "facebook",
+    "subcommand": "add-friend",
+    "invokeArgs": [
+      "add-friend",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "facebook",
+    "subcommand": "events",
+    "invokeArgs": [
+      "events"
+    ]
+  },
+  {
+    "site": "facebook",
+    "subcommand": "feed",
+    "invokeArgs": [
+      "feed"
+    ]
+  },
+  {
+    "site": "facebook",
+    "subcommand": "friends",
+    "invokeArgs": [
+      "friends"
+    ]
+  },
+  {
+    "site": "facebook",
+    "subcommand": "groups",
+    "invokeArgs": [
+      "groups"
+    ]
+  },
+  {
+    "site": "facebook",
+    "subcommand": "join-group",
+    "invokeArgs": [
+      "join-group",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "facebook",
+    "subcommand": "marketplace-inbox",
+    "invokeArgs": [
+      "marketplace-inbox"
+    ]
+  },
+  {
+    "site": "facebook",
+    "subcommand": "marketplace-listings",
+    "invokeArgs": [
+      "marketplace-listings"
+    ]
+  },
+  {
+    "site": "facebook",
+    "subcommand": "memories",
+    "invokeArgs": [
+      "memories"
+    ]
+  },
+  {
+    "site": "facebook",
+    "subcommand": "notifications",
+    "invokeArgs": [
+      "notifications"
+    ]
+  },
+  {
+    "site": "facebook",
+    "subcommand": "profile",
+    "invokeArgs": [
+      "profile",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "facebook",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "flathub",
+    "subcommand": "app",
+    "invokeArgs": [
+      "app",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "flathub",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "flomo",
+    "subcommand": "memos",
+    "invokeArgs": [
+      "memos"
+    ]
+  },
+  {
+    "site": "gemini",
+    "subcommand": "ask",
+    "invokeArgs": [
+      "ask",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "gemini",
+    "subcommand": "deep-research",
+    "invokeArgs": [
+      "deep-research",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "gemini",
+    "subcommand": "deep-research-result",
+    "invokeArgs": [
+      "deep-research-result"
+    ]
+  },
+  {
+    "site": "gemini",
+    "subcommand": "image",
+    "invokeArgs": [
+      "image",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "gemini",
+    "subcommand": "new",
+    "invokeArgs": [
+      "new"
+    ]
+  },
+  {
+    "site": "geogebra",
+    "subcommand": "add-circle",
+    "invokeArgs": [
+      "add-circle",
+      "--center",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "geogebra",
+    "subcommand": "add-line",
+    "invokeArgs": [
+      "add-line",
+      "--points",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "geogebra",
+    "subcommand": "add-point",
+    "invokeArgs": [
+      "add-point",
+      "--name",
+      "__coverage__",
+      "--coords",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "geogebra",
+    "subcommand": "add-polygon",
+    "invokeArgs": [
+      "add-polygon",
+      "--points",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "geogebra",
+    "subcommand": "eval",
+    "invokeArgs": [
+      "eval",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "geogebra",
+    "subcommand": "hexagon",
+    "invokeArgs": [
+      "hexagon"
+    ]
+  },
+  {
+    "site": "geogebra",
+    "subcommand": "info",
+    "invokeArgs": [
+      "info",
+      "--name",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "geogebra",
+    "subcommand": "list",
+    "invokeArgs": [
+      "list"
+    ]
+  },
+  {
+    "site": "geogebra",
+    "subcommand": "triangle",
+    "invokeArgs": [
+      "triangle"
+    ]
+  },
+  {
+    "site": "gitee",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "gitee",
+    "subcommand": "trending",
+    "invokeArgs": [
+      "trending"
+    ]
+  },
+  {
+    "site": "gitee",
+    "subcommand": "user",
+    "invokeArgs": [
+      "user",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "google",
+    "subcommand": "news",
+    "invokeArgs": [
+      "news"
+    ]
+  },
+  {
+    "site": "google",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "google",
+    "subcommand": "suggest",
+    "invokeArgs": [
+      "suggest",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "google",
+    "subcommand": "trends",
+    "invokeArgs": [
+      "trends"
+    ]
+  },
+  {
+    "site": "google-scholar",
+    "subcommand": "cite",
+    "invokeArgs": [
+      "cite",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "google-scholar",
+    "subcommand": "profile",
+    "invokeArgs": [
+      "profile",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "google-scholar",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "goproxy",
+    "subcommand": "module",
+    "invokeArgs": [
+      "module",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "goproxy",
+    "subcommand": "versions",
+    "invokeArgs": [
+      "versions",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "gov-law",
+    "subcommand": "recent",
+    "invokeArgs": [
+      "recent"
+    ]
+  },
+  {
+    "site": "gov-law",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "gov-policy",
+    "subcommand": "recent",
+    "invokeArgs": [
+      "recent"
+    ]
+  },
+  {
+    "site": "gov-policy",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "grok",
+    "subcommand": "ask",
+    "invokeArgs": [
+      "ask",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "grok",
+    "subcommand": "detail",
+    "invokeArgs": [
+      "detail",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "grok",
+    "subcommand": "history",
+    "invokeArgs": [
+      "history"
+    ]
+  },
+  {
+    "site": "grok",
+    "subcommand": "image",
+    "invokeArgs": [
+      "image",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "grok",
+    "subcommand": "new",
+    "invokeArgs": [
+      "new"
+    ]
+  },
+  {
+    "site": "grok",
+    "subcommand": "read",
+    "invokeArgs": [
+      "read"
+    ]
+  },
+  {
+    "site": "grok",
+    "subcommand": "send",
+    "invokeArgs": [
+      "send",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "grok",
+    "subcommand": "status",
+    "invokeArgs": [
+      "status"
+    ]
+  },
+  {
+    "site": "hackernews",
+    "subcommand": "ask",
+    "invokeArgs": [
+      "ask"
+    ]
+  },
+  {
+    "site": "hackernews",
+    "subcommand": "best",
+    "invokeArgs": [
+      "best"
+    ]
+  },
+  {
+    "site": "hackernews",
+    "subcommand": "jobs",
+    "invokeArgs": [
+      "jobs"
+    ]
+  },
+  {
+    "site": "hackernews",
+    "subcommand": "new",
+    "invokeArgs": [
+      "new"
+    ]
+  },
+  {
+    "site": "hackernews",
+    "subcommand": "read",
+    "invokeArgs": [
+      "read",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "hackernews",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "hackernews",
+    "subcommand": "show",
+    "invokeArgs": [
+      "show"
+    ]
+  },
+  {
+    "site": "hackernews",
+    "subcommand": "top",
+    "invokeArgs": [
+      "top"
+    ]
+  },
+  {
+    "site": "hackernews",
+    "subcommand": "user",
+    "invokeArgs": [
+      "user",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "hf",
+    "subcommand": "datasets",
+    "invokeArgs": [
+      "datasets"
+    ]
+  },
+  {
+    "site": "hf",
+    "subcommand": "models",
+    "invokeArgs": [
+      "models"
+    ]
+  },
+  {
+    "site": "hf",
+    "subcommand": "paper",
+    "invokeArgs": [
+      "paper",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "hf",
+    "subcommand": "spaces",
+    "invokeArgs": [
+      "spaces"
+    ]
+  },
+  {
+    "site": "hf",
+    "subcommand": "top",
+    "invokeArgs": [
+      "top"
+    ]
+  },
+  {
+    "site": "homebrew",
+    "subcommand": "cask",
+    "invokeArgs": [
+      "cask",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "homebrew",
+    "subcommand": "formula",
+    "invokeArgs": [
+      "formula",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "homebrew",
+    "subcommand": "popular",
+    "invokeArgs": [
+      "popular"
+    ]
+  },
+  {
+    "site": "hupu",
+    "subcommand": "detail",
+    "invokeArgs": [
+      "detail",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "hupu",
+    "subcommand": "hot",
+    "invokeArgs": [
+      "hot"
+    ]
+  },
+  {
+    "site": "hupu",
+    "subcommand": "like",
+    "invokeArgs": [
+      "like",
+      "__coverage__",
+      "__coverage__",
+      "--fid",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "hupu",
+    "subcommand": "mentions",
+    "invokeArgs": [
+      "mentions"
+    ]
+  },
+  {
+    "site": "hupu",
+    "subcommand": "reply",
+    "invokeArgs": [
+      "reply",
+      "__coverage__",
+      "--topic_id",
+      "__coverage__",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "hupu",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "hupu",
+    "subcommand": "unlike",
+    "invokeArgs": [
+      "unlike",
+      "__coverage__",
+      "__coverage__",
+      "--fid",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "imdb",
+    "subcommand": "person",
+    "invokeArgs": [
+      "person",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "imdb",
+    "subcommand": "reviews",
+    "invokeArgs": [
+      "reviews",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "imdb",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "imdb",
+    "subcommand": "title",
+    "invokeArgs": [
+      "title",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "imdb",
+    "subcommand": "top",
+    "invokeArgs": [
+      "top"
+    ]
+  },
+  {
+    "site": "imdb",
+    "subcommand": "trending",
+    "invokeArgs": [
+      "trending"
+    ]
+  },
+  {
+    "site": "indeed",
+    "subcommand": "job",
+    "invokeArgs": [
+      "job",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "indeed",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "instagram",
+    "subcommand": "collection-create",
+    "invokeArgs": [
+      "collection-create",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "instagram",
+    "subcommand": "collection-delete",
+    "invokeArgs": [
+      "collection-delete",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "instagram",
+    "subcommand": "comment",
+    "invokeArgs": [
+      "comment",
+      "__coverage__",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "instagram",
+    "subcommand": "download",
+    "invokeArgs": [
+      "download",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "instagram",
+    "subcommand": "explore",
+    "invokeArgs": [
+      "explore"
+    ]
+  },
+  {
+    "site": "instagram",
+    "subcommand": "follow",
+    "invokeArgs": [
+      "follow",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "instagram",
+    "subcommand": "followers",
+    "invokeArgs": [
+      "followers",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "instagram",
+    "subcommand": "following",
+    "invokeArgs": [
+      "following",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "instagram",
+    "subcommand": "like",
+    "invokeArgs": [
+      "like",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "instagram",
+    "subcommand": "note",
+    "invokeArgs": [
+      "note",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "instagram",
+    "subcommand": "post",
+    "invokeArgs": [
+      "post"
+    ]
+  },
+  {
+    "site": "instagram",
+    "subcommand": "profile",
+    "invokeArgs": [
+      "profile",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "instagram",
+    "subcommand": "reel",
+    "invokeArgs": [
+      "reel"
+    ]
+  },
+  {
+    "site": "instagram",
+    "subcommand": "save",
+    "invokeArgs": [
+      "save",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "instagram",
+    "subcommand": "saved",
+    "invokeArgs": [
+      "saved"
+    ]
+  },
+  {
+    "site": "instagram",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "instagram",
+    "subcommand": "story",
+    "invokeArgs": [
+      "story"
+    ]
+  },
+  {
+    "site": "instagram",
+    "subcommand": "unfollow",
+    "invokeArgs": [
+      "unfollow",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "instagram",
+    "subcommand": "unlike",
+    "invokeArgs": [
+      "unlike",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "instagram",
+    "subcommand": "unsave",
+    "invokeArgs": [
+      "unsave",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "instagram",
+    "subcommand": "user",
+    "invokeArgs": [
+      "user",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jd",
+    "subcommand": "add-cart",
+    "invokeArgs": [
+      "add-cart",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jd",
+    "subcommand": "cart",
+    "invokeArgs": [
+      "cart"
+    ]
+  },
+  {
+    "site": "jd",
+    "subcommand": "detail",
+    "invokeArgs": [
+      "detail",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jd",
+    "subcommand": "item",
+    "invokeArgs": [
+      "item",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jd",
+    "subcommand": "reviews",
+    "invokeArgs": [
+      "reviews",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jd",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jianyu",
+    "subcommand": "detail",
+    "invokeArgs": [
+      "detail",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jianyu",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jike",
+    "subcommand": "comment",
+    "invokeArgs": [
+      "comment",
+      "__coverage__",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jike",
+    "subcommand": "create",
+    "invokeArgs": [
+      "create",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jike",
+    "subcommand": "feed",
+    "invokeArgs": [
+      "feed"
+    ]
+  },
+  {
+    "site": "jike",
+    "subcommand": "like",
+    "invokeArgs": [
+      "like",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jike",
+    "subcommand": "notifications",
+    "invokeArgs": [
+      "notifications"
+    ]
+  },
+  {
+    "site": "jike",
+    "subcommand": "post",
+    "invokeArgs": [
+      "post",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jike",
+    "subcommand": "repost",
+    "invokeArgs": [
+      "repost",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jike",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jike",
+    "subcommand": "topic",
+    "invokeArgs": [
+      "topic",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jike",
+    "subcommand": "user",
+    "invokeArgs": [
+      "user",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jimeng",
+    "subcommand": "generate",
+    "invokeArgs": [
+      "generate",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jimeng",
+    "subcommand": "generate-action-copy",
+    "invokeArgs": [
+      "generate-action-copy",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jimeng",
+    "subcommand": "generate-audio",
+    "invokeArgs": [
+      "generate-audio",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jimeng",
+    "subcommand": "generate-digital-human",
+    "invokeArgs": [
+      "generate-digital-human",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jimeng",
+    "subcommand": "generate-image2image",
+    "invokeArgs": [
+      "generate-image2image",
+      "__coverage__",
+      "--images",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jimeng",
+    "subcommand": "generate-image2video",
+    "invokeArgs": [
+      "generate-image2video",
+      "__coverage__",
+      "--image",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jimeng",
+    "subcommand": "generate-video",
+    "invokeArgs": [
+      "generate-video",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jimeng",
+    "subcommand": "history",
+    "invokeArgs": [
+      "history"
+    ]
+  },
+  {
+    "site": "jimeng",
+    "subcommand": "new",
+    "invokeArgs": [
+      "new"
+    ]
+  },
+  {
+    "site": "jimeng",
+    "subcommand": "user_assets",
+    "invokeArgs": [
+      "user_assets"
+    ]
+  },
+  {
+    "site": "jimeng",
+    "subcommand": "user_credit",
+    "invokeArgs": [
+      "user_credit"
+    ]
+  },
+  {
+    "site": "jimeng",
+    "subcommand": "user_subscription",
+    "invokeArgs": [
+      "user_subscription"
+    ]
+  },
+  {
+    "site": "jimeng",
+    "subcommand": "workspaces",
+    "invokeArgs": [
+      "workspaces"
+    ]
+  },
+  {
+    "site": "jira",
+    "subcommand": "attachments",
+    "invokeArgs": [
+      "attachments",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jira",
+    "subcommand": "comments",
+    "invokeArgs": [
+      "comments",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jira",
+    "subcommand": "issue",
+    "invokeArgs": [
+      "issue",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jira",
+    "subcommand": "links",
+    "invokeArgs": [
+      "links",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "jira",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "ke",
+    "subcommand": "chengjiao",
+    "invokeArgs": [
+      "chengjiao"
+    ]
+  },
+  {
+    "site": "ke",
+    "subcommand": "ershoufang",
+    "invokeArgs": [
+      "ershoufang"
+    ]
+  },
+  {
+    "site": "ke",
+    "subcommand": "xiaoqu",
+    "invokeArgs": [
+      "xiaoqu"
+    ]
+  },
+  {
+    "site": "ke",
+    "subcommand": "zufang",
+    "invokeArgs": [
+      "zufang"
+    ]
+  },
+  {
+    "site": "lesswrong",
+    "subcommand": "comments",
+    "invokeArgs": [
+      "comments",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "lesswrong",
+    "subcommand": "curated",
+    "invokeArgs": [
+      "curated"
+    ]
+  },
+  {
+    "site": "lesswrong",
+    "subcommand": "frontpage",
+    "invokeArgs": [
+      "frontpage"
+    ]
+  },
+  {
+    "site": "lesswrong",
+    "subcommand": "new",
+    "invokeArgs": [
+      "new"
+    ]
+  },
+  {
+    "site": "lesswrong",
+    "subcommand": "read",
+    "invokeArgs": [
+      "read",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "lesswrong",
+    "subcommand": "sequences",
+    "invokeArgs": [
+      "sequences"
+    ]
+  },
+  {
+    "site": "lesswrong",
+    "subcommand": "shortform",
+    "invokeArgs": [
+      "shortform"
+    ]
+  },
+  {
+    "site": "lesswrong",
+    "subcommand": "tag",
+    "invokeArgs": [
+      "tag",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "lesswrong",
+    "subcommand": "tags",
+    "invokeArgs": [
+      "tags"
+    ]
+  },
+  {
+    "site": "lesswrong",
+    "subcommand": "top",
+    "invokeArgs": [
+      "top"
+    ]
+  },
+  {
+    "site": "lesswrong",
+    "subcommand": "top-month",
+    "invokeArgs": [
+      "top-month"
+    ]
+  },
+  {
+    "site": "lesswrong",
+    "subcommand": "top-week",
+    "invokeArgs": [
+      "top-week"
+    ]
+  },
+  {
+    "site": "lesswrong",
+    "subcommand": "top-year",
+    "invokeArgs": [
+      "top-year"
+    ]
+  },
+  {
+    "site": "lesswrong",
+    "subcommand": "user",
+    "invokeArgs": [
+      "user",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "lesswrong",
+    "subcommand": "user-posts",
+    "invokeArgs": [
+      "user-posts",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "lichess",
+    "subcommand": "top",
+    "invokeArgs": [
+      "top",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "lichess",
+    "subcommand": "user",
+    "invokeArgs": [
+      "user",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "linkedin",
+    "subcommand": "connect",
+    "invokeArgs": [
+      "connect",
+      "__coverage__",
+      "--expected-name",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "linkedin",
+    "subcommand": "inbox",
+    "invokeArgs": [
+      "inbox"
+    ]
+  },
+  {
+    "site": "linkedin",
+    "subcommand": "people-search",
+    "invokeArgs": [
+      "people-search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "linkedin",
+    "subcommand": "safe-send",
+    "invokeArgs": [
+      "safe-send",
+      "--thread-url",
+      "__coverage__",
+      "--expected-name",
+      "__coverage__",
+      "--message",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "linkedin",
+    "subcommand": "salesnav-inbox",
+    "invokeArgs": [
+      "salesnav-inbox"
+    ]
+  },
+  {
+    "site": "linkedin",
+    "subcommand": "salesnav-message",
+    "invokeArgs": [
+      "salesnav-message",
+      "__coverage__",
+      "--subject",
+      "__coverage__",
+      "--body",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "linkedin",
+    "subcommand": "salesnav-search",
+    "invokeArgs": [
+      "salesnav-search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "linkedin",
+    "subcommand": "salesnav-thread",
+    "invokeArgs": [
+      "salesnav-thread",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "linkedin",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "linkedin",
+    "subcommand": "sent-invitations",
+    "invokeArgs": [
+      "sent-invitations"
+    ]
+  },
+  {
+    "site": "linkedin",
+    "subcommand": "thread-snapshot",
+    "invokeArgs": [
+      "thread-snapshot",
+      "--thread-url",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "linkedin",
+    "subcommand": "timeline",
+    "invokeArgs": [
+      "timeline"
+    ]
+  },
+  {
+    "site": "linkedin-learning",
+    "subcommand": "course",
+    "invokeArgs": [
+      "course",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "linkedin-learning",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "linkedin-learning",
+    "subcommand": "trending",
+    "invokeArgs": [
+      "trending"
+    ]
+  },
+  {
+    "site": "linux-do",
+    "subcommand": "categories",
+    "invokeArgs": [
+      "categories"
+    ]
+  },
+  {
+    "site": "linux-do",
+    "subcommand": "feed",
+    "invokeArgs": [
+      "feed"
+    ]
+  },
+  {
+    "site": "linux-do",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "linux-do",
+    "subcommand": "tags",
+    "invokeArgs": [
+      "tags"
+    ]
+  },
+  {
+    "site": "linux-do",
+    "subcommand": "topic",
+    "invokeArgs": [
+      "topic",
+      "1"
+    ]
+  },
+  {
+    "site": "linux-do",
+    "subcommand": "topic-content",
+    "invokeArgs": [
+      "topic-content",
+      "1"
+    ]
+  },
+  {
+    "site": "linux-do",
+    "subcommand": "user-posts",
+    "invokeArgs": [
+      "user-posts",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "linux-do",
+    "subcommand": "user-topics",
+    "invokeArgs": [
+      "user-topics",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "lobsters",
+    "subcommand": "active",
+    "invokeArgs": [
+      "active"
+    ]
+  },
+  {
+    "site": "lobsters",
+    "subcommand": "domain",
+    "invokeArgs": [
+      "domain",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "lobsters",
+    "subcommand": "hot",
+    "invokeArgs": [
+      "hot"
+    ]
+  },
+  {
+    "site": "lobsters",
+    "subcommand": "newest",
+    "invokeArgs": [
+      "newest"
+    ]
+  },
+  {
+    "site": "lobsters",
+    "subcommand": "read",
+    "invokeArgs": [
+      "read",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "lobsters",
+    "subcommand": "tag",
+    "invokeArgs": [
+      "tag",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "maimai",
+    "subcommand": "search-talents",
+    "invokeArgs": [
+      "search-talents",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "maven",
+    "subcommand": "artifact",
+    "invokeArgs": [
+      "artifact",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "maven",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "mdn",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "medium",
+    "subcommand": "feed",
+    "invokeArgs": [
+      "feed"
+    ]
+  },
+  {
+    "site": "medium",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "medium",
+    "subcommand": "tag",
+    "invokeArgs": [
+      "tag",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "medium",
+    "subcommand": "user",
+    "invokeArgs": [
+      "user",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "mubu",
+    "subcommand": "doc",
+    "invokeArgs": [
+      "doc",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "mubu",
+    "subcommand": "docs",
+    "invokeArgs": [
+      "docs"
+    ]
+  },
+  {
+    "site": "mubu",
+    "subcommand": "notes",
+    "invokeArgs": [
+      "notes"
+    ]
+  },
+  {
+    "site": "mubu",
+    "subcommand": "recent",
+    "invokeArgs": [
+      "recent"
+    ]
+  },
+  {
+    "site": "mubu",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "notebooklm",
+    "subcommand": "add-source",
+    "invokeArgs": [
+      "add-source",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "notebooklm",
+    "subcommand": "create",
+    "invokeArgs": [
+      "create",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "notebooklm",
+    "subcommand": "current",
+    "invokeArgs": [
+      "current"
+    ]
+  },
+  {
+    "site": "notebooklm",
+    "subcommand": "generate-audio",
+    "invokeArgs": [
+      "generate-audio",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "notebooklm",
+    "subcommand": "generate-slides",
+    "invokeArgs": [
+      "generate-slides",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "notebooklm",
+    "subcommand": "get",
+    "invokeArgs": [
+      "get"
+    ]
+  },
+  {
+    "site": "notebooklm",
+    "subcommand": "history",
+    "invokeArgs": [
+      "history"
+    ]
+  },
+  {
+    "site": "notebooklm",
+    "subcommand": "list",
+    "invokeArgs": [
+      "list"
+    ]
+  },
+  {
+    "site": "notebooklm",
+    "subcommand": "note-list",
+    "invokeArgs": [
+      "note-list"
+    ]
+  },
+  {
+    "site": "notebooklm",
+    "subcommand": "notes-get",
+    "invokeArgs": [
+      "notes-get",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "notebooklm",
+    "subcommand": "open",
+    "invokeArgs": [
+      "open",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "notebooklm",
+    "subcommand": "source-fulltext",
+    "invokeArgs": [
+      "source-fulltext",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "notebooklm",
+    "subcommand": "source-get",
+    "invokeArgs": [
+      "source-get",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "notebooklm",
+    "subcommand": "source-guide",
+    "invokeArgs": [
+      "source-guide",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "notebooklm",
+    "subcommand": "source-list",
+    "invokeArgs": [
+      "source-list"
+    ]
+  },
+  {
+    "site": "notebooklm",
+    "subcommand": "status",
+    "invokeArgs": [
+      "status"
+    ]
+  },
+  {
+    "site": "notebooklm",
+    "subcommand": "summary",
+    "invokeArgs": [
+      "summary"
+    ]
+  },
+  {
+    "site": "notebooklm",
+    "subcommand": "write-note",
+    "invokeArgs": [
+      "write-note",
+      "__coverage__",
+      "--title",
+      "__coverage__",
+      "--content",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "nowcoder",
+    "subcommand": "companies",
+    "invokeArgs": [
+      "companies"
+    ]
+  },
+  {
+    "site": "nowcoder",
+    "subcommand": "creators",
+    "invokeArgs": [
+      "creators"
+    ]
+  },
+  {
+    "site": "nowcoder",
+    "subcommand": "detail",
+    "invokeArgs": [
+      "detail",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "nowcoder",
+    "subcommand": "experience",
+    "invokeArgs": [
+      "experience"
+    ]
+  },
+  {
+    "site": "nowcoder",
+    "subcommand": "hot",
+    "invokeArgs": [
+      "hot"
+    ]
+  },
+  {
+    "site": "nowcoder",
+    "subcommand": "jobs",
+    "invokeArgs": [
+      "jobs"
+    ]
+  },
+  {
+    "site": "nowcoder",
+    "subcommand": "notifications",
+    "invokeArgs": [
+      "notifications"
+    ]
+  },
+  {
+    "site": "nowcoder",
+    "subcommand": "papers",
+    "invokeArgs": [
+      "papers"
+    ]
+  },
+  {
+    "site": "nowcoder",
+    "subcommand": "practice",
+    "invokeArgs": [
+      "practice"
+    ]
+  },
+  {
+    "site": "nowcoder",
+    "subcommand": "recommend",
+    "invokeArgs": [
+      "recommend"
+    ]
+  },
+  {
+    "site": "nowcoder",
+    "subcommand": "referral",
+    "invokeArgs": [
+      "referral"
+    ]
+  },
+  {
+    "site": "nowcoder",
+    "subcommand": "salary",
+    "invokeArgs": [
+      "salary"
+    ]
+  },
+  {
+    "site": "nowcoder",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "nowcoder",
+    "subcommand": "suggest",
+    "invokeArgs": [
+      "suggest",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "nowcoder",
+    "subcommand": "topics",
+    "invokeArgs": [
+      "topics"
+    ]
+  },
+  {
+    "site": "nowcoder",
+    "subcommand": "trending",
+    "invokeArgs": [
+      "trending"
+    ]
+  },
+  {
+    "site": "npm",
+    "subcommand": "downloads",
+    "invokeArgs": [
+      "downloads",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "npm",
+    "subcommand": "package",
+    "invokeArgs": [
+      "package",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "npm",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "nuget",
+    "subcommand": "package",
+    "invokeArgs": [
+      "package",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "nuget",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "nvd",
+    "subcommand": "cve",
+    "invokeArgs": [
+      "cve",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "oeis",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "oeis",
+    "subcommand": "sequence",
+    "invokeArgs": [
+      "sequence",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "ones",
+    "subcommand": "login",
+    "invokeArgs": [
+      "login"
+    ]
+  },
+  {
+    "site": "ones",
+    "subcommand": "logout",
+    "invokeArgs": [
+      "logout"
+    ]
+  },
+  {
+    "site": "ones",
+    "subcommand": "me",
+    "invokeArgs": [
+      "me"
+    ]
+  },
+  {
+    "site": "ones",
+    "subcommand": "my-tasks",
+    "invokeArgs": [
+      "my-tasks"
+    ]
+  },
+  {
+    "site": "ones",
+    "subcommand": "task",
+    "invokeArgs": [
+      "task",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "ones",
+    "subcommand": "tasks",
+    "invokeArgs": [
+      "tasks"
+    ]
+  },
+  {
+    "site": "ones",
+    "subcommand": "token-info",
+    "invokeArgs": [
+      "token-info"
+    ]
+  },
+  {
+    "site": "ones",
+    "subcommand": "worklog",
+    "invokeArgs": [
+      "worklog",
+      "__coverage__",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "openalex",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "openalex",
+    "subcommand": "work",
+    "invokeArgs": [
+      "work",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "openfda",
+    "subcommand": "drug-label",
+    "invokeArgs": [
+      "drug-label",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "openfda",
+    "subcommand": "food-recall",
+    "invokeArgs": [
+      "food-recall"
+    ]
+  },
+  {
+    "site": "openreview",
+    "subcommand": "author",
+    "invokeArgs": [
+      "author",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "openreview",
+    "subcommand": "paper",
+    "invokeArgs": [
+      "paper",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "openreview",
+    "subcommand": "reviews",
+    "invokeArgs": [
+      "reviews",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "openreview",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "openreview",
+    "subcommand": "venue",
+    "invokeArgs": [
+      "venue",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "osv",
+    "subcommand": "query",
+    "invokeArgs": [
+      "query",
+      "__coverage__",
+      "--ecosystem",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "osv",
+    "subcommand": "vulnerability",
+    "invokeArgs": [
+      "vulnerability",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "packagist",
+    "subcommand": "package",
+    "invokeArgs": [
+      "package",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "packagist",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "paperreview",
+    "subcommand": "feedback",
+    "invokeArgs": [
+      "feedback",
+      "__coverage__",
+      "--helpfulness",
+      "1",
+      "--critical-error",
+      "__coverage__",
+      "--actionable-suggestions",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "paperreview",
+    "subcommand": "review",
+    "invokeArgs": [
+      "review",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "paperreview",
+    "subcommand": "submit",
+    "invokeArgs": [
+      "submit",
+      "__coverage__",
+      "--email",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "pixiv",
+    "subcommand": "detail",
+    "invokeArgs": [
+      "detail",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "pixiv",
+    "subcommand": "download",
+    "invokeArgs": [
+      "download",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "pixiv",
+    "subcommand": "illusts",
+    "invokeArgs": [
+      "illusts",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "pixiv",
+    "subcommand": "ranking",
+    "invokeArgs": [
+      "ranking"
+    ]
+  },
+  {
+    "site": "pixiv",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "pixiv",
+    "subcommand": "user",
+    "invokeArgs": [
+      "user",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "powerchina",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "producthunt",
+    "subcommand": "browse",
+    "invokeArgs": [
+      "browse",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "producthunt",
+    "subcommand": "hot",
+    "invokeArgs": [
+      "hot"
+    ]
+  },
+  {
+    "site": "producthunt",
+    "subcommand": "posts",
+    "invokeArgs": [
+      "posts"
+    ]
+  },
+  {
+    "site": "producthunt",
+    "subcommand": "today",
+    "invokeArgs": [
+      "today"
+    ]
+  },
+  {
+    "site": "pubmed",
+    "subcommand": "article",
+    "invokeArgs": [
+      "article",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "pubmed",
+    "subcommand": "author",
+    "invokeArgs": [
+      "author",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "pubmed",
+    "subcommand": "citations",
+    "invokeArgs": [
+      "citations",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "pubmed",
+    "subcommand": "related",
+    "invokeArgs": [
+      "related",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "pubmed",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "pypi",
+    "subcommand": "downloads",
+    "invokeArgs": [
+      "downloads",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "pypi",
+    "subcommand": "package",
+    "invokeArgs": [
+      "package",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "quark",
+    "subcommand": "ls",
+    "invokeArgs": [
+      "ls"
+    ]
+  },
+  {
+    "site": "quark",
+    "subcommand": "mkdir",
+    "invokeArgs": [
+      "mkdir",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "quark",
+    "subcommand": "mv",
+    "invokeArgs": [
+      "mv",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "quark",
+    "subcommand": "rename",
+    "invokeArgs": [
+      "rename",
+      "__coverage__",
+      "--name",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "quark",
+    "subcommand": "rm",
+    "invokeArgs": [
+      "rm",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "quark",
+    "subcommand": "save",
+    "invokeArgs": [
+      "save",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "quark",
+    "subcommand": "share-tree",
+    "invokeArgs": [
+      "share-tree",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "qwen",
+    "subcommand": "ask",
+    "invokeArgs": [
+      "ask",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "qwen",
+    "subcommand": "detail",
+    "invokeArgs": [
+      "detail",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "qwen",
+    "subcommand": "history",
+    "invokeArgs": [
+      "history"
+    ]
+  },
+  {
+    "site": "qwen",
+    "subcommand": "image",
+    "invokeArgs": [
+      "image",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "qwen",
+    "subcommand": "new",
+    "invokeArgs": [
+      "new"
+    ]
+  },
+  {
+    "site": "qwen",
+    "subcommand": "read",
+    "invokeArgs": [
+      "read"
+    ]
+  },
+  {
+    "site": "qwen",
+    "subcommand": "send",
+    "invokeArgs": [
+      "send",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "qwen",
+    "subcommand": "status",
+    "invokeArgs": [
+      "status"
+    ]
+  },
+  {
+    "site": "reddit",
+    "subcommand": "comment",
+    "invokeArgs": [
+      "comment",
+      "__coverage__",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "reddit",
+    "subcommand": "frontpage",
+    "invokeArgs": [
+      "frontpage"
+    ]
+  },
+  {
+    "site": "reddit",
+    "subcommand": "home",
+    "invokeArgs": [
+      "home"
+    ]
+  },
+  {
+    "site": "reddit",
+    "subcommand": "hot",
+    "invokeArgs": [
+      "hot"
+    ]
+  },
+  {
+    "site": "reddit",
+    "subcommand": "popular",
+    "invokeArgs": [
+      "popular"
+    ]
+  },
+  {
+    "site": "reddit",
+    "subcommand": "read",
+    "invokeArgs": [
+      "read",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "reddit",
+    "subcommand": "reply",
+    "invokeArgs": [
+      "reply",
+      "__coverage__",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "reddit",
+    "subcommand": "save",
+    "invokeArgs": [
+      "save",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "reddit",
+    "subcommand": "saved",
+    "invokeArgs": [
+      "saved"
+    ]
+  },
+  {
+    "site": "reddit",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "reddit",
+    "subcommand": "subreddit",
+    "invokeArgs": [
+      "subreddit",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "reddit",
+    "subcommand": "subreddit-info",
+    "invokeArgs": [
+      "subreddit-info",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "reddit",
+    "subcommand": "subscribe",
+    "invokeArgs": [
+      "subscribe",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "reddit",
+    "subcommand": "subscribed",
+    "invokeArgs": [
+      "subscribed"
+    ]
+  },
+  {
+    "site": "reddit",
+    "subcommand": "upvote",
+    "invokeArgs": [
+      "upvote",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "reddit",
+    "subcommand": "upvoted",
+    "invokeArgs": [
+      "upvoted"
+    ]
+  },
+  {
+    "site": "reddit",
+    "subcommand": "user",
+    "invokeArgs": [
+      "user",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "reddit",
+    "subcommand": "user-comments",
+    "invokeArgs": [
+      "user-comments",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "reddit",
+    "subcommand": "user-posts",
+    "invokeArgs": [
+      "user-posts",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "reddit",
+    "subcommand": "whoami",
+    "invokeArgs": [
+      "whoami"
+    ]
+  },
+  {
+    "site": "rednote",
+    "subcommand": "comments",
+    "invokeArgs": [
+      "comments",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "rednote",
+    "subcommand": "download",
+    "invokeArgs": [
+      "download",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "rednote",
+    "subcommand": "feed",
+    "invokeArgs": [
+      "feed"
+    ]
+  },
+  {
+    "site": "rednote",
+    "subcommand": "note",
+    "invokeArgs": [
+      "note",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "rednote",
+    "subcommand": "notifications",
+    "invokeArgs": [
+      "notifications"
+    ]
+  },
+  {
+    "site": "rednote",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "rednote",
+    "subcommand": "user",
+    "invokeArgs": [
+      "user",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "rest-countries",
+    "subcommand": "country",
+    "invokeArgs": [
+      "country",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "rest-countries",
+    "subcommand": "region",
+    "invokeArgs": [
+      "region",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "reuters",
+    "subcommand": "article-detail",
+    "invokeArgs": [
+      "article-detail",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "reuters",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "rfc",
+    "subcommand": "rfc",
+    "invokeArgs": [
+      "rfc",
+      "1"
+    ]
+  },
+  {
+    "site": "rubygems",
+    "subcommand": "gem",
+    "invokeArgs": [
+      "gem",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "rubygems",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "sinablog",
+    "subcommand": "article",
+    "invokeArgs": [
+      "article",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "sinablog",
+    "subcommand": "hot",
+    "invokeArgs": [
+      "hot"
+    ]
+  },
+  {
+    "site": "sinablog",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "sinablog",
+    "subcommand": "user",
+    "invokeArgs": [
+      "user",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "sinafinance",
+    "subcommand": "news",
+    "invokeArgs": [
+      "news"
+    ]
+  },
+  {
+    "site": "sinafinance",
+    "subcommand": "rolling-news",
+    "invokeArgs": [
+      "rolling-news"
+    ]
+  },
+  {
+    "site": "sinafinance",
+    "subcommand": "stock",
+    "invokeArgs": [
+      "stock",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "sinafinance",
+    "subcommand": "stock-rank",
+    "invokeArgs": [
+      "stock-rank"
+    ]
+  },
+  {
+    "site": "smzdm",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "spotify",
+    "subcommand": "auth",
+    "invokeArgs": [
+      "auth"
+    ]
+  },
+  {
+    "site": "spotify",
+    "subcommand": "next",
+    "invokeArgs": [
+      "next"
+    ]
+  },
+  {
+    "site": "spotify",
+    "subcommand": "pause",
+    "invokeArgs": [
+      "pause"
+    ]
+  },
+  {
+    "site": "spotify",
+    "subcommand": "play",
+    "invokeArgs": [
+      "play"
+    ]
+  },
+  {
+    "site": "spotify",
+    "subcommand": "prev",
+    "invokeArgs": [
+      "prev"
+    ]
+  },
+  {
+    "site": "spotify",
+    "subcommand": "queue",
+    "invokeArgs": [
+      "queue",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "spotify",
+    "subcommand": "repeat",
+    "invokeArgs": [
+      "repeat"
+    ]
+  },
+  {
+    "site": "spotify",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "spotify",
+    "subcommand": "shuffle",
+    "invokeArgs": [
+      "shuffle"
+    ]
+  },
+  {
+    "site": "spotify",
+    "subcommand": "status",
+    "invokeArgs": [
+      "status"
+    ]
+  },
+  {
+    "site": "spotify",
+    "subcommand": "volume",
+    "invokeArgs": [
+      "volume"
+    ]
+  },
+  {
+    "site": "stackoverflow",
+    "subcommand": "bounties",
+    "invokeArgs": [
+      "bounties"
+    ]
+  },
+  {
+    "site": "stackoverflow",
+    "subcommand": "hot",
+    "invokeArgs": [
+      "hot"
+    ]
+  },
+  {
+    "site": "stackoverflow",
+    "subcommand": "read",
+    "invokeArgs": [
+      "read",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "stackoverflow",
+    "subcommand": "related",
+    "invokeArgs": [
+      "related",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "stackoverflow",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "stackoverflow",
+    "subcommand": "tag",
+    "invokeArgs": [
+      "tag",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "stackoverflow",
+    "subcommand": "unanswered",
+    "invokeArgs": [
+      "unanswered"
+    ]
+  },
+  {
+    "site": "stackoverflow",
+    "subcommand": "user",
+    "invokeArgs": [
+      "user",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "steam",
+    "subcommand": "app",
+    "invokeArgs": [
+      "app",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "steam",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "steam",
+    "subcommand": "top-sellers",
+    "invokeArgs": [
+      "top-sellers"
+    ]
+  },
+  {
+    "site": "substack",
+    "subcommand": "feed",
+    "invokeArgs": [
+      "feed"
+    ]
+  },
+  {
+    "site": "substack",
+    "subcommand": "publication",
+    "invokeArgs": [
+      "publication",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "substack",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "suno",
+    "subcommand": "download",
+    "invokeArgs": [
+      "download",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "suno",
+    "subcommand": "generate",
+    "invokeArgs": [
+      "generate"
+    ]
+  },
+  {
+    "site": "suno",
+    "subcommand": "list",
+    "invokeArgs": [
+      "list"
+    ]
+  },
+  {
+    "site": "suno",
+    "subcommand": "status",
+    "invokeArgs": [
+      "status"
+    ]
+  },
+  {
+    "site": "taobao",
+    "subcommand": "add-cart",
+    "invokeArgs": [
+      "add-cart",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "taobao",
+    "subcommand": "cart",
+    "invokeArgs": [
+      "cart"
+    ]
+  },
+  {
+    "site": "taobao",
+    "subcommand": "detail",
+    "invokeArgs": [
+      "detail",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "taobao",
+    "subcommand": "reviews",
+    "invokeArgs": [
+      "reviews",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "taobao",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "tdx",
+    "subcommand": "hot-rank",
+    "invokeArgs": [
+      "hot-rank"
+    ]
+  },
+  {
+    "site": "ths",
+    "subcommand": "hot-rank",
+    "invokeArgs": [
+      "hot-rank"
+    ]
+  },
+  {
+    "site": "tieba",
+    "subcommand": "hot",
+    "invokeArgs": [
+      "hot"
+    ]
+  },
+  {
+    "site": "tieba",
+    "subcommand": "posts",
+    "invokeArgs": [
+      "posts",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "tieba",
+    "subcommand": "read",
+    "invokeArgs": [
+      "read",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "tieba",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "tiktok",
+    "subcommand": "comment",
+    "invokeArgs": [
+      "comment",
+      "__coverage__",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "tiktok",
+    "subcommand": "creator-videos",
+    "invokeArgs": [
+      "creator-videos"
+    ]
+  },
+  {
+    "site": "tiktok",
+    "subcommand": "explore",
+    "invokeArgs": [
+      "explore"
+    ]
+  },
+  {
+    "site": "tiktok",
+    "subcommand": "follow",
+    "invokeArgs": [
+      "follow",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "tiktok",
+    "subcommand": "following",
+    "invokeArgs": [
+      "following"
+    ]
+  },
+  {
+    "site": "tiktok",
+    "subcommand": "friends",
+    "invokeArgs": [
+      "friends"
+    ]
+  },
+  {
+    "site": "tiktok",
+    "subcommand": "like",
+    "invokeArgs": [
+      "like",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "tiktok",
+    "subcommand": "live",
+    "invokeArgs": [
+      "live"
+    ]
+  },
+  {
+    "site": "tiktok",
+    "subcommand": "notifications",
+    "invokeArgs": [
+      "notifications"
+    ]
+  },
+  {
+    "site": "tiktok",
+    "subcommand": "profile",
+    "invokeArgs": [
+      "profile",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "tiktok",
+    "subcommand": "save",
+    "invokeArgs": [
+      "save",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "tiktok",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "tiktok",
+    "subcommand": "unfollow",
+    "invokeArgs": [
+      "unfollow",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "tiktok",
+    "subcommand": "unlike",
+    "invokeArgs": [
+      "unlike",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "tiktok",
+    "subcommand": "unsave",
+    "invokeArgs": [
+      "unsave",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "tiktok",
+    "subcommand": "user",
+    "invokeArgs": [
+      "user",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "toutiao",
+    "subcommand": "articles",
+    "invokeArgs": [
+      "articles"
+    ]
+  },
+  {
+    "site": "toutiao",
+    "subcommand": "hot",
+    "invokeArgs": [
+      "hot"
+    ]
+  },
+  {
+    "site": "tvmaze",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "tvmaze",
+    "subcommand": "show",
+    "invokeArgs": [
+      "show",
+      "1"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "accept",
+    "invokeArgs": [
+      "accept",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "article",
+    "invokeArgs": [
+      "article",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "block",
+    "invokeArgs": [
+      "block",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "bookmark",
+    "invokeArgs": [
+      "bookmark",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "bookmark-folder",
+    "invokeArgs": [
+      "bookmark-folder",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "bookmark-folders",
+    "invokeArgs": [
+      "bookmark-folders"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "bookmarks",
+    "invokeArgs": [
+      "bookmarks"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "delete",
+    "invokeArgs": [
+      "delete",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "device-follow",
+    "invokeArgs": [
+      "device-follow"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "download",
+    "invokeArgs": [
+      "download"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "follow",
+    "invokeArgs": [
+      "follow",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "followers",
+    "invokeArgs": [
+      "followers"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "following",
+    "invokeArgs": [
+      "following"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "hide-reply",
+    "invokeArgs": [
+      "hide-reply",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "like",
+    "invokeArgs": [
+      "like",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "likes",
+    "invokeArgs": [
+      "likes"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "list-add",
+    "invokeArgs": [
+      "list-add",
+      "__coverage__",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "list-create",
+    "invokeArgs": [
+      "list-create",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "list-remove",
+    "invokeArgs": [
+      "list-remove",
+      "__coverage__",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "list-tweets",
+    "invokeArgs": [
+      "list-tweets",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "lists",
+    "invokeArgs": [
+      "lists"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "notifications",
+    "invokeArgs": [
+      "notifications"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "post",
+    "invokeArgs": [
+      "post",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "profile",
+    "invokeArgs": [
+      "profile"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "quote",
+    "invokeArgs": [
+      "quote",
+      "__coverage__",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "reply",
+    "invokeArgs": [
+      "reply",
+      "__coverage__",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "reply-dm",
+    "invokeArgs": [
+      "reply-dm",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "retweet",
+    "invokeArgs": [
+      "retweet",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "thread",
+    "invokeArgs": [
+      "thread",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "timeline",
+    "invokeArgs": [
+      "timeline"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "trending",
+    "invokeArgs": [
+      "trending"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "tweets",
+    "invokeArgs": [
+      "tweets"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "unblock",
+    "invokeArgs": [
+      "unblock",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "unbookmark",
+    "invokeArgs": [
+      "unbookmark",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "unfollow",
+    "invokeArgs": [
+      "unfollow",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "unlike",
+    "invokeArgs": [
+      "unlike",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "twitter",
+    "subcommand": "unretweet",
+    "invokeArgs": [
+      "unretweet",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "uisdc",
+    "subcommand": "news",
+    "invokeArgs": [
+      "news"
+    ]
+  },
+  {
+    "site": "uiverse",
+    "subcommand": "code",
+    "invokeArgs": [
+      "code",
+      "__coverage__",
+      "--target",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "uiverse",
+    "subcommand": "preview",
+    "invokeArgs": [
+      "preview",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "upwork",
+    "subcommand": "detail",
+    "invokeArgs": [
+      "detail",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "upwork",
+    "subcommand": "feed",
+    "invokeArgs": [
+      "feed"
+    ]
+  },
+  {
+    "site": "upwork",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "v2ex",
+    "subcommand": "daily",
+    "invokeArgs": [
+      "daily"
+    ]
+  },
+  {
+    "site": "v2ex",
+    "subcommand": "hot",
+    "invokeArgs": [
+      "hot"
+    ]
+  },
+  {
+    "site": "v2ex",
+    "subcommand": "latest",
+    "invokeArgs": [
+      "latest"
+    ]
+  },
+  {
+    "site": "v2ex",
+    "subcommand": "me",
+    "invokeArgs": [
+      "me"
+    ]
+  },
+  {
+    "site": "v2ex",
+    "subcommand": "member",
+    "invokeArgs": [
+      "member",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "v2ex",
+    "subcommand": "node",
+    "invokeArgs": [
+      "node",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "v2ex",
+    "subcommand": "nodes",
+    "invokeArgs": [
+      "nodes"
+    ]
+  },
+  {
+    "site": "v2ex",
+    "subcommand": "notifications",
+    "invokeArgs": [
+      "notifications"
+    ]
+  },
+  {
+    "site": "v2ex",
+    "subcommand": "replies",
+    "invokeArgs": [
+      "replies",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "v2ex",
+    "subcommand": "topic",
+    "invokeArgs": [
+      "topic",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "v2ex",
+    "subcommand": "user",
+    "invokeArgs": [
+      "user",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "wanfang",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "web",
+    "subcommand": "read",
+    "invokeArgs": [
+      "read",
+      "--url",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "weibo",
+    "subcommand": "comments",
+    "invokeArgs": [
+      "comments",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "weibo",
+    "subcommand": "delete",
+    "invokeArgs": [
+      "delete",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "weibo",
+    "subcommand": "favorites",
+    "invokeArgs": [
+      "favorites"
+    ]
+  },
+  {
+    "site": "weibo",
+    "subcommand": "feed",
+    "invokeArgs": [
+      "feed"
+    ]
+  },
+  {
+    "site": "weibo",
+    "subcommand": "hot",
+    "invokeArgs": [
+      "hot"
+    ]
+  },
+  {
+    "site": "weibo",
+    "subcommand": "me",
+    "invokeArgs": [
+      "me"
+    ]
+  },
+  {
+    "site": "weibo",
+    "subcommand": "post",
+    "invokeArgs": [
+      "post",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "weibo",
+    "subcommand": "publish",
+    "invokeArgs": [
+      "publish",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "weibo",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "weibo",
+    "subcommand": "user",
+    "invokeArgs": [
+      "user",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "weibo",
+    "subcommand": "user-posts",
+    "invokeArgs": [
+      "user-posts",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "weixin",
+    "subcommand": "create-draft",
+    "invokeArgs": [
+      "create-draft",
+      "--title",
+      "__coverage__",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "weixin",
+    "subcommand": "download",
+    "invokeArgs": [
+      "download",
+      "--url",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "weixin",
+    "subcommand": "drafts",
+    "invokeArgs": [
+      "drafts"
+    ]
+  },
+  {
+    "site": "weixin",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "weread",
+    "subcommand": "ai-outline",
+    "invokeArgs": [
+      "ai-outline",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "weread",
+    "subcommand": "book",
+    "invokeArgs": [
+      "book",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "weread",
+    "subcommand": "highlights",
+    "invokeArgs": [
+      "highlights",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "weread",
+    "subcommand": "notebooks",
+    "invokeArgs": [
+      "notebooks"
+    ]
+  },
+  {
+    "site": "weread",
+    "subcommand": "notes",
+    "invokeArgs": [
+      "notes",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "weread",
+    "subcommand": "ranking",
+    "invokeArgs": [
+      "ranking"
+    ]
+  },
+  {
+    "site": "weread",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "weread",
+    "subcommand": "shelf",
+    "invokeArgs": [
+      "shelf"
+    ]
+  },
+  {
+    "site": "weread-official",
+    "subcommand": "book",
+    "invokeArgs": [
+      "book",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "weread-official",
+    "subcommand": "discover",
+    "invokeArgs": [
+      "discover"
+    ]
+  },
+  {
+    "site": "weread-official",
+    "subcommand": "list-apis",
+    "invokeArgs": [
+      "list-apis"
+    ]
+  },
+  {
+    "site": "weread-official",
+    "subcommand": "notes",
+    "invokeArgs": [
+      "notes"
+    ]
+  },
+  {
+    "site": "weread-official",
+    "subcommand": "readdata",
+    "invokeArgs": [
+      "readdata"
+    ]
+  },
+  {
+    "site": "weread-official",
+    "subcommand": "review",
+    "invokeArgs": [
+      "review",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "weread-official",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "weread-official",
+    "subcommand": "shelf",
+    "invokeArgs": [
+      "shelf"
+    ]
+  },
+  {
+    "site": "wikidata",
+    "subcommand": "entity",
+    "invokeArgs": [
+      "entity",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "wikidata",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "wikipedia",
+    "subcommand": "page",
+    "invokeArgs": [
+      "page",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "wikipedia",
+    "subcommand": "random",
+    "invokeArgs": [
+      "random"
+    ]
+  },
+  {
+    "site": "wikipedia",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "wikipedia",
+    "subcommand": "summary",
+    "invokeArgs": [
+      "summary",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "wikipedia",
+    "subcommand": "trending",
+    "invokeArgs": [
+      "trending"
+    ]
+  },
+  {
+    "site": "wttr",
+    "subcommand": "current",
+    "invokeArgs": [
+      "current",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "wttr",
+    "subcommand": "forecast",
+    "invokeArgs": [
+      "forecast",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xianyu",
+    "subcommand": "chat",
+    "invokeArgs": [
+      "chat",
+      "__coverage__",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xianyu",
+    "subcommand": "inbox",
+    "invokeArgs": [
+      "inbox"
+    ]
+  },
+  {
+    "site": "xianyu",
+    "subcommand": "item",
+    "invokeArgs": [
+      "item",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xianyu",
+    "subcommand": "messages",
+    "invokeArgs": [
+      "messages"
+    ]
+  },
+  {
+    "site": "xianyu",
+    "subcommand": "publish",
+    "invokeArgs": [
+      "publish",
+      "__coverage__",
+      "__coverage__",
+      "__coverage__",
+      "__coverage__",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xianyu",
+    "subcommand": "reply",
+    "invokeArgs": [
+      "reply",
+      "--text",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xianyu",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xiaoe",
+    "subcommand": "catalog",
+    "invokeArgs": [
+      "catalog",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xiaoe",
+    "subcommand": "content",
+    "invokeArgs": [
+      "content",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xiaoe",
+    "subcommand": "courses",
+    "invokeArgs": [
+      "courses"
+    ]
+  },
+  {
+    "site": "xiaoe",
+    "subcommand": "detail",
+    "invokeArgs": [
+      "detail",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xiaoe",
+    "subcommand": "play-url",
+    "invokeArgs": [
+      "play-url",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xiaohongshu",
+    "subcommand": "comments",
+    "invokeArgs": [
+      "comments",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xiaohongshu",
+    "subcommand": "creator-note-detail",
+    "invokeArgs": [
+      "creator-note-detail",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xiaohongshu",
+    "subcommand": "creator-notes",
+    "invokeArgs": [
+      "creator-notes"
+    ]
+  },
+  {
+    "site": "xiaohongshu",
+    "subcommand": "creator-notes-summary",
+    "invokeArgs": [
+      "creator-notes-summary"
+    ]
+  },
+  {
+    "site": "xiaohongshu",
+    "subcommand": "creator-profile",
+    "invokeArgs": [
+      "creator-profile"
+    ]
+  },
+  {
+    "site": "xiaohongshu",
+    "subcommand": "creator-stats",
+    "invokeArgs": [
+      "creator-stats"
+    ]
+  },
+  {
+    "site": "xiaohongshu",
+    "subcommand": "delete-note",
+    "invokeArgs": [
+      "delete-note",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xiaohongshu",
+    "subcommand": "download",
+    "invokeArgs": [
+      "download",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xiaohongshu",
+    "subcommand": "feed",
+    "invokeArgs": [
+      "feed"
+    ]
+  },
+  {
+    "site": "xiaohongshu",
+    "subcommand": "note",
+    "invokeArgs": [
+      "note",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xiaohongshu",
+    "subcommand": "notifications",
+    "invokeArgs": [
+      "notifications"
+    ]
+  },
+  {
+    "site": "xiaohongshu",
+    "subcommand": "publish",
+    "invokeArgs": [
+      "publish",
+      "--title",
+      "__coverage__",
+      "__coverage__",
+      "--images",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xiaohongshu",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xiaohongshu",
+    "subcommand": "user",
+    "invokeArgs": [
+      "user",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xiaoyuzhou",
+    "subcommand": "download",
+    "invokeArgs": [
+      "download",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xiaoyuzhou",
+    "subcommand": "episode",
+    "invokeArgs": [
+      "episode",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xiaoyuzhou",
+    "subcommand": "podcast",
+    "invokeArgs": [
+      "podcast",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xiaoyuzhou",
+    "subcommand": "podcast-episodes",
+    "invokeArgs": [
+      "podcast-episodes",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xiaoyuzhou",
+    "subcommand": "transcript",
+    "invokeArgs": [
+      "transcript",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xueqiu",
+    "subcommand": "comments",
+    "invokeArgs": [
+      "comments",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xueqiu",
+    "subcommand": "earnings-date",
+    "invokeArgs": [
+      "earnings-date",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xueqiu",
+    "subcommand": "feed",
+    "invokeArgs": [
+      "feed"
+    ]
+  },
+  {
+    "site": "xueqiu",
+    "subcommand": "fund-holdings",
+    "invokeArgs": [
+      "fund-holdings"
+    ]
+  },
+  {
+    "site": "xueqiu",
+    "subcommand": "fund-snapshot",
+    "invokeArgs": [
+      "fund-snapshot"
+    ]
+  },
+  {
+    "site": "xueqiu",
+    "subcommand": "groups",
+    "invokeArgs": [
+      "groups"
+    ]
+  },
+  {
+    "site": "xueqiu",
+    "subcommand": "hot",
+    "invokeArgs": [
+      "hot"
+    ]
+  },
+  {
+    "site": "xueqiu",
+    "subcommand": "hot-stock",
+    "invokeArgs": [
+      "hot-stock"
+    ]
+  },
+  {
+    "site": "xueqiu",
+    "subcommand": "kline",
+    "invokeArgs": [
+      "kline",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xueqiu",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xueqiu",
+    "subcommand": "stock",
+    "invokeArgs": [
+      "stock",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "xueqiu",
+    "subcommand": "watchlist",
+    "invokeArgs": [
+      "watchlist"
+    ]
+  },
+  {
+    "site": "yahoo",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "yahoo-finance",
+    "subcommand": "quote",
+    "invokeArgs": [
+      "quote",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "yollomi",
+    "subcommand": "background",
+    "invokeArgs": [
+      "background",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "yollomi",
+    "subcommand": "edit",
+    "invokeArgs": [
+      "edit",
+      "__coverage__",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "yollomi",
+    "subcommand": "face-swap",
+    "invokeArgs": [
+      "face-swap",
+      "--source",
+      "__coverage__",
+      "--target",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "yollomi",
+    "subcommand": "generate",
+    "invokeArgs": [
+      "generate",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "yollomi",
+    "subcommand": "models",
+    "invokeArgs": [
+      "models"
+    ]
+  },
+  {
+    "site": "yollomi",
+    "subcommand": "object-remover",
+    "invokeArgs": [
+      "object-remover",
+      "__coverage__",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "yollomi",
+    "subcommand": "remove-bg",
+    "invokeArgs": [
+      "remove-bg",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "yollomi",
+    "subcommand": "restore",
+    "invokeArgs": [
+      "restore",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "yollomi",
+    "subcommand": "try-on",
+    "invokeArgs": [
+      "try-on",
+      "--person",
+      "__coverage__",
+      "--cloth",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "yollomi",
+    "subcommand": "upload",
+    "invokeArgs": [
+      "upload",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "yollomi",
+    "subcommand": "upscale",
+    "invokeArgs": [
+      "upscale",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "yollomi",
+    "subcommand": "video",
+    "invokeArgs": [
+      "video",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "youdao",
+    "subcommand": "note",
+    "invokeArgs": [
+      "note",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "youtube",
+    "subcommand": "channel",
+    "invokeArgs": [
+      "channel",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "youtube",
+    "subcommand": "comments",
+    "invokeArgs": [
+      "comments",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "youtube",
+    "subcommand": "feed",
+    "invokeArgs": [
+      "feed"
+    ]
+  },
+  {
+    "site": "youtube",
+    "subcommand": "history",
+    "invokeArgs": [
+      "history"
+    ]
+  },
+  {
+    "site": "youtube",
+    "subcommand": "like",
+    "invokeArgs": [
+      "like",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "youtube",
+    "subcommand": "playlist",
+    "invokeArgs": [
+      "playlist",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "youtube",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "youtube",
+    "subcommand": "subscribe",
+    "invokeArgs": [
+      "subscribe",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "youtube",
+    "subcommand": "subscriptions",
+    "invokeArgs": [
+      "subscriptions"
+    ]
+  },
+  {
+    "site": "youtube",
+    "subcommand": "transcript",
+    "invokeArgs": [
+      "transcript",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "youtube",
+    "subcommand": "unlike",
+    "invokeArgs": [
+      "unlike",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "youtube",
+    "subcommand": "unsubscribe",
+    "invokeArgs": [
+      "unsubscribe",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "youtube",
+    "subcommand": "video",
+    "invokeArgs": [
+      "video",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "youtube",
+    "subcommand": "watch-later",
+    "invokeArgs": [
+      "watch-later"
+    ]
+  },
+  {
+    "site": "yuanbao",
+    "subcommand": "ask",
+    "invokeArgs": [
+      "ask",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "yuanbao",
+    "subcommand": "detail",
+    "invokeArgs": [
+      "detail",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "yuanbao",
+    "subcommand": "history",
+    "invokeArgs": [
+      "history"
+    ]
+  },
+  {
+    "site": "yuanbao",
+    "subcommand": "new",
+    "invokeArgs": [
+      "new"
+    ]
+  },
+  {
+    "site": "yuanbao",
+    "subcommand": "read",
+    "invokeArgs": [
+      "read"
+    ]
+  },
+  {
+    "site": "yuanbao",
+    "subcommand": "send",
+    "invokeArgs": [
+      "send",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "yuanbao",
+    "subcommand": "status",
+    "invokeArgs": [
+      "status"
+    ]
+  },
+  {
+    "site": "zhihu",
+    "subcommand": "answer",
+    "invokeArgs": [
+      "answer",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "zhihu",
+    "subcommand": "answer-comments",
+    "invokeArgs": [
+      "answer-comments",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "zhihu",
+    "subcommand": "answer-detail",
+    "invokeArgs": [
+      "answer-detail",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "zhihu",
+    "subcommand": "collection",
+    "invokeArgs": [
+      "collection",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "zhihu",
+    "subcommand": "collections",
+    "invokeArgs": [
+      "collections"
+    ]
+  },
+  {
+    "site": "zhihu",
+    "subcommand": "comment",
+    "invokeArgs": [
+      "comment",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "zhihu",
+    "subcommand": "download",
+    "invokeArgs": [
+      "download",
+      "--url",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "zhihu",
+    "subcommand": "favorite",
+    "invokeArgs": [
+      "favorite",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "zhihu",
+    "subcommand": "follow",
+    "invokeArgs": [
+      "follow",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "zhihu",
+    "subcommand": "hot",
+    "invokeArgs": [
+      "hot"
+    ]
+  },
+  {
+    "site": "zhihu",
+    "subcommand": "like",
+    "invokeArgs": [
+      "like",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "zhihu",
+    "subcommand": "question",
+    "invokeArgs": [
+      "question",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "zhihu",
+    "subcommand": "recommend",
+    "invokeArgs": [
+      "recommend"
+    ]
+  },
+  {
+    "site": "zhihu",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "zlibrary",
+    "subcommand": "info",
+    "invokeArgs": [
+      "info",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "zlibrary",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "zsxq",
+    "subcommand": "dynamics",
+    "invokeArgs": [
+      "dynamics"
+    ]
+  },
+  {
+    "site": "zsxq",
+    "subcommand": "groups",
+    "invokeArgs": [
+      "groups"
+    ]
+  },
+  {
+    "site": "zsxq",
+    "subcommand": "search",
+    "invokeArgs": [
+      "search",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "zsxq",
+    "subcommand": "topic",
+    "invokeArgs": [
+      "topic",
+      "__coverage__"
+    ]
+  },
+  {
+    "site": "zsxq",
+    "subcommand": "topics",
+    "invokeArgs": [
+      "topics"
+    ]
+  }
+]
