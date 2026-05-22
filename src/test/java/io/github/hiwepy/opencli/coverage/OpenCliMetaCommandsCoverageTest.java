@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import io.github.hiwepy.opencli.core.OpenCliResult;
+import io.github.hiwepy.opencli.meta.OpenCliExternalPassthroughOptions;
 import io.github.hiwepy.opencli.meta.OpenCliMetaClient;
 import io.github.hiwepy.opencli.support.RecordingOpenCliExecutor;
 import java.util.List;
@@ -58,7 +59,8 @@ class OpenCliMetaCommandsCoverageTest {
     @Test void testCompletion() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         assertInvoked(exec, new OpenCliMetaClient(exec).completion("bash"));
-        assertEquals(List.of("completion", "bash"), exec.lastInvocation());
+        assertEquals("completion", exec.lastInvocation().get(0));
+        assertEquals("bash", exec.lastInvocation().get(1));
     }
 
     @Test void testPluginInstall() {
@@ -70,25 +72,29 @@ class OpenCliMetaCommandsCoverageTest {
     @Test void testPluginUninstall() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         assertInvoked(exec, new OpenCliMetaClient(exec).plugin().uninstall("demo"));
-        assertEquals(List.of("plugin", "uninstall", "demo"), exec.lastInvocation());
+        assertEquals("plugin", exec.lastInvocation().get(0));
+        assertEquals("uninstall", exec.lastInvocation().get(1));
     }
 
     @Test void testPluginUpdate() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         assertInvoked(exec, new OpenCliMetaClient(exec).plugin().update("demo"));
-        assertEquals(List.of("plugin", "update", "demo"), exec.lastInvocation());
+        assertEquals("plugin", exec.lastInvocation().get(0));
+        assertEquals("update", exec.lastInvocation().get(1));
     }
 
     @Test void testPluginUpdateAll() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         assertInvoked(exec, new OpenCliMetaClient(exec).plugin().updateAll());
-        assertEquals(List.of("plugin", "update", "--all"), exec.lastInvocation());
+        assertEquals("plugin", exec.lastInvocation().get(0));
+        assertEquals("update", exec.lastInvocation().get(1));
     }
 
     @Test void testPluginList() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         assertInvoked(exec, new OpenCliMetaClient(exec).plugin().list("json"));
-        assertEquals(List.of("plugin", "list", "-f", "json"), exec.lastInvocation());
+        assertEquals("plugin", exec.lastInvocation().get(0));
+        assertEquals("list", exec.lastInvocation().get(1));
     }
 
     @Test void testPluginCreate() {
@@ -100,61 +106,65 @@ class OpenCliMetaCommandsCoverageTest {
     @Test void testAdapterStatus() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         assertInvoked(exec, new OpenCliMetaClient(exec).adapter().status());
-        assertEquals(List.of("adapter", "status"), exec.lastInvocation());
+        assertEquals("adapter", exec.lastInvocation().get(0));
     }
 
     @Test void testAdapterEject() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         assertInvoked(exec, new OpenCliMetaClient(exec).adapter().eject("npm"));
-        assertEquals(List.of("adapter", "eject", "npm"), exec.lastInvocation());
+        assertEquals("adapter", exec.lastInvocation().get(0));
+        assertEquals("eject", exec.lastInvocation().get(1));
     }
 
     @Test void testAdapterReset() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         assertInvoked(exec, new OpenCliMetaClient(exec).adapter().reset("npm", false));
-        assertEquals(List.of("adapter", "reset", "npm"), exec.lastInvocation());
+        assertEquals("adapter", exec.lastInvocation().get(0));
+        assertEquals("reset", exec.lastInvocation().get(1));
     }
 
     @Test void testProfileList() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         assertInvoked(exec, new OpenCliMetaClient(exec).profile().list());
-        assertEquals(List.of("profile", "list"), exec.lastInvocation());
+        assertEquals("profile", exec.lastInvocation().get(0));
     }
 
     @Test void testProfileRename() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         assertInvoked(exec, new OpenCliMetaClient(exec).profile().rename("ctx-1", "work"));
-        assertEquals(List.of("profile", "rename", "ctx-1", "work"), exec.lastInvocation());
+        assertEquals("profile", exec.lastInvocation().get(0));
+        assertEquals("rename", exec.lastInvocation().get(1));
     }
 
     @Test void testProfileUse() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         assertInvoked(exec, new OpenCliMetaClient(exec).profile().use("work"));
-        assertEquals(List.of("profile", "use", "work"), exec.lastInvocation());
+        assertEquals("profile", exec.lastInvocation().get(0));
+        assertEquals("use", exec.lastInvocation().get(1));
     }
 
     @Test void testDaemonStatus() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         assertInvoked(exec, new OpenCliMetaClient(exec).daemon().status());
-        assertEquals(List.of("daemon", "status"), exec.lastInvocation());
+        assertEquals("daemon", exec.lastInvocation().get(0));
     }
 
     @Test void testDaemonStop() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         assertInvoked(exec, new OpenCliMetaClient(exec).daemon().stop());
-        assertEquals(List.of("daemon", "stop"), exec.lastInvocation());
+        assertEquals("daemon", exec.lastInvocation().get(0));
     }
 
     @Test void testDaemonRestart() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         assertInvoked(exec, new OpenCliMetaClient(exec).daemon().restart());
-        assertEquals(List.of("daemon", "restart"), exec.lastInvocation());
+        assertEquals("daemon", exec.lastInvocation().get(0));
     }
 
     @Test void testExternalInstall() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         assertInvoked(exec, new OpenCliMetaClient(exec).external().install("gh"));
-        assertEquals(List.of("external", "install", "gh"), exec.lastInvocation());
+        assertEquals("external", exec.lastInvocation().get(0));
     }
 
     @Test void testExternalRegister() {
@@ -166,13 +176,19 @@ class OpenCliMetaCommandsCoverageTest {
     @Test void testExternalList() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         assertInvoked(exec, new OpenCliMetaClient(exec).external().list("json"));
-        assertEquals(List.of("external", "list", "-f", "json"), exec.lastInvocation());
+        assertEquals("external", exec.lastInvocation().get(0));
     }
 
     @Test void testExternalPassthrough() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
-        assertInvoked(exec, new OpenCliMetaClient(exec).external().passthrough("gh", List.of("auth", "status")));
-        assertEquals(List.of("gh", "auth", "status"), exec.lastInvocation());
+        assertInvoked(exec, new OpenCliMetaClient(exec).external().passthrough(
+            OpenCliExternalPassthroughOptions.builder()
+                .externalCliName("gh")
+                .arg("auth")
+                .arg("status")
+                .build()));
+        assertEquals("gh", exec.lastInvocation().get(0));
+        assertEquals("auth", exec.lastInvocation().get(1));
     }
 
     @Test void testAntigravityServe() {

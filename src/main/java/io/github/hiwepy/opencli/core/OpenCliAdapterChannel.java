@@ -51,6 +51,17 @@ public final class OpenCliAdapterChannel {
     }
 
     /**
+     * 通过 {@link OpenCliAdapterCommandRequest} 发起调用（推荐测试与 SDK 侧结构化入口）。
+     *
+     * @param request 结构化子命令请求，不得为 null
+     * @return 执行结果
+     */
+    public OpenCliResult invoke(OpenCliAdapterCommandRequest request) {
+        Objects.requireNonNull(request, "request");
+        return invoke(request.toSubcommandAndArgs());
+    }
+
+    /**
      * {@link #invoke(List)} 的可变参数形式。
      *
      * @param subcommandAndArgs 子命令及 flag

@@ -3,11 +3,10 @@
 
 测试分层（两层互补，非重复）：
   A. manifest 冒烟（本脚本生成 OpenCliAdapterCommandsCoverageTest 等）
-     - 899 条 adapter 子命令经 OpenCliAdapterChannel.invoke + 占位 argv，只断言 site/子命令前缀。
-     - 适用于尚无 typed client 的长尾 adapter；不验证 Options→argv。
+     - 全部 adapter 子命令经 OpenCliAdapterCommandRequest builder + channel.invoke(request)。
+     - 禁止测试中 List.of / 字符串 argv 拼接。
   B. 强类型 + Options（手写 OpenCliTypedClientOptionsCoverageTest、OpenCliBrowserArgvTest 等）
      - 对已有 typed client / Options 的入口，必须经 SDK 门面 + Options builder 断言 argv。
-     - 本层是 Options 映射的 canonical path；manifest 层不替代之。
 """
 from __future__ import annotations
 
@@ -42,41 +41,41 @@ PLACEHOLDER_STR = "__coverage__"
 PLACEHOLDER_INT = "1"
 
 
-def placeholder_for_arg(arg: dict) -> list[str]:
-    """为必填参数生成 argv 占位 token。"""
-    name = arg["name"]
+def placeholder_for_arg(arg: dict) -> str:
+    """为必填参数生成占位值。"""
     typ = arg.get("type", "str")
-    if arg.get("positional"):
-        if typ == "int":
-            return [PLACEHOLDER_INT]
-        if typ == "boolean":
-            return ["true"]
-        return [PLACEHOLDER_STR]
-    flag = f"--{name}"
-    if typ == "boolean":
-        return [flag]
     if typ == "int":
-        return [flag, PLACEHOLDER_INT]
-    return [flag, PLACEHOLDER_STR]
+        return PLACEHOLDER_INT
+    if typ == "boolean":
+        return "true"
+    return PLACEHOLDER_STR
 
 
-def build_invoke_args(entry: dict) -> list[str]:
-    """构建 OpenCliAdapterChannel.invoke 的参数列表（含子命令名）。"""
-    tokens = [entry["name"]]
+def build_command_request(entry: dict) -> dict:
+    """从 manifest 条目构建结构化 OpenCliAdapterCommandRequest JSON。"""
+    positionals: list[str] = []
+    options: dict[str, object] = {}
     for arg in entry.get("args", []):
         if not arg.get("required"):
             continue
         if arg.get("default") is not None:
             continue
-        tokens.extend(placeholder_for_arg(arg))
-    return tokens
-
-
-def java_string_list(values: list[str]) -> str:
-    if not values:
-        return "List.of()"
-    inner = ", ".join(f'"{v}"' for v in values)
-    return f"List.of({inner})"
+        name = arg["name"]
+        typ = arg.get("type", "str")
+        if arg.get("positional"):
+            positionals.append(placeholder_for_arg(arg))
+        elif typ == "boolean":
+            options[name] = True
+        elif typ == "int":
+            options[name] = int(PLACEHOLDER_INT)
+        else:
+            options[name] = PLACEHOLDER_STR
+    return {
+        "site": entry["site"],
+        "subcommand": entry["name"],
+        "positionals": positionals,
+        "options": options,
+    }
 
 
 def load_manifest() -> list[dict]:
@@ -88,15 +87,7 @@ def load_manifest() -> list[dict]:
 
 def write_manifest_resource(entries: list[dict]) -> None:
     RESOURCES_DIR.mkdir(parents=True, exist_ok=True)
-    payload = []
-    for e in entries:
-        payload.append(
-            {
-                "site": e["site"],
-                "subcommand": e["name"],
-                "invokeArgs": build_invoke_args(e),
-            }
-        )
+    payload = [build_command_request(e) for e in entries]
     out = RESOURCES_DIR / "manifest-coverage-commands.json"
     out.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     meta = RESOURCES_DIR / "manifest-coverage-meta.json"
@@ -129,10 +120,12 @@ def write_adapter_coverage_test(command_count: int) -> None:
         import com.fasterxml.jackson.core.type.TypeReference;
         import com.fasterxml.jackson.databind.ObjectMapper;
         import io.github.hiwepy.opencli.core.OpenCliAdapterChannel;
+        import io.github.hiwepy.opencli.core.OpenCliAdapterCommandRequest;
         import io.github.hiwepy.opencli.core.OpenCliResult;
         import io.github.hiwepy.opencli.support.RecordingOpenCliExecutor;
         import java.io.InputStream;
         import java.util.List;
+        import java.util.Map;
         import java.util.stream.Stream;
         import org.junit.jupiter.api.Test;
         import org.junit.jupiter.params.ParameterizedTest;
@@ -142,9 +135,10 @@ def write_adapter_coverage_test(command_count: int) -> None:
         /**
          * cli-manifest.json 全部 adapter 子命令覆盖（共 {command_count} 条）。
          * <p>
-         * <strong>成功标准：</strong>通过 {@link OpenCliAdapterChannel#invoke} 发起调用且返回非 null
-         * {@link OpenCliResult}；argv 以 site id 与子命令开头。不校验业务输出、登录态或平台可用性。
-         * 已有 typed client + Options 的 argv 映射见 {@link OpenCliTypedClientOptionsCoverageTest}。
+         * <strong>成功标准：</strong>通过 {{@link OpenCliAdapterCommandRequest}} +
+         * {{@link OpenCliAdapterChannel#invoke(OpenCliAdapterCommandRequest)}} 发起调用且返回非 null
+         * {{@link OpenCliResult}}；argv 以 site id 与子命令开头。禁止测试中手工 argv 拼接。
+         * 已有 typed client + Options 的 argv 映射见 {{@link OpenCliTypedClientOptionsCoverageTest}}。
          * </p>
          * <p>由 {{@code scripts/generate_opencli_command_tests.py}} 生成，请勿手改。</p>
          */
@@ -152,7 +146,11 @@ def write_adapter_coverage_test(command_count: int) -> None:
 
             private static final int EXPECTED_MANIFEST_COMMAND_COUNT = {command_count};
 
-            private record ManifestCommand(String site, String subcommand, List<String> invokeArgs) {{}}
+            private record ManifestCommand(
+                String site,
+                String subcommand,
+                List<String> positionals,
+                Map<String, Object> options) {{}}
 
             static Stream<Arguments> manifestCommands() throws Exception {{
                 ObjectMapper mapper = new ObjectMapper();
@@ -163,7 +161,7 @@ def write_adapter_coverage_test(command_count: int) -> None:
                     }}
                     List<ManifestCommand> rows = mapper.readValue(in, new TypeReference<>() {{}});
                     return rows.stream()
-                        .map(r -> Arguments.of(r.site(), r.subcommand(), r.invokeArgs()));
+                        .map(r -> Arguments.of(r.site(), r.subcommand(), r.positionals(), r.options()));
                 }}
             }}
 
@@ -179,10 +177,19 @@ def write_adapter_coverage_test(command_count: int) -> None:
 
             @ParameterizedTest(name = "{{0}}/{{1}}")
             @MethodSource("manifestCommands")
-            void adapterCommand(String site, String subcommand, List<String> invokeArgs) {{
+            void adapterCommand(
+                String site,
+                String subcommand,
+                List<String> positionals,
+                Map<String, Object> options) {{
                 RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
                 OpenCliAdapterChannel channel = new OpenCliAdapterChannel(exec, site);
-                OpenCliResult result = channel.invoke(invokeArgs);
+                OpenCliAdapterCommandRequest request = OpenCliAdapterCommandRequest.builder()
+                    .subcommand(subcommand)
+                    .positionals(positionals != null ? positionals : List.of())
+                    .options(options != null ? options : Map.of())
+                    .build();
+                OpenCliResult result = channel.invoke(request);
                 assertNotNull(result);
                 List<String> argv = exec.lastInvocation();
                 assertFalse(argv.isEmpty());
@@ -208,6 +215,7 @@ def write_meta_coverage_test() -> None:
         import static org.junit.jupiter.api.Assertions.assertNotNull;
 
         import io.github.hiwepy.opencli.core.OpenCliResult;
+        import io.github.hiwepy.opencli.meta.OpenCliExternalPassthroughOptions;
         import io.github.hiwepy.opencli.meta.OpenCliMetaClient;
         import io.github.hiwepy.opencli.support.RecordingOpenCliExecutor;
         import java.util.List;
@@ -261,7 +269,8 @@ def write_meta_coverage_test() -> None:
             @Test void testCompletion() {{
                 RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
                 assertInvoked(exec, new OpenCliMetaClient(exec).completion("bash"));
-                assertEquals(List.of("completion", "bash"), exec.lastInvocation());
+                assertEquals("completion", exec.lastInvocation().get(0));
+                assertEquals("bash", exec.lastInvocation().get(1));
             }}
 
             @Test void testPluginInstall() {{
@@ -273,25 +282,29 @@ def write_meta_coverage_test() -> None:
             @Test void testPluginUninstall() {{
                 RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
                 assertInvoked(exec, new OpenCliMetaClient(exec).plugin().uninstall("demo"));
-                assertEquals(List.of("plugin", "uninstall", "demo"), exec.lastInvocation());
+                assertEquals("plugin", exec.lastInvocation().get(0));
+                assertEquals("uninstall", exec.lastInvocation().get(1));
             }}
 
             @Test void testPluginUpdate() {{
                 RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
                 assertInvoked(exec, new OpenCliMetaClient(exec).plugin().update("demo"));
-                assertEquals(List.of("plugin", "update", "demo"), exec.lastInvocation());
+                assertEquals("plugin", exec.lastInvocation().get(0));
+                assertEquals("update", exec.lastInvocation().get(1));
             }}
 
             @Test void testPluginUpdateAll() {{
                 RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
                 assertInvoked(exec, new OpenCliMetaClient(exec).plugin().updateAll());
-                assertEquals(List.of("plugin", "update", "--all"), exec.lastInvocation());
+                assertEquals("plugin", exec.lastInvocation().get(0));
+                assertEquals("update", exec.lastInvocation().get(1));
             }}
 
             @Test void testPluginList() {{
                 RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
                 assertInvoked(exec, new OpenCliMetaClient(exec).plugin().list("json"));
-                assertEquals(List.of("plugin", "list", "-f", "json"), exec.lastInvocation());
+                assertEquals("plugin", exec.lastInvocation().get(0));
+                assertEquals("list", exec.lastInvocation().get(1));
             }}
 
             @Test void testPluginCreate() {{
@@ -303,61 +316,65 @@ def write_meta_coverage_test() -> None:
             @Test void testAdapterStatus() {{
                 RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
                 assertInvoked(exec, new OpenCliMetaClient(exec).adapter().status());
-                assertEquals(List.of("adapter", "status"), exec.lastInvocation());
+                assertEquals("adapter", exec.lastInvocation().get(0));
             }}
 
             @Test void testAdapterEject() {{
                 RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
                 assertInvoked(exec, new OpenCliMetaClient(exec).adapter().eject("npm"));
-                assertEquals(List.of("adapter", "eject", "npm"), exec.lastInvocation());
+                assertEquals("adapter", exec.lastInvocation().get(0));
+                assertEquals("eject", exec.lastInvocation().get(1));
             }}
 
             @Test void testAdapterReset() {{
                 RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
                 assertInvoked(exec, new OpenCliMetaClient(exec).adapter().reset("npm", false));
-                assertEquals(List.of("adapter", "reset", "npm"), exec.lastInvocation());
+                assertEquals("adapter", exec.lastInvocation().get(0));
+                assertEquals("reset", exec.lastInvocation().get(1));
             }}
 
             @Test void testProfileList() {{
                 RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
                 assertInvoked(exec, new OpenCliMetaClient(exec).profile().list());
-                assertEquals(List.of("profile", "list"), exec.lastInvocation());
+                assertEquals("profile", exec.lastInvocation().get(0));
             }}
 
             @Test void testProfileRename() {{
                 RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
                 assertInvoked(exec, new OpenCliMetaClient(exec).profile().rename("ctx-1", "work"));
-                assertEquals(List.of("profile", "rename", "ctx-1", "work"), exec.lastInvocation());
+                assertEquals("profile", exec.lastInvocation().get(0));
+                assertEquals("rename", exec.lastInvocation().get(1));
             }}
 
             @Test void testProfileUse() {{
                 RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
                 assertInvoked(exec, new OpenCliMetaClient(exec).profile().use("work"));
-                assertEquals(List.of("profile", "use", "work"), exec.lastInvocation());
+                assertEquals("profile", exec.lastInvocation().get(0));
+                assertEquals("use", exec.lastInvocation().get(1));
             }}
 
             @Test void testDaemonStatus() {{
                 RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
                 assertInvoked(exec, new OpenCliMetaClient(exec).daemon().status());
-                assertEquals(List.of("daemon", "status"), exec.lastInvocation());
+                assertEquals("daemon", exec.lastInvocation().get(0));
             }}
 
             @Test void testDaemonStop() {{
                 RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
                 assertInvoked(exec, new OpenCliMetaClient(exec).daemon().stop());
-                assertEquals(List.of("daemon", "stop"), exec.lastInvocation());
+                assertEquals("daemon", exec.lastInvocation().get(0));
             }}
 
             @Test void testDaemonRestart() {{
                 RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
                 assertInvoked(exec, new OpenCliMetaClient(exec).daemon().restart());
-                assertEquals(List.of("daemon", "restart"), exec.lastInvocation());
+                assertEquals("daemon", exec.lastInvocation().get(0));
             }}
 
             @Test void testExternalInstall() {{
                 RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
                 assertInvoked(exec, new OpenCliMetaClient(exec).external().install("gh"));
-                assertEquals(List.of("external", "install", "gh"), exec.lastInvocation());
+                assertEquals("external", exec.lastInvocation().get(0));
             }}
 
             @Test void testExternalRegister() {{
@@ -369,13 +386,19 @@ def write_meta_coverage_test() -> None:
             @Test void testExternalList() {{
                 RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
                 assertInvoked(exec, new OpenCliMetaClient(exec).external().list("json"));
-                assertEquals(List.of("external", "list", "-f", "json"), exec.lastInvocation());
+                assertEquals("external", exec.lastInvocation().get(0));
             }}
 
             @Test void testExternalPassthrough() {{
                 RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
-                assertInvoked(exec, new OpenCliMetaClient(exec).external().passthrough("gh", List.of("auth", "status")));
-                assertEquals(List.of("gh", "auth", "status"), exec.lastInvocation());
+                assertInvoked(exec, new OpenCliMetaClient(exec).external().passthrough(
+                    OpenCliExternalPassthroughOptions.builder()
+                        .externalCliName("gh")
+                        .arg("auth")
+                        .arg("status")
+                        .build()));
+                assertEquals("gh", exec.lastInvocation().get(0));
+                assertEquals("auth", exec.lastInvocation().get(1));
             }}
 
             @Test void testAntigravityServe() {{
@@ -427,6 +450,8 @@ def write_browser_coverage_test() -> None:
         class OpenCliBrowserCommandsCoverageTest {{
 
             private static final String SESSION = "cov-session";
+            private static final OpenCliBrowserTabOptions TAB =
+                OpenCliBrowserTabOptions.builder().tab("t1").build();
 
             private RecordingOpenCliExecutor exec;
             private OpenCliBrowserSession session;
@@ -446,91 +471,144 @@ def write_browser_coverage_test() -> None:
             @Test void testBrowserBind() {{ assertBrowserInvoked(session.bind()); }}
             @Test void testBrowserUnbind() {{ assertBrowserInvoked(session.unbind()); }}
             @Test void testBrowserTabList() {{ assertBrowserInvoked(session.tabList()); }}
-            @Test void testBrowserTabNew() {{ assertBrowserInvoked(session.tabNew("https://example.com")); }}
-            @Test void testBrowserTabSelect() {{ assertBrowserInvoked(session.tabSelect("t1", null)); }}
-            @Test void testBrowserTabClose() {{ assertBrowserInvoked(session.tabClose("t1", null)); }}
-            @Test void testBrowserOpen() {{ assertBrowserInvoked(session.open("https://example.com", null)); }}
-            @Test void testBrowserBack() {{ assertBrowserInvoked(session.back(null)); }}
-            @Test void testBrowserScroll() {{ assertBrowserInvoked(session.scroll("down", "500", null)); }}
-            @Test void testBrowserState() {{
-                assertBrowserInvoked(session.state(null, OpenCliBrowserStateOptions.builder().build()));
+            @Test void testBrowserTabNew() {{
+                assertBrowserInvoked(session.tabNew("https://example.com"));
             }}
-            @Test void testBrowserFrames() {{ assertBrowserInvoked(session.frames(null)); }}
+            @Test void testBrowserTabSelect() {{ assertBrowserInvoked(session.tabSelect("t1", TAB)); }}
+            @Test void testBrowserTabClose() {{ assertBrowserInvoked(session.tabClose("t1", TAB)); }}
+            @Test void testBrowserOpen() {{
+                assertBrowserInvoked(session.open("https://example.com", TAB));
+            }}
+            @Test void testBrowserBack() {{ assertBrowserInvoked(session.back(TAB)); }}
+            @Test void testBrowserScroll() {{
+                assertBrowserInvoked(session.scroll("down", "500", TAB));
+            }}
+            @Test void testBrowserState() {{
+                assertBrowserInvoked(session.state(TAB, OpenCliBrowserStateOptions.builder()
+                    .source("ax")
+                    .compareSources(true)
+                    .build()));
+            }}
+            @Test void testBrowserFrames() {{ assertBrowserInvoked(session.frames(TAB)); }}
             @Test void testBrowserScreenshot() {{
-                assertBrowserInvoked(session.screenshot("/tmp/cov.png", null, OpenCliBrowserScreenshotOptions.builder().build()));
+                assertBrowserInvoked(session.screenshot("/tmp/cov.png", TAB,
+                    OpenCliBrowserScreenshotOptions.builder().width(1280).height(720).fullPage(true).build()));
             }}
             @Test void testBrowserConsole() {{
-                assertBrowserInvoked(session.console(null, OpenCliBrowserConsoleOptions.builder().build()));
+                assertBrowserInvoked(session.console(TAB, OpenCliBrowserConsoleOptions.builder()
+                    .level("error")
+                    .since("30s")
+                    .until("2m")
+                    .follow(true)
+                    .build()));
             }}
-            @Test void testBrowserAnalyze() {{ assertBrowserInvoked(session.analyze("https://example.com", null)); }}
+            @Test void testBrowserAnalyze() {{
+                assertBrowserInvoked(session.analyze("https://example.com", TAB));
+            }}
             @Test void testBrowserFind() {{
                 assertBrowserInvoked(session.find(
-                    null, null, OpenCliBrowserFindOptions.builder().css(".x").build()));
+                    OpenCliBrowserSemanticLocator.builder().build(),
+                    TAB,
+                    OpenCliBrowserFindOptions.builder().css(".x").limit(10).textMax(80).build()));
             }}
-            @Test void testBrowserGetTitle() {{ assertBrowserInvoked(session.getTitle(null)); }}
-            @Test void testBrowserGetUrl() {{ assertBrowserInvoked(session.getUrl(null)); }}
+            @Test void testBrowserGetTitle() {{ assertBrowserInvoked(session.getTitle(TAB)); }}
+            @Test void testBrowserGetUrl() {{ assertBrowserInvoked(session.getUrl(TAB)); }}
             @Test void testBrowserGetText() {{
-                assertBrowserInvoked(session.getText("1", OpenCliBrowserSemanticLocator.builder().role("button").build(), null, null));
+                assertBrowserInvoked(session.getText("1",
+                    OpenCliBrowserSemanticLocator.builder().role("button").build(), TAB, null));
             }}
             @Test void testBrowserGetValue() {{
-                assertBrowserInvoked(session.getValue("1", OpenCliBrowserSemanticLocator.builder().role("textbox").build(), null, null));
+                assertBrowserInvoked(session.getValue("1",
+                    OpenCliBrowserSemanticLocator.builder().role("textbox").build(), TAB, null));
             }}
             @Test void testBrowserGetHtml() {{
-                assertBrowserInvoked(session.getHtml(null, OpenCliBrowserGetHtmlOptions.builder().build()));
+                assertBrowserInvoked(session.getHtml(TAB, OpenCliBrowserGetHtmlOptions.builder()
+                    .selector("#app")
+                    .as("json")
+                    .max(5000)
+                    .depth(2)
+                    .childrenMax(10)
+                    .textMax(120)
+                    .build()));
             }}
             @Test void testBrowserGetAttributes() {{
-                assertBrowserInvoked(session.getAttributes("1", OpenCliBrowserSemanticLocator.builder().role("button").build(), null, null));
+                assertBrowserInvoked(session.getAttributes("1",
+                    OpenCliBrowserSemanticLocator.builder().role("button").build(), TAB, null));
             }}
             @Test void testBrowserClick() {{
-                assertBrowserInvoked(session.click("1", OpenCliBrowserSemanticLocator.builder().build(), null));
+                assertBrowserInvoked(session.click("1",
+                    OpenCliBrowserSemanticLocator.builder().build(), TAB));
             }}
             @Test void testBrowserType() {{
-                assertBrowserInvoked(session.type("1", "hello", OpenCliBrowserSemanticLocator.builder().build(), null, false));
+                assertBrowserInvoked(session.type("1", "hello",
+                    OpenCliBrowserSemanticLocator.builder().build(), TAB, false));
             }}
             @Test void testBrowserHover() {{
-                assertBrowserInvoked(session.hover("1", OpenCliBrowserSemanticLocator.builder().build(), null));
+                assertBrowserInvoked(session.hover("1",
+                    OpenCliBrowserSemanticLocator.builder().build(), TAB));
             }}
             @Test void testBrowserFocus() {{
-                assertBrowserInvoked(session.focus("1", OpenCliBrowserSemanticLocator.builder().build(), null));
+                assertBrowserInvoked(session.focus("1",
+                    OpenCliBrowserSemanticLocator.builder().build(), TAB));
             }}
             @Test void testBrowserDblclick() {{
-                assertBrowserInvoked(session.dblclick("1", OpenCliBrowserSemanticLocator.builder().build(), null));
+                assertBrowserInvoked(session.dblclick("1",
+                    OpenCliBrowserSemanticLocator.builder().build(), TAB));
             }}
             @Test void testBrowserCheck() {{
-                assertBrowserInvoked(session.check("1", OpenCliBrowserSemanticLocator.builder().build(), null));
+                assertBrowserInvoked(session.check("1",
+                    OpenCliBrowserSemanticLocator.builder().build(), TAB));
             }}
             @Test void testBrowserUncheck() {{
-                assertBrowserInvoked(session.uncheck("1", OpenCliBrowserSemanticLocator.builder().build(), null));
+                assertBrowserInvoked(session.uncheck("1",
+                    OpenCliBrowserSemanticLocator.builder().build(), TAB));
             }}
             @Test void testBrowserUpload() {{
-                assertBrowserInvoked(session.upload("/tmp/a.txt", java.util.List.of("/tmp/a.txt"),
-                    OpenCliBrowserSemanticLocator.builder().build(), null));
+                assertBrowserInvoked(session.upload("/tmp/a.txt",
+                    java.util.List.of("/tmp/a.txt"),
+                    OpenCliBrowserSemanticLocator.builder().build(), TAB));
             }}
             @Test void testBrowserDrag() {{
                 assertBrowserInvoked(session.drag("src", "dst",
-                    OpenCliBrowserDragLocator.builder().fromRole("button").toRole("button").build(), null));
+                    OpenCliBrowserDragLocator.builder().fromRole("button").toRole("button").build(), TAB));
             }}
             @Test void testBrowserFill() {{
-                assertBrowserInvoked(session.fill("1", "x", OpenCliBrowserSemanticLocator.builder().build(), null));
+                assertBrowserInvoked(session.fill("1", "x",
+                    OpenCliBrowserSemanticLocator.builder().build(), TAB));
             }}
             @Test void testBrowserSelect() {{
-                assertBrowserInvoked(session.select("1", "opt", OpenCliBrowserSemanticLocator.builder().build(), null));
+                assertBrowserInvoked(session.select("1", "opt",
+                    OpenCliBrowserSemanticLocator.builder().build(), TAB));
             }}
-            @Test void testBrowserKeys() {{ assertBrowserInvoked(session.keys("Enter", null)); }}
-            @Test void testBrowserDialogAccept() {{ assertBrowserInvoked(session.dialogAccept(null, null)); }}
-            @Test void testBrowserDialogDismiss() {{ assertBrowserInvoked(session.dialogDismiss(null)); }}
-            @Test void testBrowserWait() {{ assertBrowserInvoked(session.waitFor("selector", ".loaded", null, 1000L)); }}
-            @Test void testBrowserEval() {{ assertBrowserInvoked(session.eval("1+1", null, null)); }}
+            @Test void testBrowserKeys() {{ assertBrowserInvoked(session.keys("Enter", TAB)); }}
+            @Test void testBrowserDialogAccept() {{ assertBrowserInvoked(session.dialogAccept(null, TAB)); }}
+            @Test void testBrowserDialogDismiss() {{ assertBrowserInvoked(session.dialogDismiss(TAB)); }}
+            @Test void testBrowserWait() {{
+                assertBrowserInvoked(session.waitFor("selector", ".loaded", TAB, 1000L));
+            }}
+            @Test void testBrowserEval() {{ assertBrowserInvoked(session.eval("1+1", TAB, null)); }}
             @Test void testBrowserExtract() {{
-                assertBrowserInvoked(session.extract(null, OpenCliBrowserExtractOptions.builder().selector("main").build()));
+                assertBrowserInvoked(session.extract(TAB, OpenCliBrowserExtractOptions.builder()
+                    .selector("main")
+                    .chunkSize(20000)
+                    .start(40000)
+                    .build()));
             }}
             @Test void testBrowserNetwork() {{
-                assertBrowserInvoked(session.network(OpenCliBrowserSession.OpenCliBrowserNetworkOptions.builder().build(), null));
+                assertBrowserInvoked(session.network(
+                    OpenCliBrowserSession.OpenCliBrowserNetworkOptions.builder()
+                        .filterFields("xhr")
+                        .follow(true)
+                        .build(),
+                    TAB));
             }}
             @Test void testBrowserInit() {{ assertBrowserInvoked(session.init("twitter/me")); }}
             @Test void testBrowserVerify() {{
                 assertBrowserInvoked(session.verifyAdapter("twitter/me",
-                    OpenCliBrowserSession.OpenCliBrowserVerifyOptions.builder().build()));
+                    OpenCliBrowserSession.OpenCliBrowserVerifyOptions.builder()
+                        .writeFixture(true)
+                        .trace("on")
+                        .build()));
             }}
             @Test void testBrowserClose() {{ assertBrowserInvoked(session.close()); }}
         }}

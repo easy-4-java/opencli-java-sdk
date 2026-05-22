@@ -31,6 +31,8 @@ import org.junit.jupiter.api.Test;
 class OpenCliBrowserCommandsCoverageTest {
 
     private static final String SESSION = "cov-session";
+    private static final OpenCliBrowserTabOptions TAB =
+        OpenCliBrowserTabOptions.builder().tab("t1").build();
 
     private RecordingOpenCliExecutor exec;
     private OpenCliBrowserSession session;
@@ -50,91 +52,144 @@ class OpenCliBrowserCommandsCoverageTest {
     @Test void testBrowserBind() { assertBrowserInvoked(session.bind()); }
     @Test void testBrowserUnbind() { assertBrowserInvoked(session.unbind()); }
     @Test void testBrowserTabList() { assertBrowserInvoked(session.tabList()); }
-    @Test void testBrowserTabNew() { assertBrowserInvoked(session.tabNew("https://example.com")); }
-    @Test void testBrowserTabSelect() { assertBrowserInvoked(session.tabSelect("t1", null)); }
-    @Test void testBrowserTabClose() { assertBrowserInvoked(session.tabClose("t1", null)); }
-    @Test void testBrowserOpen() { assertBrowserInvoked(session.open("https://example.com", null)); }
-    @Test void testBrowserBack() { assertBrowserInvoked(session.back(null)); }
-    @Test void testBrowserScroll() { assertBrowserInvoked(session.scroll("down", "500", null)); }
-    @Test void testBrowserState() {
-        assertBrowserInvoked(session.state(null, OpenCliBrowserStateOptions.builder().build()));
+    @Test void testBrowserTabNew() {
+        assertBrowserInvoked(session.tabNew("https://example.com"));
     }
-    @Test void testBrowserFrames() { assertBrowserInvoked(session.frames(null)); }
+    @Test void testBrowserTabSelect() { assertBrowserInvoked(session.tabSelect("t1", TAB)); }
+    @Test void testBrowserTabClose() { assertBrowserInvoked(session.tabClose("t1", TAB)); }
+    @Test void testBrowserOpen() {
+        assertBrowserInvoked(session.open("https://example.com", TAB));
+    }
+    @Test void testBrowserBack() { assertBrowserInvoked(session.back(TAB)); }
+    @Test void testBrowserScroll() {
+        assertBrowserInvoked(session.scroll("down", "500", TAB));
+    }
+    @Test void testBrowserState() {
+        assertBrowserInvoked(session.state(TAB, OpenCliBrowserStateOptions.builder()
+            .source("ax")
+            .compareSources(true)
+            .build()));
+    }
+    @Test void testBrowserFrames() { assertBrowserInvoked(session.frames(TAB)); }
     @Test void testBrowserScreenshot() {
-        assertBrowserInvoked(session.screenshot("/tmp/cov.png", null, OpenCliBrowserScreenshotOptions.builder().build()));
+        assertBrowserInvoked(session.screenshot("/tmp/cov.png", TAB,
+            OpenCliBrowserScreenshotOptions.builder().width(1280).height(720).fullPage(true).build()));
     }
     @Test void testBrowserConsole() {
-        assertBrowserInvoked(session.console(null, OpenCliBrowserConsoleOptions.builder().build()));
+        assertBrowserInvoked(session.console(TAB, OpenCliBrowserConsoleOptions.builder()
+            .level("error")
+            .since("30s")
+            .until("2m")
+            .follow(true)
+            .build()));
     }
-    @Test void testBrowserAnalyze() { assertBrowserInvoked(session.analyze("https://example.com", null)); }
+    @Test void testBrowserAnalyze() {
+        assertBrowserInvoked(session.analyze("https://example.com", TAB));
+    }
     @Test void testBrowserFind() {
         assertBrowserInvoked(session.find(
-            null, null, OpenCliBrowserFindOptions.builder().css(".x").build()));
+            OpenCliBrowserSemanticLocator.builder().build(),
+            TAB,
+            OpenCliBrowserFindOptions.builder().css(".x").limit(10).textMax(80).build()));
     }
-    @Test void testBrowserGetTitle() { assertBrowserInvoked(session.getTitle(null)); }
-    @Test void testBrowserGetUrl() { assertBrowserInvoked(session.getUrl(null)); }
+    @Test void testBrowserGetTitle() { assertBrowserInvoked(session.getTitle(TAB)); }
+    @Test void testBrowserGetUrl() { assertBrowserInvoked(session.getUrl(TAB)); }
     @Test void testBrowserGetText() {
-        assertBrowserInvoked(session.getText("1", OpenCliBrowserSemanticLocator.builder().role("button").build(), null, null));
+        assertBrowserInvoked(session.getText("1",
+            OpenCliBrowserSemanticLocator.builder().role("button").build(), TAB, null));
     }
     @Test void testBrowserGetValue() {
-        assertBrowserInvoked(session.getValue("1", OpenCliBrowserSemanticLocator.builder().role("textbox").build(), null, null));
+        assertBrowserInvoked(session.getValue("1",
+            OpenCliBrowserSemanticLocator.builder().role("textbox").build(), TAB, null));
     }
     @Test void testBrowserGetHtml() {
-        assertBrowserInvoked(session.getHtml(null, OpenCliBrowserGetHtmlOptions.builder().build()));
+        assertBrowserInvoked(session.getHtml(TAB, OpenCliBrowserGetHtmlOptions.builder()
+            .selector("#app")
+            .as("json")
+            .max(5000)
+            .depth(2)
+            .childrenMax(10)
+            .textMax(120)
+            .build()));
     }
     @Test void testBrowserGetAttributes() {
-        assertBrowserInvoked(session.getAttributes("1", OpenCliBrowserSemanticLocator.builder().role("button").build(), null, null));
+        assertBrowserInvoked(session.getAttributes("1",
+            OpenCliBrowserSemanticLocator.builder().role("button").build(), TAB, null));
     }
     @Test void testBrowserClick() {
-        assertBrowserInvoked(session.click("1", OpenCliBrowserSemanticLocator.builder().build(), null));
+        assertBrowserInvoked(session.click("1",
+            OpenCliBrowserSemanticLocator.builder().build(), TAB));
     }
     @Test void testBrowserType() {
-        assertBrowserInvoked(session.type("1", "hello", OpenCliBrowserSemanticLocator.builder().build(), null, false));
+        assertBrowserInvoked(session.type("1", "hello",
+            OpenCliBrowserSemanticLocator.builder().build(), TAB, false));
     }
     @Test void testBrowserHover() {
-        assertBrowserInvoked(session.hover("1", OpenCliBrowserSemanticLocator.builder().build(), null));
+        assertBrowserInvoked(session.hover("1",
+            OpenCliBrowserSemanticLocator.builder().build(), TAB));
     }
     @Test void testBrowserFocus() {
-        assertBrowserInvoked(session.focus("1", OpenCliBrowserSemanticLocator.builder().build(), null));
+        assertBrowserInvoked(session.focus("1",
+            OpenCliBrowserSemanticLocator.builder().build(), TAB));
     }
     @Test void testBrowserDblclick() {
-        assertBrowserInvoked(session.dblclick("1", OpenCliBrowserSemanticLocator.builder().build(), null));
+        assertBrowserInvoked(session.dblclick("1",
+            OpenCliBrowserSemanticLocator.builder().build(), TAB));
     }
     @Test void testBrowserCheck() {
-        assertBrowserInvoked(session.check("1", OpenCliBrowserSemanticLocator.builder().build(), null));
+        assertBrowserInvoked(session.check("1",
+            OpenCliBrowserSemanticLocator.builder().build(), TAB));
     }
     @Test void testBrowserUncheck() {
-        assertBrowserInvoked(session.uncheck("1", OpenCliBrowserSemanticLocator.builder().build(), null));
+        assertBrowserInvoked(session.uncheck("1",
+            OpenCliBrowserSemanticLocator.builder().build(), TAB));
     }
     @Test void testBrowserUpload() {
-        assertBrowserInvoked(session.upload("/tmp/a.txt", java.util.List.of("/tmp/a.txt"),
-            OpenCliBrowserSemanticLocator.builder().build(), null));
+        assertBrowserInvoked(session.upload("/tmp/a.txt",
+            java.util.List.of("/tmp/a.txt"),
+            OpenCliBrowserSemanticLocator.builder().build(), TAB));
     }
     @Test void testBrowserDrag() {
         assertBrowserInvoked(session.drag("src", "dst",
-            OpenCliBrowserDragLocator.builder().fromRole("button").toRole("button").build(), null));
+            OpenCliBrowserDragLocator.builder().fromRole("button").toRole("button").build(), TAB));
     }
     @Test void testBrowserFill() {
-        assertBrowserInvoked(session.fill("1", "x", OpenCliBrowserSemanticLocator.builder().build(), null));
+        assertBrowserInvoked(session.fill("1", "x",
+            OpenCliBrowserSemanticLocator.builder().build(), TAB));
     }
     @Test void testBrowserSelect() {
-        assertBrowserInvoked(session.select("1", "opt", OpenCliBrowserSemanticLocator.builder().build(), null));
+        assertBrowserInvoked(session.select("1", "opt",
+            OpenCliBrowserSemanticLocator.builder().build(), TAB));
     }
-    @Test void testBrowserKeys() { assertBrowserInvoked(session.keys("Enter", null)); }
-    @Test void testBrowserDialogAccept() { assertBrowserInvoked(session.dialogAccept(null, null)); }
-    @Test void testBrowserDialogDismiss() { assertBrowserInvoked(session.dialogDismiss(null)); }
-    @Test void testBrowserWait() { assertBrowserInvoked(session.waitFor("selector", ".loaded", null, 1000L)); }
-    @Test void testBrowserEval() { assertBrowserInvoked(session.eval("1+1", null, null)); }
+    @Test void testBrowserKeys() { assertBrowserInvoked(session.keys("Enter", TAB)); }
+    @Test void testBrowserDialogAccept() { assertBrowserInvoked(session.dialogAccept(null, TAB)); }
+    @Test void testBrowserDialogDismiss() { assertBrowserInvoked(session.dialogDismiss(TAB)); }
+    @Test void testBrowserWait() {
+        assertBrowserInvoked(session.waitFor("selector", ".loaded", TAB, 1000L));
+    }
+    @Test void testBrowserEval() { assertBrowserInvoked(session.eval("1+1", TAB, null)); }
     @Test void testBrowserExtract() {
-        assertBrowserInvoked(session.extract(null, OpenCliBrowserExtractOptions.builder().selector("main").build()));
+        assertBrowserInvoked(session.extract(TAB, OpenCliBrowserExtractOptions.builder()
+            .selector("main")
+            .chunkSize(20000)
+            .start(40000)
+            .build()));
     }
     @Test void testBrowserNetwork() {
-        assertBrowserInvoked(session.network(OpenCliBrowserSession.OpenCliBrowserNetworkOptions.builder().build(), null));
+        assertBrowserInvoked(session.network(
+            OpenCliBrowserSession.OpenCliBrowserNetworkOptions.builder()
+                .filterFields("xhr")
+                .follow(true)
+                .build(),
+            TAB));
     }
     @Test void testBrowserInit() { assertBrowserInvoked(session.init("twitter/me")); }
     @Test void testBrowserVerify() {
         assertBrowserInvoked(session.verifyAdapter("twitter/me",
-            OpenCliBrowserSession.OpenCliBrowserVerifyOptions.builder().build()));
+            OpenCliBrowserSession.OpenCliBrowserVerifyOptions.builder()
+                .writeFixture(true)
+                .trace("on")
+                .build()));
     }
     @Test void testBrowserClose() { assertBrowserInvoked(session.close()); }
 }

@@ -11,6 +11,14 @@ import io.github.hiwepy.opencli.adapter.browser.deepseek.DeepseekOpenCliClient;
 import io.github.hiwepy.opencli.adapter.browser.gemini.GeminiOpenCliClient;
 import io.github.hiwepy.opencli.adapter.browser.jimeng.JimengOpenCliClient;
 import io.github.hiwepy.opencli.adapter.browser.support.BrowserLlmOptions;
+import io.github.hiwepy.opencli.adapter.desktop.codex.CodexOpenCliClient;
+import io.github.hiwepy.opencli.adapter.desktop.cursor.CursorOpenCliClient;
+import io.github.hiwepy.opencli.adapter.desktop.support.DesktopThreadSelection;
+import io.github.hiwepy.opencli.adapter.publicapi.arxiv.ArxivOpenCliClient;
+import io.github.hiwepy.opencli.adapter.publicapi.npm.NpmDownloadPeriod;
+import io.github.hiwepy.opencli.adapter.publicapi.npm.NpmOpenCliClient;
+import io.github.hiwepy.opencli.adapter.publicapi.pypi.PypiDownloadPeriod;
+import io.github.hiwepy.opencli.adapter.publicapi.pypi.PypiOpenCliClient;
 import io.github.hiwepy.opencli.browser.OpenCliBrowserClient;
 import io.github.hiwepy.opencli.browser.OpenCliBrowserSession;
 import io.github.hiwepy.opencli.browser.support.OpenCliBrowserConsoleOptions;
@@ -18,7 +26,9 @@ import io.github.hiwepy.opencli.browser.support.OpenCliBrowserExtractOptions;
 import io.github.hiwepy.opencli.browser.support.OpenCliBrowserFindOptions;
 import io.github.hiwepy.opencli.browser.support.OpenCliBrowserGetHtmlOptions;
 import io.github.hiwepy.opencli.browser.support.OpenCliBrowserScreenshotOptions;
+import io.github.hiwepy.opencli.browser.support.OpenCliBrowserSemanticLocator;
 import io.github.hiwepy.opencli.browser.support.OpenCliBrowserStateOptions;
+import io.github.hiwepy.opencli.browser.support.OpenCliBrowserTabOptions;
 import io.github.hiwepy.opencli.core.OpenCliResult;
 import io.github.hiwepy.opencli.support.RecordingOpenCliExecutor;
 import java.util.List;
@@ -30,8 +40,9 @@ import org.junit.jupiter.api.Test;
  * 强类型 SDK 门面 + Options 构建器的 argv 覆盖（canonical path）。
  * <p>
  * 与 {@link OpenCliAdapterCommandsCoverageTest} 的分工：
- * manifest 层对 899 条 adapter 子命令做 {@code invoke} 冒烟；本类对已有 typed client / Options
- * 的入口断言 Options→argv 映射。browser 细粒度回归另见 {@code OpenCliBrowserArgvTest}。
+ * manifest 层对长尾 adapter 子命令做 {@link io.github.hiwepy.opencli.core.OpenCliAdapterCommandRequest} 冒烟；
+ * 本类对已有 typed client / Options 的入口断言 Options→argv 映射。
+ * browser 细粒度回归另见 {@code OpenCliBrowserArgvTest}。
  * </p>
  */
 class OpenCliTypedClientOptionsCoverageTest {
@@ -61,9 +72,18 @@ class OpenCliTypedClientOptionsCoverageTest {
         }
 
         @Test
+        void tabOptionsOnOpen() {
+            assertBrowserInvoked(session.open(
+                "https://example.com",
+                OpenCliBrowserTabOptions.builder().tab("tab-1").build()));
+            assertTrue(argv().contains("--tab"));
+            assertTrue(argv().contains("tab-1"));
+        }
+
+        @Test
         void extractOptionsChunkSizeAndStart() {
             assertBrowserInvoked(session.extract(
-                null,
+                OpenCliBrowserTabOptions.builder().tab("t1").build(),
                 OpenCliBrowserExtractOptions.builder()
                     .selector("main")
                     .chunkSize(20000)
@@ -78,8 +98,8 @@ class OpenCliTypedClientOptionsCoverageTest {
         @Test
         void findOptionsCssLimitTextMax() {
             assertBrowserInvoked(session.find(
-                null,
-                null,
+                OpenCliBrowserSemanticLocator.builder().build(),
+                OpenCliBrowserTabOptions.builder().tab("t1").build(),
                 OpenCliBrowserFindOptions.builder().css(".btn").limit(10).textMax(80).build()));
             assertTrue(argv().contains("--css"));
             assertTrue(argv().contains("--limit"));
@@ -89,7 +109,7 @@ class OpenCliTypedClientOptionsCoverageTest {
         @Test
         void stateOptionsSourceAndCompareSources() {
             assertBrowserInvoked(session.state(
-                null,
+                OpenCliBrowserTabOptions.builder().tab("t1").build(),
                 OpenCliBrowserStateOptions.builder().source("ax").compareSources(true).build()));
             assertTrue(argv().contains("--source"));
             assertTrue(argv().contains("ax"));
@@ -100,7 +120,7 @@ class OpenCliTypedClientOptionsCoverageTest {
         void screenshotOptionsWidthHeightFullPage() {
             assertBrowserInvoked(session.screenshot(
                 "/tmp/s.png",
-                null,
+                OpenCliBrowserTabOptions.builder().tab("t1").build(),
                 OpenCliBrowserScreenshotOptions.builder()
                     .width(1280)
                     .height(720)
@@ -115,7 +135,7 @@ class OpenCliTypedClientOptionsCoverageTest {
         @Test
         void consoleOptionsLevelSinceUntilFollow() {
             assertBrowserInvoked(session.console(
-                null,
+                OpenCliBrowserTabOptions.builder().tab("t1").build(),
                 OpenCliBrowserConsoleOptions.builder()
                     .level("error")
                     .since("30s")
@@ -131,7 +151,7 @@ class OpenCliTypedClientOptionsCoverageTest {
         @Test
         void getHtmlOptionsSelectorAndBudgets() {
             assertBrowserInvoked(session.getHtml(
-                null,
+                OpenCliBrowserTabOptions.builder().tab("t1").build(),
                 OpenCliBrowserGetHtmlOptions.builder()
                     .selector("#app")
                     .as("json")
@@ -152,7 +172,7 @@ class OpenCliTypedClientOptionsCoverageTest {
                     .filterFields("xhr")
                     .follow(true)
                     .build(),
-                null));
+                OpenCliBrowserTabOptions.builder().tab("t1").build()));
             assertTrue(argv().contains("--filter"));
             assertTrue(argv().contains("xhr"));
             assertTrue(argv().contains("--follow"));
@@ -431,6 +451,123 @@ class OpenCliTypedClientOptionsCoverageTest {
             assertTrue(argv.contains("warm"));
             assertTrue(argv.contains("--tone-file"));
             assertTrue(argv.contains("--clone-file"));
+        }
+    }
+
+    // ------------------------------------------------------------------ public API adapters
+
+    @Nested
+    class PublicApiClients {
+
+        @Test
+        void npmPackageInfoJson() {
+            RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
+            new NpmOpenCliClient(exec).packageInfo("react", true, null);
+            List<String> argv = exec.lastInvocation();
+            assertEquals("npm", argv.get(0));
+            assertEquals("package", argv.get(1));
+            assertEquals("react", argv.get(2));
+            assertTrue(argv.contains("-f"));
+            assertTrue(argv.contains("json"));
+        }
+
+        @Test
+        void npmDownloadsWithPeriod() {
+            RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
+            new NpmOpenCliClient(exec).downloads("react", NpmDownloadPeriod.LAST_MONTH, null);
+            List<String> argv = exec.lastInvocation();
+            assertEquals("downloads", argv.get(1));
+            assertTrue(argv.contains("--period"));
+        }
+
+        @Test
+        void pypiDownloadsWithPeriod() {
+            RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
+            new PypiOpenCliClient(exec).downloads("requests", PypiDownloadPeriod.RECENT, null);
+            List<String> argv = exec.lastInvocation();
+            assertEquals("pypi", argv.get(0));
+            assertEquals("downloads", argv.get(1));
+            assertTrue(argv.contains("--period"));
+        }
+
+        @Test
+        void arxivSearchWithLimit() {
+            RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
+            new ArxivOpenCliClient(exec).search("transformer", 5, true, null);
+            List<String> argv = exec.lastInvocation();
+            assertEquals("arxiv", argv.get(0));
+            assertEquals("search", argv.get(1));
+            assertTrue(argv.contains("--limit"));
+            assertTrue(argv.contains("5"));
+        }
+    }
+
+    // ------------------------------------------------------------------ desktop adapters
+
+    @Nested
+    class DesktopClients {
+
+        private static DesktopThreadSelection sampleSelection() {
+            return DesktopThreadSelection.builder()
+                .project("demo")
+                .conversation("main")
+                .conversationIndex(1)
+                .threadId("local:abc")
+                .timeoutSeconds(30)
+                .build();
+        }
+
+        @Test
+        void codexModelReadOmitsPositional() {
+            RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
+            new CodexOpenCliClient(exec).model();
+            List<String> argv = exec.lastInvocation();
+            assertEquals("codex", argv.get(0));
+            assertEquals("model", argv.get(1));
+            assertFalse(argv.contains("--model-name"));
+        }
+
+        @Test
+        void codexModelSwitchUsesPositional() {
+            RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
+            new CodexOpenCliClient(exec).model("gpt-4");
+            List<String> argv = exec.lastInvocation();
+            assertEquals("codex", argv.get(0));
+            assertEquals("model", argv.get(1));
+            assertEquals("gpt-4", argv.get(2));
+        }
+
+        @Test
+        void cursorModelSwitchUsesPositional() {
+            RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
+            new CursorOpenCliClient(exec).model("claude-3.5-sonnet");
+            List<String> argv = exec.lastInvocation();
+            assertEquals("cursor", argv.get(0));
+            assertEquals("model", argv.get(1));
+            assertEquals("claude-3.5-sonnet", argv.get(2));
+        }
+
+        @Test
+        void codexAskWithDesktopThreadSelection() {
+            RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
+            new CodexOpenCliClient(exec).ask("hello", sampleSelection(), null);
+            List<String> argv = exec.lastInvocation();
+            assertEquals("ask", argv.get(1));
+            assertTrue(argv.contains("--project"));
+            assertTrue(argv.contains("demo"));
+            assertTrue(argv.contains("--thread-id"));
+            assertTrue(argv.contains("local:abc"));
+        }
+
+        @Test
+        void cursorSendWithDesktopThreadSelection() {
+            RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
+            new CursorOpenCliClient(exec).send("msg", sampleSelection(), null);
+            List<String> argv = exec.lastInvocation();
+            assertEquals("cursor", argv.get(0));
+            assertEquals("send", argv.get(1));
+            assertTrue(argv.contains("--conversation"));
+            assertTrue(argv.contains("main"));
         }
     }
 }
