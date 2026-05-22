@@ -24,14 +24,16 @@ from datetime import date
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 POM = ROOT / "pom.xml"
 
-def _snapshot_suffix() -> str:
-    """{YYYYMMDD}-SNAPSHOT；日期来自 RELEASE_DATE 或当天。"""
+def version_date_suffix() -> str:
+    """SNAPSHOT: {date}-SNAPSHOT；RELEASE(RELEASE=1): 仅 {date}。"""
     raw = os.environ.get("RELEASE_DATE", "").strip()
     day = raw if raw else date.today().strftime("%Y%m%d")
+    if os.environ.get("RELEASE", "").strip().lower() in ("1", "true", "yes"):
+        return day
     return f"{day}-SNAPSHOT"
 
 
-SNAPSHOT_SUFFIX = _snapshot_suffix()
+VERSION_DATE_SUFFIX = version_date_suffix()
 
 ALIYUN_DM = """
     <distributionManagement>
@@ -328,7 +330,7 @@ def write_pom(
 
 
 def render(branch: str) -> None:
-    snap = SNAPSHOT_SUFFIX
+    snap = VERSION_DATE_SUFFIX
     common_unirest = "3.14.5"
     common_ws = "1.5.7"
     if branch == "2.3.x":
