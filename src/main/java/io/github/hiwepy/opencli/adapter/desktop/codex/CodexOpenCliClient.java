@@ -35,7 +35,21 @@ public final class CodexOpenCliClient {
 
     /** DOM + 快照截图类制品。 */
     public OpenCliResult screenshot() {
-        return ch().invoke("screenshot");
+        return screenshot(null);
+    }
+
+    /**
+     * DOM + 快照截图类制品。
+     *
+     * @param output 输出目录或文件路径（{@code --output}），可为 null
+     */
+    public OpenCliResult screenshot(String output) {
+        List<String> args = new ArrayList<>();
+        args.add("screenshot");
+        if (output != null) {
+            OpenCliArgSupport.addOptionPair(args, "--output", output);
+        }
+        return ch().invoke(args);
     }
 
     /**
@@ -103,12 +117,50 @@ public final class CodexOpenCliClient {
 
     /** 侧栏可见工程与会话。 */
     public OpenCliResult projects() {
-        return ch().invoke("projects");
+        return projects(null, null, null);
+    }
+
+    /**
+     * 侧栏可见工程与会话。
+     *
+     * @param project 工程名或路径（{@code --project}），可为 null
+     * @param limit   最大条数（{@code --limit}），可为 null
+     * @param more    透传参数，可为 null
+     */
+    public OpenCliResult projects(String project, Integer limit, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("projects");
+        if (project != null) {
+            OpenCliArgSupport.addOptionPair(args, "--project", project);
+        }
+        if (limit != null) {
+            OpenCliArgSupport.addOptionPair(args, "--limit", String.valueOf(limit));
+        }
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
     }
 
     /** 会话历史列表。 */
     public OpenCliResult history() {
-        return ch().invoke("history");
+        return history(null, null, null);
+    }
+
+    /**
+     * 会话历史列表。
+     *
+     * @param project 工程过滤（{@code --project}），可为 null
+     * @param limit   最大条数（{@code --limit}），可为 null
+     * @param more    透传参数，可为 null
+     */
+    public OpenCliResult history(String project, Integer limit, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("history");
+        if (project != null) {
+            OpenCliArgSupport.addOptionPair(args, "--project", project);
+        }
+        if (limit != null) {
+            OpenCliArgSupport.addOptionPair(args, "--limit", String.valueOf(limit));
+        }
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
     }
 
     /** 抽取可视 Patch / Diff。 */
@@ -118,11 +170,39 @@ public final class CodexOpenCliClient {
 
     /** 当前模型名。 */
     public OpenCliResult model() {
-        return ch().invoke("model");
+        return model(null);
+    }
+
+    /**
+     * 读取或切换模型。
+     *
+     * @param modelName 模型 ID（positional {@code model-name}），可为 null 表示仅读取
+     */
+    public OpenCliResult model(String modelName) {
+        List<String> args = new ArrayList<>();
+        args.add("model");
+        if (modelName != null) {
+            args.add(modelName);
+        }
+        return ch().invoke(args);
     }
 
     /** 导出当前会话为 Markdown。 */
     public OpenCliResult exportConversation() {
-        return ch().invoke("export");
+        return exportConversation(null);
+    }
+
+    /**
+     * 导出当前会话为 Markdown。
+     *
+     * @param output 输出路径（{@code --output}），可为 null
+     */
+    public OpenCliResult exportConversation(String output) {
+        List<String> args = new ArrayList<>();
+        args.add("export");
+        if (output != null) {
+            OpenCliArgSupport.addOptionPair(args, "--output", output);
+        }
+        return ch().invoke(args);
     }
 }

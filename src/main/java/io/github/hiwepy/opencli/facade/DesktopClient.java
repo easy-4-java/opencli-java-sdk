@@ -39,8 +39,14 @@ public class DesktopClient {
         return openCli.adapter(OpenCliAdapterIds.CHATWISE);
     }
 
+    public OpenCliAdapterChannel discordApp() {
+        return openCli.adapter(OpenCliAdapterIds.DISCORD_APP);
+    }
+
+    /** @deprecated 请使用 {@link #discordApp()}；CLI site 为 {@code discord-app}。 */
+    @Deprecated
     public OpenCliAdapterChannel discord() {
-        return openCli.adapter(OpenCliAdapterIds.DISCORD);
+        return discordApp();
     }
 
     public OpenCliAdapterChannel doubaoApp() {

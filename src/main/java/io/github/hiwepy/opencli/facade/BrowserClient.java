@@ -3,6 +3,7 @@ package io.github.hiwepy.opencli.facade;
 import io.github.hiwepy.opencli.OpenCliClient;
 import io.github.hiwepy.opencli.adapter.browser.chatgpt.ChatgptOpenCliClient;
 import io.github.hiwepy.opencli.adapter.browser.claude.ClaudeOpenCliClient;
+import io.github.hiwepy.opencli.adapter.browser.deepseek.DeepseekOpenCliClient;
 import io.github.hiwepy.opencli.adapter.browser.gemini.GeminiOpenCliClient;
 import io.github.hiwepy.opencli.adapter.browser.jimeng.JimengOpenCliClient;
 import io.github.hiwepy.opencli.core.OpenCliAdapterChannel;
@@ -43,5 +44,9 @@ public class BrowserClient {
 
     public JimengOpenCliClient jimeng() {
         return openCli.jimeng();
+    }
+
+    public DeepseekOpenCliClient deepseek() {
+        return openCli.deepseek();
     }
 }

@@ -4,6 +4,7 @@ import io.github.hiwepy.opencli.OpenCliClient;
 import io.github.hiwepy.opencli.adapter.publicapi.arxiv.ArxivOpenCliClient;
 import io.github.hiwepy.opencli.adapter.publicapi.binance.BinanceOpenCliClient;
 import io.github.hiwepy.opencli.adapter.publicapi.npm.NpmOpenCliClient;
+import io.github.hiwepy.opencli.adapter.publicapi.pypi.PypiOpenCliClient;
 import io.github.hiwepy.opencli.adapter.publicapi.wikipedia.WikipediaOpenCliClient;
 import io.github.hiwepy.opencli.core.OpenCliAdapterChannel;
 import lombok.Getter;
@@ -30,6 +31,10 @@ public class PublicApiClient {
 
     public NpmOpenCliClient npm() {
         return openCli.npm();
+    }
+
+    public PypiOpenCliClient pypi() {
+        return openCli.pypi();
     }
 
     public BinanceOpenCliClient binance() {

@@ -29,16 +29,43 @@ public final class BinanceOpenCliClient {
         return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("price", symbol), more));
     }
 
+    public OpenCliResult prices(Integer limit, List<String> more) {
+        List<String> args = new ArrayList<>(OpenCliLists.of("prices"));
+        if (limit != null) {
+            OpenCliArgSupport.addOptionPair(args, "--limit", String.valueOf(limit));
+        }
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
+    }
+
+    /** @see #prices(Integer, List) */
     public OpenCliResult prices(List<String> more) {
-        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("prices"), more));
+        return prices(null, more);
     }
 
+    public OpenCliResult ticker(Integer limit, List<String> more) {
+        List<String> args = new ArrayList<>(OpenCliLists.of("ticker"));
+        if (limit != null) {
+            OpenCliArgSupport.addOptionPair(args, "--limit", String.valueOf(limit));
+        }
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
+    }
+
+    /** @see #ticker(Integer, List) */
     public OpenCliResult ticker(List<String> more) {
-        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("ticker"), more));
+        return ticker(null, more);
     }
 
+    public OpenCliResult pairs(Integer limit, List<String> more) {
+        List<String> args = new ArrayList<>(OpenCliLists.of("pairs"));
+        if (limit != null) {
+            OpenCliArgSupport.addOptionPair(args, "--limit", String.valueOf(limit));
+        }
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
+    }
+
+    /** @see #pairs(Integer, List) */
     public OpenCliResult pairs(List<String> more) {
-        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("pairs"), more));
+        return pairs(null, more);
     }
 
     public OpenCliResult trades(String symbol, Integer limit, List<String> more) {
@@ -76,8 +103,11 @@ public final class BinanceOpenCliClient {
         return ch().invoke(OpenCliArgSupport.merge(args, more));
     }
 
-    public OpenCliResult top(boolean json, List<String> more) {
+    public OpenCliResult top(Integer limit, boolean json, List<String> more) {
         List<String> args = new ArrayList<>(OpenCliLists.of("top"));
+        if (limit != null) {
+            OpenCliArgSupport.addOptionPair(args, "--limit", String.valueOf(limit));
+        }
         if (json) {
             args.add("-f");
             args.add("json");
@@ -85,15 +115,43 @@ public final class BinanceOpenCliClient {
         return ch().invoke(OpenCliArgSupport.merge(args, more));
     }
 
+    /** @see #top(Integer, boolean, List) */
+    public OpenCliResult top(boolean json, List<String> more) {
+        return top(null, json, more);
+    }
+
+    public OpenCliResult gainers(Integer limit, List<String> more) {
+        List<String> args = new ArrayList<>(OpenCliLists.of("gainers"));
+        if (limit != null) {
+            OpenCliArgSupport.addOptionPair(args, "--limit", String.valueOf(limit));
+        }
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
+    }
+
+    /** @see #gainers(Integer, List) */
     public OpenCliResult gainers(List<String> more) {
-        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("gainers"), more));
+        return gainers(null, more);
     }
 
+    public OpenCliResult losers(Integer limit, List<String> more) {
+        List<String> args = new ArrayList<>(OpenCliLists.of("losers"));
+        if (limit != null) {
+            OpenCliArgSupport.addOptionPair(args, "--limit", String.valueOf(limit));
+        }
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
+    }
+
+    /** @see #losers(Integer, List) */
     public OpenCliResult losers(List<String> more) {
-        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("losers"), more));
+        return losers(null, more);
     }
 
+    public OpenCliTypedResult<JsonNode> topTyped(Integer limit, List<String> more) {
+        return OpenCliStdoutJson.typed(top(limit, true, more));
+    }
+
+    /** @see #topTyped(Integer, List) */
     public OpenCliTypedResult<JsonNode> topTyped(List<String> more) {
-        return OpenCliStdoutJson.typed(top(true, more));
+        return topTyped(null, more);
     }
 }

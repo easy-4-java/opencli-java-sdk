@@ -12,12 +12,12 @@ class OpenCliAdapterTaxonomyTest {
 
     @Test
     void desktopAndBrowserPartitionCoversUnion() {
-        assertEquals(7, OpenCliAdapterTaxonomy.DESKTOP_IDS.size());
-        assertEquals(127, OpenCliAdapterTaxonomy.BROWSER_IDS.size());
+        assertEquals(OpenCliAdapterIds.DESKTOP_ADAPTER_COUNT, OpenCliAdapterTaxonomy.DESKTOP_IDS.size());
+        assertEquals(OpenCliAdapterIds.BROWSER_ADAPTER_COUNT, OpenCliAdapterTaxonomy.BROWSER_IDS.size());
         assertEquals(OpenCliAdapterIds.TOTAL_ADAPTER_COUNT, OpenCliAdapterIds.ALL.length);
         for (String id : OpenCliAdapterTaxonomy.DESKTOP_IDS) {
             assertTrue(OpenCliAdapterTaxonomy.isDesktopAdapter(id));
         }
-        assertEquals(134, OpenCliAdapterIds.ALL.length);
+        assertEquals(155, OpenCliAdapterIds.ALL.length);
     }
 }

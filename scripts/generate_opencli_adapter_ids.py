@@ -1,9 +1,27 @@
 #!/usr/bin/env python3
-"""从 opencli docs/adapters/index.md 生成 OpenCliAdapterIds.java（请勿手改生成文件）。"""
+"""从 opencli docs/adapters/index.md 与 cli-manifest.json 生成 OpenCliAdapterIds.java（请勿手改生成文件）。"""
 from __future__ import annotations
 
+import json
+import os
 import re
 from pathlib import Path
+
+# 优先 OPENCLI_ROOT，其次 workspace-partme-ai 与 boot-starters 同级的默认路径。
+_SCRIPT_DIR = Path(__file__).resolve().parent
+_DEFAULT_RELATIVE = _SCRIPT_DIR.parents[4] / "workspace-partme-ai" / "opencli" / "opencli"
+if not _DEFAULT_RELATIVE.is_dir():
+    _DEFAULT_RELATIVE = _SCRIPT_DIR.parents[3] / ".." / "workspace-partme-ai" / "opencli" / "opencli"
+OPENCLI_ROOT = Path(os.environ.get("OPENCLI_ROOT", _DEFAULT_RELATIVE)).resolve()
+
+# 文档链接 slug 与 CLI registry site 不一致时的映射（以 manifest 为准）。
+DOC_TO_MANIFEST_RENAMES: dict[str, str] = {
+    "discord": "discord-app",
+}
+
+
+def normalize_id(adapter_id: str) -> str:
+    return DOC_TO_MANIFEST_RENAMES.get(adapter_id, adapter_id)
 
 
 def const_name(adapter_id: str) -> str:
@@ -13,15 +31,25 @@ def const_name(adapter_id: str) -> str:
     return base
 
 
+def load_manifest_sites() -> set[str]:
+    manifest = OPENCLI_ROOT / "cli-manifest.json"
+    if not manifest.is_file():
+        return set()
+    data = json.loads(manifest.read_text(encoding="utf-8"))
+    return {entry["site"] for entry in data}
+
+
 def main() -> None:
     root = Path(__file__).resolve().parents[1]
-    index = Path("/Users/wandl/workspaces/workspace-partme-ai/opencli/opencli/docs/adapters/index.md")
+    index = OPENCLI_ROOT / "docs/adapters/index.md"
     if not index.is_file():
         raise SystemExit(f"missing index: {index}")
     text = index.read_text(encoding="utf-8")
-    browser = set(re.findall(r"\]\(\./browser/([^)]+)\.md\)", text))
-    desktop = set(re.findall(r"\]\(\./desktop/([^)]+)\.md\)", text))
-    all_ids = sorted(browser | desktop)
+    browser = {normalize_id(x) for x in re.findall(r"\]\(\./browser/([^)]+)\.md\)", text)}
+    desktop = {normalize_id(x) for x in re.findall(r"\]\(\./desktop/([^)]+)\.md\)", text)}
+    manifest_sites = load_manifest_sites()
+    # manifest 为 CLI 真值；文档 index 补充分类与尚未入 manifest 的条目。
+    all_ids = sorted(manifest_sites | browser | desktop)
 
     out = root / "src/main/java/io/github/hiwepy/opencli/registry/OpenCliAdapterIds.java"
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -30,7 +58,7 @@ def main() -> None:
         "package io.github.hiwepy.opencli.registry;",
         "",
         "/**",
-        " * OpenCLI 适配器标识常量（由脚本从 docs/adapters/index.md 生成）。",
+        " * OpenCLI 适配器标识常量（由脚本从 docs/adapters/index.md + cli-manifest.json 生成）。",
         " * <p>运行 {@code scripts/generate_opencli_adapter_ids.py} 刷新。</p>",
         " */",
         "public final class OpenCliAdapterIds {",

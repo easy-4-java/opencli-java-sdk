@@ -1,4 +1,4 @@
-package io.github.hiwepy.opencli.adapter.publicapi.npm;
+package io.github.hiwepy.opencli.adapter.publicapi.pypi;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.hiwepy.opencli.core.OpenCliAdapterChannel;
@@ -13,31 +13,24 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 /**
- * OpenCLI {@code npm} 公共 registry 适配器。
+ * OpenCLI {@code pypi} 公共 registry 适配器（package 元数据与 pypistats 下载统计）。
  */
 @RequiredArgsConstructor
-public final class NpmOpenCliClient {
+public final class PypiOpenCliClient {
 
     private final OpenCliExecutor executor;
 
     private OpenCliAdapterChannel ch() {
-        return new OpenCliAdapterChannel(executor, OpenCliAdapterIds.NPM);
+        return new OpenCliAdapterChannel(executor, OpenCliAdapterIds.PYPI);
     }
 
-    public OpenCliResult search(String query, Integer limit, boolean json, List<String> more) {
-        List<String> args = new ArrayList<>();
-        args.add("search");
-        args.add(query);
-        if (limit != null) {
-            OpenCliArgSupport.addOptionPair(args, "--limit", String.valueOf(limit));
-        }
-        if (json) {
-            args.add("-f");
-            args.add("json");
-        }
-        return ch().invoke(OpenCliArgSupport.merge(args, more));
-    }
-
+    /**
+     * {@code pypi package <name>}。
+     *
+     * @param packageName PyPI 包名
+     * @param json        是否 {@code -f json}
+     * @param more        透传参数
+     */
     public OpenCliResult packageInfo(String packageName, boolean json, List<String> more) {
         List<String> args = new ArrayList<>();
         args.add("package");
@@ -50,9 +43,11 @@ public final class NpmOpenCliClient {
     }
 
     /**
-     * @param period 命名周期；若为 null 则使用 CLI 默认（文档为 last-week）
+     * {@code pypi downloads <name>}，使用命名周期。
+     *
+     * @param period null 时 CLI 默认 recent
      */
-    public OpenCliResult downloads(String packageName, NpmDownloadPeriod period, List<String> more) {
+    public OpenCliResult downloads(String packageName, PypiDownloadPeriod period, List<String> more) {
         List<String> args = new ArrayList<>();
         args.add("downloads");
         args.add(packageName);
@@ -63,28 +58,25 @@ public final class NpmOpenCliClient {
     }
 
     /**
-     * @param range 自定义 {@code YYYY-MM-DD:YYYY-MM-DD}
+     * {@code pypi downloads <name> --period <value>}，自定义 period 字符串。
      */
-    public OpenCliResult downloads(String packageName, String range, List<String> more) {
+    public OpenCliResult downloads(String packageName, String period, List<String> more) {
         List<String> args = new ArrayList<>();
         args.add("downloads");
         args.add(packageName);
-        if (range != null) {
-            OpenCliArgSupport.addOptionPair(args, "--period", range);
+        if (period != null) {
+            OpenCliArgSupport.addOptionPair(args, "--period", period);
         }
         return ch().invoke(OpenCliArgSupport.merge(args, more));
     }
 
+    /** {@code pypi package -f json} 解析 stdout。 */
     public OpenCliTypedResult<JsonNode> packageInfoTyped(String packageName, List<String> more) {
-        OpenCliResult raw = packageInfo(packageName, true, more);
-        return OpenCliStdoutJson.typed(raw);
+        return OpenCliStdoutJson.typed(packageInfo(packageName, true, more));
     }
 
-    public OpenCliTypedResult<JsonNode> searchTyped(String query, Integer limit, List<String> more) {
-        return OpenCliStdoutJson.typed(search(query, limit, true, more));
-    }
-
-    public OpenCliTypedResult<JsonNode> downloadsTyped(String packageName, NpmDownloadPeriod period, List<String> more) {
+    /** {@code pypi downloads -f json}。 */
+    public OpenCliTypedResult<JsonNode> downloadsTyped(String packageName, PypiDownloadPeriod period, List<String> more) {
         List<String> args = new ArrayList<>();
         args.add("downloads");
         args.add(packageName);

@@ -50,12 +50,48 @@ public final class WikipediaOpenCliClient {
         return ch().invoke(OpenCliArgSupport.merge(args, more));
     }
 
-    public OpenCliResult random(List<String> more) {
-        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("random"), more));
+    /**
+     * 随机条目。
+     *
+     * @param lang 维基语言代码（如 {@code en}、{@code zh}），可为 null
+     * @param more 透传参数，可为 null
+     */
+    public OpenCliResult random(String lang, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("random");
+        if (lang != null) {
+            OpenCliArgSupport.addOptionPair(args, "--lang", lang);
+        }
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
     }
 
+    /** @see #random(String, List) */
+    public OpenCliResult random(List<String> more) {
+        return random(null, more);
+    }
+
+    /**
+     * 热门条目排行。
+     *
+     * @param limit 最大条数，可为 null
+     * @param lang  语言代码，可为 null
+     * @param more  透传参数，可为 null
+     */
+    public OpenCliResult trending(Integer limit, String lang, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("trending");
+        if (limit != null) {
+            OpenCliArgSupport.addOptionPair(args, "--limit", String.valueOf(limit));
+        }
+        if (lang != null) {
+            OpenCliArgSupport.addOptionPair(args, "--lang", lang);
+        }
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
+    }
+
+    /** @see #trending(Integer, String, List) */
     public OpenCliResult trending(List<String> more) {
-        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("trending"), more));
+        return trending(null, null, more);
     }
 
     public OpenCliResult page(String title, String lang, Integer paragraphs, List<String> more) {
@@ -74,5 +110,34 @@ public final class WikipediaOpenCliClient {
     public OpenCliTypedResult<JsonNode> searchTyped(String query, Integer limit, String lang, List<String> more) {
         OpenCliResult raw = search(query, limit, lang, true, more);
         return OpenCliStdoutJson.typed(raw);
+    }
+
+    public OpenCliTypedResult<JsonNode> pageTyped(String title, String lang, Integer paragraphs, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("page");
+        args.add(title);
+        if (lang != null) {
+            OpenCliArgSupport.addOptionPair(args, "--lang", lang);
+        }
+        if (paragraphs != null) {
+            OpenCliArgSupport.addOptionPair(args, "--paragraphs", String.valueOf(paragraphs));
+        }
+        args.add("-f");
+        args.add("json");
+        return OpenCliStdoutJson.typed(ch().invoke(OpenCliArgSupport.merge(args, more)));
+    }
+
+    public OpenCliTypedResult<JsonNode> trendingTyped(Integer limit, String lang, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("trending");
+        if (limit != null) {
+            OpenCliArgSupport.addOptionPair(args, "--limit", String.valueOf(limit));
+        }
+        if (lang != null) {
+            OpenCliArgSupport.addOptionPair(args, "--lang", lang);
+        }
+        args.add("-f");
+        args.add("json");
+        return OpenCliStdoutJson.typed(ch().invoke(OpenCliArgSupport.merge(args, more)));
     }
 }

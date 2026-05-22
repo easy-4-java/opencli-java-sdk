@@ -5,9 +5,11 @@
 ## 功能概览
 
 - **核心**：`OpenCliProperties`、`OpenCliExecutor`、`OpenCliAdapterChannel`（`opencli <adapter> ...`）
-- **文档同步**：`OpenCliAdapterIds`、`OpenCliAdapterTaxonomy` 由 `scripts/generate_opencli_adapter_ids.py` 根据 `opencli/docs/adapters/index.md` 生成（共 134 个 adapter id）
+- **文档同步**：`OpenCliAdapterIds`、`OpenCliAdapterTaxonomy` 由 `scripts/generate_opencli_adapter_ids.py` 根据 `opencli/docs/adapters/index.md` 生成（共 155 个 adapter id；可通过环境变量 `OPENCLI_ROOT` 指定上游 opencli 目录）
 - **分类门面**：`PublicApiClient`、`BrowserClient`、`DesktopClient`（亦可 `OpenCliClient#publicApis()` 等）
-- **参考强类型封装**：`codex`、`cursor`、`gemini`、`claude`、`chatgpt`、`jimeng`、`arxiv`、`npm`、`binance`、`wikipedia`
+- **参考强类型封装**：`codex`、`cursor`、`gemini`、`claude`、`chatgpt`、`jimeng`、`deepseek`、`arxiv`、`npm`、`pypi`、`binance`、`wikipedia`
+- **元命令**：`OpenCliClient#meta()`（`list`、`validate`、`plugin`、`daemon`、`profile`、`completion` 等）
+- **内置 browser**：`OpenCliClient#browser()` 会话 API（`wait` 的 `--timeout` 为毫秒；`extract` 使用 `--chunk-size`/`--start`）
 - **批量遍历**：`OpenCliAdapterEnumerator` + `OpenCliAdapterIds.ALL`
 
 ## Maven
@@ -61,13 +63,17 @@ OpenCliClient cli = new OpenCliClient(props);
 // 任意 adapter（文档与 `opencli list` 一致）
 OpenCliResult r = cli.adapter("hackernews").invoke("top", "--limit", "5");
 
-// 强类型示例：npm
-OpenCliTypedResult<com.fasterxml.jackson.databind.JsonNode> pkg =
-    cli.npm().packageInfoTyped("react", null);
+// 强类型示例：Gemini deep-research（--confirm 为按钮文案，非布尔）
+cli.gemini().deepResearch("topic",
+    GeminiOpenCliClient.GeminiDeepResearchOptions.builder().confirmLabel("Start").build(), null);
+```
 
-// Desktop：Codex
-cli.codex().status();
-cli.codex().ask("Summarize repo", null, null);
+### meta() 与 browser()
+
+```java
+cli.meta().list("json");
+cli.meta().completion("zsh");
+cli.browser().session("work", "background").waitFor("selector", ".loaded", null, 10_000L);
 ```
 
 ## 远程 Agent（opencli-admin）
@@ -128,9 +134,10 @@ agent.close();
 
 ## 刷新适配器常量
 
-当上游 `index.md` 变更时：
+当上游 `index.md` 变更时（需可访问 opencli 源码树，默认相对路径或 `OPENCLI_ROOT`）：
 
 ```bash
+export OPENCLI_ROOT=/path/to/opencli/opencli   # 可选
 python3 scripts/generate_opencli_adapter_ids.py
 ```
 

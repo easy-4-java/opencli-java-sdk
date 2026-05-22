@@ -1,7 +1,5 @@
-package io.github.hiwepy.opencli.adapter.browser.claude;
+package io.github.hiwepy.opencli.adapter.browser.deepseek;
 
-import io.github.hiwepy.opencli.util.OpenCliLists;
-import io.github.hiwepy.opencli.adapter.browser.support.BrowserLlmOptions;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.github.hiwepy.opencli.core.OpenCliAdapterChannel;
 import io.github.hiwepy.opencli.core.OpenCliArgSupport;
@@ -10,6 +8,7 @@ import io.github.hiwepy.opencli.core.OpenCliResult;
 import io.github.hiwepy.opencli.core.OpenCliTypedResult;
 import io.github.hiwepy.opencli.parser.OpenCliStdoutJson;
 import io.github.hiwepy.opencli.registry.OpenCliAdapterIds;
+import io.github.hiwepy.opencli.util.OpenCliLists;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Builder;
@@ -17,36 +16,43 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 /**
- * OpenCLI {@code claude} 浏览器适配器。
+ * OpenCLI {@code deepseek} 浏览器适配器。
  */
 @RequiredArgsConstructor
-public final class ClaudeOpenCliClient {
+public final class DeepseekOpenCliClient {
 
     private final OpenCliExecutor executor;
 
     private OpenCliAdapterChannel ch() {
-        return new OpenCliAdapterChannel(executor, OpenCliAdapterIds.CLAUDE);
+        return new OpenCliAdapterChannel(executor, OpenCliAdapterIds.DEEPSEEK);
     }
 
+    /**
+     * {@code deepseek ask} 选项块。
+     */
     @Data
     @Builder(toBuilder = true)
-    public static class ClaudeAskOptions {
+    public static class DeepseekAskOptions {
 
         private Integer timeoutSeconds;
 
-        /** 文档：{@code --new} 布尔开关（此处若 true 仅追加 flag，不传值）。 */
         private Boolean newConversation;
 
+        /** instant、expert、vision。 */
         private String model;
 
-        private Boolean adaptiveThinking;
+        private Boolean deepThink;
+
+        private Boolean webSearch;
 
         private String attachmentPath;
 
         private Boolean jsonOutput;
 
         /**
-         * @param target argv
+         * 追加 ask/send 共用选项到 argv。
+         *
+         * @param target argv 列表
          */
         public void appendTo(List<String> target) {
             if (Boolean.TRUE.equals(newConversation)) {
@@ -58,8 +64,11 @@ public final class ClaudeOpenCliClient {
             if (model != null) {
                 OpenCliArgSupport.addOptionPair(target, "--model", model);
             }
-            if (Boolean.TRUE.equals(adaptiveThinking)) {
+            if (Boolean.TRUE.equals(deepThink)) {
                 target.add("--think");
+            }
+            if (Boolean.TRUE.equals(webSearch)) {
+                target.add("--search");
             }
             if (attachmentPath != null) {
                 OpenCliArgSupport.addOptionPair(target, "--file", attachmentPath);
@@ -71,7 +80,8 @@ public final class ClaudeOpenCliClient {
         }
     }
 
-    public OpenCliResult ask(String prompt, ClaudeAskOptions options, List<String> more) {
+    /** {@code deepseek ask <prompt>}。 */
+    public OpenCliResult ask(String prompt, DeepseekAskOptions options, List<String> more) {
         List<String> args = new ArrayList<>();
         args.add("ask");
         args.add(prompt);
@@ -81,16 +91,11 @@ public final class ClaudeOpenCliClient {
         return ch().invoke(OpenCliArgSupport.merge(args, more));
     }
 
-    public OpenCliResult send(String prompt, List<String> more) {
-        return send(prompt, null, more);
-    }
-
-    /**
-     * {@code claude send}，支持 {@code --new}。
-     */
-    public OpenCliResult send(String prompt, ClaudeAskOptions options, List<String> more) {
+    /** {@code deepseek send <id> <prompt>}。 */
+    public OpenCliResult send(String conversationId, String prompt, DeepseekAskOptions options, List<String> more) {
         List<String> args = new ArrayList<>();
         args.add("send");
+        args.add(conversationId);
         args.add(prompt);
         if (options != null) {
             options.appendTo(args);
@@ -98,25 +103,22 @@ public final class ClaudeOpenCliClient {
         return ch().invoke(OpenCliArgSupport.merge(args, more));
     }
 
+    /** {@code deepseek new}。 */
     public OpenCliResult newChat(List<String> more) {
         return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("new"), more));
     }
 
+    /** {@code deepseek status}。 */
     public OpenCliResult status(List<String> more) {
         return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("status"), more));
     }
 
+    /** {@code deepseek read}。 */
     public OpenCliResult read(List<String> more) {
         return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("read"), more));
     }
 
-    public OpenCliResult history(List<String> more) {
-        return history(null, more);
-    }
-
-    /**
-     * {@code claude history [--limit N]}。
-     */
+    /** {@code deepseek history [--limit N]}。 */
     public OpenCliResult history(Integer limit, List<String> more) {
         List<String> args = new ArrayList<>();
         args.add("history");
@@ -126,6 +128,7 @@ public final class ClaudeOpenCliClient {
         return ch().invoke(OpenCliArgSupport.merge(args, more));
     }
 
+    /** {@code deepseek detail <id>}。 */
     public OpenCliResult detail(String conversationIdOrUrl, List<String> more) {
         List<String> args = new ArrayList<>();
         args.add("detail");
@@ -133,26 +136,14 @@ public final class ClaudeOpenCliClient {
         return ch().invoke(OpenCliArgSupport.merge(args, more));
     }
 
-    /** {@code claude ask} 且 {@code -f json} 时解析 stdout。 */
-    public OpenCliTypedResult<JsonNode> askTyped(String prompt, ClaudeAskOptions options, List<String> more) {
-        ClaudeAskOptions withJson = options;
+    /** {@code deepseek ask -f json}。 */
+    public OpenCliTypedResult<JsonNode> askTyped(String prompt, DeepseekAskOptions options, List<String> more) {
+        DeepseekAskOptions withJson = options;
         if (withJson == null) {
-            withJson = ClaudeAskOptions.builder().jsonOutput(true).build();
+            withJson = DeepseekAskOptions.builder().jsonOutput(true).build();
         } else if (!Boolean.TRUE.equals(withJson.getJsonOutput())) {
             withJson = withJson.toBuilder().jsonOutput(true).build();
         }
         return OpenCliStdoutJson.typed(ask(prompt, withJson, more));
-    }
-
-    /** {@code claude history -f json}。 */
-    public OpenCliTypedResult<JsonNode> historyTyped(Integer limit, List<String> more) {
-        List<String> args = new ArrayList<>();
-        args.add("history");
-        if (limit != null) {
-            OpenCliArgSupport.addOptionPair(args, "--limit", String.valueOf(limit));
-        }
-        args.add("-f");
-        args.add("json");
-        return OpenCliStdoutJson.typed(ch().invoke(OpenCliArgSupport.merge(args, more)));
     }
 }

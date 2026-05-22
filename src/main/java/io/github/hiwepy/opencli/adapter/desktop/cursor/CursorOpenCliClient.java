@@ -35,7 +35,21 @@ public final class CursorOpenCliClient {
 
     /** 截图与快照制品。 */
     public OpenCliResult screenshot() {
-        return ch().invoke("screenshot");
+        return screenshot(null);
+    }
+
+    /**
+     * 截图与快照制品。
+     *
+     * @param output 输出路径（{@code --output}），可为 null
+     */
+    public OpenCliResult screenshot(String output) {
+        List<String> args = new ArrayList<>();
+        args.add("screenshot");
+        if (output != null) {
+            OpenCliArgSupport.addOptionPair(args, "--output", output);
+        }
+        return ch().invoke(args);
     }
 
     /** 新建文件/标签（文档：{@code Cmd+N}）。 */
@@ -106,7 +120,21 @@ public final class CursorOpenCliClient {
 
     /** 当前模型。 */
     public OpenCliResult model() {
-        return ch().invoke("model");
+        return model(null);
+    }
+
+    /**
+     * 读取或切换模型。
+     *
+     * @param modelName 模型 ID（positional {@code model-name}，如 {@code claude-3.5-sonnet}），可为 null 表示仅读取
+     */
+    public OpenCliResult model(String modelName) {
+        List<String> args = new ArrayList<>();
+        args.add("model");
+        if (modelName != null) {
+            args.add(modelName);
+        }
+        return ch().invoke(args);
     }
 
     /** 抽取对话中的代码块。 */
@@ -121,6 +149,20 @@ public final class CursorOpenCliClient {
 
     /** 导出 Markdown。 */
     public OpenCliResult exportConversation() {
-        return ch().invoke("export");
+        return exportConversation(null);
+    }
+
+    /**
+     * 导出 Markdown。
+     *
+     * @param output 输出路径（{@code --output}），可为 null
+     */
+    public OpenCliResult exportConversation(String output) {
+        List<String> args = new ArrayList<>();
+        args.add("export");
+        if (output != null) {
+            OpenCliArgSupport.addOptionPair(args, "--output", output);
+        }
+        return ch().invoke(args);
     }
 }
