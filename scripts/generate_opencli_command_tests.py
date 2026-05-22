@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
-"""从 opencli cli-manifest.json 生成 Java SDK 100% 命令覆盖测试（请勿手改生成文件）。"""
+"""从 opencli cli-manifest.json 生成 Java SDK 100% 命令覆盖测试（请勿手改生成文件）。
+
+测试分层（两层互补，非重复）：
+  A. manifest 冒烟（本脚本生成 OpenCliAdapterCommandsCoverageTest 等）
+     - 899 条 adapter 子命令经 OpenCliAdapterChannel.invoke + 占位 argv，只断言 site/子命令前缀。
+     - 适用于尚无 typed client 的长尾 adapter；不验证 Options→argv。
+  B. 强类型 + Options（手写 OpenCliTypedClientOptionsCoverageTest、OpenCliBrowserArgvTest 等）
+     - 对已有 typed client / Options 的入口，必须经 SDK 门面 + Options builder 断言 argv。
+     - 本层是 Options 映射的 canonical path；manifest 层不替代之。
+"""
 from __future__ import annotations
 
 import json
@@ -133,8 +142,9 @@ def write_adapter_coverage_test(command_count: int) -> None:
         /**
          * cli-manifest.json 全部 adapter 子命令覆盖（共 {command_count} 条）。
          * <p>
-         * <strong>成功标准：</strong>通过 {{@link OpenCliAdapterChannel#invoke}} 发起调用且返回非 null
-         * {{@link OpenCliResult}}；argv 以 site id 与子命令开头。不校验业务输出、登录态或平台可用性。
+         * <strong>成功标准：</strong>通过 {@link OpenCliAdapterChannel#invoke} 发起调用且返回非 null
+         * {@link OpenCliResult}；argv 以 site id 与子命令开头。不校验业务输出、登录态或平台可用性。
+         * 已有 typed client + Options 的 argv 映射见 {@link OpenCliTypedClientOptionsCoverageTest}。
          * </p>
          * <p>由 {{@code scripts/generate_opencli_command_tests.py}} 生成，请勿手改。</p>
          */
