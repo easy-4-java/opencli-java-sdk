@@ -30,17 +30,9 @@ public final class OpenCliBrowserConsoleOptions {
      * @param target 可变 argv 列表
      */
     public void appendTo(List<String> target) {
-        if (level != null) {
-            OpenCliArgSupport.addOptionPair(target, "--level", level);
-        }
-        if (since != null) {
-            OpenCliArgSupport.addOptionPair(target, "--since", since);
-        }
-        if (until != null) {
-            OpenCliArgSupport.addOptionPair(target, "--until", until);
-        }
-        if (Boolean.TRUE.equals(follow)) {
-            target.add("--follow");
-        }
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--level", level);
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--since", since);
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--until", until);
+        OpenCliArgSupport.addFlagIfTrue(target, "--follow", follow);
     }
 }

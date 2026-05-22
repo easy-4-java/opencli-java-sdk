@@ -24,11 +24,7 @@ public final class OpenCliBrowserStateOptions {
      * @param target 可变 argv 列表
      */
     public void appendTo(List<String> target) {
-        if (source != null) {
-            OpenCliArgSupport.addOptionPair(target, "--source", source);
-        }
-        if (Boolean.TRUE.equals(compareSources)) {
-            target.add("--compare-sources");
-        }
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--source", source);
+        OpenCliArgSupport.addFlagIfTrue(target, "--compare-sources", compareSources);
     }
 }

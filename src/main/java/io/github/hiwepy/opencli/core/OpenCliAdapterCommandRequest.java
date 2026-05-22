@@ -7,7 +7,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import lombok.AccessLevel;
 import lombok.Builder;
+import lombok.Getter;
 import lombok.Singular;
 
 /**
@@ -17,30 +19,26 @@ import lombok.Singular;
  * 禁止在测试中手工拼接 {@code List.of("sub", "--flag", "value")}；应通过 builder 建模参数。
  * </p>
  */
+@Getter
 @Builder
 public final class OpenCliAdapterCommandRequest {
 
     /** 子命令名（不含 adapter id）。 */
     private final String subcommand;
 
+    @Getter(AccessLevel.NONE)
     @Singular("positional")
     private final List<String> positionals;
 
+    @Getter(AccessLevel.NONE)
     @Builder.Default
     private final Map<String, Object> options = Collections.emptyMap();
-
-    /**
-     * @return 子命令名
-     */
-    public String getSubcommand() {
-        return subcommand;
-    }
 
     /**
      * @return positional 参数副本
      */
     public List<String> getPositionals() {
-        if (positionals == null) {
+        if (Objects.isNull(positionals)) {
             return Collections.emptyList();
         }
         return Collections.unmodifiableList(new ArrayList<>(positionals));
@@ -50,7 +48,7 @@ public final class OpenCliAdapterCommandRequest {
      * @return 命名选项副本
      */
     public Map<String, Object> getOptions() {
-        if (options == null) {
+        if (Objects.isNull(options)) {
             return Collections.emptyMap();
         }
         return Collections.unmodifiableMap(new LinkedHashMap<>(options));
@@ -65,14 +63,14 @@ public final class OpenCliAdapterCommandRequest {
         Objects.requireNonNull(subcommand, "subcommand");
         List<String> tokens = new ArrayList<>();
         tokens.add(subcommand.trim());
-        if (positionals != null) {
+        if (Objects.nonNull(positionals)) {
             for (String p : positionals) {
                 if (OpenCliStrings.isNotBlank(p)) {
                     tokens.add(p.trim());
                 }
             }
         }
-        if (options != null) {
+        if (Objects.nonNull(options)) {
             for (Map.Entry<String, Object> entry : options.entrySet()) {
                 appendOption(tokens, entry.getKey(), entry.getValue());
             }
@@ -81,7 +79,7 @@ public final class OpenCliAdapterCommandRequest {
     }
 
     private static void appendOption(List<String> target, String name, Object value) {
-        if (OpenCliStrings.isBlank(name) || value == null) {
+        if (OpenCliStrings.isBlank(name) || Objects.isNull(value)) {
             return;
         }
         String flag = name.startsWith("-") ? name.trim() : "--" + name.trim();
@@ -108,10 +106,10 @@ public final class OpenCliAdapterCommandRequest {
         List<String> positionals,
         Map<String, Object> options) {
         OpenCliAdapterCommandRequestBuilder b = builder().subcommand(subcommand);
-        if (positionals != null) {
+        if (Objects.nonNull(positionals)) {
             b.positionals(positionals);
         }
-        if (options != null && !options.isEmpty()) {
+        if (Objects.nonNull(options) && !options.isEmpty()) {
             b.options(new LinkedHashMap<>(options));
         }
         return b.build();

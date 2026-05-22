@@ -1,6 +1,7 @@
 package io.github.hiwepy.opencli.browser;
 
 import io.github.hiwepy.opencli.core.OpenCliExecutor;
+import io.github.hiwepy.opencli.util.OpenCliStrings;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 
@@ -31,10 +32,10 @@ public final class OpenCliBrowserClient {
      */
     public OpenCliBrowserSession session(String sessionName, String windowMode) {
         String name = Objects.requireNonNull(sessionName, "sessionName").trim();
-        if (name.isEmpty()) {
+        if (OpenCliStrings.isBlank(name)) {
             throw new IllegalArgumentException("sessionName must not be blank");
         }
-        if (windowMode != null) {
+        if (Objects.nonNull(windowMode)) {
             String mode = windowMode.trim().toLowerCase();
             if (!"foreground".equals(mode) && !"background".equals(mode)) {
                 throw new IllegalArgumentException("windowMode must be foreground or background");

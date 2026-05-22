@@ -24,20 +24,10 @@ public class OpenCliBrowserSemanticLocator {
      * @param target 可变 argv 列表
      */
     public void appendTo(List<String> target) {
-        if (role != null) {
-            OpenCliArgSupport.addOptionPair(target, "--role", role);
-        }
-        if (name != null) {
-            OpenCliArgSupport.addOptionPair(target, "--name", name);
-        }
-        if (label != null) {
-            OpenCliArgSupport.addOptionPair(target, "--label", label);
-        }
-        if (text != null) {
-            OpenCliArgSupport.addOptionPair(target, "--text", text);
-        }
-        if (testId != null) {
-            OpenCliArgSupport.addOptionPair(target, "--testid", testId);
-        }
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--role", role);
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--name", name);
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--label", label);
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--text", text);
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--testid", testId);
     }
 }

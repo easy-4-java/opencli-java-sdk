@@ -19,8 +19,6 @@ public class OpenCliBrowserTabOptions {
      * @param target argv
      */
     public void appendTo(List<String> target) {
-        if (tab != null) {
-            OpenCliArgSupport.addOptionPair(target, "--tab", tab);
-        }
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--tab", tab);
     }
 }
