@@ -40,14 +40,20 @@ public final class OpenCliAdapterCommandRequest {
      * @return positional 参数副本
      */
     public List<String> getPositionals() {
-        return positionals == null ? List.of() : List.copyOf(positionals);
+        if (positionals == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(new ArrayList<>(positionals));
     }
 
     /**
      * @return 命名选项副本
      */
     public Map<String, Object> getOptions() {
-        return options == null ? Map.of() : Map.copyOf(options);
+        if (options == null) {
+            return Collections.emptyMap();
+        }
+        return Collections.unmodifiableMap(new LinkedHashMap<>(options));
     }
 
     /**
