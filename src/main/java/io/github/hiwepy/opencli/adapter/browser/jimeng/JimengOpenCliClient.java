@@ -32,7 +32,18 @@ public final class JimengOpenCliClient {
 
         private Integer waitSeconds;
 
+        private Integer timeoutSeconds;
+
         private String workspace;
+
+        /** 配音音色预设（{@code generate-audio} 的 {@code --tone}）。 */
+        private String tone;
+
+        /** 音色参考文件（{@code --tone-file}）。 */
+        private String toneFile;
+
+        /** 克隆参考文件（{@code --clone-file}）。 */
+        private String cloneFile;
 
         private Boolean jsonOutput;
 
@@ -43,8 +54,20 @@ public final class JimengOpenCliClient {
             if (waitSeconds != null) {
                 OpenCliArgSupport.addOptionEquals(target, "--wait", String.valueOf(waitSeconds));
             }
+            if (timeoutSeconds != null) {
+                OpenCliArgSupport.addOptionPair(target, "--timeout", String.valueOf(timeoutSeconds));
+            }
             if (workspace != null) {
                 OpenCliArgSupport.addOptionEquals(target, "--workspace", workspace);
+            }
+            if (tone != null) {
+                OpenCliArgSupport.addOptionPair(target, "--tone", tone);
+            }
+            if (toneFile != null) {
+                OpenCliArgSupport.addOptionPair(target, "--tone-file", toneFile);
+            }
+            if (cloneFile != null) {
+                OpenCliArgSupport.addOptionPair(target, "--clone-file", cloneFile);
             }
             if (Boolean.TRUE.equals(jsonOutput)) {
                 target.add("-f");

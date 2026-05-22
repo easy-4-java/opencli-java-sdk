@@ -1,7 +1,7 @@
 package io.github.hiwepy.opencli.registry;
 
 /**
- * OpenCLI 适配器标识常量（由脚本从 docs/adapters/index.md 生成）。
+ * OpenCLI 适配器标识常量（由脚本从 docs/adapters/index.md + cli-manifest.json 生成）。
  * <p>运行 {@code scripts/generate_opencli_adapter_ids.py} 刷新。</p>
  */
 public final class OpenCliAdapterIds {
@@ -9,7 +9,9 @@ public final class OpenCliAdapterIds {
     private OpenCliAdapterIds() {
     }
 
+    public static final String ADAPTER_12306 = "12306";
     public static final String ADAPTER_1688 = "1688";
+    public static final String ADAPTER_1POINT3ACRES = "1point3acres";
     public static final String ADAPTER_36KR = "36kr";
     public static final String ADAPTER_51JOB = "51job";
     public static final String AIBASE = "aibase";
@@ -25,34 +27,43 @@ public final class OpenCliAdapterIds {
     public static final String BINANCE = "binance";
     public static final String BLOOMBERG = "bloomberg";
     public static final String BLUESKY = "bluesky";
+    public static final String BOOKING = "booking";
     public static final String BOSS = "boss";
+    public static final String BRAVE = "brave";
     public static final String CHAOXING = "chaoxing";
     public static final String CHATGPT = "chatgpt";
     public static final String CHATGPT_APP = "chatgpt-app";
     public static final String CHATWISE = "chatwise";
+    public static final String CHESS = "chess";
     public static final String CLAUDE = "claude";
+    public static final String CNKI = "cnki";
     public static final String CODEX = "codex";
     public static final String COINGECKO = "coingecko";
+    public static final String CONFLUENCE = "confluence";
     public static final String COUPANG = "coupang";
     public static final String CRATES = "crates";
     public static final String CTRIP = "ctrip";
     public static final String CURSOR = "cursor";
     public static final String DBLP = "dblp";
+    public static final String DEEPSEEK = "deepseek";
     public static final String DEFILLAMA = "defillama";
     public static final String DEVTO = "devto";
     public static final String DIANPING = "dianping";
     public static final String DICTIONARY = "dictionary";
-    public static final String DISCORD = "discord";
+    public static final String DISCORD_APP = "discord-app";
     public static final String DOCKERHUB = "dockerhub";
     public static final String DOUBAN = "douban";
     public static final String DOUBAO = "doubao";
     public static final String DOUBAO_APP = "doubao-app";
     public static final String DOUYIN = "douyin";
+    public static final String DUCKDUCKGO = "duckduckgo";
     public static final String EASTMONEY = "eastmoney";
     public static final String ENDOFLIFE = "endoflife";
     public static final String FACEBOOK = "facebook";
     public static final String FLATHUB = "flathub";
+    public static final String FLOMO = "flomo";
     public static final String GEMINI = "gemini";
+    public static final String GEOGEBRA = "geogebra";
     public static final String GITEE = "gitee";
     public static final String GOOGLE = "google";
     public static final String GOOGLE_SCHOLAR = "google-scholar";
@@ -68,12 +79,15 @@ public final class OpenCliAdapterIds {
     public static final String INDEED = "indeed";
     public static final String INSTAGRAM = "instagram";
     public static final String JD = "jd";
+    public static final String JIANYU = "jianyu";
     public static final String JIKE = "jike";
     public static final String JIMENG = "jimeng";
+    public static final String JIRA = "jira";
     public static final String KE = "ke";
     public static final String LESSWRONG = "lesswrong";
     public static final String LICHESS = "lichess";
     public static final String LINKEDIN = "linkedin";
+    public static final String LINKEDIN_LEARNING = "linkedin-learning";
     public static final String LINUX_DO = "linux-do";
     public static final String LOBSTERS = "lobsters";
     public static final String MAIMAI = "maimai";
@@ -100,6 +114,7 @@ public final class OpenCliAdapterIds {
     public static final String PUBMED = "pubmed";
     public static final String PYPI = "pypi";
     public static final String QUARK = "quark";
+    public static final String QWEN = "qwen";
     public static final String REDDIT = "reddit";
     public static final String REDNOTE = "rednote";
     public static final String REST_COUNTRIES = "rest-countries";
@@ -113,6 +128,8 @@ public final class OpenCliAdapterIds {
     public static final String STACKOVERFLOW = "stackoverflow";
     public static final String STEAM = "steam";
     public static final String SUBSTACK = "substack";
+    public static final String SUNO = "suno";
+    public static final String TAOBAO = "taobao";
     public static final String TDX = "tdx";
     public static final String THS = "ths";
     public static final String TIEBA = "tieba";
@@ -122,12 +139,14 @@ public final class OpenCliAdapterIds {
     public static final String TWITTER = "twitter";
     public static final String UISDC = "uisdc";
     public static final String UIVERSE = "uiverse";
+    public static final String UPWORK = "upwork";
     public static final String V2EX = "v2ex";
     public static final String WANFANG = "wanfang";
     public static final String WEB = "web";
     public static final String WEIBO = "weibo";
     public static final String WEIXIN = "weixin";
     public static final String WEREAD = "weread";
+    public static final String WEREAD_OFFICIAL = "weread-official";
     public static final String WIKIDATA = "wikidata";
     public static final String WIKIPEDIA = "wikipedia";
     public static final String WTTR = "wttr";
@@ -136,8 +155,10 @@ public final class OpenCliAdapterIds {
     public static final String XIAOHONGSHU = "xiaohongshu";
     public static final String XIAOYUZHOU = "xiaoyuzhou";
     public static final String XUEQIU = "xueqiu";
+    public static final String YAHOO = "yahoo";
     public static final String YAHOO_FINANCE = "yahoo-finance";
     public static final String YOLLOMI = "yollomi";
+    public static final String YOUDAO = "youdao";
     public static final String YOUTUBE = "youtube";
     public static final String YUANBAO = "yuanbao";
     public static final String ZHIHU = "zhihu";
@@ -146,7 +167,9 @@ public final class OpenCliAdapterIds {
 
     /** 文档索引中的全部 adapter id（便于遍历集成）。 */
     public static final String[] ALL = {
+        ADAPTER_12306,
         ADAPTER_1688,
+        ADAPTER_1POINT3ACRES,
         ADAPTER_36KR,
         ADAPTER_51JOB,
         AIBASE,
@@ -162,34 +185,43 @@ public final class OpenCliAdapterIds {
         BINANCE,
         BLOOMBERG,
         BLUESKY,
+        BOOKING,
         BOSS,
+        BRAVE,
         CHAOXING,
         CHATGPT,
         CHATGPT_APP,
         CHATWISE,
+        CHESS,
         CLAUDE,
+        CNKI,
         CODEX,
         COINGECKO,
+        CONFLUENCE,
         COUPANG,
         CRATES,
         CTRIP,
         CURSOR,
         DBLP,
+        DEEPSEEK,
         DEFILLAMA,
         DEVTO,
         DIANPING,
         DICTIONARY,
-        DISCORD,
+        DISCORD_APP,
         DOCKERHUB,
         DOUBAN,
         DOUBAO,
         DOUBAO_APP,
         DOUYIN,
+        DUCKDUCKGO,
         EASTMONEY,
         ENDOFLIFE,
         FACEBOOK,
         FLATHUB,
+        FLOMO,
         GEMINI,
+        GEOGEBRA,
         GITEE,
         GOOGLE,
         GOOGLE_SCHOLAR,
@@ -205,12 +237,15 @@ public final class OpenCliAdapterIds {
         INDEED,
         INSTAGRAM,
         JD,
+        JIANYU,
         JIKE,
         JIMENG,
+        JIRA,
         KE,
         LESSWRONG,
         LICHESS,
         LINKEDIN,
+        LINKEDIN_LEARNING,
         LINUX_DO,
         LOBSTERS,
         MAIMAI,
@@ -237,6 +272,7 @@ public final class OpenCliAdapterIds {
         PUBMED,
         PYPI,
         QUARK,
+        QWEN,
         REDDIT,
         REDNOTE,
         REST_COUNTRIES,
@@ -250,6 +286,8 @@ public final class OpenCliAdapterIds {
         STACKOVERFLOW,
         STEAM,
         SUBSTACK,
+        SUNO,
+        TAOBAO,
         TDX,
         THS,
         TIEBA,
@@ -259,12 +297,14 @@ public final class OpenCliAdapterIds {
         TWITTER,
         UISDC,
         UIVERSE,
+        UPWORK,
         V2EX,
         WANFANG,
         WEB,
         WEIBO,
         WEIXIN,
         WEREAD,
+        WEREAD_OFFICIAL,
         WIKIDATA,
         WIKIPEDIA,
         WTTR,
@@ -273,8 +313,10 @@ public final class OpenCliAdapterIds {
         XIAOHONGSHU,
         XIAOYUZHOU,
         XUEQIU,
+        YAHOO,
         YAHOO_FINANCE,
         YOLLOMI,
+        YOUDAO,
         YOUTUBE,
         YUANBAO,
         ZHIHU,
@@ -283,11 +325,11 @@ public final class OpenCliAdapterIds {
     };
 
     /** Browser 类适配器数量（文档 index 链接口径）。 */
-    public static final int BROWSER_ADAPTER_COUNT = 127;
+    public static final int BROWSER_ADAPTER_COUNT = 148;
 
     /** Desktop 类适配器数量。 */
     public static final int DESKTOP_ADAPTER_COUNT = 7;
 
     /** 文档索引中的适配器总数（browser ∪ desktop）。 */
-    public static final int TOTAL_ADAPTER_COUNT = 134;
+    public static final int TOTAL_ADAPTER_COUNT = 155;
 }

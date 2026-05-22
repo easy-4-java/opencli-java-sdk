@@ -68,6 +68,8 @@ public final class GeminiOpenCliClient {
         /** Skip download：仅打印页面链接。 */
         private Boolean skipDownload;
 
+        private Integer timeoutSeconds;
+
         public void appendTo(List<String> target) {
             if (aspectRatio != null) {
                 OpenCliArgSupport.addOptionPair(target, "--rt", aspectRatio);
@@ -80,6 +82,9 @@ public final class GeminiOpenCliClient {
             }
             if (Boolean.TRUE.equals(skipDownload)) {
                 OpenCliArgSupport.addOptionPair(target, "--sd", "true");
+            }
+            if (timeoutSeconds != null) {
+                OpenCliArgSupport.addOptionPair(target, "--timeout", String.valueOf(timeoutSeconds));
             }
         }
     }
@@ -98,7 +103,7 @@ public final class GeminiOpenCliClient {
     }
 
     /** Deep Research 启动。 */
-    public OpenCliResult deepResearch(String prompt, BrowserLlmOptions options, List<String> more) {
+    public OpenCliResult deepResearch(String prompt, GeminiDeepResearchOptions options, List<String> more) {
         List<String> args = new ArrayList<>();
         args.add("deep-research");
         args.add(prompt);
@@ -108,11 +113,66 @@ public final class GeminiOpenCliClient {
         return ch().invoke(OpenCliArgSupport.merge(args, more));
     }
 
+    /** @see #deepResearch(String, GeminiDeepResearchOptions, List) */
+    public OpenCliResult deepResearch(String prompt, BrowserLlmOptions options, List<String> more) {
+        GeminiDeepResearchOptions mapped = null;
+        if (options != null) {
+            mapped = GeminiDeepResearchOptions.builder()
+                .timeoutSeconds(options.getTimeoutSeconds())
+                .jsonOutput(options.getJsonOutput())
+                .build();
+        }
+        return deepResearch(prompt, mapped, more);
+    }
+
+    /**
+     * {@code deep-research} 专用选项（含 {@code --tool}、{@code --confirm}）。
+     */
+    @Data
+    @Builder
+    public static class GeminiDeepResearchOptions {
+
+        private Integer timeoutSeconds;
+
+        private String tool;
+
+        private Boolean confirm;
+
+        private Boolean jsonOutput;
+
+        public void appendTo(List<String> target) {
+            if (timeoutSeconds != null) {
+                OpenCliArgSupport.addOptionPair(target, "--timeout", String.valueOf(timeoutSeconds));
+            }
+            if (tool != null) {
+                OpenCliArgSupport.addOptionPair(target, "--tool", tool);
+            }
+            if (Boolean.TRUE.equals(confirm)) {
+                target.add("--confirm");
+            }
+            if (Boolean.TRUE.equals(jsonOutput)) {
+                target.add("-f");
+                target.add("json");
+            }
+        }
+    }
+
     /** 导出 Deep Research 报告 URL。 */
-    public OpenCliResult deepResearchResult(String query, List<String> more) {
+    public OpenCliResult deepResearchResult(String query, String match, Integer timeoutSeconds, List<String> more) {
         List<String> args = new ArrayList<>();
         args.add("deep-research-result");
         args.add(query);
+        if (match != null) {
+            OpenCliArgSupport.addOptionPair(args, "--match", match);
+        }
+        if (timeoutSeconds != null) {
+            OpenCliArgSupport.addOptionPair(args, "--timeout", String.valueOf(timeoutSeconds));
+        }
         return ch().invoke(OpenCliArgSupport.merge(args, more));
+    }
+
+    /** @see #deepResearchResult(String, String, Integer, List) */
+    public OpenCliResult deepResearchResult(String query, List<String> more) {
+        return deepResearchResult(query, null, null, more);
     }
 }

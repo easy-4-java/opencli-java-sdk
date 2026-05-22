@@ -109,10 +109,52 @@ public final class ChatgptOpenCliClient {
         return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("status"), more));
     }
 
-    public OpenCliResult image(String prompt, List<String> more) {
+    /**
+     * {@code chatgpt image} 文生图参数。
+     */
+    @Data
+    @Builder
+    public static class ChatgptImageOptions {
+
+        /** 参考图路径（{@code --image}）。 */
+        private String referenceImagePath;
+
+        /** 输出目录（{@code --op}）。 */
+        private String outputDir;
+
+        /** 跳过下载，仅返回链接（{@code --sd}）。 */
+        private Boolean skipDownload;
+
+        private Integer timeoutSeconds;
+
+        public void appendTo(List<String> target) {
+            if (referenceImagePath != null) {
+                OpenCliArgSupport.addOptionPair(target, "--image", referenceImagePath);
+            }
+            if (outputDir != null) {
+                OpenCliArgSupport.addOptionPair(target, "--op", outputDir);
+            }
+            if (Boolean.TRUE.equals(skipDownload)) {
+                OpenCliArgSupport.addOptionPair(target, "--sd", "true");
+            }
+            if (timeoutSeconds != null) {
+                OpenCliArgSupport.addOptionPair(target, "--timeout", String.valueOf(timeoutSeconds));
+            }
+        }
+    }
+
+    public OpenCliResult image(String prompt, ChatgptImageOptions options, List<String> more) {
         List<String> args = new ArrayList<>();
         args.add("image");
         args.add(prompt);
+        if (options != null) {
+            options.appendTo(args);
+        }
         return ch().invoke(OpenCliArgSupport.merge(args, more));
+    }
+
+    /** @see #image(String, ChatgptImageOptions, List) */
+    public OpenCliResult image(String prompt, List<String> more) {
+        return image(prompt, null, more);
     }
 }
