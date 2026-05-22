@@ -1,7 +1,13 @@
 package io.github.hiwepy.opencli.browser;
 
+import io.github.hiwepy.opencli.browser.support.OpenCliBrowserConsoleOptions;
 import io.github.hiwepy.opencli.browser.support.OpenCliBrowserDragLocator;
+import io.github.hiwepy.opencli.browser.support.OpenCliBrowserExtractOptions;
+import io.github.hiwepy.opencli.browser.support.OpenCliBrowserFindOptions;
+import io.github.hiwepy.opencli.browser.support.OpenCliBrowserGetHtmlOptions;
+import io.github.hiwepy.opencli.browser.support.OpenCliBrowserScreenshotOptions;
 import io.github.hiwepy.opencli.browser.support.OpenCliBrowserSemanticLocator;
+import io.github.hiwepy.opencli.browser.support.OpenCliBrowserStateOptions;
 import io.github.hiwepy.opencli.browser.support.OpenCliBrowserTabOptions;
 import io.github.hiwepy.opencli.core.OpenCliArgSupport;
 import io.github.hiwepy.opencli.core.OpenCliExecutor;
@@ -20,10 +26,14 @@ public final class OpenCliBrowserSession {
 
     private final OpenCliExecutor executor;
     private final String sessionName;
+    private final String windowMode;
 
     private List<String> sessionPrefix() {
         List<String> tokens = new ArrayList<>();
         tokens.add("browser");
+        if (windowMode != null) {
+            OpenCliArgSupport.addOptionPair(tokens, "--window", windowMode);
+        }
         tokens.add(sessionName);
         return tokens;
     }
@@ -148,17 +158,32 @@ public final class OpenCliBrowserSession {
         return invokeSub(args);
     }
 
-    /** {@code browser state} */
-    public OpenCliResult state(OpenCliBrowserTabOptions tab, Boolean json) {
+    /**
+     * {@code browser state}，对齐 {@code --source} 与 {@code --compare-sources}。
+     */
+    public OpenCliResult state(OpenCliBrowserTabOptions tab, OpenCliBrowserStateOptions options) {
         List<String> args = new ArrayList<>();
         args.add("state");
         if (tab != null) {
             tab.appendTo(args);
         }
-        if (Boolean.TRUE.equals(json)) {
-            args.add("--json");
+        if (options != null) {
+            options.appendTo(args);
         }
         return invokeSub(args);
+    }
+
+    /**
+     * @deprecated 使用 {@link #state(OpenCliBrowserTabOptions, OpenCliBrowserStateOptions)}；
+     *     CLI 无 {@code --json} 开关
+     */
+    @Deprecated
+    public OpenCliResult state(OpenCliBrowserTabOptions tab, Boolean json) {
+        OpenCliBrowserStateOptions options = null;
+        if (Boolean.TRUE.equals(json)) {
+            options = OpenCliBrowserStateOptions.builder().source("dom").build();
+        }
+        return state(tab, options);
     }
 
     /** {@code browser frames} */
@@ -174,8 +199,7 @@ public final class OpenCliBrowserSession {
     /**
      * {@code browser screenshot [path]}。
      */
-    public OpenCliResult screenshot(
-        String path, OpenCliBrowserTabOptions tab, Boolean annotate, Boolean fullPage) {
+    public OpenCliResult screenshot(String path, OpenCliBrowserTabOptions tab, OpenCliBrowserScreenshotOptions options) {
         List<String> args = new ArrayList<>();
         args.add("screenshot");
         if (path != null) {
@@ -184,29 +208,48 @@ public final class OpenCliBrowserSession {
         if (tab != null) {
             tab.appendTo(args);
         }
-        if (Boolean.TRUE.equals(annotate)) {
-            args.add("--annotate");
-        }
-        if (Boolean.TRUE.equals(fullPage)) {
-            args.add("--full-page");
+        if (options != null) {
+            options.appendTo(args);
         }
         return invokeSub(args);
     }
 
-    /** {@code browser console} */
-    public OpenCliResult console(OpenCliBrowserTabOptions tab, Integer limit, String level) {
+    /**
+     * @deprecated 使用 {@link #screenshot(String, OpenCliBrowserTabOptions, OpenCliBrowserScreenshotOptions)}
+     */
+    @Deprecated
+    public OpenCliResult screenshot(
+        String path, OpenCliBrowserTabOptions tab, Boolean annotate, Boolean fullPage) {
+        OpenCliBrowserScreenshotOptions options = OpenCliBrowserScreenshotOptions.builder()
+            .annotate(annotate)
+            .fullPage(fullPage)
+            .build();
+        return screenshot(path, tab, options);
+    }
+
+    /**
+     * {@code browser console}，对齐 {@code --level}、{@code --since}、{@code --until}、{@code --follow}。
+     */
+    public OpenCliResult console(OpenCliBrowserTabOptions tab, OpenCliBrowserConsoleOptions options) {
         List<String> args = new ArrayList<>();
         args.add("console");
         if (tab != null) {
             tab.appendTo(args);
         }
-        if (limit != null) {
-            OpenCliArgSupport.addOptionPair(args, "--limit", String.valueOf(limit));
-        }
-        if (level != null) {
-            OpenCliArgSupport.addOptionPair(args, "--level", level);
+        if (options != null) {
+            options.appendTo(args);
         }
         return invokeSub(args);
+    }
+
+    /**
+     * @deprecated 使用 {@link #console(OpenCliBrowserTabOptions, OpenCliBrowserConsoleOptions)}；
+     *     CLI 无 {@code --limit}
+     */
+    @Deprecated
+    public OpenCliResult console(OpenCliBrowserTabOptions tab, Integer limit, String level) {
+        OpenCliBrowserConsoleOptions options = OpenCliBrowserConsoleOptions.builder().level(level).build();
+        return console(tab, options);
     }
 
     /** {@code browser analyze <url>} */
@@ -220,26 +263,38 @@ public final class OpenCliBrowserSession {
         return invokeSub(args);
     }
 
-    /** {@code browser find} */
+    /**
+     * {@code browser find}，对齐 {@code --css}、{@code --limit}、{@code --text-max}。
+     */
+    public OpenCliResult find(
+        OpenCliBrowserSemanticLocator locator,
+        OpenCliBrowserTabOptions tab,
+        OpenCliBrowserFindOptions options) {
+        List<String> args = new ArrayList<>();
+        args.add("find");
+        if (options != null) {
+            options.appendTo(args);
+        }
+        appendTabAndLocator(args, tab, locator);
+        return invokeSub(args);
+    }
+
+    /**
+     * @deprecated 使用 {@link #find(OpenCliBrowserSemanticLocator, OpenCliBrowserTabOptions, OpenCliBrowserFindOptions)}；
+     *     CLI 无 {@code --source}/{@code --nth}
+     */
+    @Deprecated
     public OpenCliResult find(
         String css,
         OpenCliBrowserSemanticLocator locator,
         OpenCliBrowserTabOptions tab,
         String source,
         Integer nth) {
-        List<String> args = new ArrayList<>();
-        args.add("find");
-        if (css != null) {
-            OpenCliArgSupport.addOptionPair(args, "--css", css);
-        }
-        appendTabAndLocator(args, tab, locator);
-        if (source != null) {
-            OpenCliArgSupport.addOptionPair(args, "--source", source);
-        }
+        OpenCliBrowserFindOptions options = OpenCliBrowserFindOptions.builder().css(css).build();
         if (nth != null) {
-            OpenCliArgSupport.addOptionPair(args, "--nth", String.valueOf(nth));
+            options = options.toBuilder().limit(nth).build();
         }
-        return invokeSub(args);
+        return find(locator, tab, options);
     }
 
     /** {@code browser get title} */
@@ -267,16 +322,36 @@ public final class OpenCliBrowserSession {
     /** {@code browser get text [target]} */
     public OpenCliResult getText(
         String target, OpenCliBrowserSemanticLocator locator, OpenCliBrowserTabOptions tab, Integer nth) {
-        return getSub("text", target, locator, tab, nth, null, null);
+        return getSub("text", target, locator, tab, nth, null);
     }
 
     /** {@code browser get value [target]} */
     public OpenCliResult getValue(
         String target, OpenCliBrowserSemanticLocator locator, OpenCliBrowserTabOptions tab, Integer nth) {
-        return getSub("value", target, locator, tab, nth, null, null);
+        return getSub("value", target, locator, tab, nth, null);
     }
 
-    /** {@code browser get html [target]} */
+    /**
+     * {@code browser get html}，使用 {@code --selector} 等选项（无 positional target）。
+     */
+    public OpenCliResult getHtml(OpenCliBrowserTabOptions tab, OpenCliBrowserGetHtmlOptions options) {
+        List<String> args = new ArrayList<>();
+        args.add("get");
+        args.add("html");
+        if (tab != null) {
+            tab.appendTo(args);
+        }
+        if (options != null) {
+            options.appendTo(args);
+        }
+        return invokeSub(args);
+    }
+
+    /**
+     * @deprecated 使用 {@link #getHtml(OpenCliBrowserTabOptions, OpenCliBrowserGetHtmlOptions)}；
+     *     CLI {@code get html} 使用 {@code --selector} 而非 positional
+     */
+    @Deprecated
     public OpenCliResult getHtml(
         String target,
         OpenCliBrowserSemanticLocator locator,
@@ -284,13 +359,18 @@ public final class OpenCliBrowserSession {
         Integer nth,
         String as,
         Integer depth) {
-        return getSub("html", target, locator, tab, nth, as, depth);
+        OpenCliBrowserGetHtmlOptions options = OpenCliBrowserGetHtmlOptions.builder()
+            .selector(target)
+            .as(as)
+            .depth(depth)
+            .build();
+        return getHtml(tab, options);
     }
 
     /** {@code browser get attributes [target]} */
     public OpenCliResult getAttributes(
         String target, OpenCliBrowserSemanticLocator locator, OpenCliBrowserTabOptions tab, Integer nth) {
-        return getSub("attributes", target, locator, tab, nth, null, null);
+        return getSub("attributes", target, locator, tab, nth, null);
     }
 
     private OpenCliResult getSub(
@@ -299,8 +379,7 @@ public final class OpenCliBrowserSession {
         OpenCliBrowserSemanticLocator locator,
         OpenCliBrowserTabOptions tab,
         Integer nth,
-        String as,
-        Integer depth) {
+        OpenCliBrowserGetHtmlOptions htmlOptions) {
         List<String> args = new ArrayList<>();
         args.add("get");
         args.add(property);
@@ -311,18 +390,21 @@ public final class OpenCliBrowserSession {
         if (nth != null) {
             OpenCliArgSupport.addOptionPair(args, "--nth", String.valueOf(nth));
         }
-        if (as != null) {
-            OpenCliArgSupport.addOptionPair(args, "--as", as);
-        }
-        if (depth != null) {
-            OpenCliArgSupport.addOptionPair(args, "--depth", String.valueOf(depth));
+        if (htmlOptions != null) {
+            htmlOptions.appendTo(args);
         }
         return invokeSub(args);
     }
 
     /** {@code browser click [target]} */
+    public OpenCliResult click(
+        String target, OpenCliBrowserSemanticLocator locator, OpenCliBrowserTabOptions tab, Integer nth) {
+        return interaction("click", target, null, locator, tab, null, nth);
+    }
+
+    /** @see #click(String, OpenCliBrowserSemanticLocator, OpenCliBrowserTabOptions, Integer) */
     public OpenCliResult click(String target, OpenCliBrowserSemanticLocator locator, OpenCliBrowserTabOptions tab) {
-        return interaction("click", target, null, locator, tab, null);
+        return click(target, locator, tab, null);
     }
 
     /** {@code browser type [target] <text>} */
@@ -331,33 +413,69 @@ public final class OpenCliBrowserSession {
         String text,
         OpenCliBrowserSemanticLocator locator,
         OpenCliBrowserTabOptions tab,
+        Boolean clear,
+        Integer nth) {
+        return interaction("type", targetOrText, text, locator, tab, clear, nth);
+    }
+
+    /** @see #type(String, String, OpenCliBrowserSemanticLocator, OpenCliBrowserTabOptions, Boolean, Integer) */
+    public OpenCliResult type(
+        String targetOrText,
+        String text,
+        OpenCliBrowserSemanticLocator locator,
+        OpenCliBrowserTabOptions tab,
         Boolean clear) {
-        return interaction("type", targetOrText, text, locator, tab, clear);
+        return type(targetOrText, text, locator, tab, clear, null);
     }
 
     /** {@code browser hover [target]} */
+    public OpenCliResult hover(
+        String target, OpenCliBrowserSemanticLocator locator, OpenCliBrowserTabOptions tab, Integer nth) {
+        return interaction("hover", target, null, locator, tab, null, nth);
+    }
+
     public OpenCliResult hover(String target, OpenCliBrowserSemanticLocator locator, OpenCliBrowserTabOptions tab) {
-        return interaction("hover", target, null, locator, tab, null);
+        return hover(target, locator, tab, null);
     }
 
     /** {@code browser focus [target]} */
+    public OpenCliResult focus(
+        String target, OpenCliBrowserSemanticLocator locator, OpenCliBrowserTabOptions tab, Integer nth) {
+        return interaction("focus", target, null, locator, tab, null, nth);
+    }
+
     public OpenCliResult focus(String target, OpenCliBrowserSemanticLocator locator, OpenCliBrowserTabOptions tab) {
-        return interaction("focus", target, null, locator, tab, null);
+        return focus(target, locator, tab, null);
     }
 
     /** {@code browser dblclick [target]} */
+    public OpenCliResult dblclick(
+        String target, OpenCliBrowserSemanticLocator locator, OpenCliBrowserTabOptions tab, Integer nth) {
+        return interaction("dblclick", target, null, locator, tab, null, nth);
+    }
+
     public OpenCliResult dblclick(String target, OpenCliBrowserSemanticLocator locator, OpenCliBrowserTabOptions tab) {
-        return interaction("dblclick", target, null, locator, tab, null);
+        return dblclick(target, locator, tab, null);
     }
 
     /** {@code browser check [target]} */
+    public OpenCliResult check(
+        String target, OpenCliBrowserSemanticLocator locator, OpenCliBrowserTabOptions tab, Integer nth) {
+        return interaction("check", target, null, locator, tab, null, nth);
+    }
+
     public OpenCliResult check(String target, OpenCliBrowserSemanticLocator locator, OpenCliBrowserTabOptions tab) {
-        return interaction("check", target, null, locator, tab, null);
+        return check(target, locator, tab, null);
     }
 
     /** {@code browser uncheck [target]} */
+    public OpenCliResult uncheck(
+        String target, OpenCliBrowserSemanticLocator locator, OpenCliBrowserTabOptions tab, Integer nth) {
+        return interaction("uncheck", target, null, locator, tab, null, nth);
+    }
+
     public OpenCliResult uncheck(String target, OpenCliBrowserSemanticLocator locator, OpenCliBrowserTabOptions tab) {
-        return interaction("uncheck", target, null, locator, tab, null);
+        return uncheck(target, locator, tab, null);
     }
 
     /** {@code browser upload [target] <files...>} */
@@ -365,7 +483,8 @@ public final class OpenCliBrowserSession {
         String targetOrFile,
         List<String> files,
         OpenCliBrowserSemanticLocator locator,
-        OpenCliBrowserTabOptions tab) {
+        OpenCliBrowserTabOptions tab,
+        Integer nth) {
         List<String> args = new ArrayList<>();
         args.add("upload");
         if (targetOrFile != null) {
@@ -375,7 +494,18 @@ public final class OpenCliBrowserSession {
             args.addAll(files);
         }
         appendTabAndLocator(args, tab, locator);
+        if (nth != null) {
+            OpenCliArgSupport.addOptionPair(args, "--nth", String.valueOf(nth));
+        }
         return invokeSub(args);
+    }
+
+    public OpenCliResult upload(
+        String targetOrFile,
+        List<String> files,
+        OpenCliBrowserSemanticLocator locator,
+        OpenCliBrowserTabOptions tab) {
+        return upload(targetOrFile, files, locator, tab, null);
     }
 
     /** {@code browser drag <source> <target>} */
@@ -402,8 +532,17 @@ public final class OpenCliBrowserSession {
         String targetOrText,
         String text,
         OpenCliBrowserSemanticLocator locator,
+        OpenCliBrowserTabOptions tab,
+        Integer nth) {
+        return interaction("fill", targetOrText, text, locator, tab, null, nth);
+    }
+
+    public OpenCliResult fill(
+        String targetOrText,
+        String text,
+        OpenCliBrowserSemanticLocator locator,
         OpenCliBrowserTabOptions tab) {
-        return interaction("fill", targetOrText, text, locator, tab, null);
+        return fill(targetOrText, text, locator, tab, null);
     }
 
     /** {@code browser select [target] <option>} */
@@ -411,8 +550,17 @@ public final class OpenCliBrowserSession {
         String targetOrOption,
         String option,
         OpenCliBrowserSemanticLocator locator,
+        OpenCliBrowserTabOptions tab,
+        Integer nth) {
+        return interaction("select", targetOrOption, option, locator, tab, null, nth);
+    }
+
+    public OpenCliResult select(
+        String targetOrOption,
+        String option,
+        OpenCliBrowserSemanticLocator locator,
         OpenCliBrowserTabOptions tab) {
-        return interaction("select", targetOrOption, option, locator, tab, null);
+        return select(targetOrOption, option, locator, tab, null);
     }
 
     /** {@code browser keys <key>} */
@@ -453,12 +601,14 @@ public final class OpenCliBrowserSession {
 
     /**
      * {@code browser wait <type> [value]} — type 如 selector、text、time、xhr、download。
+     *
+     * @param timeoutMillis {@code --timeout} 毫秒（CLI 默认 10000）
      */
     public OpenCliResult waitFor(
         String type,
         String value,
         OpenCliBrowserTabOptions tab,
-        Integer timeoutSeconds) {
+        Long timeoutMillis) {
         List<String> args = new ArrayList<>();
         args.add("wait");
         args.add(type);
@@ -468,10 +618,23 @@ public final class OpenCliBrowserSession {
         if (tab != null) {
             tab.appendTo(args);
         }
-        if (timeoutSeconds != null) {
-            OpenCliArgSupport.addOptionPair(args, "--timeout", String.valueOf(timeoutSeconds));
+        if (timeoutMillis != null) {
+            OpenCliArgSupport.addOptionPair(args, "--timeout", String.valueOf(timeoutMillis));
         }
         return invokeSub(args);
+    }
+
+    /**
+     * @deprecated {@code --timeout} 单位为毫秒而非秒；请使用 {@link #waitFor(String, String, OpenCliBrowserTabOptions, Long)}
+     */
+    @Deprecated
+    public OpenCliResult waitFor(
+        String type,
+        String value,
+        OpenCliBrowserTabOptions tab,
+        Integer timeoutSeconds) {
+        Long millis = timeoutSeconds != null ? timeoutSeconds.longValue() * 1000L : null;
+        return waitFor(type, value, tab, millis);
     }
 
     /** {@code browser eval <js>} */
@@ -488,20 +651,32 @@ public final class OpenCliBrowserSession {
         return invokeSub(args);
     }
 
-    /** {@code browser extract} */
-    public OpenCliResult extract(OpenCliBrowserTabOptions tab, String selector, Integer maxChars) {
+    /**
+     * {@code browser extract}，对齐 {@code --chunk-size} 与 {@code --start}。
+     */
+    public OpenCliResult extract(OpenCliBrowserTabOptions tab, OpenCliBrowserExtractOptions options) {
         List<String> args = new ArrayList<>();
         args.add("extract");
         if (tab != null) {
             tab.appendTo(args);
         }
-        if (selector != null) {
-            OpenCliArgSupport.addOptionPair(args, "--selector", selector);
-        }
-        if (maxChars != null) {
-            OpenCliArgSupport.addOptionPair(args, "--max-chars", String.valueOf(maxChars));
+        if (options != null) {
+            options.appendTo(args);
         }
         return invokeSub(args);
+    }
+
+    /**
+     * @deprecated 使用 {@link #extract(OpenCliBrowserTabOptions, OpenCliBrowserExtractOptions)}；
+     *     CLI 使用 {@code --chunk-size}/{@code --start} 而非 {@code --max-chars}
+     */
+    @Deprecated
+    public OpenCliResult extract(OpenCliBrowserTabOptions tab, String selector, Integer maxChars) {
+        OpenCliBrowserExtractOptions options = OpenCliBrowserExtractOptions.builder()
+            .selector(selector)
+            .chunkSize(maxChars)
+            .build();
+        return extract(tab, options);
     }
 
     /** {@code browser network} */
@@ -547,7 +722,8 @@ public final class OpenCliBrowserSession {
         String secondArg,
         OpenCliBrowserSemanticLocator locator,
         OpenCliBrowserTabOptions tab,
-        Boolean clear) {
+        Boolean clear,
+        Integer nth) {
         List<String> args = new ArrayList<>();
         args.add(verb);
         if (firstArg != null) {
@@ -559,6 +735,9 @@ public final class OpenCliBrowserSession {
         appendTabAndLocator(args, tab, locator);
         if (Boolean.TRUE.equals(clear)) {
             args.add("--clear");
+        }
+        if (nth != null) {
+            OpenCliArgSupport.addOptionPair(args, "--nth", String.valueOf(nth));
         }
         return invokeSub(args);
     }

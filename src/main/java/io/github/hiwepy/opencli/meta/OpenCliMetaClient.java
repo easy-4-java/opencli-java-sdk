@@ -98,6 +98,18 @@ public final class OpenCliMetaClient {
     }
 
     /**
+     * {@code opencli completion <shell>}，输出 bash/zsh/fish 补全脚本。
+     *
+     * @param shell {@code bash}、{@code zsh} 或 {@code fish}
+     */
+    public OpenCliResult completion(String shell) {
+        List<String> args = new ArrayList<>();
+        args.add("completion");
+        args.add(shell);
+        return invokeRoot(args);
+    }
+
+    /**
      * {@code opencli convention-audit [target]}。
      */
     public OpenCliResult conventionAudit(String target, String site, String format, boolean strict) {

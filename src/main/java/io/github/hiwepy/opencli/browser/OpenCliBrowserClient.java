@@ -19,10 +19,28 @@ public final class OpenCliBrowserClient {
      * @return 会话作用域客户端
      */
     public OpenCliBrowserSession session(String sessionName) {
+        return session(sessionName, null);
+    }
+
+    /**
+     * 绑定具名浏览器会话，并指定窗口模式。
+     *
+     * @param sessionName 会话名
+     * @param windowMode  {@code foreground} 或 {@code background}；null 表示 CLI 默认 foreground
+     * @return 会话作用域客户端
+     */
+    public OpenCliBrowserSession session(String sessionName, String windowMode) {
         String name = Objects.requireNonNull(sessionName, "sessionName").trim();
         if (name.isEmpty()) {
             throw new IllegalArgumentException("sessionName must not be blank");
         }
-        return new OpenCliBrowserSession(executor, name);
+        if (windowMode != null) {
+            String mode = windowMode.trim().toLowerCase();
+            if (!"foreground".equals(mode) && !"background".equals(mode)) {
+                throw new IllegalArgumentException("windowMode must be foreground or background");
+            }
+            windowMode = mode;
+        }
+        return new OpenCliBrowserSession(executor, name, windowMode);
     }
 }

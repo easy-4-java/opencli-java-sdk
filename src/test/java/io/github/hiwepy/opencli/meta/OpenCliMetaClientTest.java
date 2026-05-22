@@ -33,4 +33,39 @@ class OpenCliMetaClientTest {
         new OpenCliMetaClient(exec).plugin().install("github:user/repo");
         assertEquals(List.of("plugin", "install", "github:user/repo"), exec.lastInvocation());
     }
+
+    @Test
+    void completionBash() {
+        RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
+        new OpenCliMetaClient(exec).completion("bash");
+        assertEquals(List.of("completion", "bash"), exec.lastInvocation());
+    }
+
+    @Test
+    void daemonStatus() {
+        RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
+        new OpenCliMetaClient(exec).daemon().status();
+        assertEquals(List.of("daemon", "status"), exec.lastInvocation());
+    }
+
+    @Test
+    void profileList() {
+        RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
+        new OpenCliMetaClient(exec).profile().list();
+        assertEquals(List.of("profile", "list"), exec.lastInvocation());
+    }
+
+    @Test
+    void adapterStatus() {
+        RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
+        new OpenCliMetaClient(exec).adapter().status();
+        assertEquals(List.of("adapter", "status"), exec.lastInvocation());
+    }
+
+    @Test
+    void externalList() {
+        RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
+        new OpenCliMetaClient(exec).external().list("json");
+        assertEquals(List.of("external", "list", "-f", "json"), exec.lastInvocation());
+    }
 }

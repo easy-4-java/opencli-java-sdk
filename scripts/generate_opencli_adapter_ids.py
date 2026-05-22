@@ -3,10 +3,16 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 from pathlib import Path
 
-OPENCLI_ROOT = Path("/Users/wandl/workspaces/workspace-partme-ai/opencli/opencli")
+# 优先 OPENCLI_ROOT，其次 workspace-partme-ai 与 boot-starters 同级的默认路径。
+_SCRIPT_DIR = Path(__file__).resolve().parent
+_DEFAULT_RELATIVE = _SCRIPT_DIR.parents[4] / "workspace-partme-ai" / "opencli" / "opencli"
+if not _DEFAULT_RELATIVE.is_dir():
+    _DEFAULT_RELATIVE = _SCRIPT_DIR.parents[3] / ".." / "workspace-partme-ai" / "opencli" / "opencli"
+OPENCLI_ROOT = Path(os.environ.get("OPENCLI_ROOT", _DEFAULT_RELATIVE)).resolve()
 
 # 文档链接 slug 与 CLI registry site 不一致时的映射（以 manifest 为准）。
 DOC_TO_MANIFEST_RENAMES: dict[str, str] = {

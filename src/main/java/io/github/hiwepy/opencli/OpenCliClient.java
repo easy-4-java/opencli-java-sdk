@@ -2,6 +2,7 @@ package io.github.hiwepy.opencli;
 
 import io.github.hiwepy.opencli.adapter.browser.chatgpt.ChatgptOpenCliClient;
 import io.github.hiwepy.opencli.adapter.browser.claude.ClaudeOpenCliClient;
+import io.github.hiwepy.opencli.adapter.browser.deepseek.DeepseekOpenCliClient;
 import io.github.hiwepy.opencli.adapter.browser.gemini.GeminiOpenCliClient;
 import io.github.hiwepy.opencli.adapter.browser.jimeng.JimengOpenCliClient;
 import io.github.hiwepy.opencli.adapter.desktop.codex.CodexOpenCliClient;
@@ -9,6 +10,7 @@ import io.github.hiwepy.opencli.adapter.desktop.cursor.CursorOpenCliClient;
 import io.github.hiwepy.opencli.adapter.publicapi.arxiv.ArxivOpenCliClient;
 import io.github.hiwepy.opencli.adapter.publicapi.binance.BinanceOpenCliClient;
 import io.github.hiwepy.opencli.adapter.publicapi.npm.NpmOpenCliClient;
+import io.github.hiwepy.opencli.adapter.publicapi.pypi.PypiOpenCliClient;
 import io.github.hiwepy.opencli.adapter.publicapi.wikipedia.WikipediaOpenCliClient;
 import io.github.hiwepy.opencli.browser.OpenCliBrowserClient;
 import io.github.hiwepy.opencli.core.OpenCliAdapterChannel;
@@ -101,6 +103,11 @@ public class OpenCliClient {
         return new JimengOpenCliClient(executor);
     }
 
+    /** @return DeepSeek 浏览器适配器客户端 */
+    public DeepseekOpenCliClient deepseek() {
+        return new DeepseekOpenCliClient(executor);
+    }
+
     // ----- 参考强类型门面（Public API） -----
 
     /** @return arXiv 公共 API 客户端 */
@@ -111,6 +118,11 @@ public class OpenCliClient {
     /** @return npm registry 客户端 */
     public NpmOpenCliClient npm() {
         return new NpmOpenCliClient(executor);
+    }
+
+    /** @return PyPI registry 客户端 */
+    public PypiOpenCliClient pypi() {
+        return new PypiOpenCliClient(executor);
     }
 
     /** @return Binance 公共行情客户端 */
