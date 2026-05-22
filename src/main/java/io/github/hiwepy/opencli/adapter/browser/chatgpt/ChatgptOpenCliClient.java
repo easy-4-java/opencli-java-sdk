@@ -1,10 +1,13 @@
 package io.github.hiwepy.opencli.adapter.browser.chatgpt;
 
 import io.github.hiwepy.opencli.util.OpenCliLists;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.github.hiwepy.opencli.core.OpenCliAdapterChannel;
 import io.github.hiwepy.opencli.core.OpenCliArgSupport;
 import io.github.hiwepy.opencli.core.OpenCliExecutor;
 import io.github.hiwepy.opencli.core.OpenCliResult;
+import io.github.hiwepy.opencli.core.OpenCliTypedResult;
+import io.github.hiwepy.opencli.parser.OpenCliStdoutJson;
 import io.github.hiwepy.opencli.registry.OpenCliAdapterIds;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,9 +37,15 @@ public final class ChatgptOpenCliClient {
 
         private Boolean readAsMarkdown;
 
+        /** 文档：{@code --new} 开启新会话。 */
+        private Boolean newConversation;
+
         private Boolean jsonOutput;
 
         public void appendTo(List<String> target) {
+            if (Boolean.TRUE.equals(newConversation)) {
+                target.add("--new");
+            }
             if (timeoutSeconds != null) {
                 OpenCliArgSupport.addOptionPair(target, "--timeout", String.valueOf(timeoutSeconds));
             }
@@ -156,5 +165,33 @@ public final class ChatgptOpenCliClient {
     /** @see #image(String, ChatgptImageOptions, List) */
     public OpenCliResult image(String prompt, List<String> more) {
         return image(prompt, null, more);
+    }
+
+    /** {@code chatgpt ask} 且 {@code -f json}。 */
+    public OpenCliTypedResult<JsonNode> askTyped(String prompt, ChatgptCommonOptions options, List<String> more) {
+        ChatgptCommonOptions opts = withJson(options);
+        return OpenCliStdoutJson.typed(ask(prompt, opts, more));
+    }
+
+    /** {@code chatgpt history -f json}。 */
+    public OpenCliTypedResult<JsonNode> historyTyped(ChatgptCommonOptions options, List<String> more) {
+        ChatgptCommonOptions opts = withJson(options);
+        return OpenCliStdoutJson.typed(history(opts, more));
+    }
+
+    private static ChatgptCommonOptions withJson(ChatgptCommonOptions options) {
+        if (options == null) {
+            return ChatgptCommonOptions.builder().jsonOutput(true).build();
+        }
+        if (Boolean.TRUE.equals(options.getJsonOutput())) {
+            return options;
+        }
+        return ChatgptCommonOptions.builder()
+            .timeoutSeconds(options.getTimeoutSeconds())
+            .historyLimit(options.getHistoryLimit())
+            .readAsMarkdown(options.getReadAsMarkdown())
+            .newConversation(options.getNewConversation())
+            .jsonOutput(true)
+            .build();
     }
 }

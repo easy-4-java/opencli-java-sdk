@@ -111,4 +111,33 @@ public final class WikipediaOpenCliClient {
         OpenCliResult raw = search(query, limit, lang, true, more);
         return OpenCliStdoutJson.typed(raw);
     }
+
+    public OpenCliTypedResult<JsonNode> pageTyped(String title, String lang, Integer paragraphs, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("page");
+        args.add(title);
+        if (lang != null) {
+            OpenCliArgSupport.addOptionPair(args, "--lang", lang);
+        }
+        if (paragraphs != null) {
+            OpenCliArgSupport.addOptionPair(args, "--paragraphs", String.valueOf(paragraphs));
+        }
+        args.add("-f");
+        args.add("json");
+        return OpenCliStdoutJson.typed(ch().invoke(OpenCliArgSupport.merge(args, more)));
+    }
+
+    public OpenCliTypedResult<JsonNode> trendingTyped(Integer limit, String lang, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("trending");
+        if (limit != null) {
+            OpenCliArgSupport.addOptionPair(args, "--limit", String.valueOf(limit));
+        }
+        if (lang != null) {
+            OpenCliArgSupport.addOptionPair(args, "--lang", lang);
+        }
+        args.add("-f");
+        args.add("json");
+        return OpenCliStdoutJson.typed(ch().invoke(OpenCliArgSupport.merge(args, more)));
+    }
 }

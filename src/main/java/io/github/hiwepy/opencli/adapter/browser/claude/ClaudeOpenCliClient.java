@@ -2,10 +2,13 @@ package io.github.hiwepy.opencli.adapter.browser.claude;
 
 import io.github.hiwepy.opencli.util.OpenCliLists;
 import io.github.hiwepy.opencli.adapter.browser.support.BrowserLlmOptions;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.github.hiwepy.opencli.core.OpenCliAdapterChannel;
 import io.github.hiwepy.opencli.core.OpenCliArgSupport;
 import io.github.hiwepy.opencli.core.OpenCliExecutor;
 import io.github.hiwepy.opencli.core.OpenCliResult;
+import io.github.hiwepy.opencli.core.OpenCliTypedResult;
+import io.github.hiwepy.opencli.parser.OpenCliStdoutJson;
 import io.github.hiwepy.opencli.registry.OpenCliAdapterIds;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +29,7 @@ public final class ClaudeOpenCliClient {
     }
 
     @Data
-    @Builder
+    @Builder(toBuilder = true)
     public static class ClaudeAskOptions {
 
         private Integer timeoutSeconds;
@@ -79,9 +82,19 @@ public final class ClaudeOpenCliClient {
     }
 
     public OpenCliResult send(String prompt, List<String> more) {
+        return send(prompt, null, more);
+    }
+
+    /**
+     * {@code claude send}，支持 {@code --new}。
+     */
+    public OpenCliResult send(String prompt, ClaudeAskOptions options, List<String> more) {
         List<String> args = new ArrayList<>();
         args.add("send");
         args.add(prompt);
+        if (options != null) {
+            options.appendTo(args);
+        }
         return ch().invoke(OpenCliArgSupport.merge(args, more));
     }
 
@@ -98,7 +111,19 @@ public final class ClaudeOpenCliClient {
     }
 
     public OpenCliResult history(List<String> more) {
-        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("history"), more));
+        return history(null, more);
+    }
+
+    /**
+     * {@code claude history [--limit N]}。
+     */
+    public OpenCliResult history(Integer limit, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("history");
+        if (limit != null) {
+            OpenCliArgSupport.addOptionPair(args, "--limit", String.valueOf(limit));
+        }
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
     }
 
     public OpenCliResult detail(String conversationIdOrUrl, List<String> more) {
@@ -106,5 +131,28 @@ public final class ClaudeOpenCliClient {
         args.add("detail");
         args.add(conversationIdOrUrl);
         return ch().invoke(OpenCliArgSupport.merge(args, more));
+    }
+
+    /** {@code claude ask} 且 {@code -f json} 时解析 stdout。 */
+    public OpenCliTypedResult<JsonNode> askTyped(String prompt, ClaudeAskOptions options, List<String> more) {
+        ClaudeAskOptions withJson = options;
+        if (withJson == null) {
+            withJson = ClaudeAskOptions.builder().jsonOutput(true).build();
+        } else if (!Boolean.TRUE.equals(withJson.getJsonOutput())) {
+            withJson = withJson.toBuilder().jsonOutput(true).build();
+        }
+        return OpenCliStdoutJson.typed(ask(prompt, withJson, more));
+    }
+
+    /** {@code claude history -f json}。 */
+    public OpenCliTypedResult<JsonNode> historyTyped(Integer limit, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("history");
+        if (limit != null) {
+            OpenCliArgSupport.addOptionPair(args, "--limit", String.valueOf(limit));
+        }
+        args.add("-f");
+        args.add("json");
+        return OpenCliStdoutJson.typed(ch().invoke(OpenCliArgSupport.merge(args, more)));
     }
 }

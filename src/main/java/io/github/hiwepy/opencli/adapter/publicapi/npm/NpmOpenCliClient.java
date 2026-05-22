@@ -79,4 +79,20 @@ public final class NpmOpenCliClient {
         OpenCliResult raw = packageInfo(packageName, true, more);
         return OpenCliStdoutJson.typed(raw);
     }
+
+    public OpenCliTypedResult<JsonNode> searchTyped(String query, Integer limit, List<String> more) {
+        return OpenCliStdoutJson.typed(search(query, limit, true, more));
+    }
+
+    public OpenCliTypedResult<JsonNode> downloadsTyped(String packageName, NpmDownloadPeriod period, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("downloads");
+        args.add(packageName);
+        if (period != null) {
+            OpenCliArgSupport.addOptionPair(args, "--period", period.getCliValue());
+        }
+        args.add("-f");
+        args.add("json");
+        return OpenCliStdoutJson.typed(ch().invoke(OpenCliArgSupport.merge(args, more)));
+    }
 }

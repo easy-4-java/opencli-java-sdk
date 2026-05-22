@@ -136,7 +136,8 @@ public final class GeminiOpenCliClient {
 
         private String tool;
 
-        private Boolean confirm;
+        /** 确认按钮文案覆盖（CLI {@code --confirm} 字符串标签，非布尔开关）。 */
+        private String confirmLabel;
 
         private Boolean jsonOutput;
 
@@ -147,8 +148,8 @@ public final class GeminiOpenCliClient {
             if (tool != null) {
                 OpenCliArgSupport.addOptionPair(target, "--tool", tool);
             }
-            if (Boolean.TRUE.equals(confirm)) {
-                target.add("--confirm");
+            if (confirmLabel != null) {
+                OpenCliArgSupport.addOptionPair(target, "--confirm", confirmLabel);
             }
             if (Boolean.TRUE.equals(jsonOutput)) {
                 target.add("-f");

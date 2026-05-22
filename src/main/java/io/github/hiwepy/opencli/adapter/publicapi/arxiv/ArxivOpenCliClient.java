@@ -67,6 +67,14 @@ public final class ArxivOpenCliClient {
         return OpenCliStdoutJson.typed(raw);
     }
 
+    public OpenCliTypedResult<JsonNode> paperTyped(String arxivId, List<String> more) {
+        return OpenCliStdoutJson.typed(paper(arxivId, true, more));
+    }
+
+    public OpenCliTypedResult<JsonNode> recentTyped(String category, Integer limit, List<String> more) {
+        return OpenCliStdoutJson.typed(recent(category, limit, true, more));
+    }
+
     private static List<String> baseList(String sub, String positional, Integer limit, boolean json) {
         List<String> args = new ArrayList<>();
         args.add(sub);

@@ -10,7 +10,9 @@ import io.github.hiwepy.opencli.adapter.publicapi.arxiv.ArxivOpenCliClient;
 import io.github.hiwepy.opencli.adapter.publicapi.binance.BinanceOpenCliClient;
 import io.github.hiwepy.opencli.adapter.publicapi.npm.NpmOpenCliClient;
 import io.github.hiwepy.opencli.adapter.publicapi.wikipedia.WikipediaOpenCliClient;
+import io.github.hiwepy.opencli.browser.OpenCliBrowserClient;
 import io.github.hiwepy.opencli.core.OpenCliAdapterChannel;
+import io.github.hiwepy.opencli.meta.OpenCliMetaClient;
 import io.github.hiwepy.opencli.core.OpenCliExecutor;
 import io.github.hiwepy.opencli.facade.BrowserClient;
 import io.github.hiwepy.opencli.facade.DesktopClient;
@@ -134,5 +136,15 @@ public class OpenCliClient {
     /** @return 桌面（CDP）适配器分类门面 */
     public DesktopClient desktops() {
         return new DesktopClient(this);
+    }
+
+    /** @return 根级元命令与基础设施子命令（list、validate、plugin、daemon 等） */
+    public OpenCliMetaClient meta() {
+        return new OpenCliMetaClient(executor);
+    }
+
+    /** @return 内置 {@code opencli browser <session>} 自动化门面 */
+    public OpenCliBrowserClient browser() {
+        return new OpenCliBrowserClient(executor);
     }
 }

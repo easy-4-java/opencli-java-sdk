@@ -126,13 +126,13 @@ public final class CursorOpenCliClient {
     /**
      * 读取或切换模型。
      *
-     * @param modelName 模型名（{@code --model-name}），可为 null
+     * @param modelName 模型 ID（positional {@code model-name}，如 {@code claude-3.5-sonnet}），可为 null 表示仅读取
      */
     public OpenCliResult model(String modelName) {
         List<String> args = new ArrayList<>();
         args.add("model");
         if (modelName != null) {
-            OpenCliArgSupport.addOptionPair(args, "--model-name", modelName);
+            args.add(modelName);
         }
         return ch().invoke(args);
     }
