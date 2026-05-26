@@ -10,6 +10,7 @@ import io.github.hiwepy.opencli.parser.OpenCliParsedFields;
 import io.github.hiwepy.opencli.remote.OpenCliArgvToCollectParser;
 import io.github.hiwepy.opencli.remote.OpenCliCollectRequest;
 import io.github.hiwepy.opencli.remote.OpenCliRemoteAgentHttpClient;
+import io.github.hiwepy.opencli.core.support.SubprocessExecutionSupport;
 import io.github.hiwepy.opencli.util.OpenCliStrings;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -23,10 +24,8 @@ import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecuteResultHandler;
-import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.exec.ExecuteWatchdog;
-import org.apache.commons.exec.PumpStreamHandler;
 
 /**
  * 基于 Apache Commons Exec 的 OpenCLI 子进程执行封装。
@@ -55,6 +54,7 @@ public class OpenCliExecutor {
      */
     public OpenCliExecutor(OpenCliProperties properties) {
         this.properties = Objects.requireNonNull(properties, "properties");
+        SubprocessExecutionSupport.configureMaxConcurrentExecutions(properties.getMaxConcurrentExecutions());
     }
 
     /**
@@ -157,56 +157,69 @@ public class OpenCliExecutor {
         cmd.addArgument(prefix + "=" + value, true);
     }
 
-    @SuppressWarnings("deprecation")
     private OpenCliResult run(CommandLine commandLine) {
         long timeoutMs = properties.getCommandTimeoutMillis();
         if (timeoutMs <= 0) {
             throw new IllegalStateException("opencli.command-timeout-millis must be positive");
         }
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ByteArrayOutputStream err = new ByteArrayOutputStream();
-        DefaultExecutor executor = new DefaultExecutor();
-        executor.setStreamHandler(new PumpStreamHandler(out, err));
-
-        String wdProperty = properties.getWorkingDirectory();
-        if (OpenCliStrings.isNotBlank(wdProperty)) {
-            File wd = new File(wdProperty.trim());
-            if (!wd.isDirectory()) {
-                throw new OpenCliExecutableFailureException(
-                    "opencli.working-directory is not an existing directory: " + wd.getAbsolutePath(), null);
-            }
-            executor.setWorkingDirectory(wd);
-        }
-
-        ExecuteWatchdog watchdog = new ExecuteWatchdog(timeoutMs);
-        executor.setWatchdog(watchdog);
-        DefaultExecuteResultHandler handler = new DefaultExecuteResultHandler();
-
+        File workingDirectory = resolveWorkingDirectory();
         Map<String, String> environment = buildEnvironment();
+        SubprocessExecutionSupport.ExecutionRequest request =
+                new SubprocessExecutionSupport.ExecutionRequest(
+                        commandLine, workingDirectory, environment, timeoutMs);
 
         try {
-            executor.execute(commandLine, environment, handler);
-            handler.waitFor();
+            SubprocessExecutionSupport.RunSession session = SubprocessExecutionSupport.execute(request);
+            return completeAfterWait(
+                    commandLine,
+                    timeoutMs,
+                    session.getStdout(),
+                    session.getStderr(),
+                    session.getHandler(),
+                    session.getWatchdog(),
+                    session.isWaitTimedOut());
         } catch (IOException e) {
             log.warn("OpenCLI spawn failed commandLine={}, message={}", commandLine, e.getMessage());
             throw new OpenCliExecutableFailureException(
-                "OpenCLI could not be started (check PATH or executable path): " + commandLine, e);
+                    "OpenCLI could not be started (check PATH or executable path): " + commandLine, e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             log.warn("OpenCLI interrupted commandLine={}", commandLine);
             throw new OpenCliException("Interrupted while awaiting OpenCLI subprocess", e, null);
         }
+    }
 
+    private File resolveWorkingDirectory() {
+        String wdProperty = properties.getWorkingDirectory();
+        if (OpenCliStrings.isNotBlank(wdProperty)) {
+            File wd = new File(wdProperty.trim());
+            if (!wd.isDirectory()) {
+                throw new OpenCliExecutableFailureException(
+                        "opencli.working-directory is not an existing directory: " + wd.getAbsolutePath(), null);
+            }
+            return wd;
+        }
+        return null;
+    }
+
+    private OpenCliResult completeAfterWait(
+            CommandLine commandLine,
+            long timeoutMs,
+            ByteArrayOutputStream out,
+            ByteArrayOutputStream err,
+            DefaultExecuteResultHandler handler,
+            ExecuteWatchdog watchdog,
+            boolean waitTimedOut) {
         String stdoutStr = new String(out.toByteArray(), StandardCharsets.UTF_8);
         String stderrStr = new String(err.toByteArray(), StandardCharsets.UTF_8);
         OpenCliParsedFields parsed = OpenCliOutputParser.parseBestEffort(stdoutStr, stderrStr);
 
-        if (watchdog.killedProcess()) {
+        if (waitTimedOut || watchdog.killedProcess()) {
             log.warn("OpenCLI timed out commandLine={} timeoutMs={}", commandLine, timeoutMs);
             OpenCliResult partial = snapshot(stdoutStr, stderrStr, readExitQuietly(handler), parsed);
             throw new OpenCliTimeoutException(
-                "OpenCLI timed out after " + timeoutMs + " ms: " + commandLine, partial);
+                    "OpenCLI timed out after " + timeoutMs + " ms: " + commandLine, partial);
         }
 
         Exception asyncFailure = handler.getException();
@@ -215,14 +228,14 @@ public class OpenCliExecutor {
             log.warn("OpenCLI failed exitCode={} commandLine={}", ex.getExitValue(), commandLine);
             OpenCliResult failed = snapshot(stdoutStr, stderrStr, normalizeExitValue(ex.getExitValue()), parsed);
             throw new OpenCliNonZeroExitException(
-                "OpenCLI failed (exitCode=" + ex.getExitValue() + "): " + commandLine, failed);
+                    "OpenCLI failed (exitCode=" + ex.getExitValue() + "): " + commandLine, failed);
         }
         if (Objects.nonNull(asyncFailure)) {
             log.error("OpenCLI async failure commandLine={}", commandLine, asyncFailure);
             OpenCliResult snapshot = snapshot(stdoutStr, stderrStr, readExitQuietly(handler), parsed);
             throw new OpenCliException(
-                "OpenCLI async failure: " + commandLine + " cause=" + asyncFailure.getMessage(),
-                asyncFailure, snapshot);
+                    "OpenCLI async failure: " + commandLine + " cause=" + asyncFailure.getMessage(),
+                    asyncFailure, snapshot);
         }
 
         final int exit;
@@ -230,25 +243,25 @@ public class OpenCliExecutor {
             exit = handler.getExitValue();
         } catch (IllegalStateException e) {
             throw new OpenCliException(
-                "OpenCLI completed without observable exit code: " + commandLine,
-                e,
-                snapshot(stdoutStr, stderrStr, null, parsed));
+                    "OpenCLI completed without observable exit code: " + commandLine,
+                    e,
+                    snapshot(stdoutStr, stderrStr, null, parsed));
         }
 
         if (exit != 0) {
             log.warn("OpenCLI non-zero exit exitCode={} commandLine={}", exit, commandLine);
             OpenCliResult failed = snapshot(stdoutStr, stderrStr, exit, parsed);
             throw new OpenCliNonZeroExitException(
-                "OpenCLI non-zero exit (exitCode=" + exit + "): " + commandLine, failed);
+                    "OpenCLI non-zero exit (exitCode=" + exit + "): " + commandLine, failed);
         }
 
         return OpenCliResult.builder()
-            .stdout(stdoutStr)
-            .stderr(stderrStr)
-            .exitCode(exit)
-            .success(true)
-            .parsed(parsed)
-            .build();
+                .stdout(stdoutStr)
+                .stderr(stderrStr)
+                .exitCode(exit)
+                .success(true)
+                .parsed(parsed)
+                .build();
     }
 
     private Map<String, String> buildEnvironment() {

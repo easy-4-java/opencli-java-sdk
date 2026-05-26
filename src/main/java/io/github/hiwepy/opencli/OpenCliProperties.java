@@ -69,6 +69,11 @@ public class OpenCliProperties {
     private long commandTimeoutMillis = 300_000L;
 
     /**
+     * 本机 CLI 子进程最大并发数；小于等于 0 时使用 CPU 核心数与 2 的较大值。
+     */
+    private int maxConcurrentExecutions = 0;
+
+    /**
      * 附加到 {@code opencli} 之后的<strong>最前</strong>参数（在 adapter 名之前），便于预留 profile 等扩展。
      */
     private List<String> leadingArguments = new ArrayList<>();
@@ -89,6 +94,7 @@ public class OpenCliProperties {
         c.setExecutable(this.executable);
         c.setWorkingDirectory(this.workingDirectory);
         c.setCommandTimeoutMillis(this.commandTimeoutMillis);
+        c.setMaxConcurrentExecutions(this.maxConcurrentExecutions);
         c.setLeadingArguments(new ArrayList<>(this.leadingArguments));
         c.setEnvironment(new LinkedHashMap<>(this.environment));
         c.setExecutionTarget(OpenCliExecutionTarget.LOCAL_PROCESS);
