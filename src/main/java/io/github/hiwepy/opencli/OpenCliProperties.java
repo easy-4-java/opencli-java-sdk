@@ -74,6 +74,11 @@ public class OpenCliProperties {
     private int maxConcurrentExecutions = 0;
 
     /**
+     * 启动探测（{@code opencli list}）专用超时（毫秒）；小于等于 0 时探测使用 30 秒。
+     */
+    private long startupProbeTimeoutMillis = 30_000L;
+
+    /**
      * 附加到 {@code opencli} 之后的<strong>最前</strong>参数（在 adapter 名之前），便于预留 profile 等扩展。
      */
     private List<String> leadingArguments = new ArrayList<>();
@@ -95,6 +100,7 @@ public class OpenCliProperties {
         c.setWorkingDirectory(this.workingDirectory);
         c.setCommandTimeoutMillis(this.commandTimeoutMillis);
         c.setMaxConcurrentExecutions(this.maxConcurrentExecutions);
+        c.setStartupProbeTimeoutMillis(this.startupProbeTimeoutMillis);
         c.setLeadingArguments(new ArrayList<>(this.leadingArguments));
         c.setEnvironment(new LinkedHashMap<>(this.environment));
         c.setExecutionTarget(OpenCliExecutionTarget.LOCAL_PROCESS);

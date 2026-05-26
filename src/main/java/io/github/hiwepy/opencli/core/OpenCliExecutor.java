@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecuteResultHandler;
@@ -40,6 +41,7 @@ import org.apache.commons.exec.ExecuteWatchdog;
  * </p>
  */
 @Slf4j
+@Getter
 public class OpenCliExecutor {
 
     private final OpenCliProperties properties;

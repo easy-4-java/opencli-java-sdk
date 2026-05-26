@@ -53,6 +53,18 @@ mvn clean deploy -Dmaven.test.skip=true
 
 `settings.xml` 中配置私服 id：`2624322-release-6F6h6R`、`2624322-snapshot-3EoOv3`。
 
+## 启动就绪探测（无 Spring）
+
+```java
+OpenCliAvailabilityChecker checker = new OpenCliAvailabilityChecker();
+OpenCliAvailabilityReport report = checker.check(new OpenCliExecutor(props));
+if (!report.isAvailable()) {
+    throw new IllegalStateException(report.toDiagnosticMessage());
+}
+```
+
+`execution-target=REMOTE_AGENT_HTTP` 时探测结果为 `SKIPPED_REMOTE_MODE`（视为可启动）。Spring Boot 见 [opencli-spring-boot-starter](../opencli-spring-boot-starter)。
+
 ## 快速开始
 
 ```java
