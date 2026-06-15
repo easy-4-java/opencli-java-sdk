@@ -33,11 +33,23 @@ class OpenCliAdapterCommandsCoverageTest {
 
     private static final int EXPECTED_MANIFEST_COMMAND_COUNT = 899;
 
-    private record ManifestCommand(
-        String site,
-        String subcommand,
-        List<String> positionals,
-        Map<String, Object> options) {}
+    private static class ManifestCommand {
+        private String site;
+        private String subcommand;
+        private List<String> positionals;
+        private Map<String, Object> options;
+
+        public ManifestCommand() {}
+
+        public String getSite() { return site; }
+        public void setSite(String site) { this.site = site; }
+        public String getSubcommand() { return subcommand; }
+        public void setSubcommand(String subcommand) { this.subcommand = subcommand; }
+        public List<String> getPositionals() { return positionals; }
+        public void setPositionals(List<String> positionals) { this.positionals = positionals; }
+        public Map<String, Object> getOptions() { return options; }
+        public void setOptions(Map<String, Object> options) { this.options = options; }
+    }
 
     static Stream<Arguments> manifestCommands() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
@@ -46,9 +58,9 @@ class OpenCliAdapterCommandsCoverageTest {
             if (in == null) {
                 throw new IllegalStateException("missing /opencli/manifest-coverage-commands.json");
             }
-            List<ManifestCommand> rows = mapper.readValue(in, new TypeReference<>() {});
+            List<ManifestCommand> rows = mapper.readValue(in, new TypeReference<List<ManifestCommand>>() {});
             return rows.stream()
-                .map(r -> Arguments.of(r.site(), r.subcommand(), r.positionals(), r.options()));
+                .map(r -> Arguments.of(r.getSite(), r.getSubcommand(), r.getPositionals(), r.getOptions()));
         }
     }
 
@@ -57,7 +69,7 @@ class OpenCliAdapterCommandsCoverageTest {
         ObjectMapper mapper = new ObjectMapper();
         try (InputStream in = OpenCliAdapterCommandsCoverageTest.class.getResourceAsStream(
             "/opencli/manifest-coverage-commands.json")) {
-            List<ManifestCommand> rows = mapper.readValue(in, new TypeReference<>() {});
+            List<ManifestCommand> rows = mapper.readValue(in, new TypeReference<List<ManifestCommand>>() {});
             assertEquals(EXPECTED_MANIFEST_COMMAND_COUNT, rows.size());
         }
     }
@@ -73,8 +85,8 @@ class OpenCliAdapterCommandsCoverageTest {
         OpenCliAdapterChannel channel = new OpenCliAdapterChannel(exec, site);
         OpenCliAdapterCommandRequest request = OpenCliAdapterCommandRequest.builder()
             .subcommand(subcommand)
-            .positionals(positionals != null ? positionals : List.of())
-            .options(options != null ? options : Map.of())
+            .positionals(positionals != null ? positionals : java.util.Collections.emptyList())
+            .options(options != null ? options : java.util.Collections.emptyMap())
             .build();
         OpenCliResult result = channel.invoke(request);
         assertNotNull(result);

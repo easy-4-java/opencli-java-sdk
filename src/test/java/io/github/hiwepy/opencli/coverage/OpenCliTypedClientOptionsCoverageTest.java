@@ -507,7 +507,7 @@ class OpenCliTypedClientOptionsCoverageTest {
     @Nested
     class DesktopClients {
 
-        private static DesktopThreadSelection sampleSelection() {
+        private DesktopThreadSelection sampleSelection() {
             return DesktopThreadSelection.builder()
                 .project("demo")
                 .conversation("main")

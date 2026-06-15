@@ -30,7 +30,7 @@ public final class MockOpenCliCli {
     public static MockOpenCliCli install() throws IOException {
         Path root = Files.createTempDirectory("opencli-mock-cli-");
         Path script = root.resolve("opencli");
-        Files.writeString(script, buildScript(), StandardCharsets.UTF_8);
+        Files.write(script, buildScript().getBytes(StandardCharsets.UTF_8));
         makeExecutable(script);
         return new MockOpenCliCli(script);
     }
@@ -51,21 +51,19 @@ public final class MockOpenCliCli {
     }
 
     private static String buildScript() {
-        return """
-            #!/usr/bin/env bash
-            set -euo pipefail
-            cmd="${1:-}"
-            case "$cmd" in
-              list)
-                echo '[]'
-                exit 0
-                ;;
-              *)
-                echo "unsupported: $*" >&2
-                exit 1
-                ;;
-            esac
-            """;
+        return "#!/usr/bin/env bash\n"
+            + "set -euo pipefail\n"
+            + "cmd=\"${1:-}\"\n"
+            + "case \"$cmd\" in\n"
+            + "  list)\n"
+            + "    echo '[]'\n"
+            + "    exit 0\n"
+            + "    ;;\n"
+            + "  *)\n"
+            + "    echo \"unsupported: $*\" >&2\n"
+            + "    exit 1\n"
+            + "    ;;\n"
+            + "esac\n";
     }
 
     private static void makeExecutable(Path script) throws IOException {

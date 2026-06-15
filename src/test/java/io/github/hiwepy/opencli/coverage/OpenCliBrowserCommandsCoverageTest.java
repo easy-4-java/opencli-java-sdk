@@ -146,7 +146,7 @@ class OpenCliBrowserCommandsCoverageTest {
     }
     @Test void testBrowserUpload() {
         assertBrowserInvoked(session.upload("/tmp/a.txt",
-            java.util.List.of("/tmp/a.txt"),
+            java.util.Arrays.asList("/tmp/a.txt"),
             OpenCliBrowserSemanticLocator.builder().build(), TAB));
     }
     @Test void testBrowserDrag() {

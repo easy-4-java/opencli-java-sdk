@@ -13,6 +13,7 @@ import io.github.hiwepy.opencli.browser.support.OpenCliBrowserStateOptions;
 import io.github.hiwepy.opencli.browser.support.OpenCliBrowserTabOptions;
 import io.github.hiwepy.opencli.support.RecordingOpenCliExecutor;
 import java.util.List;
+import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -28,7 +29,7 @@ class OpenCliBrowserArgvTest {
     void windowModePrefix() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         session(exec).tabList();
-        assertEquals(List.of("browser", "--window", "background", "work", "tab", "list"), exec.lastInvocation());
+        assertEquals(Arrays.asList("browser", "--window", "background", "work", "tab", "list"), exec.lastInvocation());
     }
 
     @Test
@@ -36,7 +37,7 @@ class OpenCliBrowserArgvTest {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         session(exec).waitFor("selector", ".loaded", null, 15_000L);
         assertEquals(
-            List.of("browser", "--window", "background", "work", "wait", "selector", ".loaded", "--timeout", "15000"),
+            Arrays.asList("browser", "--window", "background", "work", "wait", "selector", ".loaded", "--timeout", "15000"),
             exec.lastInvocation());
     }
 
@@ -133,7 +134,7 @@ class OpenCliBrowserArgvTest {
                 .textMax(120)
                 .build());
         List<String> argv = exec.lastInvocation();
-        assertEquals(List.of("get", "html"), argv.subList(argv.indexOf("work") + 1, argv.indexOf("work") + 3));
+        assertEquals(Arrays.asList("get", "html"), argv.subList(argv.indexOf("work") + 1, argv.indexOf("work") + 3));
         assertTrue(argv.contains("--selector"));
         assertTrue(argv.contains("--children-max"));
         assertTrue(argv.contains("--text-max"));
@@ -156,7 +157,7 @@ class OpenCliBrowserArgvTest {
             .session("work")
             .open("https://example.com", OpenCliBrowserTabOptions.builder().tab("tab-1").build());
         assertEquals(
-            List.of("browser", "work", "open", "https://example.com", "--tab", "tab-1"),
+            Arrays.asList("browser", "work", "open", "https://example.com", "--tab", "tab-1"),
             exec.lastInvocation());
     }
 
@@ -164,6 +165,6 @@ class OpenCliBrowserArgvTest {
     void sessionDialogDismiss() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         new OpenCliBrowserClient(exec).session("s1").dialogDismiss(null);
-        assertEquals(List.of("browser", "s1", "dialog", "dismiss"), exec.lastInvocation());
+        assertEquals(Arrays.asList("browser", "s1", "dialog", "dismiss"), exec.lastInvocation());
     }
 }

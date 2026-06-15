@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.github.hiwepy.opencli.support.RecordingOpenCliExecutor;
 import java.util.List;
+import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
 class OpenCliMetaClientTest {
@@ -13,7 +14,7 @@ class OpenCliMetaClientTest {
     void listJsonFormat() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         new OpenCliMetaClient(exec).list("json");
-        assertEquals(List.of("list", "-f", "json"), exec.lastInvocation());
+        assertEquals(Arrays.asList("list", "-f", "json"), exec.lastInvocation());
     }
 
     @Test
@@ -31,41 +32,41 @@ class OpenCliMetaClientTest {
     void pluginInstall() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         new OpenCliMetaClient(exec).plugin().install("github:user/repo");
-        assertEquals(List.of("plugin", "install", "github:user/repo"), exec.lastInvocation());
+        assertEquals(Arrays.asList("plugin", "install", "github:user/repo"), exec.lastInvocation());
     }
 
     @Test
     void completionBash() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         new OpenCliMetaClient(exec).completion("bash");
-        assertEquals(List.of("completion", "bash"), exec.lastInvocation());
+        assertEquals(Arrays.asList("completion", "bash"), exec.lastInvocation());
     }
 
     @Test
     void daemonStatus() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         new OpenCliMetaClient(exec).daemon().status();
-        assertEquals(List.of("daemon", "status"), exec.lastInvocation());
+        assertEquals(Arrays.asList("daemon", "status"), exec.lastInvocation());
     }
 
     @Test
     void profileList() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         new OpenCliMetaClient(exec).profile().list();
-        assertEquals(List.of("profile", "list"), exec.lastInvocation());
+        assertEquals(Arrays.asList("profile", "list"), exec.lastInvocation());
     }
 
     @Test
     void adapterStatus() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         new OpenCliMetaClient(exec).adapter().status();
-        assertEquals(List.of("adapter", "status"), exec.lastInvocation());
+        assertEquals(Arrays.asList("adapter", "status"), exec.lastInvocation());
     }
 
     @Test
     void externalList() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         new OpenCliMetaClient(exec).external().list("json");
-        assertEquals(List.of("external", "list", "-f", "json"), exec.lastInvocation());
+        assertEquals(Arrays.asList("external", "list", "-f", "json"), exec.lastInvocation());
     }
 }
