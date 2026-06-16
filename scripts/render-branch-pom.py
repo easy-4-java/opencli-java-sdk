@@ -342,7 +342,7 @@ def render(branch: str) -> None:
             description=(
                 "OpenCLI multi-adapter CLI integration SDK — Spring Boot 2.3.x line (JDK 8)"
             ),
-            jackson="2.13.5",
+            jackson="2.18.8",
             junit="5.9.3",
             slf4j="1.7.36",
             lombok="1.18.34",
@@ -364,7 +364,7 @@ def render(branch: str) -> None:
             description=(
                 "OpenCLI multi-adapter CLI integration SDK — Spring Boot 2.7.x line (JDK 11)"
             ),
-            jackson="2.13.5",
+            jackson="2.18.8",
             junit="5.9.3",
             slf4j="1.7.36",
             lombok="1.18.34",
