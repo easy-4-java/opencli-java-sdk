@@ -5,8 +5,8 @@
 
 	<groupId>io.github.hiwepy</groupId>
 	<artifactId>opencli-java-sdk</artifactId>
-	<description>OpenCLI multi-adapter CLI integration SDK — Spring Boot 2.7.x line (JDK 11)</description>
-	<version>2.7.x.20260615-SNAPSHOT</version>
+	<description>OpenCLI multi-adapter CLI integration SDK — 1.0.x line (JDK 8; for Boot 2.x starters)</description>
+	<version>1.0.x.20260615-SNAPSHOT</version>
 	<name>${project.groupId}:${project.artifactId}</name>
 	<url>https://github.com/hiwepy/${project.artifactId}</url>
 	<packaging>jar</packaging>

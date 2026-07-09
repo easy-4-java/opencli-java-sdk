@@ -18,7 +18,7 @@
 <dependency>
   <groupId>io.github.hiwepy</groupId>
   <artifactId>opencli-java-sdk</artifactId>
-  <version>3.3.x.20260516-SNAPSHOT</version>
+  <version>1.0.x.20260516-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -28,21 +28,20 @@
 cd opencli-java-sdk && mvn clean install
 ```
 
-## 多版本与 JDK（对齐 dreamina-java-sdk）
+## 多版本与 JDK
 
-各 Git 分支通过脚本生成对应 `pom.xml`，**版本前缀、JDK、依赖栈随线变化**，勿混用（例如 2.7.x 线不能用 JDK 17 的坐标去跑 3.3.x 线）。
+各 Git 分支通过脚本生成对应 `pom.xml`，**版本前缀、JDK、依赖栈随线变化**。本模块是自研纯 Java SDK，主版本线固定为 `1.0.x/2.0.x/3.0.x`，分别服务 Boot 2.x/3.x/4.x Starter。
 
 | 分支 | `artifact` 版本示例 | JDK | 说明 |
 |------|----------------------|-----|------|
-| `2.3.x` | `2.3.x.*-SNAPSHOT` | **8** | 与 Spring Boot 2.3.x 同线 |
-| `2.7.x` | `2.7.x.*-SNAPSHOT` | **11** | 与 Spring Boot 2.7.x 同线 |
-| `3.0.x` … `3.4.x` | `3.0.x.*` … `3.4.x.*` | **17** | 与 Spring Boot 3.0–3.4 一致 |
-| `3.5.x` / `4.0.x` | `3.5.x.*` / `4.0.x.*` | **21** | 与 Spring Boot 3.5+ / 4.x 及 SLF4J 2.x 对齐 |
+| `1.0.x` | `1.0.x.*-SNAPSHOT` | 8 | 面向 Boot 2.x Starter |
+| `2.0.x` | `2.0.x.*-SNAPSHOT` | 17 | 面向 Boot 3.x Starter |
+| `3.0.x` | `3.0.x.*-SNAPSHOT` | 21 | 面向 Boot 4.x Starter |
 
 切分支后在本模块根目录执行：
 
 ```bash
-python3 scripts/render-branch-pom.py <branch>   # 例: 3.3.x、2.7.x、4.0.x
+python3 scripts/render-branch-pom.py <branch>   # 例: 1.0.x、2.0.x、3.0.x
 ```
 
 发布到阿里云 Packages（各分支 `pom.xml` 已内置 `distributionManagement`）：

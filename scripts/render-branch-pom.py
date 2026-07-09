@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-按分支名重写 opencli-java-sdk 的 pom.xml，对齐 dreamina-java-sdk 的多版本 / 多 JDK 策略。
+按分支名重写 opencli-java-sdk 的 pom.xml。
 
 JDK 基线:
-  2.3.x -> JDK 8（Unirest + Java-WebSocket，不依赖 java.net.http）
-  2.7.x -> JDK 11
-  3.0.x-3.4.x -> JDK 17
-  3.5.x / 4.0.x -> JDK 21
+  1.0.x -> JDK 8（面向 Boot 2.x Starter）
+  2.0.x -> JDK 17（面向 Boot 3.x Starter）
+  3.0.x -> JDK 21（面向 Boot 4.x Starter）
 
 发布: 各分支 pom 均包含阿里云 Packages distributionManagement。
 
@@ -34,6 +33,22 @@ def version_date_suffix() -> str:
 
 
 VERSION_DATE_SUFFIX = version_date_suffix()
+
+LINE_ALIASES = {
+    "2.3.x": "1.0.x",
+    "2.4.x": "1.0.x",
+    "2.5.x": "1.0.x",
+    "2.6.x": "1.0.x",
+    "2.7.x": "1.0.x",
+    "3.0.x": "2.0.x",
+    "3.1.x": "2.0.x",
+    "3.2.x": "2.0.x",
+    "3.3.x": "2.0.x",
+    "3.4.x": "2.0.x",
+    "3.5.x": "2.0.x",
+    "4.0.x": "3.0.x",
+    "4.1.x": "3.0.x",
+}
 
 ALIYUN_DM = """
     <distributionManagement>
@@ -330,17 +345,18 @@ def write_pom(
 
 
 def render(branch: str) -> None:
+    branch = LINE_ALIASES.get(branch, branch)
     snap = VERSION_DATE_SUFFIX
     common_unirest = "3.14.5"
     common_ws = "1.5.7"
-    if branch == "2.3.x":
+    if branch == "1.0.x":
         write_pom(
             version=f"{branch}.{snap}",
             java_version="1.8",
             java_release="1.8",
             use_release=False,
             description=(
-                "OpenCLI multi-adapter CLI integration SDK — Spring Boot 2.3.x line (JDK 8)"
+                "OpenCLI multi-adapter CLI integration SDK — 1.0.x line (JDK 8; for Boot 2.x starters)"
             ),
             jackson="2.18.8",
             junit="5.9.3",
@@ -355,37 +371,14 @@ def render(branch: str) -> None:
             maven_jar="3.3.0",
         )
         return
-    if branch == "2.7.x":
-        write_pom(
-            version=f"{branch}.{snap}",
-            java_version="11",
-            java_release="11",
-            use_release=True,
-            description=(
-                "OpenCLI multi-adapter CLI integration SDK — Spring Boot 2.7.x line (JDK 11)"
-            ),
-            jackson="2.18.8",
-            junit="5.9.3",
-            slf4j="1.7.36",
-            lombok="1.18.34",
-            unirest=common_unirest,
-            java_websocket=common_ws,
-            maven_enforcer="3.4.1",
-            maven_compiler="3.11.0",
-            maven_surefire="3.1.2",
-            maven_source="3.3.0",
-            maven_jar="3.3.0",
-        )
-        return
-    if branch in {"3.0.x", "3.1.x", "3.2.x", "3.3.x", "3.4.x"}:
+    if branch == "2.0.x":
         write_pom(
             version=f"{branch}.{snap}",
             java_version="17",
             java_release="17",
             use_release=True,
             description=(
-                "OpenCLI multi-adapter CLI integration SDK — Spring Boot "
-                f"{branch.replace('.x', '')} line (JDK 17)"
+                "OpenCLI multi-adapter CLI integration SDK — 2.0.x line (JDK 17; for Boot 3.x starters)"
             ),
             jackson="2.17.2",
             junit="5.11.4",
@@ -400,15 +393,14 @@ def render(branch: str) -> None:
             maven_jar="3.4.2",
         )
         return
-    if branch in {"3.5.x", "4.0.x"}:
+    if branch == "3.0.x":
         write_pom(
             version=f"{branch}.{snap}",
             java_version="21",
             java_release="21",
             use_release=True,
             description=(
-                "OpenCLI multi-adapter CLI integration SDK — Spring Boot "
-                f"{branch.replace('.x', '')} line (JDK 21; SLF4J 2.x)"
+                "OpenCLI multi-adapter CLI integration SDK — 3.0.x line (JDK 21; for Boot 4.x starters)"
             ),
             jackson="2.18.2",
             junit="5.11.4",
