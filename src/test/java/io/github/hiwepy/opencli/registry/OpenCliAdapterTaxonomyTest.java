@@ -18,6 +18,6 @@ class OpenCliAdapterTaxonomyTest {
         for (String id : OpenCliAdapterTaxonomy.DESKTOP_IDS) {
             assertTrue(OpenCliAdapterTaxonomy.isDesktopAdapter(id));
         }
-        assertEquals(155, OpenCliAdapterIds.ALL.length);
+        assertEquals(OpenCliAdapterIds.TOTAL_ADAPTER_COUNT, OpenCliAdapterIds.ALL.length);
     }
 }

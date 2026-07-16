@@ -1,6 +1,12 @@
 [
   {
     "site": "12306",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "12306",
     "subcommand": "me",
     "positionals": [],
     "options": {}
@@ -61,6 +67,12 @@
     }
   },
   {
+    "site": "12306",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
     "site": "1688",
     "subcommand": "assets",
     "positionals": [
@@ -86,6 +98,12 @@
   },
   {
     "site": "1688",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "1688",
     "subcommand": "search",
     "positionals": [
       "__coverage__"
@@ -98,6 +116,12 @@
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "1688",
+    "subcommand": "whoami",
+    "positionals": [],
     "options": {}
   },
   {
@@ -134,6 +158,12 @@
   },
   {
     "site": "1point3acres",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "1point3acres",
     "subcommand": "notifications",
     "positionals": [],
     "options": {}
@@ -160,6 +190,12 @@
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "1point3acres",
+    "subcommand": "whoami",
+    "positionals": [],
     "options": {}
   },
   {
@@ -242,6 +278,12 @@
   },
   {
     "site": "amazon",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "amazon",
     "subcommand": "movers-shakers",
     "positionals": [],
     "options": {}
@@ -277,6 +319,50 @@
     "options": {}
   },
   {
+    "site": "amazon",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "add-context",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "cookies",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "copy-code",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "copy-message",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "delete",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "display-options",
+    "positionals": [],
+    "options": {}
+  },
+  {
     "site": "antigravity",
     "subcommand": "dump",
     "positionals": [],
@@ -290,7 +376,33 @@
   },
   {
     "site": "antigravity",
+    "subcommand": "history",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "idb-list",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "mark-read",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "antigravity",
     "subcommand": "model",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "nav",
     "positionals": [
       "__coverage__"
     ],
@@ -304,7 +416,36 @@
   },
   {
     "site": "antigravity",
+    "subcommand": "react",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "antigravity",
     "subcommand": "read",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "recent-paths",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "rename",
+    "positionals": [
+      "__coverage__",
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "revert",
     "positionals": [],
     "options": {}
   },
@@ -318,13 +459,71 @@
   },
   {
     "site": "antigravity",
+    "subcommand": "settings",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "settings-read",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "sidebar-toggle",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "state-get",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "state-keys",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "antigravity",
     "subcommand": "status",
     "positionals": [],
     "options": {}
   },
   {
     "site": "antigravity",
+    "subcommand": "storage-get",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "storage-keys",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "toggle-aux",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "antigravity",
     "subcommand": "watch",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "antigravity",
+    "subcommand": "workspaces-list",
     "positionals": [],
     "options": {}
   },
@@ -348,6 +547,38 @@
     "site": "apple-podcasts",
     "subcommand": "top",
     "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "archive",
+    "subcommand": "item",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "archive",
+    "subcommand": "search",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "archive",
+    "subcommand": "snapshots",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "archive",
+    "subcommand": "wayback",
+    "positionals": [
+      "__coverage__"
+    ],
     "options": {}
   },
   {
@@ -383,6 +614,22 @@
     "options": {}
   },
   {
+    "site": "autohome",
+    "subcommand": "brand",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "autohome",
+    "subcommand": "score",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
     "site": "baidu-scholar",
     "subcommand": "search",
     "positionals": [
@@ -393,6 +640,12 @@
   {
     "site": "band",
     "subcommand": "bands",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "band",
+    "subcommand": "login",
     "positionals": [],
     "options": {}
   },
@@ -417,6 +670,12 @@
     "positionals": [
       "1"
     ],
+    "options": {}
+  },
+  {
+    "site": "band",
+    "subcommand": "whoami",
+    "positionals": [],
     "options": {}
   },
   {
@@ -516,6 +775,14 @@
   },
   {
     "site": "bilibili",
+    "subcommand": "follow",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "bilibili",
     "subcommand": "following",
     "positionals": [],
     "options": {}
@@ -529,6 +796,12 @@
   {
     "site": "bilibili",
     "subcommand": "hot",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "bilibili",
+    "subcommand": "login",
     "positionals": [],
     "options": {}
   },
@@ -570,6 +843,14 @@
   },
   {
     "site": "bilibili",
+    "subcommand": "unfollow",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "bilibili",
     "subcommand": "user-videos",
     "positionals": [
       "__coverage__"
@@ -582,6 +863,12 @@
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "bilibili",
+    "subcommand": "whoami",
+    "positionals": [],
     "options": {}
   },
   {
@@ -668,6 +955,12 @@
   },
   {
     "site": "bloomberg",
+    "subcommand": "crypto",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "bloomberg",
     "subcommand": "economics",
     "positionals": [],
     "options": {}
@@ -675,6 +968,12 @@
   {
     "site": "bloomberg",
     "subcommand": "feeds",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "bloomberg",
+    "subcommand": "green",
     "positionals": [],
     "options": {}
   },
@@ -713,6 +1012,12 @@
   {
     "site": "bloomberg",
     "subcommand": "politics",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "bloomberg",
+    "subcommand": "pursuits",
     "positionals": [],
     "options": {}
   },
@@ -866,6 +1171,12 @@
   },
   {
     "site": "boss",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "boss",
     "subcommand": "mark",
     "positionals": [
       "__coverage__"
@@ -910,6 +1221,12 @@
     "options": {}
   },
   {
+    "site": "boss",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
     "site": "brave",
     "subcommand": "search",
     "positionals": [
@@ -930,8 +1247,28 @@
     "options": {}
   },
   {
+    "site": "chaoxing",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "chaoxing",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
     "site": "chatgpt",
     "subcommand": "ask",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "chatgpt",
+    "subcommand": "deep-research-result",
     "positionals": [
       "__coverage__"
     ],
@@ -961,7 +1298,37 @@
   },
   {
     "site": "chatgpt",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "chatgpt",
+    "subcommand": "model",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "chatgpt",
     "subcommand": "new",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "chatgpt",
+    "subcommand": "project-file-add",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {
+      "id": "__coverage__"
+    }
+  },
+  {
+    "site": "chatgpt",
+    "subcommand": "project-list",
     "positionals": [],
     "options": {}
   },
@@ -982,6 +1349,12 @@
   {
     "site": "chatgpt",
     "subcommand": "status",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "chatgpt",
+    "subcommand": "whoami",
     "positionals": [],
     "options": {}
   },
@@ -1141,6 +1514,12 @@
   },
   {
     "site": "claude",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "claude",
     "subcommand": "new",
     "positionals": [],
     "options": {}
@@ -1166,11 +1545,23 @@
     "options": {}
   },
   {
+    "site": "claude",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
     "site": "cnki",
     "subcommand": "search",
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "codex",
+    "subcommand": "archive",
+    "positionals": [],
     "options": {}
   },
   {
@@ -1219,6 +1610,12 @@
   },
   {
     "site": "codex",
+    "subcommand": "pin",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "codex",
     "subcommand": "projects",
     "positionals": [],
     "options": {}
@@ -1227,6 +1624,14 @@
     "site": "codex",
     "subcommand": "read",
     "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "codex",
+    "subcommand": "rename",
+    "positionals": [
+      "__coverage__"
+    ],
     "options": {}
   },
   {
@@ -1246,6 +1651,12 @@
   {
     "site": "codex",
     "subcommand": "status",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "codex",
+    "subcommand": "unpin",
     "positionals": [],
     "options": {}
   },
@@ -1337,6 +1748,12 @@
   },
   {
     "site": "coupang",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "coupang",
     "subcommand": "product",
     "positionals": [],
     "options": {}
@@ -1347,6 +1764,12 @@
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "coupang",
+    "subcommand": "whoami",
+    "positionals": [],
     "options": {}
   },
   {
@@ -1397,10 +1820,22 @@
   },
   {
     "site": "ctrip",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "ctrip",
     "subcommand": "search",
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "ctrip",
+    "subcommand": "whoami",
+    "positionals": [],
     "options": {}
   },
   {
@@ -1535,6 +1970,12 @@
   },
   {
     "site": "deepseek",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "deepseek",
     "subcommand": "new",
     "positionals": [],
     "options": {}
@@ -1557,6 +1998,12 @@
   {
     "site": "deepseek",
     "subcommand": "status",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "deepseek",
+    "subcommand": "whoami",
     "positionals": [],
     "options": {}
   },
@@ -1612,6 +2059,12 @@
   },
   {
     "site": "dianping",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "dianping",
     "subcommand": "search",
     "positionals": [
       "__coverage__"
@@ -1624,6 +2077,12 @@
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "dianping",
+    "subcommand": "whoami",
+    "positionals": [],
     "options": {}
   },
   {
@@ -1662,6 +2121,12 @@
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "discord-app",
+    "subcommand": "goto",
+    "positionals": [],
     "options": {}
   },
   {
@@ -1705,6 +2170,18 @@
     "options": {}
   },
   {
+    "site": "discord-app",
+    "subcommand": "thread-read",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "discord-app",
+    "subcommand": "threads",
+    "positionals": [],
+    "options": {}
+  },
+  {
     "site": "dockerhub",
     "subcommand": "image",
     "positionals": [
@@ -1715,6 +2192,54 @@
   {
     "site": "dockerhub",
     "subcommand": "search",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "dongchedi",
+    "subcommand": "koubei",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "dongchedi",
+    "subcommand": "models",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "dongchedi",
+    "subcommand": "score",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "dongchedi",
+    "subcommand": "search",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "dongchedi",
+    "subcommand": "series",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "dongchedi",
+    "subcommand": "specs",
     "positionals": [
       "__coverage__"
     ],
@@ -1732,6 +2257,12 @@
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "douban",
+    "subcommand": "login",
+    "positionals": [],
     "options": {}
   },
   {
@@ -1783,6 +2314,12 @@
     "options": {}
   },
   {
+    "site": "douban",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
     "site": "doubao",
     "subcommand": "ask",
     "positionals": [
@@ -1801,6 +2338,12 @@
   {
     "site": "doubao",
     "subcommand": "history",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "doubao",
+    "subcommand": "login",
     "positionals": [],
     "options": {}
   },
@@ -1843,6 +2386,12 @@
   {
     "site": "doubao",
     "subcommand": "status",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "doubao",
+    "subcommand": "whoami",
     "positionals": [],
     "options": {}
   },
@@ -1946,6 +2495,12 @@
   },
   {
     "site": "douyin",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "douyin",
     "subcommand": "profile",
     "positionals": [],
     "options": {}
@@ -1960,6 +2515,14 @@
       "title": "__coverage__",
       "schedule": "__coverage__"
     }
+  },
+  {
+    "site": "douyin",
+    "subcommand": "search",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
   },
   {
     "site": "douyin",
@@ -1988,6 +2551,12 @@
   {
     "site": "douyin",
     "subcommand": "videos",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "douyin",
+    "subcommand": "whoami",
     "positionals": [],
     "options": {}
   },
@@ -2147,6 +2716,12 @@
   },
   {
     "site": "facebook",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "facebook",
     "subcommand": "marketplace-inbox",
     "positionals": [],
     "options": {}
@@ -2186,6 +2761,12 @@
     "options": {}
   },
   {
+    "site": "facebook",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
     "site": "flathub",
     "subcommand": "app",
     "positionals": [
@@ -2203,7 +2784,19 @@
   },
   {
     "site": "flomo",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "flomo",
     "subcommand": "memos",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "flomo",
+    "subcommand": "whoami",
     "positionals": [],
     "options": {}
   },
@@ -2231,6 +2824,20 @@
   },
   {
     "site": "gemini",
+    "subcommand": "detail",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "gemini",
+    "subcommand": "history",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "gemini",
     "subcommand": "image",
     "positionals": [
       "__coverage__"
@@ -2239,7 +2846,37 @@
   },
   {
     "site": "gemini",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "gemini",
+    "subcommand": "models",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "gemini",
     "subcommand": "new",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "gemini",
+    "subcommand": "read",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "gemini",
+    "subcommand": "status",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "gemini",
+    "subcommand": "whoami",
     "positionals": [],
     "options": {}
   },
@@ -2312,6 +2949,12 @@
   },
   {
     "site": "gitee",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "gitee",
     "subcommand": "search",
     "positionals": [
       "__coverage__"
@@ -2330,6 +2973,30 @@
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "gitee",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "github",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "github",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "github-trending",
+    "subcommand": "repos",
+    "positionals": [],
     "options": {}
   },
   {
@@ -2438,10 +3105,30 @@
   },
   {
     "site": "grok",
+    "subcommand": "delete",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "grok",
     "subcommand": "detail",
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "grok",
+    "subcommand": "export",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "grok",
+    "subcommand": "export-all",
+    "positionals": [],
     "options": {}
   },
   {
@@ -2460,8 +3147,22 @@
   },
   {
     "site": "grok",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "grok",
     "subcommand": "new",
     "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "grok",
+    "subcommand": "pin",
+    "positionals": [
+      "__coverage__"
+    ],
     "options": {}
   },
   {
@@ -2482,6 +3183,34 @@
     "site": "grok",
     "subcommand": "status",
     "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "grok",
+    "subcommand": "unpin",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "grok",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "guazi",
+    "subcommand": "browse",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "guazi",
+    "subcommand": "car",
+    "positionals": [
+      "__coverage__"
+    ],
     "options": {}
   },
   {
@@ -2552,6 +3281,12 @@
   },
   {
     "site": "hf",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "hf",
     "subcommand": "models",
     "positionals": [],
     "options": {}
@@ -2577,6 +3312,110 @@
     "options": {}
   },
   {
+    "site": "hf",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "hltv",
+    "subcommand": "event-matches",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "hltv",
+    "subcommand": "match-map",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "hltv",
+    "subcommand": "match-series",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "hltv",
+    "subcommand": "player-duel",
+    "positionals": [
+      "__coverage__",
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "hltv",
+    "subcommand": "player-form",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "hltv",
+    "subcommand": "player-map-pool",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "hltv",
+    "subcommand": "player-matches",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "hltv",
+    "subcommand": "player-summary",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "hltv",
+    "subcommand": "player-teammate-impact",
+    "positionals": [
+      "__coverage__",
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "hltv",
+    "subcommand": "player-vs-team",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "hltv",
+    "subcommand": "search",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "hltv",
+    "subcommand": "team-map-pool",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "hltv",
+    "subcommand": "team-matches",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
     "site": "homebrew",
     "subcommand": "cask",
     "positionals": [
@@ -2595,6 +3434,12 @@
   {
     "site": "homebrew",
     "subcommand": "popular",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "huodongxing",
+    "subcommand": "events",
     "positionals": [],
     "options": {}
   },
@@ -2622,6 +3467,12 @@
     "options": {
       "fid": "__coverage__"
     }
+  },
+  {
+    "site": "hupu",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "hupu",
@@ -2658,6 +3509,12 @@
     "options": {
       "fid": "__coverage__"
     }
+  },
+  {
+    "site": "hupu",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "imdb",
@@ -2792,6 +3649,12 @@
   },
   {
     "site": "instagram",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "instagram",
     "subcommand": "note",
     "positionals": [
       "__coverage__"
@@ -2879,6 +3742,12 @@
     "options": {}
   },
   {
+    "site": "instagram",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
     "site": "jd",
     "subcommand": "add-cart",
     "positionals": [
@@ -2910,6 +3779,12 @@
   },
   {
     "site": "jd",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "jd",
     "subcommand": "reviews",
     "positionals": [
       "__coverage__"
@@ -2925,6 +3800,12 @@
     "options": {}
   },
   {
+    "site": "jd",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
     "site": "jianyu",
     "subcommand": "detail",
     "positionals": [
@@ -2934,10 +3815,22 @@
   },
   {
     "site": "jianyu",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "jianyu",
     "subcommand": "search",
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "jianyu",
+    "subcommand": "whoami",
+    "positionals": [],
     "options": {}
   },
   {
@@ -2969,6 +3862,12 @@
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "jike",
+    "subcommand": "login",
+    "positionals": [],
     "options": {}
   },
   {
@@ -3018,60 +3917,14 @@
     "options": {}
   },
   {
+    "site": "jike",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
     "site": "jimeng",
     "subcommand": "generate",
-    "positionals": [
-      "__coverage__"
-    ],
-    "options": {}
-  },
-  {
-    "site": "jimeng",
-    "subcommand": "generate-action-copy",
-    "positionals": [
-      "__coverage__"
-    ],
-    "options": {}
-  },
-  {
-    "site": "jimeng",
-    "subcommand": "generate-audio",
-    "positionals": [
-      "__coverage__"
-    ],
-    "options": {}
-  },
-  {
-    "site": "jimeng",
-    "subcommand": "generate-digital-human",
-    "positionals": [
-      "__coverage__"
-    ],
-    "options": {}
-  },
-  {
-    "site": "jimeng",
-    "subcommand": "generate-image2image",
-    "positionals": [
-      "__coverage__"
-    ],
-    "options": {
-      "images": "__coverage__"
-    }
-  },
-  {
-    "site": "jimeng",
-    "subcommand": "generate-image2video",
-    "positionals": [
-      "__coverage__"
-    ],
-    "options": {
-      "image": "__coverage__"
-    }
-  },
-  {
-    "site": "jimeng",
-    "subcommand": "generate-video",
     "positionals": [
       "__coverage__"
     ],
@@ -3085,25 +3938,19 @@
   },
   {
     "site": "jimeng",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "jimeng",
     "subcommand": "new",
     "positionals": [],
     "options": {}
   },
   {
     "site": "jimeng",
-    "subcommand": "user_assets",
-    "positionals": [],
-    "options": {}
-  },
-  {
-    "site": "jimeng",
-    "subcommand": "user_credit",
-    "positionals": [],
-    "options": {}
-  },
-  {
-    "site": "jimeng",
-    "subcommand": "user_subscription",
+    "subcommand": "whoami",
     "positionals": [],
     "options": {}
   },
@@ -3154,6 +4001,18 @@
     "options": {}
   },
   {
+    "site": "juejin",
+    "subcommand": "hot",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "juejin",
+    "subcommand": "recommend",
+    "positionals": [],
+    "options": {}
+  },
+  {
     "site": "ke",
     "subcommand": "chengjiao",
     "positionals": [],
@@ -3167,6 +4026,18 @@
   },
   {
     "site": "ke",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "ke",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "ke",
     "subcommand": "xiaoqu",
     "positionals": [],
     "options": {}
@@ -3174,6 +4045,193 @@
   {
     "site": "ke",
     "subcommand": "zufang",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "account",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "ask",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "cookies",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "copy-message",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "detail",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "dismiss-banner",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "history",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "history-rename",
+    "positionals": [
+      "__coverage__",
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "idb-list",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "mode",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "model",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "new",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "react",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "read",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "regenerate",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "send",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "settings",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "share",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "sidebar-toggle",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "sign-out",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "status",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "storage-get",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "storage-keys",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "templates",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "upgrade",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "usage",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "view-all-history",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "kimi",
+    "subcommand": "whoami",
     "positionals": [],
     "options": {}
   },
@@ -3311,10 +4369,66 @@
   },
   {
     "site": "linkedin",
+    "subcommand": "job-detail",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "linkedin",
+    "subcommand": "jobs-preferences",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "linkedin",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "linkedin",
     "subcommand": "people-search",
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "linkedin",
+    "subcommand": "post-analytics",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "linkedin",
+    "subcommand": "posts",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "linkedin",
+    "subcommand": "profile-analytics",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "linkedin",
+    "subcommand": "profile-experience",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "linkedin",
+    "subcommand": "profile-projects",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "linkedin",
+    "subcommand": "profile-read",
+    "positionals": [],
     "options": {}
   },
   {
@@ -3376,6 +4490,12 @@
   },
   {
     "site": "linkedin",
+    "subcommand": "services-read",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "linkedin",
     "subcommand": "thread-snapshot",
     "positionals": [],
     "options": {
@@ -3389,11 +4509,23 @@
     "options": {}
   },
   {
+    "site": "linkedin",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
     "site": "linkedin-learning",
     "subcommand": "course",
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "linkedin-learning",
+    "subcommand": "login",
+    "positionals": [],
     "options": {}
   },
   {
@@ -3411,6 +4543,12 @@
     "options": {}
   },
   {
+    "site": "linkedin-learning",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
     "site": "linux-do",
     "subcommand": "categories",
     "positionals": [],
@@ -3419,6 +4557,12 @@
   {
     "site": "linux-do",
     "subcommand": "feed",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "linux-do",
+    "subcommand": "login",
     "positionals": [],
     "options": {}
   },
@@ -3469,6 +4613,12 @@
     "options": {}
   },
   {
+    "site": "linux-do",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
     "site": "lobsters",
     "subcommand": "active",
     "positionals": [],
@@ -3512,10 +4662,72 @@
   },
   {
     "site": "maimai",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "maimai",
     "subcommand": "search-talents",
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "maimai",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "manus",
+    "subcommand": "connectors",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "manus",
+    "subcommand": "credits",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "manus",
+    "subcommand": "list",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "manus",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "manus",
+    "subcommand": "read",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "manus",
+    "subcommand": "skills",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "manus",
+    "subcommand": "status",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "manus",
+    "subcommand": "whoami",
+    "positionals": [],
     "options": {}
   },
   {
@@ -3571,6 +4783,36 @@
       "__coverage__"
     ],
     "options": {}
+  },
+  {
+    "site": "mercury",
+    "subcommand": "check-login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "mercury",
+    "subcommand": "reimbursement-draft",
+    "positionals": [],
+    "options": {
+      "receipt": "__coverage__",
+      "amount": "__coverage__",
+      "date": "__coverage__",
+      "merchant": "__coverage__",
+      "notes": "__coverage__"
+    }
+  },
+  {
+    "site": "mercury",
+    "subcommand": "reimbursement-plan",
+    "positionals": [],
+    "options": {
+      "receipt": "__coverage__",
+      "amount": "__coverage__",
+      "date": "__coverage__",
+      "merchant": "__coverage__",
+      "notes": "__coverage__"
+    }
   },
   {
     "site": "mubu",
@@ -3664,6 +4906,12 @@
   },
   {
     "site": "notebooklm",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "notebooklm",
     "subcommand": "note-list",
     "positionals": [],
     "options": {}
@@ -3728,6 +4976,12 @@
   },
   {
     "site": "notebooklm",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "notebooklm",
     "subcommand": "write-note",
     "positionals": [
       "__coverage__"
@@ -3772,6 +5026,12 @@
   {
     "site": "nowcoder",
     "subcommand": "jobs",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "nowcoder",
+    "subcommand": "login",
     "positionals": [],
     "options": {}
   },
@@ -3836,6 +5096,12 @@
   {
     "site": "nowcoder",
     "subcommand": "trending",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "nowcoder",
+    "subcommand": "whoami",
     "positionals": [],
     "options": {}
   },
@@ -4116,6 +5382,12 @@
   },
   {
     "site": "pixiv",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "pixiv",
     "subcommand": "ranking",
     "positionals": [],
     "options": {}
@@ -4137,11 +5409,29 @@
     "options": {}
   },
   {
+    "site": "pixiv",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "powerchina",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
     "site": "powerchina",
     "subcommand": "search",
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "powerchina",
+    "subcommand": "whoami",
+    "positionals": [],
     "options": {}
   },
   {
@@ -4196,7 +5486,39 @@
   },
   {
     "site": "pubmed",
+    "subcommand": "clinical-trial",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "pubmed",
+    "subcommand": "journal",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "pubmed",
+    "subcommand": "mesh",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "pubmed",
     "subcommand": "related",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "pubmed",
+    "subcommand": "review",
     "positionals": [
       "__coverage__"
     ],
@@ -4224,6 +5546,132 @@
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "qoder",
+    "subcommand": "account",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "qoder",
+    "subcommand": "add-workspace",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "qoder",
+    "subcommand": "ask",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "qoder",
+    "subcommand": "credits",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "qoder",
+    "subcommand": "history",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "qoder",
+    "subcommand": "knowledge",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "qoder",
+    "subcommand": "marketplace",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "qoder",
+    "subcommand": "more-actions",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "qoder",
+    "subcommand": "new",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "qoder",
+    "subcommand": "open-editor",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "qoder",
+    "subcommand": "open-panel",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "qoder",
+    "subcommand": "prompt-enhance",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "qoder",
+    "subcommand": "read",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "qoder",
+    "subcommand": "search",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "qoder",
+    "subcommand": "send",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "qoder",
+    "subcommand": "settings",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "qoder",
+    "subcommand": "sidebar-toggle",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "qoder",
+    "subcommand": "status",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "qoder",
+    "subcommand": "view-all",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "quark",
+    "subcommand": "login",
+    "positionals": [],
     "options": {}
   },
   {
@@ -4283,6 +5731,12 @@
     "options": {}
   },
   {
+    "site": "quark",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
     "site": "qwen",
     "subcommand": "ask",
     "positionals": [
@@ -4314,6 +5768,12 @@
   },
   {
     "site": "qwen",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "qwen",
     "subcommand": "new",
     "positionals": [],
     "options": {}
@@ -4335,6 +5795,12 @@
   {
     "site": "qwen",
     "subcommand": "status",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "qwen",
+    "subcommand": "whoami",
     "positionals": [],
     "options": {}
   },
@@ -4362,6 +5828,12 @@
   {
     "site": "reddit",
     "subcommand": "hot",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "reddit",
+    "subcommand": "login",
     "positionals": [],
     "options": {}
   },
@@ -4508,6 +5980,12 @@
   },
   {
     "site": "rednote",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "rednote",
     "subcommand": "note",
     "positionals": [
       "__coverage__"
@@ -4537,6 +6015,12 @@
     "options": {}
   },
   {
+    "site": "rednote",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
     "site": "rest-countries",
     "subcommand": "country",
     "positionals": [
@@ -4562,10 +6046,22 @@
   },
   {
     "site": "reuters",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "reuters",
     "subcommand": "search",
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "reuters",
+    "subcommand": "whoami",
+    "positionals": [],
     "options": {}
   },
   {
@@ -4586,6 +6082,38 @@
   },
   {
     "site": "rubygems",
+    "subcommand": "search",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "semanticscholar",
+    "subcommand": "citations",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "semanticscholar",
+    "subcommand": "paper",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "semanticscholar",
+    "subcommand": "recommendations",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "semanticscholar",
     "subcommand": "search",
     "positionals": [
       "__coverage__"
@@ -4645,6 +6173,343 @@
   {
     "site": "sinafinance",
     "subcommand": "stock-rank",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "attachment-download",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "attachment-upload",
+    "positionals": [
+      "__coverage__",
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "attachment-url",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "bookmark-add",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "bookmark-list",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "bookmark-remove",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "channel-archive",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "channel-create",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "channel-files",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "channel-info",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "channel-join",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "channel-leave",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "channel-list",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "channel-mark",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "channel-members",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "channel-unarchive",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "dm-list",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "inbox",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "inbox-done",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "inbox-read-all",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "message-read",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "message-search",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "message-send",
+    "positionals": [
+      "__coverage__",
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "reaction-add",
+    "positionals": [
+      "__coverage__",
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "reaction-remove",
+    "positionals": [
+      "__coverage__",
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "server-list",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "server-use",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "task-claim",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "task-convert",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "task-create",
+    "positionals": [
+      "__coverage__",
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "task-delete",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "task-get",
+    "positionals": [
+      "__coverage__",
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "task-list",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "task-list-server",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "task-status",
+    "positionals": [
+      "__coverage__",
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "task-unclaim",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "thread-done",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "thread-follow",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "thread-list",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "thread-undone",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "thread-unfollow",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "unread-summary",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "slock",
+    "subcommand": "whoami",
     "positionals": [],
     "options": {}
   },
@@ -4850,7 +6715,19 @@
   },
   {
     "site": "suno",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "suno",
     "subcommand": "status",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "suno",
+    "subcommand": "whoami",
     "positionals": [],
     "options": {}
   },
@@ -4878,6 +6755,12 @@
   },
   {
     "site": "taobao",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "taobao",
     "subcommand": "reviews",
     "positionals": [
       "__coverage__"
@@ -4890,6 +6773,12 @@
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "taobao",
+    "subcommand": "whoami",
+    "positionals": [],
     "options": {}
   },
   {
@@ -4991,6 +6880,12 @@
   },
   {
     "site": "tiktok",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "tiktok",
     "subcommand": "notifications",
     "positionals": [],
     "options": {}
@@ -5052,6 +6947,12 @@
     "options": {}
   },
   {
+    "site": "tiktok",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
     "site": "toutiao",
     "subcommand": "articles",
     "positionals": [],
@@ -5060,6 +6961,276 @@
   {
     "site": "toutiao",
     "subcommand": "hot",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "toutiao",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "toutiao",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-cn",
+    "subcommand": "activity",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-cn",
+    "subcommand": "approve",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-cn",
+    "subcommand": "ask",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "trae-cn",
+    "subcommand": "dump",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-cn",
+    "subcommand": "export",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-cn",
+    "subcommand": "model",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-cn",
+    "subcommand": "new",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-cn",
+    "subcommand": "read",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-cn",
+    "subcommand": "screenshot",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-cn",
+    "subcommand": "select-model",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "trae-cn",
+    "subcommand": "send",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "trae-cn",
+    "subcommand": "setup",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-cn",
+    "subcommand": "status",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-cn",
+    "subcommand": "targets",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-cn",
+    "subcommand": "watch",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-solo",
+    "subcommand": "automation-list",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-solo",
+    "subcommand": "cookies",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-solo",
+    "subcommand": "extensions-list",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-solo",
+    "subcommand": "history",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-solo",
+    "subcommand": "idb-list",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-solo",
+    "subcommand": "mode",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-solo",
+    "subcommand": "model",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-solo",
+    "subcommand": "recent-workspaces",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-solo",
+    "subcommand": "settings-read",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-solo",
+    "subcommand": "skill-category",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-solo",
+    "subcommand": "skill-fs-installed",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-solo",
+    "subcommand": "skill-fs-list",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-solo",
+    "subcommand": "skill-fs-show",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "trae-solo",
+    "subcommand": "skill-list",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-solo",
+    "subcommand": "skill-search",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "trae-solo",
+    "subcommand": "state-get",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "trae-solo",
+    "subcommand": "state-keys",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-solo",
+    "subcommand": "status",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-solo",
+    "subcommand": "storage-get",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "trae-solo",
+    "subcommand": "storage-keys",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-solo",
+    "subcommand": "task-fs-list",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-solo",
+    "subcommand": "task-fs-show",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "trae-solo",
+    "subcommand": "task-fs-turns",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "trae-solo",
+    "subcommand": "user-rules",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "trae-solo",
+    "subcommand": "workspaces-list",
     "positionals": [],
     "options": {}
   },
@@ -5161,6 +7332,14 @@
   },
   {
     "site": "twitter",
+    "subcommand": "follow-batch",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "twitter",
     "subcommand": "followers",
     "positionals": [],
     "options": {}
@@ -5204,6 +7383,15 @@
   },
   {
     "site": "twitter",
+    "subcommand": "list-add-batch",
+    "positionals": [
+      "__coverage__",
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "twitter",
     "subcommand": "list-create",
     "positionals": [
       "__coverage__"
@@ -5212,7 +7400,24 @@
   },
   {
     "site": "twitter",
+    "subcommand": "list-delete",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "twitter",
     "subcommand": "list-remove",
+    "positionals": [
+      "__coverage__",
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "twitter",
+    "subcommand": "list-remove-batch",
     "positionals": [
       "__coverage__",
       "__coverage__"
@@ -5230,6 +7435,12 @@
   {
     "site": "twitter",
     "subcommand": "lists",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "twitter",
+    "subcommand": "login",
     "positionals": [],
     "options": {}
   },
@@ -5362,6 +7573,12 @@
     "options": {}
   },
   {
+    "site": "twitter",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
     "site": "uisdc",
     "subcommand": "news",
     "positionals": [],
@@ -5401,10 +7618,22 @@
   },
   {
     "site": "upwork",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "upwork",
     "subcommand": "search",
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "upwork",
+    "subcommand": "whoami",
+    "positionals": [],
     "options": {}
   },
   {
@@ -5422,6 +7651,12 @@
   {
     "site": "v2ex",
     "subcommand": "latest",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "v2ex",
+    "subcommand": "login",
     "positionals": [],
     "options": {}
   },
@@ -5484,6 +7719,12 @@
     "options": {}
   },
   {
+    "site": "v2ex",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
     "site": "wanfang",
     "subcommand": "search",
     "positionals": [
@@ -5498,6 +7739,26 @@
     "options": {
       "url": "__coverage__"
     }
+  },
+  {
+    "site": "wechat-channels",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "wechat-channels",
+    "subcommand": "publish",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "wechat-channels",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "weibo",
@@ -5530,6 +7791,12 @@
   {
     "site": "weibo",
     "subcommand": "hot",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "weibo",
+    "subcommand": "login",
     "positionals": [],
     "options": {}
   },
@@ -5577,6 +7844,12 @@
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "weibo",
+    "subcommand": "whoami",
+    "positionals": [],
     "options": {}
   },
   {
@@ -5629,10 +7902,25 @@
   },
   {
     "site": "weread",
+    "subcommand": "book-search",
+    "positionals": [
+      "__coverage__",
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "weread",
     "subcommand": "highlights",
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "weread",
+    "subcommand": "login",
+    "positionals": [],
     "options": {}
   },
   {
@@ -5666,6 +7954,12 @@
   {
     "site": "weread",
     "subcommand": "shelf",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "weread",
+    "subcommand": "whoami",
     "positionals": [],
     "options": {}
   },
@@ -5816,6 +8110,12 @@
   },
   {
     "site": "xianyu",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "xianyu",
     "subcommand": "messages",
     "positionals": [],
     "options": {}
@@ -5846,6 +8146,12 @@
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "xianyu",
+    "subcommand": "whoami",
+    "positionals": [],
     "options": {}
   },
   {
@@ -5880,7 +8186,27 @@
   },
   {
     "site": "xiaoe",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "xiaoe",
     "subcommand": "play-url",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "xiaoe",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "xiaohongshu",
+    "subcommand": "ask",
     "positionals": [
       "__coverage__"
     ],
@@ -5944,7 +8270,55 @@
   },
   {
     "site": "xiaohongshu",
+    "subcommand": "draft-clear",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "xiaohongshu",
+    "subcommand": "draft-delete",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "xiaohongshu",
+    "subcommand": "draft-open",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "xiaohongshu",
+    "subcommand": "drafts",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "xiaohongshu",
     "subcommand": "feed",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "xiaohongshu",
+    "subcommand": "follow",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "xiaohongshu",
+    "subcommand": "liked",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "xiaohongshu",
+    "subcommand": "login",
     "positionals": [],
     "options": {}
   },
@@ -5969,9 +8343,14 @@
       "__coverage__"
     ],
     "options": {
-      "title": "__coverage__",
-      "images": "__coverage__"
+      "title": "__coverage__"
     }
+  },
+  {
+    "site": "xiaohongshu",
+    "subcommand": "saved",
+    "positionals": [],
+    "options": {}
   },
   {
     "site": "xiaohongshu",
@@ -5983,10 +8362,24 @@
   },
   {
     "site": "xiaohongshu",
+    "subcommand": "unfollow",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "xiaohongshu",
     "subcommand": "user",
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "xiaohongshu",
+    "subcommand": "whoami",
+    "positionals": [],
     "options": {}
   },
   {
@@ -6091,6 +8484,12 @@
   },
   {
     "site": "xueqiu",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "xueqiu",
     "subcommand": "search",
     "positionals": [
       "__coverage__"
@@ -6108,6 +8507,12 @@
   {
     "site": "xueqiu",
     "subcommand": "watchlist",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "xueqiu",
+    "subcommand": "whoami",
     "positionals": [],
     "options": {}
   },
@@ -6271,6 +8676,12 @@
   },
   {
     "site": "youtube",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "youtube",
     "subcommand": "playlist",
     "positionals": [
       "__coverage__"
@@ -6338,6 +8749,12 @@
     "options": {}
   },
   {
+    "site": "youtube",
+    "subcommand": "whoami",
+    "positionals": [],
+    "options": {}
+  },
+  {
     "site": "yuanbao",
     "subcommand": "ask",
     "positionals": [
@@ -6356,6 +8773,12 @@
   {
     "site": "yuanbao",
     "subcommand": "history",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "yuanbao",
+    "subcommand": "login",
     "positionals": [],
     "options": {}
   },
@@ -6382,6 +8805,12 @@
   {
     "site": "yuanbao",
     "subcommand": "status",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "yuanbao",
+    "subcommand": "whoami",
     "positionals": [],
     "options": {}
   },
@@ -6457,6 +8886,22 @@
   },
   {
     "site": "zhihu",
+    "subcommand": "followers",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "zhihu",
+    "subcommand": "following",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "zhihu",
     "subcommand": "hot",
     "positionals": [],
     "options": {}
@@ -6464,6 +8909,20 @@
   {
     "site": "zhihu",
     "subcommand": "like",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "zhihu",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "zhihu",
+    "subcommand": "pins",
     "positionals": [
       "__coverage__"
     ],
@@ -6489,6 +8948,36 @@
     "positionals": [
       "__coverage__"
     ],
+    "options": {}
+  },
+  {
+    "site": "zhihu",
+    "subcommand": "user",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "zhihu",
+    "subcommand": "user-answers",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "zhihu",
+    "subcommand": "user-articles",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "zhihu",
+    "subcommand": "whoami",
+    "positionals": [],
     "options": {}
   },
   {
@@ -6521,6 +9010,12 @@
   },
   {
     "site": "zsxq",
+    "subcommand": "login",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "zsxq",
     "subcommand": "search",
     "positionals": [
       "__coverage__"
@@ -6538,6 +9033,12 @@
   {
     "site": "zsxq",
     "subcommand": "topics",
+    "positionals": [],
+    "options": {}
+  },
+  {
+    "site": "zsxq",
+    "subcommand": "whoami",
     "positionals": [],
     "options": {}
   }
