@@ -39,17 +39,45 @@ def load_manifest_sites() -> set[str]:
     return {entry["site"] for entry in data}
 
 
+# 缺 docs/adapters/index.md 时，从 clis/ 目录启发式推断 desktop app。
+# 已知的 desktop 候选 id（与 clis/ 子目录一一对应）：
+_KNOWN_DESKTOP_IDS = {
+    "antigravity", "codex", "cursor", "qoder",
+    "trae-cn", "trae-solo",
+    "chatgpt-app", "chatwise", "discord-app", "doubao-app",
+}
+
+
+def infer_desktop_ids_from_clis_dir() -> set[str]:
+    clis_dir = OPENCLI_ROOT / "clis"
+    if not clis_dir.is_dir():
+        return set()
+    found = set()
+    for entry in clis_dir.iterdir():
+        if not entry.is_dir() or entry.name.startswith(("_", ".")):
+            continue
+        if entry.name in _KNOWN_DESKTOP_IDS or entry.name.endswith("-app"):
+            found.add(entry.name)
+    return found
+
+
 def main() -> None:
     root = Path(__file__).resolve().parents[1]
     index = OPENCLI_ROOT / "docs/adapters/index.md"
-    if not index.is_file():
-        raise SystemExit(f"missing index: {index}")
-    text = index.read_text(encoding="utf-8")
-    browser = {normalize_id(x) for x in re.findall(r"\]\(\./browser/([^)]+)\.md\)", text)}
-    desktop = {normalize_id(x) for x in re.findall(r"\]\(\./desktop/([^)]+)\.md\)", text)}
+    browser: set[str] = set()
+    desktop: set[str] = set()
+    if index.is_file():
+        text = index.read_text(encoding="utf-8")
+        browser = {normalize_id(x) for x in re.findall(r"\]\(\./browser/([^)]+)\.md\)", text)}
+        desktop = {normalize_id(x) for x in re.findall(r"\]\(\./desktop/([^)]+)\.md\)", text)}
+    else:
+        print(f"warning: index not found at {index}; falling back to manifest + clis/ heuristic")
+        desktop = infer_desktop_ids_from_clis_dir()
     manifest_sites = load_manifest_sites()
     # manifest 为 CLI 真值；文档 index 补充分类与尚未入 manifest 的条目。
     all_ids = sorted(manifest_sites | browser | desktop)
+    # 重新划分 browser：未命中 desktop 的 manifest / index 条目一律视为 browser 类。
+    browser = {x for x in all_ids if x not in desktop}
 
     out = root / "src/main/java/io/github/hiwepy/opencli/registry/OpenCliAdapterIds.java"
     out.parent.mkdir(parents=True, exist_ok=True)

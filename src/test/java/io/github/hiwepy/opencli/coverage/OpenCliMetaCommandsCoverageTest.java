@@ -5,8 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import io.github.hiwepy.opencli.core.OpenCliResult;
+import io.github.hiwepy.opencli.meta.OpenCliAuthRefreshOptions;
+import io.github.hiwepy.opencli.meta.OpenCliAuthStatusOptions;
 import io.github.hiwepy.opencli.meta.OpenCliExternalPassthroughOptions;
 import io.github.hiwepy.opencli.meta.OpenCliMetaClient;
+import io.github.hiwepy.opencli.meta.OpenCliSkillsReadOptions;
 import io.github.hiwepy.opencli.support.RecordingOpenCliExecutor;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -100,7 +103,12 @@ class OpenCliMetaCommandsCoverageTest {
     @Test void testPluginCreate() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         assertInvoked(exec, new OpenCliMetaClient(exec).plugin().create("demo", "/tmp/demo", "desc"));
-        assertEquals("plugin", exec.lastInvocation().get(0));
+        List<String> argv = exec.lastInvocation();
+        assertEquals("plugin", argv.get(0));
+        // 修复：dir 不再同时以 -d 和 --dir 输出，仅 --dir
+        assertFalse(argv.contains("-d"), "argv should not contain short flag -d");
+        int dirIdx = argv.indexOf("--dir");
+        assertEquals("/tmp/demo", argv.get(dirIdx + 1));
     }
 
     @Test void testAdapterStatus() {
@@ -195,5 +203,69 @@ class OpenCliMetaCommandsCoverageTest {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         assertInvoked(exec, new OpenCliMetaClient(exec).antigravity().serve(8082, 30));
         assertEquals("antigravity", exec.lastInvocation().get(0));
+    }
+
+    // ---------- opencli skills (手写扩展) ----------
+
+    @Test void testSkillsList() {
+        RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
+        assertInvoked(exec, new OpenCliMetaClient(exec).skills().list("json"));
+        assertEquals("skills", exec.lastInvocation().get(0));
+        assertEquals("list", exec.lastInvocation().get(1));
+    }
+
+    @Test void testSkillsRead() {
+        RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
+        assertInvoked(exec, new OpenCliMetaClient(exec).skills().read("opencli-browse", "README.md", true));
+        assertEquals("skills", exec.lastInvocation().get(0));
+        assertEquals("read", exec.lastInvocation().get(1));
+    }
+
+    @Test void testSkillsReadOptions() {
+        RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
+        assertInvoked(exec, new OpenCliMetaClient(exec).skills().read(
+            OpenCliSkillsReadOptions.builder()
+                .skill("opencli-browse")
+                .asJson(true)
+                .build()));
+        assertEquals("skills", exec.lastInvocation().get(0));
+        assertEquals("read", exec.lastInvocation().get(1));
+    }
+
+    // ---------- opencli auth (手写扩展) ----------
+
+    @Test void testAuthStatus() {
+        RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
+        assertInvoked(exec, new OpenCliMetaClient(exec).auth().status(
+            OpenCliAuthStatusOptions.builder()
+                .site("npm")
+                .full(true)
+                .concurrency(8)
+                .timeout(30)
+                .format("json")
+                .build()));
+        assertEquals("auth", exec.lastInvocation().get(0));
+        assertEquals("status", exec.lastInvocation().get(1));
+    }
+
+    @Test void testAuthRefresh() {
+        RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
+        assertInvoked(exec, new OpenCliMetaClient(exec).auth().refresh(
+            OpenCliAuthRefreshOptions.builder()
+                .site("npm")
+                .concurrency(4)
+                .timeout(60)
+                .format("json")
+                .build()));
+        assertEquals("auth", exec.lastInvocation().get(0));
+        assertEquals("refresh", exec.lastInvocation().get(1));
+    }
+
+    @Test void testAuthRefreshAll() {
+        RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
+        assertInvoked(exec, new OpenCliMetaClient(exec).auth().refresh(
+            OpenCliAuthRefreshOptions.builder().all(true).build()));
+        assertEquals("auth", exec.lastInvocation().get(0));
+        assertEquals("refresh", exec.lastInvocation().get(1));
     }
 }

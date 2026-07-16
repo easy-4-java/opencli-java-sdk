@@ -67,7 +67,6 @@ public final class OpenCliPluginClient {
         args.add("create");
         args.add(name);
         if (dir != null) {
-            OpenCliArgSupport.addOptionPair(args, "-d", dir);
             OpenCliArgSupport.addOptionPair(args, "--dir", dir);
         }
         if (description != null) {

@@ -18,7 +18,9 @@ public final class OpenCliAdapterIds {
     public static final String AMAZON = "amazon";
     public static final String ANTIGRAVITY = "antigravity";
     public static final String APPLE_PODCASTS = "apple-podcasts";
+    public static final String ARCHIVE = "archive";
     public static final String ARXIV = "arxiv";
+    public static final String AUTOHOME = "autohome";
     public static final String BAIDU_SCHOLAR = "baidu-scholar";
     public static final String BAND = "band";
     public static final String BARCHART = "barchart";
@@ -52,6 +54,7 @@ public final class OpenCliAdapterIds {
     public static final String DICTIONARY = "dictionary";
     public static final String DISCORD_APP = "discord-app";
     public static final String DOCKERHUB = "dockerhub";
+    public static final String DONGCHEDI = "dongchedi";
     public static final String DOUBAN = "douban";
     public static final String DOUBAO = "doubao";
     public static final String DOUBAO_APP = "doubao-app";
@@ -65,15 +68,20 @@ public final class OpenCliAdapterIds {
     public static final String GEMINI = "gemini";
     public static final String GEOGEBRA = "geogebra";
     public static final String GITEE = "gitee";
+    public static final String GITHUB = "github";
+    public static final String GITHUB_TRENDING = "github-trending";
     public static final String GOOGLE = "google";
     public static final String GOOGLE_SCHOLAR = "google-scholar";
     public static final String GOPROXY = "goproxy";
     public static final String GOV_LAW = "gov-law";
     public static final String GOV_POLICY = "gov-policy";
     public static final String GROK = "grok";
+    public static final String GUAZI = "guazi";
     public static final String HACKERNEWS = "hackernews";
     public static final String HF = "hf";
+    public static final String HLTV = "hltv";
     public static final String HOMEBREW = "homebrew";
+    public static final String HUODONGXING = "huodongxing";
     public static final String HUPU = "hupu";
     public static final String IMDB = "imdb";
     public static final String INDEED = "indeed";
@@ -83,7 +91,9 @@ public final class OpenCliAdapterIds {
     public static final String JIKE = "jike";
     public static final String JIMENG = "jimeng";
     public static final String JIRA = "jira";
+    public static final String JUEJIN = "juejin";
     public static final String KE = "ke";
+    public static final String KIMI = "kimi";
     public static final String LESSWRONG = "lesswrong";
     public static final String LICHESS = "lichess";
     public static final String LINKEDIN = "linkedin";
@@ -91,9 +101,11 @@ public final class OpenCliAdapterIds {
     public static final String LINUX_DO = "linux-do";
     public static final String LOBSTERS = "lobsters";
     public static final String MAIMAI = "maimai";
+    public static final String MANUS = "manus";
     public static final String MAVEN = "maven";
     public static final String MDN = "mdn";
     public static final String MEDIUM = "medium";
+    public static final String MERCURY = "mercury";
     public static final String MUBU = "mubu";
     public static final String NOTEBOOKLM = "notebooklm";
     public static final String NOWCODER = "nowcoder";
@@ -113,6 +125,7 @@ public final class OpenCliAdapterIds {
     public static final String PRODUCTHUNT = "producthunt";
     public static final String PUBMED = "pubmed";
     public static final String PYPI = "pypi";
+    public static final String QODER = "qoder";
     public static final String QUARK = "quark";
     public static final String QWEN = "qwen";
     public static final String REDDIT = "reddit";
@@ -121,8 +134,10 @@ public final class OpenCliAdapterIds {
     public static final String REUTERS = "reuters";
     public static final String RFC = "rfc";
     public static final String RUBYGEMS = "rubygems";
+    public static final String SEMANTICSCHOLAR = "semanticscholar";
     public static final String SINABLOG = "sinablog";
     public static final String SINAFINANCE = "sinafinance";
+    public static final String SLOCK = "slock";
     public static final String SMZDM = "smzdm";
     public static final String SPOTIFY = "spotify";
     public static final String STACKOVERFLOW = "stackoverflow";
@@ -135,6 +150,8 @@ public final class OpenCliAdapterIds {
     public static final String TIEBA = "tieba";
     public static final String TIKTOK = "tiktok";
     public static final String TOUTIAO = "toutiao";
+    public static final String TRAE_CN = "trae-cn";
+    public static final String TRAE_SOLO = "trae-solo";
     public static final String TVMAZE = "tvmaze";
     public static final String TWITTER = "twitter";
     public static final String UISDC = "uisdc";
@@ -143,6 +160,7 @@ public final class OpenCliAdapterIds {
     public static final String V2EX = "v2ex";
     public static final String WANFANG = "wanfang";
     public static final String WEB = "web";
+    public static final String WECHAT_CHANNELS = "wechat-channels";
     public static final String WEIBO = "weibo";
     public static final String WEIXIN = "weixin";
     public static final String WEREAD = "weread";
@@ -176,7 +194,9 @@ public final class OpenCliAdapterIds {
         AMAZON,
         ANTIGRAVITY,
         APPLE_PODCASTS,
+        ARCHIVE,
         ARXIV,
+        AUTOHOME,
         BAIDU_SCHOLAR,
         BAND,
         BARCHART,
@@ -210,6 +230,7 @@ public final class OpenCliAdapterIds {
         DICTIONARY,
         DISCORD_APP,
         DOCKERHUB,
+        DONGCHEDI,
         DOUBAN,
         DOUBAO,
         DOUBAO_APP,
@@ -223,15 +244,20 @@ public final class OpenCliAdapterIds {
         GEMINI,
         GEOGEBRA,
         GITEE,
+        GITHUB,
+        GITHUB_TRENDING,
         GOOGLE,
         GOOGLE_SCHOLAR,
         GOPROXY,
         GOV_LAW,
         GOV_POLICY,
         GROK,
+        GUAZI,
         HACKERNEWS,
         HF,
+        HLTV,
         HOMEBREW,
+        HUODONGXING,
         HUPU,
         IMDB,
         INDEED,
@@ -241,7 +267,9 @@ public final class OpenCliAdapterIds {
         JIKE,
         JIMENG,
         JIRA,
+        JUEJIN,
         KE,
+        KIMI,
         LESSWRONG,
         LICHESS,
         LINKEDIN,
@@ -249,9 +277,11 @@ public final class OpenCliAdapterIds {
         LINUX_DO,
         LOBSTERS,
         MAIMAI,
+        MANUS,
         MAVEN,
         MDN,
         MEDIUM,
+        MERCURY,
         MUBU,
         NOTEBOOKLM,
         NOWCODER,
@@ -271,6 +301,7 @@ public final class OpenCliAdapterIds {
         PRODUCTHUNT,
         PUBMED,
         PYPI,
+        QODER,
         QUARK,
         QWEN,
         REDDIT,
@@ -279,8 +310,10 @@ public final class OpenCliAdapterIds {
         REUTERS,
         RFC,
         RUBYGEMS,
+        SEMANTICSCHOLAR,
         SINABLOG,
         SINAFINANCE,
+        SLOCK,
         SMZDM,
         SPOTIFY,
         STACKOVERFLOW,
@@ -293,6 +326,8 @@ public final class OpenCliAdapterIds {
         TIEBA,
         TIKTOK,
         TOUTIAO,
+        TRAE_CN,
+        TRAE_SOLO,
         TVMAZE,
         TWITTER,
         UISDC,
@@ -301,6 +336,7 @@ public final class OpenCliAdapterIds {
         V2EX,
         WANFANG,
         WEB,
+        WECHAT_CHANNELS,
         WEIBO,
         WEIXIN,
         WEREAD,
@@ -325,11 +361,11 @@ public final class OpenCliAdapterIds {
     };
 
     /** Browser 类适配器数量（文档 index 链接口径）。 */
-    public static final int BROWSER_ADAPTER_COUNT = 148;
+    public static final int BROWSER_ADAPTER_COUNT = 163;
 
     /** Desktop 类适配器数量。 */
-    public static final int DESKTOP_ADAPTER_COUNT = 7;
+    public static final int DESKTOP_ADAPTER_COUNT = 10;
 
     /** 文档索引中的适配器总数（browser ∪ desktop）。 */
-    public static final int TOTAL_ADAPTER_COUNT = 155;
+    public static final int TOTAL_ADAPTER_COUNT = 173;
 }

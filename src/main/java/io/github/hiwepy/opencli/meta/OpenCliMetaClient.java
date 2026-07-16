@@ -157,6 +157,16 @@ public final class OpenCliMetaClient {
         return new OpenCliExternalClient(executor);
     }
 
+    /** @return opencli 内置技能包管理（list / read） */
+    public OpenCliSkillsClient skills() {
+        return new OpenCliSkillsClient(executor);
+    }
+
+    /** @return 登录状态与会话刷新 */
+    public OpenCliAuthClient auth() {
+        return new OpenCliAuthClient(executor);
+    }
+
     /**
      * Antigravity 子命令（{@code serve} 为长驻进程，调用会阻塞直至进程退出）。
      */
