@@ -11,6 +11,7 @@ import io.github.hiwepy.opencli.core.OpenCliAdapterCommandRequest;
 import io.github.hiwepy.opencli.core.OpenCliResult;
 import io.github.hiwepy.opencli.support.RecordingOpenCliExecutor;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -20,7 +21,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 /**
- * cli-manifest.json 全部 adapter 子命令覆盖（共 899 条）。
+ * cli-manifest.json 全部 adapter 子命令覆盖（共 1275 条）。
  * <p>
  * <strong>成功标准：</strong>通过 {@link OpenCliAdapterCommandRequest} +
  * {@link OpenCliAdapterChannel#invoke(OpenCliAdapterCommandRequest)} 发起调用且返回非 null
@@ -31,23 +32,21 @@ import org.junit.jupiter.params.provider.MethodSource;
  */
 class OpenCliAdapterCommandsCoverageTest {
 
-    private static final int EXPECTED_MANIFEST_COMMAND_COUNT = 899;
+    private static final int EXPECTED_MANIFEST_COMMAND_COUNT = 1275;
 
-    private static class ManifestCommand {
+    /** Manifest 命令条目（与 manifest-coverage-commands.json 一一对应）。 */
+    private static final class ManifestCommand {
         private String site;
         private String subcommand;
         private List<String> positionals;
         private Map<String, Object> options;
-
-        public ManifestCommand() {}
-
         public String getSite() { return site; }
-        public void setSite(String site) { this.site = site; }
         public String getSubcommand() { return subcommand; }
-        public void setSubcommand(String subcommand) { this.subcommand = subcommand; }
         public List<String> getPositionals() { return positionals; }
-        public void setPositionals(List<String> positionals) { this.positionals = positionals; }
         public Map<String, Object> getOptions() { return options; }
+        public void setSite(String site) { this.site = site; }
+        public void setSubcommand(String subcommand) { this.subcommand = subcommand; }
+        public void setPositionals(List<String> positionals) { this.positionals = positionals; }
         public void setOptions(Map<String, Object> options) { this.options = options; }
     }
 
@@ -85,8 +84,8 @@ class OpenCliAdapterCommandsCoverageTest {
         OpenCliAdapterChannel channel = new OpenCliAdapterChannel(exec, site);
         OpenCliAdapterCommandRequest request = OpenCliAdapterCommandRequest.builder()
             .subcommand(subcommand)
-            .positionals(positionals != null ? positionals : java.util.Collections.emptyList())
-            .options(options != null ? options : java.util.Collections.emptyMap())
+            .positionals(positionals != null ? positionals : Collections.<String>emptyList())
+            .options(options != null ? options : Collections.<String, Object>emptyMap())
             .build();
         OpenCliResult result = channel.invoke(request);
         assertNotNull(result);
