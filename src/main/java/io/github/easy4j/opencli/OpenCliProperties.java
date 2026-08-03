@@ -48,7 +48,8 @@ public class OpenCliProperties {
     private String remoteCdpEndpoint = "";
 
     /**
-     * 为 true 时，远程模式下将 Agent HTTP 响应原文写入 {@link io.github.hiwepy.opencli.core.OpenCliResult#getRemoteRawHttpBody()}；
+     * 为 true 时，远程模式下将 Agent HTTP 响应原文写入 {@link io.github.easy4j.opencli.core.OpenCliResult} 的
+     * {@code remoteRawHttpBody} 字段；
      * 本地模式无效果。大响应时请谨慎开启。
      */
     private boolean remoteCaptureRawHttpResponse = false;

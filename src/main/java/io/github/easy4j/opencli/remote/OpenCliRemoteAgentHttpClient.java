@@ -31,7 +31,7 @@ public final class OpenCliRemoteAgentHttpClient {
     private final OpenCliProperties properties;
 
     /**
-     * @param properties 含 {@link OpenCliProperties#getRemoteAgentBaseUrl()} 等
+     * @param properties 含 {@code remoteAgentBaseUrl} 等配置
      */
     public OpenCliRemoteAgentHttpClient(OpenCliProperties properties) {
         this.properties = Objects.requireNonNull(properties, "properties");
