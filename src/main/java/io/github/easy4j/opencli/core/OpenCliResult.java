@@ -7,9 +7,9 @@ import lombok.Getter;
 /**
  * 单次 OpenCLI 调用的原始结果载体。
  * <p>
- * {@link #remoteRawHttpBody} 仅在 {@link io.github.hiwepy.opencli.OpenCliExecutionTarget#REMOTE_AGENT_HTTP}
- * 且 {@link io.github.hiwepy.opencli.OpenCliProperties#isRemoteCaptureRawHttpResponse()} 为 true 时填充，
- * 为 Agent 返回的完整 HTTP 响应体，便于审计或与 {@link #getStdout()}（由 {@code items} 重组）对照。
+ * {@link #remoteRawHttpBody} 仅在 {@link io.github.easy4j.opencli.OpenCliExecutionTarget#REMOTE_AGENT_HTTP}
+ * 且 {@link io.github.easy4j.opencli.OpenCliProperties} 的 {@code remoteCaptureRawHttpResponse} 为 true 时填充，
+ * 为 Agent 返回的完整 HTTP 响应体，便于审计或与 {@code stdout}（由 {@code items} 重组）对照。
  * </p>
  */
 @Getter

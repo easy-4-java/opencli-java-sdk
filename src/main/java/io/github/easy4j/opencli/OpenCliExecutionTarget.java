@@ -6,7 +6,7 @@ package io.github.easy4j.opencli;
 public enum OpenCliExecutionTarget {
 
     /**
-     * 在本机通过 {@link OpenCliProperties#getExecutable()} 启动子进程（默认）。
+     * 在本机通过 {@link OpenCliProperties} 的 {@code executable} 配置启动子进程（默认）。
      */
     LOCAL_PROCESS,
 

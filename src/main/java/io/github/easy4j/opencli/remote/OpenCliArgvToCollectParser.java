@@ -10,9 +10,8 @@ import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 将 {@link io.github.hiwepy.opencli.core.OpenCliExecutor#invoke(List)} 使用的 argv 列表
+ * 将 {@link io.github.easy4j.opencli.core.OpenCliExecutor#invoke(List)} 使用的 argv 列表
  *（{@code [adapter, command, ...]}） best-effort 映射为 Agent {@link OpenCliCollectRequest}。
- * <p>
  * 规则：前两个 token 为 {@code site}、{@code command}；其后从左到右扫描：
  * <ul>
  *   <li>{@code -f} / {@code --format} 及其下一 token 写入请求 {@code format}，不进入 args；</li>
@@ -20,8 +19,7 @@ import lombok.extern.slf4j.Slf4j;
  *   <li>单独 {@code --flag}（下一 token 以 {@code -} 开头或缺失）→ {@code args[flag]=true}；</li>
  *   <li>其余 token 按顺序进入 {@code positional_args}。</li>
  * </ul>
- * Agent 会自行追加 {@code -f &lt;format&gt;}，故本解析器会Consuming 调用方已写的 {@code -f}，避免重复。
- * </p>
+ * Agent 会自行追加 {@code -f &lt;format&gt;}，故本解析器会消费调用方已写的 {@code -f}，避免重复。
  */
 @Slf4j
 public final class OpenCliArgvToCollectParser {
