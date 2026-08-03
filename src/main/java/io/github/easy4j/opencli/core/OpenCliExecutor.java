@@ -32,10 +32,12 @@ import org.apache.commons.exec.ExecuteWatchdog;
  * 基于 Apache Commons Exec 的 OpenCLI 子进程执行封装。
  * <p>
  * {@link #invoke(List)} 接受的参数为「紧跟可执行名之后」的完整 token 列表，形如
- * {@code [adapter, subcommand, ...]}；本地模式下会自动拼接 {@link OpenCliProperties#getLeadingArguments()}。
+ * {@code [adapter, subcommand, ...]}；本地模式下会自动拼接 {@link OpenCliProperties} 的
+ * {@code leadingArguments}。
  * </p>
  * <p>
- * 当 {@link OpenCliProperties#getExecutionTarget()} 为 {@link OpenCliExecutionTarget#REMOTE_AGENT_HTTP} 时，
+ * 当 {@link OpenCliProperties} 的 {@code executionTarget} 为
+ * {@link OpenCliExecutionTarget#REMOTE_AGENT_HTTP} 时，
  * 通过 {@link OpenCliRemoteAgentHttpClient} 调用远端 {@code POST /collect}；此时 {@code leadingArguments} 不参与请求，
  * argv 会被解析为 {@link OpenCliCollectRequest}（与 opencli-admin {@code agent_server} 契约一致）。
  * </p>
@@ -63,7 +65,7 @@ public class OpenCliExecutor {
      * 执行 {@code opencli <adapter> ...} 完整 argv（不含可执行文件本身）。
      *
      * @param adapterAndRest 至少包含 adapter 名，后续为子命令与 flag；不得为 null
-     * @return 成功时 {@link OpenCliResult#isSuccess()} 为 true
+     * @return 包含成功标记的执行结果
      */
     public OpenCliResult invoke(List<String> adapterAndRest) {
         Objects.requireNonNull(adapterAndRest, "adapterAndRest");
