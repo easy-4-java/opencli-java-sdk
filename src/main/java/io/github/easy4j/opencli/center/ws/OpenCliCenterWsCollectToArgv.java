@@ -9,7 +9,7 @@ import java.util.Objects;
 /**
  * 将中心 {@code ws_agent_manager.dispatch_collect} 下发的 JSON 字段
  *（与 Python {@code agent_server.collect} 所用 {@code CollectRequest} 一致）
- * 转成本地 {@link io.github.hiwepy.opencli.core.OpenCliExecutor#invoke(List)} 所需的 argv：
+ * 转成本地 {@link io.github.easy4j.opencli.core.OpenCliExecutor#invoke(List)} 所需的 argv：
  * {@code [site, command, ...positional, --k v..., -f format]}。
  */
 public final class OpenCliCenterWsCollectToArgv {

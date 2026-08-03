@@ -13,7 +13,7 @@ import lombok.Getter;
  * Browser 类适配器入口：包装 {@link OpenCliClient}，集中暴露浏览器/Bridge 型 facade。
  * <p>
  * 未单独建模的适配器请使用 {@link OpenCliClient#adapter(String)} 或
- * {@link io.github.hiwepy.opencli.registry.OpenCliAdapterIds} 常量自行拼接子命令。
+ * {@link io.github.easy4j.opencli.registry.OpenCliAdapterIds} 常量自行拼接子命令。
  * </p>
  */
 public class BrowserClient {

@@ -26,7 +26,7 @@ public class OpenCliAdapterEnumerator {
     /**
      * 为每个适配器创建 {@link OpenCliAdapterChannel} 并映射为自定义结果。
      *
-     * @param channelFactory 由 adapter id 构造通道（通常委托 {@link io.github.hiwepy.opencli.OpenCliClient#adapter(String)}）
+     * @param channelFactory 由 adapter id 构造通道（通常委托 {@link io.github.easy4j.opencli.OpenCliClient#adapter(String)}）
      * @param mapper           将通道映射为业务对象
      * @param sink             消费映射结果
      * @param <R>              映射类型
