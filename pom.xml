@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.github.easy4j</groupId>
@@ -55,36 +54,36 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
 
-        <!-- Dependencies -->
-        <jackson.version>2.18.9</jackson.version>
+        
+        <jackson.version>2.17.2</jackson.version>
         <commons-exec.version>1.6.0</commons-exec.version>
         <unirest.version>3.14.5</unirest.version>
         <java-websocket.version>1.6.0</java-websocket.version>
-        <junit.version>5.9.3</junit.version>
+        <junit.version>4.13.2</junit.version>
         <slf4j.version>2.0.18</slf4j.version>
         <lombok.version>1.18.46</lombok.version>
 
-        <!-- Maven -->
+        
         <maven.version>3.0</maven.version>
         <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
-        <maven-dependency-plugin.version>3.6.1</maven-dependency-plugin.version>
+        <maven-dependency-plugin.version>3.8.1</maven-dependency-plugin.version>
         <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
         <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
         <maven-install-plugin.version>3.1.4</maven-install-plugin.version>
         <maven-jar-plugin.version>3.5.0</maven-jar-plugin.version>
-        <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
         <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
         <maven-resources-plugin.version>3.5.0</maven-resources-plugin.version>
-        <maven-surefire-plugin.version>3.5.0</maven-surefire-plugin.version>
+        <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
         <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
         <maven-central-publishing-plugin.version>0.10.0</maven-central-publishing-plugin.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!-- Jackson BOM -->
+            
             <dependency>
                 <groupId>com.fasterxml.jackson</groupId>
                 <artifactId>jackson-bom</artifactId>
@@ -92,7 +91,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!-- Logging -->
+            
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
@@ -103,94 +102,49 @@
                 <artifactId>slf4j-simple</artifactId>
                 <version>${slf4j.version}</version>
             </dependency>
-            <!-- Lombok -->
+            
             <dependency>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
             </dependency>
-            <!-- Apache Commons Exec (subprocess execution) -->
+            
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-exec</artifactId>
                 <version>${commons-exec.version}</version>
             </dependency>
-            <!-- Unirest HTTP client -->
+            
             <dependency>
                 <groupId>com.konghq</groupId>
                 <artifactId>unirest-java</artifactId>
                 <version>${unirest.version}</version>
             </dependency>
-            <!-- Java-WebSocket (Center reverse-agent) -->
+            
             <dependency>
                 <groupId>org.java-websocket</groupId>
                 <artifactId>Java-WebSocket</artifactId>
                 <version>${java-websocket.version}</version>
             </dependency>
-            <!-- JUnit Jupiter -->
+            
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter</artifactId>
                 <version>${junit.version}</version>
             </dependency>
-        </dependencies>
+        <dependency><groupId>com.fasterxml.jackson.core</groupId><artifactId>jackson-databind</artifactId></dependency></dependencies>
     </dependencyManagement>
 
-    <dependencies>
-        <!-- Jackson Databind (transitively pulls jackson-annotations & jackson-core via BOM) -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-        <!-- Local subprocess execution -->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-exec</artifactId>
-        </dependency>
-        <!-- Remote agent HTTP -->
-        <dependency>
-            <groupId>com.konghq</groupId>
-            <artifactId>unirest-java</artifactId>
-        </dependency>
-        <!-- Center reverse-agent WebSocket -->
-        <dependency>
-            <groupId>org.java-websocket</groupId>
-            <artifactId>Java-WebSocket</artifactId>
-        </dependency>
-        <!-- Logging API -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-        <!-- Lombok -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <!-- Test -->
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
-    <build>
+    <dependencies><dependency><groupId>com.fasterxml.jackson.core</groupId><artifactId>jackson-databind</artifactId></dependency><dependency><groupId>org.apache.commons</groupId><artifactId>commons-exec</artifactId></dependency><dependency><groupId>com.konghq</groupId><artifactId>unirest-java</artifactId></dependency><dependency><groupId>org.java-websocket</groupId><artifactId>Java-WebSocket</artifactId></dependency><dependency><groupId>org.slf4j</groupId><artifactId>slf4j-api</artifactId></dependency><dependency><groupId>org.projectlombok</groupId><artifactId>lombok</artifactId><scope>provided</scope></dependency><dependency><groupId>org.junit.jupiter</groupId><artifactId>junit-jupiter</artifactId><scope>test</scope></dependency></dependencies><build>
         <pluginManagement>
             <plugins>
-                <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-clean-plugin -->
+                
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-clean-plugin</artifactId>
                     <version>${maven-clean-plugin.version}</version>
                 </plugin>
-                <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-compiler-plugin -->
+                
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
@@ -209,13 +163,13 @@
                         </annotationProcessorPaths>
                     </configuration>
                 </plugin>
-                <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-deploy-plugin -->
+                
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-deploy-plugin</artifactId>
                     <version>${maven-deploy-plugin.version}</version>
                 </plugin>
-                <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-enforcer-plugin -->
+                
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-enforcer-plugin</artifactId>
@@ -230,11 +184,11 @@
                             <configuration>
                                 <rules>
                                     <requireMavenVersion>
-                                        <message><![CDATA[You are running an older version of Maven. This application requires at least Maven ${maven.version}.]]></message>
+                                        <message>You are running an older version of Maven. This application requires at least Maven ${maven.version}.</message>
                                         <version>[${maven.version}.0,)</version>
                                     </requireMavenVersion>
                                     <requireJavaVersion>
-                                        <message><![CDATA[You are running an older version of Java. This application requires at least JDK ${java.version}.]]></message>
+                                        <message>You are running an older version of Java. This application requires at least JDK ${java.version}.</message>
                                         <version>[${java.version}.0,)</version>
                                     </requireJavaVersion>
                                 </rules>
@@ -242,7 +196,7 @@
                         </execution>
                     </executions>
                 </plugin>
-                <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-gpg-plugin -->
+                
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-gpg-plugin</artifactId>
@@ -257,13 +211,13 @@
                         </execution>
                     </executions>
                 </plugin>
-                <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-install-plugin -->
+                
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-install-plugin</artifactId>
                     <version>${maven-install-plugin.version}</version>
                 </plugin>
-                <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-resources-plugin -->
+                
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
@@ -272,7 +226,7 @@
                         <encoding>${project.build.sourceEncoding}</encoding>
                     </configuration>
                 </plugin>
-                <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-release-plugin -->
+                
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
@@ -285,7 +239,7 @@
                         <goals>deploy</goals>
                     </configuration>
                 </plugin>
-                <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-source-plugin -->
+                
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
@@ -302,7 +256,7 @@
                         </execution>
                     </executions>
                 </plugin>
-                <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-surefire-plugin -->
+                
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
@@ -322,7 +276,7 @@
                         </excludes>
                     </configuration>
                 </plugin>
-                <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-jar-plugin -->
+                
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
@@ -337,7 +291,7 @@
                         </archive>
                     </configuration>
                 </plugin>
-                <!-- https://mvnrepository.com/artifact/org.apache.maven.plugins/maven-javadoc-plugin -->
+                
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
@@ -358,7 +312,7 @@
                         </execution>
                     </executions>
                 </plugin>
-                <!-- https://mvnrepository.com/artifact/org.sonatype.central/central-publishing-maven-plugin -->
+                
                 <plugin>
                     <groupId>org.sonatype.central</groupId>
                     <artifactId>central-publishing-maven-plugin</artifactId>
@@ -372,59 +326,7 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-        <plugins>
-            <!-- 环境检查插件：编译前的环境检查 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-            </plugin>
-            <!-- 编译插件：编译主代码至主输出目录 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-            <!-- 资源插件：复制主资源文件至主输出目录 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-            </plugin>
-            <!-- 单元测试插件：执行测试用例 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-            </plugin>
-            <!-- jar 包生成插件：创建项目 jar 包 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-            </plugin>
-            <!-- 源码插件：发布时自动将源码同时发布 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-            </plugin>
-            <!-- 安装插件：将构件安装到本地仓库 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
-            </plugin>
-            <!-- 发布插件：将构件部署到远程仓库 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-deploy-plugin</artifactId>
-            </plugin>
-            <!-- javadoc 插件：生成 javadoc jar -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-            </plugin>
-            <!-- GPG 签名插件：对构件进行 GPG 签名 -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-gpg-plugin</artifactId>
-            </plugin>
-        </plugins>
-    </build>
+        </build>
 
     <profiles>
         <profile>
