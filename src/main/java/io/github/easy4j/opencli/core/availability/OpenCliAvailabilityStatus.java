@@ -3,7 +3,7 @@ package io.github.easy4j.opencli.core.availability;
 /**
  * OpenCLI 可用性探测结论分类。
  *
- * @author wandl
+ * @author [@Loong Wan](https://github.com/loong10k)
  * @since 1.0.0
  */
 public enum OpenCliAvailabilityStatus {

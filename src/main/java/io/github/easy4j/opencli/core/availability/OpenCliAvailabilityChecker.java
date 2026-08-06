@@ -16,7 +16,7 @@ import java.util.Optional;
 /**
  * 探测本机 {@code opencli} 是否已安装且可执行轻量命令 {@code opencli list}。
  *
- * @author wandl
+ * @author [@Loong Wan](https://github.com/loong10k)
  * @since 1.0.0
  */
 public class OpenCliAvailabilityChecker {
