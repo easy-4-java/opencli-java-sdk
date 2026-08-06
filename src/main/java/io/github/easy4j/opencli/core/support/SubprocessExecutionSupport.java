@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * 基于 Apache Commons Exec 的子进程执行辅助：Watchdog 超时、有界 {@code waitFor}、并发限流。
  *
- * @author wandl
+ * @author [@Loong Wan](https://github.com/loong10k)
  * @since 1.0.0
  */
 public final class SubprocessExecutionSupport {
