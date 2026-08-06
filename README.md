@@ -2,6 +2,8 @@
 
 [English](./README.md) | [简体中文](./README.zh-CN.md)
 
+[![Java](https://img.shields.io/badge/Java-17-orange)](https://github.com/easy-4-java/opencli-java-sdk) [![License](https://img.shields.io/badge/license-Apache%202.0-green)](./LICENSE)
+
 Multi-adapter CLI integration SDK for OpenCLI: browser / desktop / public-API adapters, remote agent and center WebSocket
 [简体中文](./README.zh-CN.md)
 

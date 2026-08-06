@@ -2,6 +2,8 @@
 
 [English](./README.md) | [简体中文](./README.zh-CN.md)
 
+[![Java](https://img.shields.io/badge/Java-17-orange)](https://github.com/easy-4-java/opencli-java-sdk) [![License](https://img.shields.io/badge/license-Apache%202.0-green)](./LICENSE)
+
 面向 OpenCLI 多适配器体系的 Java SDK：browser / desktop / public-api 适配器、远程 Agent 与中心 WebSocket
 
 > **当前分支**：`feature/2.0.x`
