@@ -7,7 +7,7 @@ import lombok.Getter;
 /**
  * OpenCLI 启动/就绪探测结果。
  *
- * @author wandl
+ * @author [@Loong Wan](https://github.com/loong10k)
  * @since 1.0.0
  */
 @Getter

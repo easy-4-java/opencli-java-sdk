@@ -1,85 +1,200 @@
 # opencli-java-sdk
 
-面向 [OpenCLI](https://github.com/partme-ai/opencli) 多适配器体系的 Java SDK，工程风格对齐同仓库的 `dreamina-java-sdk`：Commons Exec 子进程封装、`OpenCliResult` / `OpenCliTypedResult`、统一异常语义。远程 HTTP 使用 **Unirest**（与 `openclaw-java-sdk` 一致），中心 WebSocket 使用 **Java-WebSocket**，可在 JDK 8 线编译运行。
+[English](./README.md) | [简体中文](./README.zh-CN.md)
 
-## 功能概览
+[![Java](https://img.shields.io/badge/Java-17-orange)](https://github.com/easy-4-java/opencli-java-sdk) [![License](https://img.shields.io/badge/license-Apache%202.0-green)](./LICENSE)
 
-- **核心**：`OpenCliProperties`、`OpenCliExecutor`、`OpenCliAdapterChannel`（`opencli <adapter> ...`）
-- **文档同步**：`OpenCliAdapterIds`、`OpenCliAdapterTaxonomy` 由 `scripts/generate_opencli_adapter_ids.py` 根据 `opencli/docs/adapters/index.md` + `cli-manifest.json` 生成（共 173 个 adapter id：163 browser + 10 desktop；可通过环境变量 `OPENCLI_ROOT` 指定上游 opencli 目录）
-- **分类门面**：`PublicApiClient`、`BrowserClient`、`DesktopClient`（亦可 `OpenCliClient#publicApis()` 等）
-- **参考强类型封装**：`codex`、`cursor`、`gemini`、`claude`、`chatgpt`、`jimeng`、`deepseek`、`arxiv`、`npm`、`pypi`、`binance`、`wikipedia`
-- **元命令**：`OpenCliClient#meta()`（`list`、`validate`、`plugin`、`daemon`、`profile`、`completion`、`skills`、`auth`、`antigravity`、`convention-audit` 等）
-- **内置 browser**：`OpenCliClient#browser()` 会话 API（`wait` 的 `--timeout` 为毫秒；`extract` 使用 `--chunk-size`/`--start`）
-- **批量遍历**：`OpenCliAdapterEnumerator` + `OpenCliAdapterIds.ALL`
+Multi-adapter CLI integration SDK for OpenCLI: browser / desktop / public-API adapters, remote agent and center WebSocket
+[简体中文](./README.zh-CN.md)
 
-## Maven
+> **Current branch**: `feature/2.0.x`
+> **Version**: `2.0.x.x.20260630-SNAPSHOT`
+> **JDK baseline**: 8
+> **Project status**: stable (1.0.x line). Not yet published to Maven Central; artifacts are distributed via the Aliyun Maven repository and GitHub Releases.
+
+## Table of Contents
+
+- [1. Project Overview](#1-project-overview)
+- [2. Features & Status](#2-features--status)
+- [3. Requirements & Compatibility](#3-requirements--compatibility)
+- [4. Architecture & Modules](#4-architecture--modules)
+- [5. Installation](#5-installation)
+- [6. Quick Start](#6-quick-start)
+- [7. Configuration](#7-configuration)
+- [8. Core Usage](#8-core-usage)
+- [9. Testing & Build](#9-testing--build)
+- [10. Versioning & Branches](#10-versioning--branches)
+- [11. Contributing & License](#11-contributing--license)
+
+## 1. Project Overview
+
+### 1.1 What it is
+
+**opencli-java-sdk** integrates Java applications with the [OpenCLI](https://github.com/partme-ai/opencli) multi-adapter CLI ecosystem. It executes `opencli <adapter> ...` subprocesses via Commons Exec, exposes typed results (`OpenCliResult` / `OpenCliTypedResult`), unified exception semantics, remote HTTP agent support (Unirest) and a center WebSocket reverse-agent client (Java-WebSocket). It compiles and runs on JDK 8.
+
+### 1.2 What it is not
+
+- Not OpenCLI itself and not a browser automation engine — it drives the `opencli` CLI.
+- No Spring dependency; Spring Boot applications use the companion `opencli-spring-boot-starter`.
+- Not an SDK generator for new adapters; adapter IDs are generated from the upstream `opencli/docs/adapters/index.md` manifest.
+
+### 1.3 Typical scenarios
+
+| Scenario | Recommended entry | Result |
+|---|---|---|
+| Run any adapter command | `cli.adapter("hackernews").invoke("top", "--limit", "5")` | Typed `OpenCliResult` |
+| Typed wrapper for a known adapter | `cli.gemini().deepResearch(...)`, `cli.npm()`, `cli.codex()` ... | Strongly-typed options and results |
+| Batch over all adapters | `OpenCliAdapterEnumerator` + `OpenCliAdapterIds.ALL` | Sequential adapter execution |
+| Run commands through a remote agent | `executionTarget=REMOTE_AGENT_HTTP` + `remoteAgentBaseUrl` | `POST {base}/collect` execution |
+| Join a center as an edge node | `OpenCliWsReverseAgentClient` | Register, receive `collect`, reply `result` |
+
+<a id="2-features--status"></a>
+## 2. Features & Status
+
+| Capability | Status | Notes |
+|---|:---:|---|
+| Local subprocess execution | Available | `OpenCliExecutor` (Commons Exec), unified exceptions (`OpenCliNonZeroExitException`, `OpenCliTimeoutException`, ...) |
+| Adapter channel | Available | `OpenCliAdapterChannel` (`invoke(List)` / varargs) |
+| Adapter registry | Available | `OpenCliAdapterIds` + `OpenCliAdapterTaxonomy` — 173 adapter ids (163 browser + 10 desktop) generated from the upstream manifest |
+| Typed wrappers | Available | `codex`, `cursor`, `gemini`, `claude`, `chatgpt`, `jimeng`, `deepseek`, `arxiv`, `npm`, `pypi`, `binance`, `wikipedia` |
+| Categorized facades | Available | `PublicApiClient`, `BrowserClient`, `DesktopClient` (or `publicApis()` / `browsers()` / `desktops()`) |
+| Meta commands | Available | `cli.meta()`: `list`, `validate`, `plugin`, `daemon`, `profile`, `completion`, `skills`, `auth`, `antigravity`, ... |
+| Built-in browser session API | Available | `cli.browser()`: `wait` (ms timeout), `extract`, `screenshot`, `getHtml`, ... |
+| Availability probe | Available | `OpenCliAvailabilityChecker` + `OpenCliAvailabilityReport` (remote mode reports `SKIPPED_REMOTE_MODE`) |
+| Remote agent (HTTP) | Available | `OpenCliRemoteAgentHttpClient`; `remoteCaptureRawHttpResponse` debug flag |
+| Center WebSocket reverse agent | Available | `OpenCliWsReverseAgentClient` (register / collect / result / ping-pong) |
+| JSON output parsing | Available | `OpenCliStdoutJson.typed(raw)`; `OpenCliParsedFields` |
+
+<a id="3-requirements--compatibility"></a>
+## 3. Requirements & Compatibility
+
+| Component | Version | Notes |
+|---|---:|---|
+| JDK | 17+ | 1.0.x line baseline |
+| commons-exec | — | Local subprocess execution |
+| Unirest Java | — | Remote agent HTTP |
+| Java-WebSocket | — | Center WebSocket |
+| Jackson databind | 2.17.x | JSON parsing |
+| SLF4J | 2.0.18 | Logging facade |
+
+Version-line matrix:
+
+| Version line | Branch | JDK | Version pattern | Purpose |
+|---|---|---:|---|---|
+| 1.0.x | `feature/2.0.x` (this branch) | 8 | `1.0.x.*` | For Boot 2.x starters and legacy projects |
+| 2.0.x | `feature/2.0.x` | 17 | `2.0.x.*` | For Boot 3.x starters |
+| 3.0.x | `feature/3.0.x` | 21 | `3.0.x.*` | For Boot 4.x starters / new projects |
+
+<a id="4-architecture--modules"></a>
+## 4. Architecture & Modules
+
+```text
+[ Java Application ]
+        |
+        | opencli-java-sdk
+        v
++------------------------------------------+
+| OpenCliClient (facade)                    |
+|  core      OpenCliExecutor -> local       |
+|            `opencli <adapter> ...`        |
+|  adapters  browser / desktop / publicapi  |
+|            typed wrappers (codex, npm...) |
+|  meta      list / validate / plugin / ... |
+|  browser   session API (wait, extract...) |
+|  remote    POST {base}/collect (Unirest)  |
+|  center    WebSocket reverse agent        |
++------------------------------------------+
+        |
+        v
+[ opencli CLI ] / [ remote agent ] / [ center WS ]
+```
+
+Single-module library (packaging `jar`). Package layout:
+
+| Package | Responsibility |
+|---|---|
+| `io.github.easy4j.opencli` | Facade `OpenCliClient`, `OpenCliProperties`, `OpenCliExecutionTarget` |
+| `io.github.easy4j.opencli.core` | `OpenCliExecutor`, `OpenCliAdapterChannel`, results, availability |
+| `io.github.easy4j.opencli.adapter` | Typed adapter clients (browser: chatgpt/claude/deepseek/gemini/jimeng; desktop: codex/cursor; publicapi: arxiv/binance/npm/pypi/wikipedia) |
+| `io.github.easy4j.opencli.browser` | Built-in browser session client + options |
+| `io.github.easy4j.opencli.facade` | `PublicApiClient` / `BrowserClient` / `DesktopClient` |
+| `io.github.easy4j.opencli.meta` | Meta clients (`list`, `plugin`, `daemon`, `profile`, `skills`, `auth`, ...) |
+| `io.github.easy4j.opencli.registry` | `OpenCliAdapterIds` (173 ids), `OpenCliAdapterTaxonomy` |
+| `io.github.easy4j.opencli.remote` | Remote agent HTTP client |
+| `io.github.easy4j.opencli.center.ws` | Center WebSocket reverse agent + path/URL helpers |
+| `io.github.easy4j.opencli.parser` / `spi` / `util` | Stdout-JSON parsing, adapter enumeration SPI, helpers |
+
+<a id="5-installation"></a>
+## 5. Installation
+
+Maven:
 
 ```xml
 <dependency>
-  <groupId>io.github.hiwepy</groupId>
-  <artifactId>opencli-java-sdk</artifactId>
-  <version>1.0.x.20260717-SNAPSHOT</version>
+    <groupId>io.github.easy4j</groupId>
+    <artifactId>opencli-java-sdk</artifactId>
+    <version>2.0.x.x.20260630-SNAPSHOT</version>
 </dependency>
 ```
 
-本地安装：
+Gradle:
 
-```bash
-cd opencli-java-sdk && mvn clean install
+```groovy
+implementation 'io.github.easy4j:opencli-java-sdk:2.0.x.x.20260630-SNAPSHOT'
 ```
 
-## 多版本与 JDK
+Snapshot builds require an enabled snapshot repository (Aliyun Maven snapshot repository per `distributionManagement` in `pom.xml`).
 
-各 Git 分支通过脚本生成对应 `pom.xml`，**版本前缀、JDK、依赖栈随线变化**。本模块是自研纯 Java SDK，主版本线固定为 `1.0.x/2.0.x/3.0.x`，分别服务 Boot 2.x/3.x/4.x Starter。
-
-| 分支 | `artifact` 版本示例 | JDK | 说明 |
-|------|----------------------|-----|------|
-| `1.0.x` | `1.0.x.*-SNAPSHOT` | 8 | 面向 Boot 2.x Starter |
-| `2.0.x` | `2.0.x.*-SNAPSHOT` | 17 | 面向 Boot 3.x Starter |
-| `3.0.x` | `3.0.x.*-SNAPSHOT` | 21 | 面向 Boot 4.x Starter |
-
-切分支后在本模块根目录执行：
-
-```bash
-python3 scripts/render-branch-pom.py <branch>   # 例: 1.0.x、2.0.x、3.0.x
-```
-
-发布到阿里云 Packages（各分支 `pom.xml` 已内置 `distributionManagement`）：
-
-```bash
-mvn clean deploy -Dmaven.test.skip=true
-```
-
-`settings.xml` 中配置私服 id：`2624322-release-6F6h6R`、`2624322-snapshot-3EoOv3`。
-
-## 启动就绪探测（无 Spring）
-
-```java
-OpenCliAvailabilityChecker checker = new OpenCliAvailabilityChecker();
-OpenCliAvailabilityReport report = checker.check(new OpenCliExecutor(props));
-if (!report.isAvailable()) {
-    throw new IllegalStateException(report.toDiagnosticMessage());
-}
-```
-
-`execution-target=REMOTE_AGENT_HTTP` 时探测结果为 `SKIPPED_REMOTE_MODE`（视为可启动）。Spring Boot 见 [opencli-spring-boot-starter](../opencli-spring-boot-starter)。
-
-## 快速开始
+<a id="6-quick-start"></a>
+## 6. Quick Start
 
 ```java
 OpenCliProperties props = new OpenCliProperties();
 props.getEnvironment().put("OPENCLI_CDP_ENDPOINT", "http://127.0.0.1:9222");
+
 OpenCliClient cli = new OpenCliClient(props);
 
-// 任意 adapter（文档与 `opencli list` 一致）
+// Any adapter (ids match `opencli list` / the generated registry)
 OpenCliResult r = cli.adapter("hackernews").invoke("top", "--limit", "5");
+System.out.println(r.getExitCode() + ": " + r.getStdout());
 
-// 强类型示例：Gemini deep-research（--confirm 为按钮文案，非布尔）
+// Typed example: Gemini deep-research (--confirm is the button label, not a boolean)
 cli.gemini().deepResearch("topic",
-    GeminiOpenCliClient.GeminiDeepResearchOptions.builder().confirmLabel("Start").build(), null);
+        GeminiOpenCliClient.GeminiDeepResearchOptions.builder().confirmLabel("Start").build(),
+        null);
 ```
 
-### meta() 与 browser()
+**Expected result**: the first call spawns `opencli hackernews top --limit 5` locally and returns a typed `OpenCliResult`; the second invokes the Gemini adapter's deep-research command with typed options. When the `opencli` executable is missing, `OpenCliExecutor` surfaces the failure through the unified exception hierarchy (`OpenCliStartupException` / `OpenCliExecutableFailureException`).
+
+<a id="7-configuration"></a>
+## 7. Configuration
+
+Configuration is object-based via `OpenCliProperties`:
+
+| Property | Default | Description |
+|---|---|---|
+| `executionTarget` | `LOCAL_PROCESS` | `LOCAL_PROCESS` or `REMOTE_AGENT_HTTP` |
+| `executable` | `opencli` | Executable name or absolute path |
+| `workingDirectory` | — | Subprocess working directory |
+| `commandTimeoutMillis` | `300000` | Command timeout (ms; reused as HTTP timeout in remote mode) |
+| `maxConcurrentExecutions` | `0` | Max concurrent subprocesses (0 = unlimited) |
+| `startupProbeTimeoutMillis` | `30000` | Availability-probe timeout |
+| `environment` | `{}` | Extra environment variables (e.g. `OPENCLI_CDP_ENDPOINT`) |
+| `remoteAgentBaseUrl` | — | Remote agent base URL |
+| `remoteCollectMode` | `cdp` | `bridge` or `cdp` (must match the agent side) |
+| `remoteOutputFormat` | `json` | Output format requested from the agent |
+| `remoteCdpEndpoint` | — | Optional CDP endpoint overriding the agent default |
+| `remoteCaptureRawHttpResponse` | `false` | Keep the raw HTTP body in `OpenCliResult#getRemoteRawHttpBody()` (large responses — use with care) |
+
+Notes:
+
+- In remote mode the `stdout` is the JSON `items` the agent returned (parsed into line items per `format`), which may differ from local raw subprocess text; `leadingArguments` are local-only and are not injected on the remote path.
+- `execution-target=REMOTE_AGENT_HTTP` makes the availability probe report `SKIPPED_REMOTE_MODE` (treated as startable).
+
+<a id="8-core-usage"></a>
+## 8. Core Usage
+
+### 8.1 meta() and browser()
 
 ```java
 cli.meta().list("json");
@@ -87,41 +202,7 @@ cli.meta().completion("zsh");
 cli.browser().session("work", "background").waitFor("selector", ".loaded", null, 10_000L);
 ```
 
-## 远程 Agent（opencli-admin）
-
-与 [opencli-admin](https://github.com/partme-ai/opencli) 边缘 Agent（`backend/agent_server.py`，默认端口由 `AGENT_PORT` 决定，常见为 `19823`）对齐：走 `POST {base}/collect`，请求体为 adapter、command、`args` / `positional_args`、`format`、`mode`（`bridge` | `cdp`）等。
-
-```java
-OpenCliProperties props = new OpenCliProperties();
-props.setExecutionTarget(io.github.hiwepy.opencli.OpenCliExecutionTarget.REMOTE_AGENT_HTTP);
-props.setRemoteAgentBaseUrl("http://agent-host:19823");
-props.setRemoteCollectMode("cdp");       // 与 Agent 侧一致
-props.setRemoteOutputFormat("json");
-// props.setRemoteCdpEndpoint("http://127.0.0.1:9222"); // 可选，覆盖 Agent 默认 CDP
-// props.setCommandTimeoutMillis(300_000);            // 复用为 HTTP 超时
-
-OpenCliClient cli = new OpenCliClient(props);
-OpenCliResult r = cli.adapter("npm").invoke("package", "react");
-```
-
-**调试**：若需要保留 Agent 返回的完整 HTTP 报文（与重组后的 `stdout` 对照），可设置 `remoteCaptureRawHttpResponse=true`（或配置键 `opencli.remote-capture-raw-http-response=true`），结果中 `OpenCliResult#getRemoteRawHttpBody()` 将有值；大响应时请谨慎开启。
-
-**注意**
-
-- 远程成功时，`stdout` 为 Agent 返回的 **`items` 的 JSON**（已按 `format` 解析成行列表），与本地子进程原始文本可能不同；强依赖整段 CLI stdout 的解析需单独评估。
-- `leadingArguments` 等仅影响本地进程拼装，**远程路径不注入**。
-
-## 中心 WebSocket（边缘反向 Agent）
-
-opencli-admin 中 [`ws_agent_manager.py`](https://github.com/partme-ai/opencli/blob/main/opencli-admin/backend/ws_agent_manager.py) 描述中心经 WebSocket 向已注册边缘节点下发 `collect` 并等待 `result`。**中心侧的 `dispatch_collect` 仍由 Python FastAPI 持有**；本 SDK 提供的是**边缘 JVM 进程**与 Python `agent_server`（`AGENT_REGISTER=ws`）等价的客户端：连上中心 `ws(s)://…/api/v1/nodes/ws` 或 `…/api/v1/browsers/agents/ws`，发送 `register`，在收到 `collect` 时**本机**执行 `opencli`（通过 `OpenCliProperties#copyForLocalCliExecution()` 强制本地子进程，避免回路）。
-
-协议摘要：
-
-1. 边缘 → 中心：`{"type":"register","agent_url","mode","label","node_type"}`（与 `agent_server` 对齐）
-2. 中心 → 边缘：`{"type":"registered","agent_url"}`
-3. 中心 → 边缘：`{"type":"collect","request_id","site","command","args","positional_args","format","mode"}`
-4. 边缘 → 中心：`{"type":"result","request_id","success","items","error"}`
-5. `ping` / `pong`
+### 8.2 Center WebSocket reverse agent
 
 ```java
 OpenCliProperties exec = new OpenCliProperties();
@@ -130,33 +211,43 @@ exec.getEnvironment().put("OPENCLI_CDP_ENDPOINT", "http://127.0.0.1:9222");
 OpenCliWsAgentConnectionProperties conn = new OpenCliWsAgentConnectionProperties();
 conn.setCentralApiBaseUrl("http://center-host:8031");
 conn.setAgentAdvertiseUrl("http://this-host:19823");
-conn.setWebSocketPath(io.github.hiwepy.opencli.center.ws.OpenCliCenterWebSocketPath.NODES_WS);
+conn.setWebSocketPath(io.github.easy4j.opencli.center.ws.OpenCliCenterWebSocketPath.NODES_WS);
 conn.setMode("cdp");
 conn.setNodeType("shell");
 conn.setLabel("my-java-agent");
 
 OpenCliWsReverseAgentClient agent = new OpenCliWsReverseAgentClient(exec, conn);
 agent.start();
-// …
+// ...
 agent.close();
 ```
 
-类入口：`io.github.hiwepy.opencli.center.ws.OpenCliWsReverseAgentClient`。URL 拼接见 `OpenCliCenterWsUrls`。
+Protocol: edge sends `register`; center replies `registered`; center sends `collect` (request_id, site, command, args, positional_args, format, mode); the SDK executes `opencli` locally (via `copyForLocalCliExecution()` to avoid loops) and replies `result`; plus `ping` / `pong`.
 
-## 刷新适配器常量
-
-当上游 `index.md` 变更时（需可访问 opencli 源码树，默认相对路径或 `OPENCLI_ROOT`）：
+<a id="9-testing--build"></a>
+## 9. Testing & Build
 
 ```bash
-export OPENCLI_ROOT=/path/to/opencli/opencli   # 可选
-python3 scripts/generate_opencli_adapter_ids.py
+mvn clean verify
 ```
 
-## 说明
+- Unit tests cover the adapter registry, core execution, browser/meta/remote paths and WS helpers (14 test sources under `src/test`).
+- JaCoCo runs `prepare-agent`, `report` and `check` on the `verify` phase with a **90% line-coverage** rule (`haltOnFailure=false`).
+- `scripts/generate_opencli_adapter_ids.py` regenerates `OpenCliAdapterIds` / `OpenCliAdapterTaxonomy` from the upstream `opencli/docs/adapters/index.md` + `cli-manifest.json` (set `OPENCLI_ROOT` to point at the upstream tree).
+- Release packaging (`mvn -Prelease deploy`) attaches sources and javadoc jars, GPG-signs artifacts and is wired for Sonatype Central Publishing; plain `mvn deploy` routes SNAPSHOT/release artifacts to the Aliyun Maven repository per `distributionManagement`.
 
-- 未单独建模的子命令请使用 `OpenCliAdapterChannel#invoke(List)` 或可变参数透传。
-- `-f json` 类结果可用 `OpenCliStdoutJson.typed(raw)` 转为 `JsonNode`（非 JSON 时降级为文本节点）。
+<a id="10-versioning--branches"></a>
+## 10. Versioning & Branches
 
-## License
+| Branch | Version pattern | JDK | Maintenance policy |
+|---|---|---|---|
+| `feature/1.0.x` (this branch) | `1.0.x.*` | 8 | Compatibility fixes and JDK-8-safe dependency upgrades only |
+| `feature/2.0.x` | `2.0.x.*` | 17 | JDK 17 line |
+| `feature/3.0.x` | `3.0.x.*` | 21 | JDK 21 line |
 
-Apache License 2.0
+Branch POMs (JDK and dependency stack per line) are rendered by `scripts/render-branch-pom.py`.
+
+<a id="11-contributing--license"></a>
+## 11. Contributing & License
+
+Contributions are welcome. Run `mvn clean verify` before opening a pull request and describe compatibility, testing and migration impact. This project is licensed under the [Apache License 2.0](LICENSE).
