@@ -9,7 +9,18 @@ import lombok.Data;
  * {@code browser screenshot} 附加选项（宽高、annotate、full-page）。
  */
 @Data
-@Builder
+@Builder/**
+
+ * Options for {@code browser screenshot} (width, height, annotate, full-page).
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class OpenCliBrowserScreenshotOptions {
 
     private Boolean annotate;

@@ -1,10 +1,13 @@
 package io.github.easy4j.opencli.registry;
 
 /**
- * OpenCLI 适配器标识常量（由脚本从 docs/adapters/index.md + cli-manifest.json 生成）。
- * <p>运行 {@code scripts/generate_opencli_adapter_ids.py} 刷新。</p>
- */
-public final class OpenCliAdapterIds {
+ * OpenCLI adapter identifier constants (generated from docs/adapters/index.md + cli-manifest.json).
+ *
+ * <p>Run {@code scripts/generate_opencli_adapter_ids.py} to regenerate.</p>
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 3.0.0
+ */public final class OpenCliAdapterIds {
 
     private OpenCliAdapterIds() {
     }

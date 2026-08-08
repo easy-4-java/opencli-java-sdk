@@ -14,7 +14,21 @@ import lombok.RequiredArgsConstructor;
 /**
  * OpenCLI {@code cursor} 桌面适配器封装。
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor/**
+
+ * OpenCLI {@code cursor} desktop adapter client.
+ *
+ * <p>Provides typed methods for Cursor desktop interactions such as {@code send}, {@code ask},
+ * {@code read}, {@code composer}, {@code model}, {@code history}, and conversation export.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class CursorOpenCliClient {
 
     private final OpenCliExecutor executor;

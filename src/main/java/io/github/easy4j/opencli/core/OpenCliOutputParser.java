@@ -4,9 +4,11 @@ import io.github.easy4j.opencli.parser.OpenCliParsedFields;
 import io.github.easy4j.opencli.util.OpenCliStrings;
 
 /**
- * 对 stdout/stderr 做极轻量启发式解析。
- */
-public final class OpenCliOutputParser {
+ * Lightweight heuristic parser for stdout/stderr output shape detection.
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 3.0.0
+ */public final class OpenCliOutputParser {
 
     private OpenCliOutputParser() {
     }

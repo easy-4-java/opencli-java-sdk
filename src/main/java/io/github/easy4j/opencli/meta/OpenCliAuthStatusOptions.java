@@ -10,7 +10,21 @@ import lombok.Data;
  * 与 {@code -f <fmt>} 输出格式。</p>
  */
 @Data
-@Builder
+@Builder/**
+
+ * Options for {@link OpenCliAuthClient#status(OpenCliAuthStatusOptions)}.
+ *
+ * <p>Corresponds to {@code auth status}: restrict by site, show full session info,
+ * concurrency/timeout, {@code --only <status>} output filtering, and {@code -f <fmt>} output format.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public class OpenCliAuthStatusOptions {
 
     /** 限制的 site id（{@code --site}），{@code null} 表示全部。 */

@@ -1,12 +1,11 @@
 package io.github.easy4j.opencli.core.availability;
 
 /**
- * OpenCLI 可用性探测结论分类。
+ * Classification of an OpenCLI availability probe conclusion.
  *
  * @author [@Loong Wan](https://github.com/loong10k)
- * @since 1.0.0
- */
-public enum OpenCliAvailabilityStatus {
+ * @since 3.0.0
+ */public enum OpenCliAvailabilityStatus {
 
     /** {@code opencli list} 探测成功。 */
     AVAILABLE,

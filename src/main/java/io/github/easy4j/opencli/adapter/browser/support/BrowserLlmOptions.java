@@ -9,7 +9,19 @@ import lombok.Data;
  * 浏览器侧 LLM 适配器常用的超时、是否新开会话、JSON 输出等选项。
  */
 @Data
-@Builder
+@Builder/**
+
+ * Common options shared across browser-based LLM adapters (timeout, model selection,
+ * new-chat toggle, JSON output, etc.).
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public class BrowserLlmOptions {
 
     private Integer timeoutSeconds;

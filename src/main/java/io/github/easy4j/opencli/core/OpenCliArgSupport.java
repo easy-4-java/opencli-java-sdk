@@ -6,9 +6,12 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * CLI 参数拼装辅助：合并业务片段与透传 {@code additionalRawArgs}。
- */
-public final class OpenCliArgSupport {
+ * CLI argument assembly utilities: merges business segments with pass-through
+ * {@code additionalRawArgs}.
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 3.0.0
+ */public final class OpenCliArgSupport {
 
     private OpenCliArgSupport() {
     }

@@ -10,7 +10,20 @@ import lombok.Singular;
  * <p>替代测试中向 {@code passthrough(name, List.of(...))} 传入手工 argv 列表。</p>
  */
 @Data
-@Builder
+@Builder/**
+
+ * Options for {@link OpenCliExternalClient#passthrough(OpenCliExternalPassthroughOptions)}.
+ *
+ * <p>Replaces manual argv list passing in tests via {@code passthrough(name, List.of(...))}.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public class OpenCliExternalPassthroughOptions {
 
     /** 已注册的外部 CLI 名（根级命令）。 */

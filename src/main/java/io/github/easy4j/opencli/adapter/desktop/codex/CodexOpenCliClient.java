@@ -14,7 +14,21 @@ import lombok.RequiredArgsConstructor;
 /**
  * OpenCLI {@code codex} 桌面适配器封装（Chrome DevTools / Electron）。
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor/**
+
+ * OpenCLI {@code codex} desktop adapter client (Chrome DevTools / Electron).
+ *
+ * <p>Provides typed methods for Codex desktop interactions such as {@code send}, {@code ask},
+ * {@code read}, {@code projects}, {@code history}, model management, and conversation export.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class CodexOpenCliClient {
 
     private final OpenCliExecutor executor;

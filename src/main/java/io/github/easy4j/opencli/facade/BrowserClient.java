@@ -10,13 +10,15 @@ import io.github.easy4j.opencli.core.OpenCliAdapterChannel;
 import lombok.Getter;
 
 /**
- * Browser 类适配器入口：包装 {@link OpenCliClient}，集中暴露浏览器/Bridge 型 facade。
- * <p>
- * 未单独建模的适配器请使用 {@link OpenCliClient#adapter(String)} 或
- * {@link io.github.easy4j.opencli.registry.OpenCliAdapterIds} 常量自行拼接子命令。
- * </p>
- */
-public class BrowserClient {
+ * Browser-type adapter entry point: wraps {@link OpenCliClient} and exposes
+ * browser/Bridge facades.
+ *
+ * <p>For adapters without a dedicated typed client, use {@link OpenCliClient#adapter(String)}
+ * or {@link io.github.easy4j.opencli.registry.OpenCliAdapterIds} constants to assemble subcommands.</p>
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 3.0.0
+ */public class BrowserClient {
 
     @Getter
     private final OpenCliClient openCli;

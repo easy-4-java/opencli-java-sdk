@@ -8,9 +8,11 @@ import io.github.easy4j.opencli.registry.OpenCliAdapterIds;
 import lombok.Getter;
 
 /**
- * Desktop（Electron/CDP）适配器入口。
- */
-public class DesktopClient {
+ * Desktop (Electron/CDP) adapter entry point.
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 3.0.0
+ */public class DesktopClient {
 
     @Getter
     private final OpenCliClient openCli;

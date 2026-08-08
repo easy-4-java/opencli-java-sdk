@@ -19,7 +19,21 @@ import lombok.RequiredArgsConstructor;
 /**
  * OpenCLI {@code claude} 浏览器适配器。
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor/**
+
+ * OpenCLI {@code claude} browser adapter client.
+ *
+ * <p>Provides typed methods for Claude Web interactions such as {@code ask}, {@code send},
+ * {@code history}, {@code detail}, and session management.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class ClaudeOpenCliClient {
 
     private final OpenCliExecutor executor;

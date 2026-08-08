@@ -9,7 +9,21 @@ import lombok.Data;
  * <p>对应 {@code auth refresh}：限定 site（或 {@code --all} 全部刷新）、并发、超时与输出格式。</p>
  */
 @Data
-@Builder
+@Builder/**
+
+ * Options for {@link OpenCliAuthClient#refresh(OpenCliAuthRefreshOptions)}.
+ *
+ * <p>Corresponds to {@code auth refresh}: restrict by site (or {@code --all}),
+ * concurrency, timeout, and output format.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public class OpenCliAuthRefreshOptions {
 
     /** 限制的 site id（{@code --site}）。 */

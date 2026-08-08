@@ -9,7 +9,23 @@ import lombok.Data;
  * {@code register}，随后在处理 {@code collect} 时本地执行 opencli，并以 {@code result} 回传。
  * </p>
  */
-@Data
+@Data/**
+
+ * Connection parameters for an edge JVM acting as a reverse WebSocket Agent
+ * connecting to the opencli-admin central server.
+ *
+ * <p>Behavior is aligned with {@code backend/agent_server.py} when {@code AGENT_REGISTER=ws}:
+ * sends a {@code register} message to the central server, then processes incoming
+ * {@code collect} messages by executing opencli locally and returning {@code result} messages.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public class OpenCliWsAgentConnectionProperties {
 
     /**

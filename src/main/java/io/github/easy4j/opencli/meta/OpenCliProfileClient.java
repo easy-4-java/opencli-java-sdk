@@ -10,7 +10,18 @@ import lombok.RequiredArgsConstructor;
 /**
  * {@code opencli profile *} Browser Bridge Chrome profile 管理。
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor/**
+
+ * Client for {@code opencli profile *} Browser Bridge Chrome profile management.
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class OpenCliProfileClient {
 
     private final OpenCliExecutor executor;

@@ -18,7 +18,21 @@ import lombok.RequiredArgsConstructor;
 /**
  * OpenCLI {@code chatgpt}（ChatGPT Web）浏览器适配器。
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor/**
+
+ * OpenCLI {@code chatgpt} (ChatGPT Web) browser adapter client.
+ *
+ * <p>Provides typed methods for ChatGPT Web interactions such as {@code ask}, {@code send},
+ * {@code history}, {@code image}, and session management.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class ChatgptOpenCliClient {
 
     private final OpenCliExecutor executor;

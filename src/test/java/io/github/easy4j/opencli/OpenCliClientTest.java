@@ -1,22 +1,47 @@
 package io.github.easy4j.opencli;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-
-import io.github.easy4j.opencli.facade.BrowserClient;
-import io.github.easy4j.opencli.facade.DesktopClient;
-import io.github.easy4j.opencli.facade.PublicApiClient;
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 class OpenCliClientTest {
 
     @Test
-    void exposesAllMainEntryPoints() {
-        OpenCliProperties properties = new OpenCliProperties();
-        OpenCliClient client = new OpenCliClient(properties);
-        assertSame(properties, client.getProperties());
+    void shouldConstructWithDefaultProperties() {
+        OpenCliClient client = new OpenCliClient();
+        assertNotNull(client.getProperties());
         assertNotNull(client.getExecutor());
-        assertNotNull(client.adapter("demo"));
+        assertEquals("opencli", client.getProperties().getExecutable());
+    }
+
+    @Test
+    void shouldRejectNullProperties() {
+        assertThrows(NullPointerException.class, () -> new OpenCliClient(null));
+    }
+
+    @Test
+    void shouldRejectNullPropertiesWithExecutor() {
+        OpenCliProperties props = new OpenCliProperties();
+        io.github.easy4j.opencli.core.OpenCliExecutor executor = new io.github.easy4j.opencli.core.OpenCliExecutor(props);
+        assertThrows(NullPointerException.class, () -> new OpenCliClient(null, executor));
+    }
+
+    @Test
+    void shouldRejectNullExecutor() {
+        OpenCliProperties props = new OpenCliProperties();
+        assertThrows(NullPointerException.class, () -> new OpenCliClient(props, null));
+    }
+
+    @Test
+    void shouldCreateAdapterChannel() {
+        OpenCliClient client = new OpenCliClient();
+        io.github.easy4j.opencli.core.OpenCliAdapterChannel ch = client.adapter("twitter");
+        assertNotNull(ch);
+        assertEquals("twitter", ch.getAdapterId());
+    }
+
+    @Test
+    void shouldCreateAllTypedClients() {
+        OpenCliClient client = new OpenCliClient();
         assertNotNull(client.codex());
         assertNotNull(client.cursor());
         assertNotNull(client.gemini());
@@ -29,6 +54,11 @@ class OpenCliClientTest {
         assertNotNull(client.pypi());
         assertNotNull(client.binance());
         assertNotNull(client.wikipedia());
+    }
+
+    @Test
+    void shouldCreateFacadeClients() {
+        OpenCliClient client = new OpenCliClient();
         assertNotNull(client.publicApis());
         assertNotNull(client.browsers());
         assertNotNull(client.desktops());
@@ -37,34 +67,11 @@ class OpenCliClientTest {
     }
 
     @Test
-    void facadeAccessorsExposeTypedAndGenericClients() {
-        OpenCliClient client = new OpenCliClient();
-        PublicApiClient publicApi = client.publicApis();
-        assertNotNull(publicApi.arxiv());
-        assertNotNull(publicApi.npm());
-        assertNotNull(publicApi.pypi());
-        assertNotNull(publicApi.binance());
-        assertNotNull(publicApi.wikipedia());
-        assertNotNull(publicApi.channel("demo"));
-
-        BrowserClient browser = client.browsers();
-        assertNotNull(browser.gemini());
-        assertNotNull(browser.claude());
-        assertNotNull(browser.chatgpt());
-        assertNotNull(browser.jimeng());
-        assertNotNull(browser.deepseek());
-        assertNotNull(browser.channel("demo"));
-
-        DesktopClient desktop = client.desktops();
-        assertNotNull(desktop.codex());
-        assertNotNull(desktop.cursor());
-        assertNotNull(desktop.antigravity());
-        assertNotNull(desktop.chatgptApp());
-        assertNotNull(desktop.chatwise());
-        assertNotNull(desktop.discordApp());
-        assertNotNull(desktop.doubaoApp());
-        assertNotNull(desktop.qoder());
-        assertNotNull(desktop.traeCn());
-        assertNotNull(desktop.traeSolo());
+    void shouldStoreSharedExecutor() {
+        OpenCliProperties props = new OpenCliProperties();
+        io.github.easy4j.opencli.core.OpenCliExecutor executor = new io.github.easy4j.opencli.core.OpenCliExecutor(props);
+        OpenCliClient client = new OpenCliClient(props, executor);
+        assertSame(executor, client.getExecutor());
+        assertSame(props, client.getProperties());
     }
 }

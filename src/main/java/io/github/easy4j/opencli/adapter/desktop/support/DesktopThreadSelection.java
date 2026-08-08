@@ -13,7 +13,21 @@ import lombok.Data;
  * </p>
  */
 @Data
-@Builder
+@Builder/**
+
+ * Common selection model for desktop adapters (Codex, Cursor, etc.) sidebar project/conversation parameters.
+ *
+ * <p>Semantically aligned with the CLI flags {@code --project}, {@code --conversation},
+ * {@code --index}, {@code --thread-id}, and {@code --timeout}.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public class DesktopThreadSelection {
 
     /**

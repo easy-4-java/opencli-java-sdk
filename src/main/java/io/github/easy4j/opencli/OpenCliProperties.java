@@ -7,7 +7,7 @@ import java.util.Map;
 import lombok.Data;
 
 /**
- * OpenCLI 运行时配置（纯 POJO，无 Spring 耦合）。
+ * OpenCLI runtime configuration POJO with no Spring dependency.
  * <p>
  * 描述可执行文件、工作目录、超时、全局 argv 前缀、远端 Agent 以及需要注入子进程的环境变量
  *（例如 {@code OPENCLI_CDP_ENDPOINT}）。Spring Boot 可由上层以
@@ -18,7 +18,26 @@ import lombok.Data;
  * {@link OpenCliExecutionTarget#REMOTE_AGENT_HTTP} 模式下用作 HTTP 客户端超时上限。
  * </p>
  */
-@Data
+@Data/**
+
+ * OpenCLI runtime configuration POJO with no Spring dependency.
+ *
+ * <p>Describes the executable path, working directory, timeout, global argv prefix,
+ * remote Agent settings, and environment variables injected into the subprocess
+ * (e.g.&nbsp;{@code OPENCLI_CDP_ENDPOINT}). Spring Boot applications can bind these
+ * fields via {@code @ConfigurationProperties(prefix = "opencli")}.</p>
+ *
+ * <p>{@link #commandTimeoutMillis} is used as the subprocess watchdog timeout in local
+ * mode and as the HTTP client timeout in {@link OpenCliExecutionTarget#REMOTE_AGENT_HTTP} mode.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public class OpenCliProperties {
 
     /**

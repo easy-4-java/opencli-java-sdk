@@ -16,7 +16,21 @@ import lombok.RequiredArgsConstructor;
 /**
  * OpenCLI {@code gemini} 浏览器适配器。
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor/**
+
+ * OpenCLI {@code gemini} browser adapter client.
+ *
+ * <p>Provides typed methods for Gemini Web interactions such as {@code ask}, {@code image},
+ * {@code deepResearch}, {@code history}, and session management.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class GeminiOpenCliClient {
 
     private final OpenCliExecutor executor;

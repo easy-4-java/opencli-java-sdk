@@ -10,7 +10,21 @@ import lombok.Getter;
  * </p>
  */
 @Getter
-@Builder
+@Builder/**
+
+ * Lightweight best-effort parse summary of OpenCLI output.
+ *
+ * <p>Different adapters can progressively extend new fields; when parsing fails,
+ * all fields may be null and callers should fall back to reading raw stdout.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public class OpenCliParsedFields {
 
     /**

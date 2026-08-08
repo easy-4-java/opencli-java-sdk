@@ -9,7 +9,19 @@ import lombok.Data;
  * {@code browser state} 选项，对齐 OpenCLI {@code --source dom|ax} 与 {@code --compare-sources}。
  */
 @Data
-@Builder
+@Builder/**
+
+ * Options for {@code browser state}, aligned with OpenCLI {@code --source dom|ax}
+ * and {@code --compare-sources} flags.
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class OpenCliBrowserStateOptions {
 
     /** 快照后端：{@code dom}（默认）或 {@code ax}。 */

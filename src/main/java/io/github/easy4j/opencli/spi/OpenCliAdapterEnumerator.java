@@ -9,7 +9,19 @@ import lombok.experimental.UtilityClass;
 /**
  * 基于生成常量 {@link OpenCliAdapterIds#ALL} 的遍历工具，便于批处理或动态注册。
  */
-@UtilityClass
+@UtilityClass/**
+
+ * Enumeration utility based on generated constants {@link OpenCliAdapterIds#ALL},
+ * convenient for batch processing or dynamic registration.
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public class OpenCliAdapterEnumerator {
 
     /**

@@ -1,12 +1,15 @@
 package io.github.easy4j.opencli;
 
 /**
- * OpenCLI 命令实际执行位置：本机子进程或与 opencli-admin 兼容的远端 Agent HTTP API。
- */
-public enum OpenCliExecutionTarget {
+ * Determines where an OpenCLI command is executed: as a local subprocess or via a remote
+ Agent HTTP API compatible with opencli-admin.
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 3.0.0
+ */public enum OpenCliExecutionTarget {
 
     /**
-     * 在本机通过 {@link OpenCliProperties} 的 {@code executable} 配置启动子进程（默认）。
+     * Launch a subprocess on the local machine using the {@code executable} configured in {@link OpenCliProperties} (default).
      */
     LOCAL_PROCESS,
 

@@ -9,7 +9,19 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 针对单个 OpenCLI adapter 的轻量通道：自动在 argv 前插入 adapter id。
  */
-@Slf4j
+@Slf4j/**
+
+ * Lightweight channel for a single OpenCLI adapter: automatically prepends the adapter id
+ * to every argv invocation.
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class OpenCliAdapterChannel {
 
     private final OpenCliExecutor executor;

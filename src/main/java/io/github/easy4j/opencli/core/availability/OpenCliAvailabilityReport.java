@@ -11,7 +11,18 @@ import lombok.Getter;
  * @since 1.0.0
  */
 @Getter
-@Builder
+@Builder/**
+
+ * Result of an OpenCLI startup/readiness probe.
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public class OpenCliAvailabilityReport {
 
     private final OpenCliAvailabilityStatus status;

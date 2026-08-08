@@ -9,7 +9,19 @@ import lombok.Data;
  * {@code browser find} 选项，对齐 OpenCLI {@code --css}、{@code --limit}、{@code --text-max}。
  */
 @Data
-@Builder(toBuilder = true)
+@Builder(toBuilder = true)/**
+
+ * Options for {@code browser find}, aligned with OpenCLI {@code --css},
+ * {@code --limit}, and {@code --text-max} flags.
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class OpenCliBrowserFindOptions {
 
     private String css;

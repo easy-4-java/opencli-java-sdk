@@ -11,7 +11,18 @@ import lombok.RequiredArgsConstructor;
 /**
  * {@code opencli plugin *} 子命令封装。
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor/**
+
+ * Client for {@code opencli plugin *} subcommands.
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class OpenCliPluginClient {
 
     private final OpenCliExecutor executor;

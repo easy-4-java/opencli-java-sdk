@@ -1,9 +1,11 @@
 package io.github.easy4j.opencli.adapter.publicapi.npm;
 
 /**
- * npm registry 下载统计周期（文档枚举 + 自定义日期区间）。
- */
-public enum NpmDownloadPeriod {
+ * npm registry download statistics period enumeration (documented enum values plus custom date ranges).
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 3.0.0
+ */public enum NpmDownloadPeriod {
 
     LAST_DAY("last-day"),
     LAST_WEEK("last-week"),

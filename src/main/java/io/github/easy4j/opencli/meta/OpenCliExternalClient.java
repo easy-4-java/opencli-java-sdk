@@ -12,7 +12,18 @@ import lombok.RequiredArgsConstructor;
 /**
  * {@code opencli external *} 与已注册外部 CLI 的透传入口。
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor/**
+
+ * Client for {@code opencli external *} and passthrough invocation of registered external CLIs.
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class OpenCliExternalClient {
 
     private final OpenCliExecutor executor;

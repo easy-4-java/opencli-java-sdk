@@ -15,7 +15,22 @@ import lombok.RequiredArgsConstructor;
 /**
  * OpenCLI {@code jimeng}（即梦）浏览器适配器。
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor/**
+
+ * OpenCLI {@code jimeng} (Jimeng/JiMeng) browser adapter client.
+ *
+ * <p>Provides typed methods for Jimeng generative media interactions including
+ * text-to-image, image-to-image, text-to-video, image-to-video, audio generation,
+ * digital human, and action copy.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class JimengOpenCliClient {
 
     private final OpenCliExecutor executor;

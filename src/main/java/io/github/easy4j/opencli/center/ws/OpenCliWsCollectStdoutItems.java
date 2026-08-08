@@ -9,10 +9,12 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 将本地 opencli stdout 解析为与 Python {@code agent_server._parse_output} 类似的 {@code items} 数组，
- * 供 {@code result} WebSocket 报文使用。
- */
-public final class OpenCliWsCollectStdoutItems {
+ * Parses local opencli stdout into an {@code items} array similar to
+ * Python {@code agent_server._parse_output}, for use in {@code result} WebSocket messages.
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 3.0.0
+ */public final class OpenCliWsCollectStdoutItems {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 

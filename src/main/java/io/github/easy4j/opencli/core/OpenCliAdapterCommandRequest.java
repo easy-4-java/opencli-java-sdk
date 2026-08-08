@@ -20,7 +20,23 @@ import lombok.Singular;
  * </p>
  */
 @Getter
-@Builder
+@Builder/**
+
+ * Structured adapter subcommand request: builds argv from a subcommand name,
+ * positional arguments, and named options for use with
+ * {@link OpenCliAdapterChannel#invoke(OpenCliAdapterCommandRequest)}.
+ *
+ * <p>Avoid manually assembling {@code List.of("sub", "--flag", "value")} in tests;
+ * use the builder to model parameters instead.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class OpenCliAdapterCommandRequest {
 
     /** 子命令名（不含 adapter id）。 */

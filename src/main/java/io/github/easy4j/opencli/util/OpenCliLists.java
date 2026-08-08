@@ -5,9 +5,11 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * JDK 8 兼容的不可变列表工厂（替代 {@link List#of}）。
- */
-public final class OpenCliLists {
+ * JDK 8-compatible immutable list factory (replacement for {@link List#of}).
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 3.0.0
+ */public final class OpenCliLists {
 
     private OpenCliLists() {
     }

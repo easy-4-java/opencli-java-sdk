@@ -14,12 +14,12 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * 探测本机 {@code opencli} 是否已安装且可执行轻量命令 {@code opencli list}。
+ * Probes whether the local {@code opencli} executable is installed and capable of executing
+ * a lightweight command ({@code opencli list}).
  *
  * @author [@Loong Wan](https://github.com/loong10k)
- * @since 1.0.0
- */
-public class OpenCliAvailabilityChecker {
+ * @since 3.0.0
+ */public class OpenCliAvailabilityChecker {
 
     /**
      * 使用给定执行器与其绑定配置执行探测。
