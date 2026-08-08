@@ -3,6 +3,8 @@ package io.github.easy4j.opencli.adapter.browser.deepseek;
 import static org.junit.jupiter.api.Assertions.*;
 import io.github.easy4j.opencli.adapter.browser.deepseek.DeepseekOpenCliClient.*;
 import io.github.easy4j.opencli.core.OpenCliResult;
+import io.github.easy4j.opencli.core.OpenCliTypedResult;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.github.easy4j.opencli.support.RecordingOpenCliExecutor;
 import java.util.*;
 import org.junit.jupiter.api.Test;
@@ -70,21 +72,21 @@ class DeepseekOpenCliClientFullTest {
 
     @Test
     void shouldCallAskTyped() {
-        var r = client.askTyped("hello", null, null);
+        OpenCliTypedResult<JsonNode> r = client.askTyped("hello", null, null);
         assertNotNull(r);
     }
 
     @Test
     void shouldCallAskTypedWithExistingJson() {
         DeepseekAskOptions opts = DeepseekAskOptions.builder().jsonOutput(true).build();
-        var r = client.askTyped("hello", opts, null);
+        OpenCliTypedResult<JsonNode> r = client.askTyped("hello", opts, null);
         assertNotNull(r);
     }
 
     @Test
     void shouldCallAskTypedWithToBuilder() {
         DeepseekAskOptions opts = DeepseekAskOptions.builder().timeoutSeconds(30).build();
-        var r = client.askTyped("hello", opts, null);
+        OpenCliTypedResult<JsonNode> r = client.askTyped("hello", opts, null);
         assertNotNull(r);
     }
 }

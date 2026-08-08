@@ -3,6 +3,8 @@ package io.github.easy4j.opencli.adapter.browser.claude;
 import static org.junit.jupiter.api.Assertions.*;
 import io.github.easy4j.opencli.adapter.browser.claude.ClaudeOpenCliClient.*;
 import io.github.easy4j.opencli.core.OpenCliResult;
+import io.github.easy4j.opencli.core.OpenCliTypedResult;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.github.easy4j.opencli.support.RecordingOpenCliExecutor;
 import java.util.*;
 import org.junit.jupiter.api.Test;
@@ -83,27 +85,27 @@ class ClaudeOpenCliClientFullTest {
 
     @Test
     void shouldCallAskTyped() {
-        var r = client.askTyped("hello", null, null);
+        OpenCliTypedResult<JsonNode> r = client.askTyped("hello", null, null);
         assertNotNull(r);
     }
 
     @Test
     void shouldCallAskTypedWithExistingJson() {
         ClaudeAskOptions opts = ClaudeAskOptions.builder().jsonOutput(true).build();
-        var r = client.askTyped("hello", opts, null);
+        OpenCliTypedResult<JsonNode> r = client.askTyped("hello", opts, null);
         assertNotNull(r);
     }
 
     @Test
     void shouldCallAskTypedWithToBuilderJson() {
         ClaudeAskOptions opts = ClaudeAskOptions.builder().timeoutSeconds(30).build();
-        var r = client.askTyped("hello", opts, null);
+        OpenCliTypedResult<JsonNode> r = client.askTyped("hello", opts, null);
         assertNotNull(r);
     }
 
     @Test
     void shouldCallHistoryTyped() {
-        var r = client.historyTyped(10, null);
+        OpenCliTypedResult<JsonNode> r = client.historyTyped(10, null);
         assertNotNull(r);
     }
 }
