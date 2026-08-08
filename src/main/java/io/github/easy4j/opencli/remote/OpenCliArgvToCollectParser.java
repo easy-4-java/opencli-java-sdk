@@ -21,7 +21,29 @@ import lombok.extern.slf4j.Slf4j;
  * </ul>
  * Agent 会自行追加 {@code -f &lt;format&gt;}，故本解析器会消费调用方已写的 {@code -f}，避免重复。
  */
-@Slf4j
+@Slf4j/**
+
+ * Best-effort mapping from the argv list used by
+ * {@link io.github.easy4j.opencli.core.OpenCliExecutor#invoke(List)}
+ * ({@code [adapter, command, ...]}) to an Agent {@link OpenCliCollectRequest}.
+ *
+ * <p>Parsing rules: the first two tokens are {@code site} and {@code command};
+ * subsequent tokens are scanned left-to-right:</p>
+ * <ul>
+ *   <li>{@code -f} / {@code --format} and its next token are written to {@code format}, not args;</li>
+ *   <li>{@code --key=value} or {@code --key} + next non-option value go to {@code args} (key without {@code --} prefix);</li>
+ *   <li>Standalone {@code --flag} (next token starts with {@code -} or is absent) goes to {@code args[flag]=true};</li>
+ *   <li>All other tokens go to {@code positional_args} in order.</li>
+ * </ul>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class OpenCliArgvToCollectParser {
 
     private OpenCliArgvToCollectParser() {

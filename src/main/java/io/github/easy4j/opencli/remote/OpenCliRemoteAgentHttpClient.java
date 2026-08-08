@@ -23,7 +23,21 @@ import lombok.extern.slf4j.Slf4j;
  * 使用 {@code com.konghq:unirest-java} 3.x（与 openclaw-java-sdk 同系列，且兼容 JDK 8 的 2.3.x 线）。
  * </p>
  */
-@Slf4j
+@Slf4j/**
+
+ * HTTP client that calls the opencli-admin edge Agent's {@code POST /collect} endpoint.
+ *
+ * <p>Uses {@code com.konghq:unirest-java} 3.x (same series as openclaw-java-sdk,
+ * compatible with JDK 8 via the 2.3.x line).</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class OpenCliRemoteAgentHttpClient {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();

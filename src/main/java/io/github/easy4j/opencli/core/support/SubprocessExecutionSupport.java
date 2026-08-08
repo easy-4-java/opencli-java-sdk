@@ -17,12 +17,12 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * 基于 Apache Commons Exec 的子进程执行辅助：Watchdog 超时、有界 {@code waitFor}、并发限流。
+ * Subprocess execution support based on Apache Commons Exec: watchdog timeout,
+ * bounded {@code waitFor}, and concurrency throttling.
  *
  * @author [@Loong Wan](https://github.com/loong10k)
- * @since 1.0.0
- */
-public final class SubprocessExecutionSupport {
+ * @since 3.0.0
+ */public final class SubprocessExecutionSupport {
 
     /** Watchdog 触发后，handler 收尾等待的上限（毫秒）。 */
     public static final long WAIT_GRACE_MILLIS = 5_000L;

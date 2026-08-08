@@ -16,7 +16,21 @@ import lombok.RequiredArgsConstructor;
 /**
  * OpenCLI {@code binance} 公共行情适配器。
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor/**
+
+ * OpenCLI {@code binance} public market data adapter client.
+ *
+ * <p>Provides methods to query Binance cryptocurrency prices, tickers,
+ * trading pairs, trades, order book depth, klines, top movers, gainers, and losers.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class BinanceOpenCliClient {
 
     private final OpenCliExecutor executor;

@@ -12,7 +12,20 @@ import lombok.RequiredArgsConstructor;
  * {@code opencli auth *} 子命令封装：登录状态查询与会话刷新。
  * <p>支持 {@code auth status} 与 {@code auth refresh}。</p>
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor/**
+
+ * Client for {@code opencli auth *} subcommands: login status queries and session refresh.
+ *
+ * <p>Supports {@code auth status} and {@code auth refresh}.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class OpenCliAuthClient {
 
     private final OpenCliExecutor executor;

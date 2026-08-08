@@ -7,7 +7,18 @@ import lombok.Data;
  * {@link OpenCliSkillsClient#read(OpenCliSkillsReadOptions)} 的参数对象。
  */
 @Data
-@Builder
+@Builder/**
+
+ * Options for {@link OpenCliSkillsClient#read(OpenCliSkillsReadOptions)}.
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public class OpenCliSkillsReadOptions {
 
     /** 技能包 id，例如 {@code opencli-browse}。 */

@@ -21,7 +21,20 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)/**
+
+ * DTO aligned with the opencli-admin Agent {@code POST /collect} request body.
+ *
+ * <p>Referenced from {@code backend/agent_server.py} {@code CollectRequest}.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public class OpenCliCollectRequest {
 
     private String site;

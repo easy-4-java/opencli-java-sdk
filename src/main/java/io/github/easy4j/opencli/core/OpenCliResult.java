@@ -13,7 +13,23 @@ import lombok.Getter;
  * </p>
  */
 @Getter
-@Builder
+@Builder/**
+
+ * Raw result carrier for a single OpenCLI invocation.
+ *
+ * <p>{@link #remoteRawHttpBody} is only populated when using
+ * {@link io.github.easy4j.opencli.OpenCliExecutionTarget#REMOTE_AGENT_HTTP}
+ * and {@link io.github.easy4j.opencli.OpenCliProperties#isRemoteCaptureRawHttpResponse()}
+ * is {@code true}.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public class OpenCliResult {
 
     private final String stdout;

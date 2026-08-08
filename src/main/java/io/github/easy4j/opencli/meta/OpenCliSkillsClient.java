@@ -11,7 +11,20 @@ import lombok.RequiredArgsConstructor;
  * {@code opencli skills *} 子命令封装。
  * <p>支持 {@code skills list} 与 {@code skills read}：列举 / 查看内置 opencli-* 技能包。</p>
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor/**
+
+ * Client for {@code opencli skills *} subcommands.
+ *
+ * <p>Supports {@code skills list} and {@code skills read}: list/view built-in opencli-* skill packs.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class OpenCliSkillsClient {
 
     private final OpenCliExecutor executor;

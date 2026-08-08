@@ -30,7 +30,21 @@ import org.java_websocket.handshake.ServerHandshake;
 /**
  * 边缘侧反向 WebSocket 客户端（基于 Java-WebSocket，JDK 8+ 可用）。
  */
-@Slf4j
+@Slf4j/**
+
+ * Edge-side reverse WebSocket client (based on Java-WebSocket, compatible with JDK 8+).
+ *
+ * <p>Connects to the central opencli-admin server, registers as an agent,
+ * and processes incoming {@code collect} requests by executing opencli locally.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class OpenCliWsReverseAgentClient implements AutoCloseable {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();

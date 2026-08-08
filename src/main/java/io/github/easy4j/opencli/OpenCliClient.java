@@ -23,9 +23,18 @@ import java.util.Objects;
 import lombok.Getter;
 
 /**
- * OpenCLI Java SDK 入口：持有一组运行时配置与共享 {@link OpenCliExecutor}。
- */
-public class OpenCliClient {
+ * Entry point for the OpenCLI Java SDK. Holds a set of runtime configuration properties
+ and a shared {@link OpenCliExecutor}.
+ *
+ * <p>Usage example:</p>
+ * <pre>{@code
+ * OpenCliClient client = new OpenCliClient();
+ * OpenCliResult result = client.chatgpt().ask("hello", null, null);
+ * }</pre>
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 3.0.0
+ */public class OpenCliClient {
 
     @Getter
     private final OpenCliProperties properties;
@@ -34,7 +43,7 @@ public class OpenCliClient {
     private final OpenCliExecutor executor;
 
     /**
-     * 使用默认配置构造（可执行文件假定名为 {@code opencli}）。
+     * Constructs with default configuration (executable assumed to be {@code opencli} on PATH).
      */
     public OpenCliClient() {
         this(new OpenCliProperties());
