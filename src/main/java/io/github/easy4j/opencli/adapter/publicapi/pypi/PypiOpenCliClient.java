@@ -15,7 +15,20 @@ import lombok.RequiredArgsConstructor;
 /**
  * OpenCLI {@code pypi} 公共 registry 适配器（package 元数据与 pypistats 下载统计）。
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor/**
+
+ * OpenCLI {@code pypi} public registry adapter client (package metadata and pypistats download statistics).
+ *
+ * <p>Provides methods to query PyPI package information and download statistics.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class PypiOpenCliClient {
 
     private final OpenCliExecutor executor;

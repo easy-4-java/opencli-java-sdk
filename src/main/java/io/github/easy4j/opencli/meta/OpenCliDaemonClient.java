@@ -10,7 +10,18 @@ import lombok.RequiredArgsConstructor;
 /**
  * {@code opencli daemon *} 守护进程管理。
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor/**
+
+ * Client for {@code opencli daemon *} daemon process management.
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class OpenCliDaemonClient {
 
     private final OpenCliExecutor executor;

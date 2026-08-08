@@ -1,9 +1,11 @@
 package io.github.easy4j.opencli.adapter.publicapi.pypi;
 
 /**
- * PyPI 下载统计周期（文档枚举）。
- */
-public enum PypiDownloadPeriod {
+ * PyPI download statistics period enumeration.
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 3.0.0
+ */public enum PypiDownloadPeriod {
 
     RECENT("recent"),
     OVERALL("overall");

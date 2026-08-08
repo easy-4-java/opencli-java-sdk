@@ -8,7 +8,19 @@ import lombok.RequiredArgsConstructor;
 /**
  * OpenCLI 内置 {@code browser} 命令门面：会话优先 API {@code browser(session).open(url)}。
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor/**
+
+ * Facade for the built-in {@code browser} command: session-first API
+ * {@code browser(session).open(url)}.
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class OpenCliBrowserClient {
 
     private final OpenCliExecutor executor;

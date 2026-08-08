@@ -3,9 +3,11 @@ package io.github.easy4j.opencli.center.ws;
 import io.github.easy4j.opencli.util.OpenCliStrings;
 
 /**
- * 将中心 HTTP API 基址转换为边缘 Agent 使用的 WebSocket URL。
- */
-public final class OpenCliCenterWsUrls {
+ * Converts a central HTTP API base URL into the WebSocket URL used by edge Agents.
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 3.0.0
+ */public final class OpenCliCenterWsUrls {
 
     private OpenCliCenterWsUrls() {
     }

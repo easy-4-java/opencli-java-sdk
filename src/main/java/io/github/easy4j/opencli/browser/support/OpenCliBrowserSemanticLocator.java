@@ -9,7 +9,19 @@ import lombok.Data;
  * 浏览器子命令的语义定位参数（对齐 CLI {@code --role}/{@code --name}/{@code --label}/{@code --text}/{@code --testid}）。
  */
 @Data
-@Builder
+@Builder/**
+
+ * Semantic locator parameters for browser subcommands, aligned with CLI flags
+ * {@code --role}, {@code --name}, {@code --label}, {@code --text}, and {@code --testid}.
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public class OpenCliBrowserSemanticLocator {
 
     private String role;

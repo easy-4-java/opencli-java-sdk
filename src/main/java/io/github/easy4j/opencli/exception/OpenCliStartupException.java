@@ -9,7 +9,18 @@ import lombok.Getter;
  * @author [@Loong Wan](https://github.com/loong10k)
  * @since 1.0.0
  */
-@Getter
+@Getter/**
+
+ * Thrown during application startup when OpenCLI is unavailable and configured for fail-fast.
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public class OpenCliStartupException extends OpenCliException {
 
     private final OpenCliAvailabilityReport availabilityReport;

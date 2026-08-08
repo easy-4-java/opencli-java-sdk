@@ -25,7 +25,19 @@ import lombok.extern.slf4j.Slf4j;
  * 具名浏览器会话上的子命令封装，对应 {@code opencli browser <session> <subcommand> ...}。
  */
 @RequiredArgsConstructor
-@Slf4j
+@Slf4j/**
+
+ * Subcommand wrapper for a named browser session, corresponding to
+ * {@code opencli browser <session> <subcommand> ...}.
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class OpenCliBrowserSession {
 
     private final OpenCliExecutor executor;

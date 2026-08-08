@@ -3,9 +3,12 @@ package io.github.easy4j.opencli.core;
 import java.util.List;
 
 /**
- * 将领域请求对象映射为 OpenCLI argv 片段（不含可执行文件名与 adapter 名）。
- */
-public interface OpenCliArgumentProvider {
+ * Maps a domain request object to OpenCLI argv fragments (excluding the executable name
+ * and adapter name).
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 3.0.0
+ */public interface OpenCliArgumentProvider {
 
     /**
      * @return 命令参数列表，可为空；不得包含 null 或空白项（由调用方过滤）

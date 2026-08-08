@@ -10,7 +10,18 @@ import lombok.RequiredArgsConstructor;
 /**
  * {@code opencli adapter *} 本地覆盖管理。
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor/**
+
+ * Local override management for {@code opencli adapter *}.
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class OpenCliAdapterMgmtClient {
 
     private final OpenCliExecutor executor;

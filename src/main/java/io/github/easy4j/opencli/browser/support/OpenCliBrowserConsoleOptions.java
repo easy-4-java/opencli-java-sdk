@@ -9,7 +9,19 @@ import lombok.Data;
  * {@code browser console} 选项，对齐 OpenCLI {@code --level}、{@code --since}、{@code --until}、{@code --follow}。
  */
 @Data
-@Builder
+@Builder/**
+
+ * Options for {@code browser console}, aligned with OpenCLI {@code --level},
+ * {@code --since}, {@code --until}, and {@code --follow} flags.
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class OpenCliBrowserConsoleOptions {
 
     /** 级别：all、error、warning、log、info、debug（CLI 默认 all）。 */

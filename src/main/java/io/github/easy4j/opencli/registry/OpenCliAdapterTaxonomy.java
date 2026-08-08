@@ -7,9 +7,11 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * 文档 index 中的 Browser / Desktop 分类（由脚本生成）。
- */
-public final class OpenCliAdapterTaxonomy {
+ * Browser / Desktop classification from the documentation index (script-generated).
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 3.0.0
+ */public final class OpenCliAdapterTaxonomy {
 
     private OpenCliAdapterTaxonomy() {
     }

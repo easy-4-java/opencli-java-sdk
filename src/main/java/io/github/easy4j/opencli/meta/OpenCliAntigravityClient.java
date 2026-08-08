@@ -14,7 +14,22 @@ import lombok.RequiredArgsConstructor;
  * 不适合在请求线程中直接调用；建议在独立进程或 {@code ExecutorService} 中运行。
  * </p>
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor/**
+
+ * Client for {@code opencli antigravity serve} — an Anthropic-compatible API proxy.
+ *
+ * <p><b>Note:</b> {@link #serve(Integer, Integer)} starts a long-running HTTP server
+ * and blocks the current thread until the process exits. Do not call directly from a
+ * request thread; run in a separate process or {@code ExecutorService}.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class OpenCliAntigravityClient {
 
     private final OpenCliExecutor executor;

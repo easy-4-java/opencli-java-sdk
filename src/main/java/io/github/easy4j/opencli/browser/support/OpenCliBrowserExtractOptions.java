@@ -9,7 +9,19 @@ import lombok.Data;
  * {@code browser extract} 选项，对齐 OpenCLI {@code --selector}、{@code --chunk-size}、{@code --start}。
  */
 @Data
-@Builder
+@Builder/**
+
+ * Options for {@code browser extract}, aligned with OpenCLI {@code --selector},
+ * {@code --chunk-size}, and {@code --start} flags.
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class OpenCliBrowserExtractOptions {
 
     private String selector;
