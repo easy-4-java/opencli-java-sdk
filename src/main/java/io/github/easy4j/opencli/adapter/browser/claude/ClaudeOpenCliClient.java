@@ -19,7 +19,21 @@ import lombok.RequiredArgsConstructor;
 /**
  * OpenCLI {@code claude} 浏览器适配器。
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor/**
+
+ * OpenCLI {@code claude} browser adapter client.
+ *
+ * <p>Provides typed methods for Claude Web interactions such as {@code ask}, {@code send},
+ * {@code history}, {@code detail}, and session management.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class ClaudeOpenCliClient {
 
     private final OpenCliExecutor executor;
@@ -98,6 +112,18 @@ public final class ClaudeOpenCliClient {
         return ch().invoke(OpenCliArgSupport.merge(args, more));
     }
 
+    public OpenCliResult login(Integer timeoutSeconds, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("login");
+        if (timeoutSeconds != null) {
+            OpenCliArgSupport.addOptionPair(args, "--timeout", String.valueOf(timeoutSeconds));
+        }
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
+    }
+
+    public OpenCliResult whoami(List<String> more) {
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("whoami"), more));
+    }
     public OpenCliResult newChat(List<String> more) {
         return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("new"), more));
     }

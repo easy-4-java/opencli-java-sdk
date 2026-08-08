@@ -1,9 +1,12 @@
 package io.github.easy4j.opencli.util;
 
 /**
- * 字符串工具，避免对 JDK 11+ {@link String#isBlank()} 的硬依赖表述歧义，并与既有 starter 工具风格对齐。
- */
-public final class OpenCliStrings {
+ * String utilities, avoiding hard dependency on JDK 11+ {@link String#isBlank()}
+ * and consistent with the existing starter utility style.
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 3.0.0
+ */public final class OpenCliStrings {
 
     private OpenCliStrings() {
     }

@@ -9,7 +9,18 @@ import lombok.Data;
  * {@code browser drag} 的前缀语义定位（{@code --from-role} 等）。
  */
 @Data
-@Builder
+@Builder/**
+
+ * Semantic locator prefix for {@code browser drag} ({@code --from-role}, {@code --to-role}, etc.).
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public class OpenCliBrowserDragLocator {
 
     private String fromRole;

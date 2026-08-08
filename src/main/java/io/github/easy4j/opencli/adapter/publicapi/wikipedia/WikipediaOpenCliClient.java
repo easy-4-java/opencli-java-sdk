@@ -16,7 +16,21 @@ import lombok.RequiredArgsConstructor;
 /**
  * OpenCLI {@code wikipedia} 公共 API 适配器。
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor/**
+
+ * OpenCLI {@code wikipedia} public API adapter client.
+ *
+ * <p>Provides methods to search Wikipedia, retrieve page summaries, random articles,
+ * trending articles, and full page content.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class WikipediaOpenCliClient {
 
     private final OpenCliExecutor executor;

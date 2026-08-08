@@ -15,7 +15,21 @@ import lombok.RequiredArgsConstructor;
 /**
  * OpenCLI {@code npm} 公共 registry 适配器。
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor/**
+
+ * OpenCLI {@code npm} public registry adapter client.
+ *
+ * <p>Provides methods to search npm packages, retrieve package info,
+ * and query download statistics.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class NpmOpenCliClient {
 
     private final OpenCliExecutor executor;

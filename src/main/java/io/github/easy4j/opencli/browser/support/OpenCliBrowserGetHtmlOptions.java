@@ -9,7 +9,19 @@ import lombok.Data;
  * {@code browser get html} 选项，对齐 OpenCLI {@code --selector}、{@code --as}、{@code --max} 等。
  */
 @Data
-@Builder
+@Builder/**
+
+ * Options for {@code browser get html}, aligned with OpenCLI {@code --selector},
+ * {@code --as}, {@code --max}, and related flags.
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class OpenCliBrowserGetHtmlOptions {
 
     private String selector;

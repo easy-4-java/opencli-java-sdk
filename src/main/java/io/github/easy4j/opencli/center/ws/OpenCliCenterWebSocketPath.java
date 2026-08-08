@@ -1,12 +1,15 @@
 package io.github.easy4j.opencli.center.ws;
 
 /**
- * opencli-admin 中心暴露的反向 WebSocket 路径（边缘 Agent 作为客户端连接）。
- * <p>
- * 与 {@code backend/api/v1/nodes.py}、{@code backend/api/v1/browsers.py} 注册端点一致。
- * </p>
- */
-public enum OpenCliCenterWebSocketPath {
+ * Reverse WebSocket paths exposed by the opencli-admin central server
+ * (edge Agents connect as clients).
+ *
+ * <p>Endpoints are consistent with {@code backend/api/v1/nodes.py} and
+ * {@code backend/api/v1/browsers.py} registration endpoints.</p>
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 3.0.0
+ */public enum OpenCliCenterWebSocketPath {
 
     /**
      * {@code agent_server} 默认：{@code /api/v1/nodes/ws}；注册报文需合法 {@code node_type}（{@code docker} | {@code shell}）。

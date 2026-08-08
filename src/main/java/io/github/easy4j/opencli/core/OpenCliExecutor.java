@@ -43,7 +43,26 @@ import org.apache.commons.exec.ExecuteWatchdog;
  * </p>
  */
 @Slf4j
-@Getter
+@Getter/**
+
+ * OpenCLI subprocess execution wrapper based on Apache Commons Exec.
+ *
+ * <p>{@link #invoke(List)} accepts a token list that follows the executable name,
+ * typically {@code [adapter, subcommand, ...]}. In local mode, {@link OpenCliProperties}
+ * {@code leadingArguments} are automatically prepended.</p>
+ *
+ * <p>When {@link OpenCliProperties#getExecutionTarget()} is
+ * {@link OpenCliExecutionTarget#REMOTE_AGENT_HTTP}, the invocation is forwarded to a
+ * remote Agent via {@link OpenCliRemoteAgentHttpClient#collect(OpenCliCollectRequest)}.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public class OpenCliExecutor {
 
     private final OpenCliProperties properties;

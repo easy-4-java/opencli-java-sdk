@@ -10,9 +10,11 @@ import io.github.easy4j.opencli.core.OpenCliAdapterChannel;
 import lombok.Getter;
 
 /**
- * 公共 HTTP/API 类适配器入口（无需浏览器）。
- */
-public class PublicApiClient {
+ * Public HTTP/API adapter entry point (no browser required).
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 3.0.0
+ */public class PublicApiClient {
 
     @Getter
     private final OpenCliClient openCli;

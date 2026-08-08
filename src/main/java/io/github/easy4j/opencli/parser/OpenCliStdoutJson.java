@@ -10,7 +10,18 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * 将 {@code -f json} 等场景下的 stdout 解析为 Jackson {@link JsonNode}。
  */
-@Slf4j
+@Slf4j/**
+
+ * Parses stdout from {@code -f json} invocations into a Jackson {@link JsonNode}.
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class OpenCliStdoutJson {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();

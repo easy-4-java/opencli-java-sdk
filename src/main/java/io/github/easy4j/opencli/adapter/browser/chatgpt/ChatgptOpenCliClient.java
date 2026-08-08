@@ -18,7 +18,21 @@ import lombok.RequiredArgsConstructor;
 /**
  * OpenCLI {@code chatgpt}（ChatGPT Web）浏览器适配器。
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor/**
+
+ * OpenCLI {@code chatgpt} (ChatGPT Web) browser adapter client.
+ *
+ * <p>Provides typed methods for ChatGPT Web interactions such as {@code ask}, {@code send},
+ * {@code history}, {@code image}, and session management.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class ChatgptOpenCliClient {
 
     private final OpenCliExecutor executor;
@@ -35,10 +49,21 @@ public final class ChatgptOpenCliClient {
 
         private Integer historyLimit;
 
+        private Integer stableSeconds;
+
         private Boolean readAsMarkdown;
 
-        /** 文档：{@code --new} 开启新会话。 */
         private Boolean newConversation;
+
+        private String conversation;
+
+        private String project;
+
+        private Boolean waitForResponse;
+
+        private Boolean deepResearch;
+
+        private Boolean webSearch;
 
         private Boolean jsonOutput;
 
@@ -52,8 +77,26 @@ public final class ChatgptOpenCliClient {
             if (historyLimit != null) {
                 OpenCliArgSupport.addOptionPair(target, "--limit", String.valueOf(historyLimit));
             }
+            if (stableSeconds != null) {
+                OpenCliArgSupport.addOptionPair(target, "--stable", String.valueOf(stableSeconds));
+            }
             if (readAsMarkdown != null) {
                 OpenCliArgSupport.addOptionPair(target, "--markdown", String.valueOf(readAsMarkdown));
+            }
+            if (conversation != null) {
+                OpenCliArgSupport.addOptionPair(target, "--conversation", conversation);
+            }
+            if (project != null) {
+                OpenCliArgSupport.addOptionPair(target, "--project", project);
+            }
+            if (waitForResponse != null) {
+                OpenCliArgSupport.addOptionPair(target, "--wait", String.valueOf(waitForResponse));
+            }
+            if (Boolean.TRUE.equals(deepResearch)) {
+                target.add("--deep-research");
+            }
+            if (Boolean.TRUE.equals(webSearch)) {
+                target.add("--web-search");
             }
             if (Boolean.TRUE.equals(jsonOutput)) {
                 target.add("-f");
@@ -118,6 +161,63 @@ public final class ChatgptOpenCliClient {
         return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("status"), more));
     }
 
+    public OpenCliResult deepResearchResult(String id, Boolean wait, Integer timeoutSeconds,
+        Integer stableSeconds, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("deep-research-result");
+        args.add(id);
+        if (wait != null) {
+            OpenCliArgSupport.addOptionPair(args, "--wait", String.valueOf(wait));
+        }
+        if (timeoutSeconds != null) {
+            OpenCliArgSupport.addOptionPair(args, "--timeout", String.valueOf(timeoutSeconds));
+        }
+        if (stableSeconds != null) {
+            OpenCliArgSupport.addOptionPair(args, "--stable", String.valueOf(stableSeconds));
+        }
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
+    }
+
+    public OpenCliResult login(Integer timeoutSeconds, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("login");
+        if (timeoutSeconds != null) {
+            OpenCliArgSupport.addOptionPair(args, "--timeout", String.valueOf(timeoutSeconds));
+        }
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
+    }
+
+    public OpenCliResult model(String model, String project, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("model");
+        args.add(model);
+        if (project != null) {
+            OpenCliArgSupport.addOptionPair(args, "--project", project);
+        }
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
+    }
+
+    public OpenCliResult projectFileAdd(String file, String id, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("project-file-add");
+        args.add(file);
+        OpenCliArgSupport.addOptionPair(args, "--id", id);
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
+    }
+
+    public OpenCliResult projectList(Integer limit, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("project-list");
+        if (limit != null) {
+            OpenCliArgSupport.addOptionPair(args, "--limit", String.valueOf(limit));
+        }
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
+    }
+
+    public OpenCliResult whoami(List<String> more) {
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("whoami"), more));
+    }
+
     /**
      * {@code chatgpt image} 文生图参数。
      */
@@ -144,7 +244,7 @@ public final class ChatgptOpenCliClient {
                 OpenCliArgSupport.addOptionPair(target, "--op", outputDir);
             }
             if (Boolean.TRUE.equals(skipDownload)) {
-                OpenCliArgSupport.addOptionPair(target, "--sd", "true");
+                target.add("--sd");
             }
             if (timeoutSeconds != null) {
                 OpenCliArgSupport.addOptionPair(target, "--timeout", String.valueOf(timeoutSeconds));

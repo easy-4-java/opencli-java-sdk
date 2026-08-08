@@ -12,7 +12,19 @@ import lombok.RequiredArgsConstructor;
 /**
  * OpenCLI 根级元命令：{@code list}、{@code validate}、{@code verify}、{@code doctor}、{@code convention-audit}。
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor/**
+
+ * OpenCLI root-level meta commands: {@code list}, {@code validate}, {@code verify},
+ * {@code doctor}, and {@code convention-audit}.
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class OpenCliMetaClient {
 
     private final OpenCliExecutor executor;

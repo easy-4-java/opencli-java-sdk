@@ -15,7 +15,21 @@ import lombok.RequiredArgsConstructor;
 /**
  * OpenCLI {@code arxiv} 公共 API 适配器。
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor/**
+
+ * OpenCLI {@code arxiv} public API adapter client.
+ *
+ * <p>Provides methods to search arXiv papers, retrieve paper details,
+ * list recent papers by category, and query by author.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class ArxivOpenCliClient {
 
     private final OpenCliExecutor executor;

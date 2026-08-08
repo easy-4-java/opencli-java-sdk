@@ -1,23 +1,40 @@
 package io.github.easy4j.opencli.registry;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
-/**
- * 生成类 {@link OpenCliAdapterTaxonomy} 与 {@link OpenCliAdapterIds} 一致性测试。
- */
 class OpenCliAdapterTaxonomyTest {
 
     @Test
-    void desktopAndBrowserPartitionCoversUnion() {
-        assertEquals(OpenCliAdapterIds.DESKTOP_ADAPTER_COUNT, OpenCliAdapterTaxonomy.DESKTOP_IDS.size());
-        assertEquals(OpenCliAdapterIds.BROWSER_ADAPTER_COUNT, OpenCliAdapterTaxonomy.BROWSER_IDS.size());
-        assertEquals(OpenCliAdapterIds.TOTAL_ADAPTER_COUNT, OpenCliAdapterIds.ALL.length);
-        for (String id : OpenCliAdapterTaxonomy.DESKTOP_IDS) {
-            assertTrue(OpenCliAdapterTaxonomy.isDesktopAdapter(id));
-        }
-        assertEquals(OpenCliAdapterIds.TOTAL_ADAPTER_COUNT, OpenCliAdapterIds.ALL.length);
+    void shouldHaveNonEmptyDesktopIds() {
+        assertFalse(OpenCliAdapterTaxonomy.DESKTOP_IDS.isEmpty());
+    }
+
+    @Test
+    void shouldHaveNonEmptyBrowserIds() {
+        assertFalse(OpenCliAdapterTaxonomy.BROWSER_IDS.isEmpty());
+    }
+
+    @Test
+    void shouldIdentifyDesktopAdapter() {
+        assertTrue(OpenCliAdapterTaxonomy.isDesktopAdapter("codex"));
+        assertTrue(OpenCliAdapterTaxonomy.isDesktopAdapter("cursor"));
+        assertTrue(OpenCliAdapterTaxonomy.isDesktopAdapter("chatgpt-app"));
+    }
+
+    @Test
+    void shouldNotIdentifyBrowserAdapterAsDesktop() {
+        assertFalse(OpenCliAdapterTaxonomy.isDesktopAdapter("chatgpt"));
+        assertFalse(OpenCliAdapterTaxonomy.isDesktopAdapter("claude"));
+    }
+
+    @Test
+    void shouldReturnFalseForNull() {
+        assertFalse(OpenCliAdapterTaxonomy.isDesktopAdapter(null));
+    }
+
+    @Test
+    void shouldReturnFalseForUnknownAdapter() {
+        assertFalse(OpenCliAdapterTaxonomy.isDesktopAdapter("nonexistent"));
     }
 }

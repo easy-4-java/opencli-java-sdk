@@ -9,7 +9,21 @@ import lombok.Getter;
  * 可选携带最近一次可观测的 {@link OpenCliResult}，便于调用方在重试、降级或记录时保留 stdout/stderr。
  * </p>
  */
-@Getter
+@Getter/**
+
+ * Base runtime exception for the OpenCLI subprocess execution layer.
+ *
+ * <p>Optionally carries the most recent observable {@link OpenCliResult} snapshot,
+ * allowing callers to retain stdout/stderr for retry, degradation, or logging.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public class OpenCliException extends RuntimeException {
 
     private final OpenCliResult partialResult;

@@ -9,7 +9,18 @@ import lombok.Data;
  * 浏览器子命令共用的 {@code --tab <targetId>} 选项。
  */
 @Data
-@Builder
+@Builder/**
+
+ * Common {@code --tab <targetId>} option shared across browser subcommands.
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public class OpenCliBrowserTabOptions {
 
     /** 目标 tab/page ID（来自 tab list / open / tab new）。 */

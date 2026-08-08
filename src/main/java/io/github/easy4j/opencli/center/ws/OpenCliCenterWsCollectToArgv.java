@@ -7,12 +7,13 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * 将中心 {@code ws_agent_manager.dispatch_collect} 下发的 JSON 字段
- *（与 Python {@code agent_server.collect} 所用 {@code CollectRequest} 一致）
- * 转成本地 {@link io.github.easy4j.opencli.core.OpenCliExecutor#invoke(List)} 所需的 argv：
- * {@code [site, command, ...positional, --k v..., -f format]}。
- */
-public final class OpenCliCenterWsCollectToArgv {
+ * Converts JSON fields dispatched by the central {@code ws_agent_manager.dispatch_collect}
+ * into the argv list required by {@link io.github.easy4j.opencli.core.OpenCliExecutor#invoke(List)}:
+ * {@code [site, command, ...positional, --k v..., -f format]}.
+ *
+ * @author [@Loong Wan](https://github.com/loong10k)
+ * @since 3.0.0
+ */public final class OpenCliCenterWsCollectToArgv {
 
     private OpenCliCenterWsCollectToArgv() {
     }

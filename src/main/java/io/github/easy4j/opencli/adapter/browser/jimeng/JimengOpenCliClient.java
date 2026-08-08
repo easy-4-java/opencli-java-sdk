@@ -15,7 +15,22 @@ import lombok.RequiredArgsConstructor;
 /**
  * OpenCLI {@code jimeng}（即梦）浏览器适配器。
  */
-@RequiredArgsConstructor
+@RequiredArgsConstructor/**
+
+ * OpenCLI {@code jimeng} (Jimeng/JiMeng) browser adapter client.
+ *
+ * <p>Provides typed methods for Jimeng generative media interactions including
+ * text-to-image, image-to-image, text-to-video, image-to-video, audio generation,
+ * digital human, and action copy.</p>
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class JimengOpenCliClient {
 
     private final OpenCliExecutor executor;
@@ -24,6 +39,18 @@ public final class JimengOpenCliClient {
         return new OpenCliAdapterChannel(executor, OpenCliAdapterIds.JIMENG);
     }
 
+    public OpenCliResult login(Integer timeoutSeconds, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("login");
+        if (timeoutSeconds != null) {
+            OpenCliArgSupport.addOptionPair(args, "--timeout", String.valueOf(timeoutSeconds));
+        }
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
+    }
+
+    public OpenCliResult whoami(List<String> more) {
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("whoami"), more));
+    }
     @Data
     @Builder
     public static class JimengGenerateOptions {

@@ -9,7 +9,20 @@ import lombok.RequiredArgsConstructor;
  * @param <T> 结构化负载类型
  */
 @Getter
-@RequiredArgsConstructor
+@RequiredArgsConstructor/**
+
+ * Binds an {@link OpenCliResult} with an adapter-specific structured view.
+ *
+ * @param <T> the structured payload type
+
+ *
+
+ * @author [@Loong Wan](https://github.com/loong10k)
+
+ * @since 3.0.0
+
+ */
+
 public final class OpenCliTypedResult<T> {
 
     private final OpenCliResult raw;
