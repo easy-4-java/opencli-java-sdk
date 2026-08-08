@@ -33,8 +33,8 @@ MANIFEST_PATH = Path(
     os.environ.get("OPENCLI_MANIFEST", _DEFAULT_MANIFEST)
 ).resolve()
 
-COVERAGE_PKG = "io.github.hiwepy.opencli.coverage"
-COVERAGE_DIR = _SDK_ROOT / "src/test/java/io/github/hiwepy/opencli/coverage"
+COVERAGE_PKG = "io.github.easy4j.opencli.coverage"
+COVERAGE_DIR = _SDK_ROOT / "src/test/java/io/github/easy4j/opencli/coverage"
 RESOURCES_DIR = _SDK_ROOT / "src/test/resources/opencli"
 
 PLACEHOLDER_STR = "__coverage__"

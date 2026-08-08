@@ -8,9 +8,9 @@ Multi-adapter CLI integration SDK for OpenCLI: browser / desktop / public-API ad
 [简体中文](./README.zh-CN.md)
 
 > **Current branch**: `feature/3.0.x`
-> **Version**: `3.0.x.x.20260630-SNAPSHOT`
-> **JDK baseline**: 8
-> **Project status**: stable (1.0.x line). Not yet published to Maven Central; artifacts are distributed via the Aliyun Maven repository and GitHub Releases.
+> **Version**: `3.0.x.20260630-SNAPSHOT`
+> **JDK baseline**: 21
+> **Project status**: stable (3.0.x line). Not yet published to Maven Central; artifacts are distributed via the Aliyun Maven repository and GitHub Releases.
 
 ## Table of Contents
 
@@ -81,7 +81,7 @@ Version-line matrix:
 
 | Version line | Branch | JDK | Version pattern | Purpose |
 |---|---|---:|---|---|
-| 1.0.x | `feature/3.0.x` (this branch) | 8 | `1.0.x.*` | For Boot 2.x starters and legacy projects |
+| 1.0.x | `feature/1.0.x` | 8 | `1.0.x.*` | For Boot 2.x starters and legacy projects |
 | 2.0.x | `feature/2.0.x` | 17 | `2.0.x.*` | For Boot 3.x starters |
 | 3.0.x | `feature/3.0.x` | 21 | `3.0.x.*` | For Boot 4.x starters / new projects |
 
@@ -133,7 +133,7 @@ Maven:
 <dependency>
     <groupId>io.github.easy4j</groupId>
     <artifactId>opencli-java-sdk</artifactId>
-    <version>3.0.x.x.20260630-SNAPSHOT</version>
+    <version>3.0.x.20260630-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -231,7 +231,7 @@ Protocol: edge sends `register`; center replies `registered`; center sends `coll
 mvn clean verify
 ```
 
-- Unit tests cover the adapter registry, core execution, browser/meta/remote paths and WS helpers (14 test sources under `src/test`).
+- Unit tests cover the adapter registry, core execution, browser/meta/remote paths and WS helpers (19 Java test sources under `src/test`).
 - JaCoCo runs `prepare-agent`, `report` and `check` on the `verify` phase with a **90% line-coverage** rule (`haltOnFailure=false`).
 - `scripts/generate_opencli_adapter_ids.py` regenerates `OpenCliAdapterIds` / `OpenCliAdapterTaxonomy` from the upstream `opencli/docs/adapters/index.md` + `cli-manifest.json` (set `OPENCLI_ROOT` to point at the upstream tree).
 - Release packaging (`mvn -Prelease deploy`) attaches sources and javadoc jars, GPG-signs artifacts and is wired for Sonatype Central Publishing; plain `mvn deploy` routes SNAPSHOT/release artifacts to the Aliyun Maven repository per `distributionManagement`.
@@ -243,7 +243,7 @@ mvn clean verify
 |---|---|---|---|
 | `feature/1.0.x` (this branch) | `1.0.x.*` | 8 | Compatibility fixes and JDK-8-safe dependency upgrades only |
 | `feature/2.0.x` | `2.0.x.*` | 17 | JDK 17 line |
-| `feature/3.0.x` | `3.0.x.*` | 21 | JDK 21 line |
+| `feature/3.0.x` (this branch) | `3.0.x.*` | 21 | JDK 21 line |
 
 Branch POMs (JDK and dependency stack per line) are rendered by `scripts/render-branch-pom.py`.
 

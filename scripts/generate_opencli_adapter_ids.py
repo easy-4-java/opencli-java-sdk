@@ -79,11 +79,11 @@ def main() -> None:
     # 重新划分 browser：未命中 desktop 的 manifest / index 条目一律视为 browser 类。
     browser = {x for x in all_ids if x not in desktop}
 
-    out = root / "src/main/java/io/github/hiwepy/opencli/registry/OpenCliAdapterIds.java"
+    out = root / "src/main/java/io/github/easy4j/opencli/registry/OpenCliAdapterIds.java"
     out.parent.mkdir(parents=True, exist_ok=True)
 
     lines = [
-        "package io.github.hiwepy.opencli.registry;",
+        "package io.github.easy4j.opencli.registry;",
         "",
         "/**",
         " * OpenCLI 适配器标识常量（由脚本从 docs/adapters/index.md + cli-manifest.json 生成）。",
@@ -126,7 +126,7 @@ def main() -> None:
     desk_sorted = sorted(desktop)
     brows_sorted = sorted(browser)
     tax_lines = [
-        "package io.github.hiwepy.opencli.registry;",
+        "package io.github.easy4j.opencli.registry;",
         "",
         "import java.util.Collections;",
         "import java.util.Arrays;",

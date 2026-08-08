@@ -52,4 +52,16 @@ public class DesktopClient {
     public OpenCliAdapterChannel doubaoApp() {
         return openCli.adapter(OpenCliAdapterIds.DOUBAO_APP);
     }
+
+    public OpenCliAdapterChannel qoder() {
+        return openCli.adapter(OpenCliAdapterIds.QODER);
+    }
+
+    public OpenCliAdapterChannel traeCn() {
+        return openCli.adapter(OpenCliAdapterIds.TRAE_CN);
+    }
+
+    public OpenCliAdapterChannel traeSolo() {
+        return openCli.adapter(OpenCliAdapterIds.TRAE_SOLO);
+    }
 }

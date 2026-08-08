@@ -270,13 +270,13 @@ def write_pom(
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>io.github.hiwepy</groupId>
+    <groupId>io.github.easy4j</groupId>
     <artifactId>opencli-java-sdk</artifactId>
     <version>{version}</version>
     <packaging>jar</packaging>
     <name>${{project.groupId}}:${{project.artifactId}}</name>
     <description>{description}</description>
-    <url>https://github.com/hiwepy/${{project.artifactId}}</url>
+    <url>https://github.com/easy-4-java/${{project.artifactId}}</url>
 
 {COMMON_META}
 {ALIYUN_DM}

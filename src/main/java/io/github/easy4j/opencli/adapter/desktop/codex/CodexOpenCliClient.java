@@ -23,10 +23,50 @@ public final class CodexOpenCliClient {
         return new OpenCliAdapterChannel(executor, OpenCliAdapterIds.CODEX);
     }
 
+    /** 归档当前会话；必须显式传入 {@code yes} 才会追加 {@code --yes}。 */
+    public OpenCliResult archive(boolean yes, DesktopThreadSelection selection, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("archive");
+        if (yes) {
+            args.add("--yes");
+        }
+        if (selection != null) {
+            selection.appendTo(args);
+        }
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
+    }
+
+    public OpenCliResult pin(DesktopThreadSelection selection, List<String> more) {
+        return invokeSelection("pin", selection, more);
+    }
+
+    public OpenCliResult rename(String title, DesktopThreadSelection selection, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("rename");
+        args.add(title);
+        if (selection != null) {
+            selection.appendTo(args);
+        }
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
+    }
+
+    public OpenCliResult unpin(DesktopThreadSelection selection, List<String> more) {
+        return invokeSelection("unpin", selection, more);
+    }
+
+    private OpenCliResult invokeSelection(String command, DesktopThreadSelection selection, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add(command);
+        if (selection != null) {
+            selection.appendTo(args);
+        }
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
+    }
     /** 连接与窗口诊断。 */
     public OpenCliResult status() {
         return ch().invoke("status");
     }
+
 
     /** 将 DOM / Accessibility 树导出到临时目录。 */
     public OpenCliResult dump() {
@@ -185,6 +225,11 @@ public final class CodexOpenCliClient {
             args.add(modelName);
         }
         return ch().invoke(args);
+    }
+
+    /** 列出可用模型。 */
+    public OpenCliResult modelList() {
+        return ch().invoke("model", "--list");
     }
 
     /** 导出当前会话为 Markdown。 */

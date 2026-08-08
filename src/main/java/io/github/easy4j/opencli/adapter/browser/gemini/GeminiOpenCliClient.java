@@ -81,7 +81,7 @@ public final class GeminiOpenCliClient {
                 OpenCliArgSupport.addOptionPair(target, "--op", outputDir);
             }
             if (Boolean.TRUE.equals(skipDownload)) {
-                OpenCliArgSupport.addOptionPair(target, "--sd", "true");
+                target.add("--sd");
             }
             if (timeoutSeconds != null) {
                 OpenCliArgSupport.addOptionPair(target, "--timeout", String.valueOf(timeoutSeconds));
@@ -134,6 +134,10 @@ public final class GeminiOpenCliClient {
 
         private Integer timeoutSeconds;
 
+        private String model;
+
+        private String thinking;
+
         private String tool;
 
         /** 确认按钮文案覆盖（CLI {@code --confirm} 字符串标签，非布尔开关）。 */
@@ -144,6 +148,12 @@ public final class GeminiOpenCliClient {
         public void appendTo(List<String> target) {
             if (timeoutSeconds != null) {
                 OpenCliArgSupport.addOptionPair(target, "--timeout", String.valueOf(timeoutSeconds));
+            }
+            if (model != null) {
+                OpenCliArgSupport.addOptionPair(target, "--model", model);
+            }
+            if (thinking != null) {
+                OpenCliArgSupport.addOptionPair(target, "--thinking", thinking);
             }
             if (tool != null) {
                 OpenCliArgSupport.addOptionPair(target, "--tool", tool);
@@ -158,7 +168,50 @@ public final class GeminiOpenCliClient {
         }
     }
 
-    /** 导出 Deep Research 报告 URL。 */
+    /** Gemini 会话详情。 */
+    public OpenCliResult detail(String idOrUrl, List<String> more) {
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("detail", idOrUrl), more));
+    }
+
+    public OpenCliResult history(Integer limit, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("history");
+        if (limit != null) {
+            OpenCliArgSupport.addOptionPair(args, "--limit", String.valueOf(limit));
+        }
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
+    }
+
+    public OpenCliResult history(List<String> more) {
+        return history(null, more);
+    }
+
+    public OpenCliResult login(Integer timeoutSeconds, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("login");
+        if (timeoutSeconds != null) {
+            OpenCliArgSupport.addOptionPair(args, "--timeout", String.valueOf(timeoutSeconds));
+        }
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
+    }
+
+    public OpenCliResult models(List<String> more) {
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("models"), more));
+    }
+
+    public OpenCliResult read(List<String> more) {
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("read"), more));
+    }
+
+    public OpenCliResult status(List<String> more) {
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("status"), more));
+    }
+
+    public OpenCliResult whoami(List<String> more) {
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("whoami"), more));
+    }
+
+
     public OpenCliResult deepResearchResult(String query, String match, Integer timeoutSeconds, List<String> more) {
         List<String> args = new ArrayList<>();
         args.add("deep-research-result");

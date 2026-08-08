@@ -23,6 +23,29 @@ class OpenCliArgSupportTest {
     }
 
     @Test
+    void addOptionPairAndConditionalHelpers() {
+        List<String> target = new java.util.ArrayList<>();
+        OpenCliArgSupport.addOptionPair(target, "--name", "value");
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--count", 2);
+        OpenCliArgSupport.addOptionPairIfPresent(target, "--ignored", null);
+        OpenCliArgSupport.addFlagIfTrue(target, "--enabled", true);
+        OpenCliArgSupport.addFlagIfTrue(target, "--disabled", false);
+        OpenCliArgSupport.addFlagIfTrue(target, "--null", null);
+        assertEquals(OpenCliLists.of("--name", "value", "--count", "2", "--enabled"), target);
+    }
+
+    @Test
+    void mergeAcceptsNullLists() {
+        assertEquals(java.util.Collections.emptyList(), OpenCliArgSupport.merge(null, null));
+    }
+
+    @Test
+    void addOptionEqualsNormalizesTrailingEquals() {
+        List<String> target = new java.util.ArrayList<>();
+        OpenCliArgSupport.addOptionEquals(target, "--key=", "value");
+        assertEquals(OpenCliLists.of("--key=value"), target);
+    }
+    @Test
     void addOptionEqualsProducesKeyValueToken() {
         List<String> t = new java.util.ArrayList<>(OpenCliLists.of("x"));
         OpenCliArgSupport.addOptionEquals(t, "--limit", "10");

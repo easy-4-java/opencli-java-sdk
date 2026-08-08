@@ -7,9 +7,9 @@
 面向 OpenCLI 多适配器体系的 Java SDK：browser / desktop / public-api 适配器、远程 Agent 与中心 WebSocket
 
 > **当前分支**：`feature/3.0.x`
-> **版本**：`3.0.x.x.20260630-SNAPSHOT`
-> **JDK 基线**：8
-> **项目状态**：稳定（1.0.x 线）。尚未发布 Maven Central；制品通过 Aliyun Maven 仓库与 GitHub Releases 分发。
+> **版本**：`3.0.x.20260630-SNAPSHOT`
+> **JDK 基线**：21
+> **项目状态**：稳定（3.0.x 线）。尚未发布 Maven Central；制品通过 Aliyun Maven 仓库与 GitHub Releases 分发。
 
 ## 目录
 
@@ -80,7 +80,7 @@
 
 | 版本线 | 分支 | JDK | 版本模式 | 用途 |
 |---|---|---:|---|---|
-| 1.0.x | `feature/3.0.x`（当前分支） | 8 | `1.0.x.*` | 供 Boot 2.x Starter 与存量项目使用 |
+| 1.0.x | `feature/1.0.x` | 8 | `1.0.x.*` | 供 Boot 2.x Starter 与存量项目使用 |
 | 2.0.x | `feature/2.0.x` | 17 | `2.0.x.*` | 供 Boot 3.x Starter 使用 |
 | 3.0.x | `feature/3.0.x` | 21 | `3.0.x.*` | 供 Boot 4.x Starter / 新项目使用 |
 
@@ -132,7 +132,7 @@ Maven：
 <dependency>
     <groupId>io.github.easy4j</groupId>
     <artifactId>opencli-java-sdk</artifactId>
-    <version>3.0.x.x.20260630-SNAPSHOT</version>
+    <version>3.0.x.20260630-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -230,7 +230,7 @@ agent.close();
 mvn clean verify
 ```
 
-- 单元测试覆盖适配器注册表、核心执行、browser / meta / remote 路径与 WS 工具（`src/test` 下 14 个测试源文件）。
+- 单元测试覆盖适配器注册表、核心执行、browser / meta / remote 路径与 WS 工具（`src/test` 下 19 个 Java 测试源文件）。
 - JaCoCo 在 `verify` 阶段执行 `prepare-agent`、`report` 与 `check`，行覆盖率规则为 **90%**（`haltOnFailure=false`）。
 - `scripts/generate_opencli_adapter_ids.py` 依据上游 `opencli/docs/adapters/index.md` + `cli-manifest.json` 重新生成 `OpenCliAdapterIds` / `OpenCliAdapterTaxonomy`（可用 `OPENCLI_ROOT` 指定上游源码树）。
 - 发布打包（`mvn -Prelease deploy`）附带 sources 与 javadoc 构件并执行 GPG 签名，对接 Sonatype Central Publishing；普通 `mvn deploy` 按版本后缀路由到 Aliyun Maven 仓库（见 `distributionManagement`）。
@@ -242,7 +242,7 @@ mvn clean verify
 |---|---|---|---|
 | `feature/1.0.x`（当前分支） | `1.0.x.*` | 8 | 仅接受兼容性修复与 JDK 8 安全的依赖升级 |
 | `feature/2.0.x` | `2.0.x.*` | 17 | JDK 17 线 |
-| `feature/3.0.x` | `3.0.x.*` | 21 | JDK 21 线 |
+| `feature/3.0.x`（当前分支） | `3.0.x.*` | 21 | JDK 21 线 |
 
 各分支 POM（JDK 与依赖栈随线变化）由 `scripts/render-branch-pom.py` 渲染。
 

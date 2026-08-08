@@ -98,6 +98,18 @@ public final class ClaudeOpenCliClient {
         return ch().invoke(OpenCliArgSupport.merge(args, more));
     }
 
+    public OpenCliResult login(Integer timeoutSeconds, List<String> more) {
+        List<String> args = new ArrayList<>();
+        args.add("login");
+        if (timeoutSeconds != null) {
+            OpenCliArgSupport.addOptionPair(args, "--timeout", String.valueOf(timeoutSeconds));
+        }
+        return ch().invoke(OpenCliArgSupport.merge(args, more));
+    }
+
+    public OpenCliResult whoami(List<String> more) {
+        return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("whoami"), more));
+    }
     public OpenCliResult newChat(List<String> more) {
         return ch().invoke(OpenCliArgSupport.merge(OpenCliLists.of("new"), more));
     }
