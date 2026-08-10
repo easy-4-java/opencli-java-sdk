@@ -32,7 +32,7 @@ import lombok.Getter;
  * OpenCliResult result = client.chatgpt().ask("hello", null, null);
  * }</pre>
  *
- * @author [@Loong Wan](https://github.com/loong10k)
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  */public class OpenCliClient {
 

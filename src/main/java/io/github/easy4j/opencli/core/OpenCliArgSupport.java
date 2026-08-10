@@ -9,7 +9,7 @@ import java.util.Objects;
  * CLI argument assembly utilities: merges business segments with pass-through
  * {@code additionalRawArgs}.
  *
- * @author [@Loong Wan](https://github.com/loong10k)
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  */public final class OpenCliArgSupport {
 

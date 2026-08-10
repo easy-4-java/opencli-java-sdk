@@ -10,7 +10,7 @@ import lombok.Getter;
 /**
  * Desktop (Electron/CDP) adapter entry point.
  *
- * @author [@Loong Wan](https://github.com/loong10k)
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  */public class DesktopClient {
 

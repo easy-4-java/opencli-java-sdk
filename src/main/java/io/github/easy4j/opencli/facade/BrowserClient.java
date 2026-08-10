@@ -16,7 +16,7 @@ import lombok.Getter;
  * <p>For adapters without a dedicated typed client, use {@link OpenCliClient#adapter(String)}
  * or {@link io.github.easy4j.opencli.registry.OpenCliAdapterIds} constants to assemble subcommands.</p>
  *
- * @author [@Loong Wan](https://github.com/loong10k)
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  */public class BrowserClient {
 
