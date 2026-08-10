@@ -5,7 +5,7 @@ import io.github.easy4j.opencli.util.OpenCliStrings;
 /**
  * Converts a central HTTP API base URL into the WebSocket URL used by edge Agents.
  *
- * @author [@Loong Wan](https://github.com/loong10k)
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  */public final class OpenCliCenterWsUrls {
 

@@ -7,7 +7,7 @@ package io.github.easy4j.opencli.center.ws;
  * <p>Endpoints are consistent with {@code backend/api/v1/nodes.py} and
  * {@code backend/api/v1/browsers.py} registration endpoints.</p>
  *
- * @author [@Loong Wan](https://github.com/loong10k)
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  */public enum OpenCliCenterWebSocketPath {
 

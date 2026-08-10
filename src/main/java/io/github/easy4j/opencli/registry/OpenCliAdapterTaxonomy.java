@@ -9,7 +9,7 @@ import java.util.Set;
 /**
  * Browser / Desktop classification from the documentation index (script-generated).
  *
- * @author [@Loong Wan](https://github.com/loong10k)
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  */public final class OpenCliAdapterTaxonomy {
 
