@@ -1,8 +1,9 @@
 package io.github.easy4j.opencli.remote;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 import io.github.easy4j.opencli.OpenCliProperties;
 import io.github.easy4j.opencli.core.OpenCliOutputParser;
 import io.github.easy4j.opencli.core.OpenCliResult;
@@ -10,7 +11,6 @@ import io.github.easy4j.opencli.exception.OpenCliExecutableFailureException;
 import io.github.easy4j.opencli.exception.OpenCliNonZeroExitException;
 import io.github.easy4j.opencli.parser.OpenCliParsedFields;
 import io.github.easy4j.opencli.util.OpenCliStrings;
-import java.io.IOException;
 import java.util.Objects;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
@@ -40,7 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 
 public final class OpenCliRemoteAgentHttpClient {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = new JsonMapper();
 
     private final OpenCliProperties properties;
 
@@ -68,7 +68,7 @@ public final class OpenCliRemoteAgentHttpClient {
         String bodyJson;
         try {
             bodyJson = MAPPER.writeValueAsString(request);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new OpenCliExecutableFailureException("Failed to serialize collect request: " + e.getMessage(), e);
         }
         try {
@@ -96,7 +96,7 @@ public final class OpenCliRemoteAgentHttpClient {
             return mapResponse(respBody, url);
         } catch (OpenCliNonZeroExitException e) {
             throw e;
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             log.warn("Agent response parse failed url={} message={}", url, e.getMessage());
             throw new OpenCliExecutableFailureException("Failed to parse agent response: " + e.getMessage(), e);
         } catch (UnirestException e) {
@@ -113,12 +113,12 @@ public final class OpenCliRemoteAgentHttpClient {
         return (int) Math.min(timeoutMs, Integer.MAX_VALUE);
     }
 
-    private OpenCliResult mapResponse(String respBody, String url) throws IOException {
+    private OpenCliResult mapResponse(String respBody, String url) {
         String rawCapture = captureRawIfEnabled(respBody);
         AgentCollectEnvelope env;
         try {
             env = MAPPER.readValue(respBody, AgentCollectEnvelope.class);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             log.warn("Agent response envelope parse failed url={} message={}", url, e.getMessage());
             throw e;
         }

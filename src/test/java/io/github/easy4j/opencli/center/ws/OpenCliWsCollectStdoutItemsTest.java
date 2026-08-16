@@ -1,7 +1,7 @@
 package io.github.easy4j.opencli.center.ws;
 
 import static org.junit.jupiter.api.Assertions.*;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 

@@ -1,9 +1,9 @@
 package io.github.easy4j.opencli.center.ws;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.json.JsonMapper;
 import io.github.easy4j.opencli.OpenCliProperties;
 import io.github.easy4j.opencli.core.OpenCliExecutor;
 import io.github.easy4j.opencli.core.OpenCliResult;
@@ -47,7 +47,7 @@ import org.java_websocket.handshake.ServerHandshake;
 
 public final class OpenCliWsReverseAgentClient implements AutoCloseable {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = new JsonMapper();
 
     private final OpenCliExecutor localExecutor;
 
@@ -344,9 +344,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
         if (Objects.isNull(argsNode) || !argsNode.isObject()) {
             return m;
         }
-        Iterator<Map.Entry<String, JsonNode>> it = argsNode.fields();
-        while (it.hasNext()) {
-            Map.Entry<String, JsonNode> e = it.next();
+        for (Map.Entry<String, JsonNode> e : argsNode.properties()) {
             m.put(e.getKey(), readArgValue(e.getValue()));
         }
         return m;

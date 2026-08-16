@@ -1,6 +1,6 @@
 package io.github.easy4j.opencli.adapter.publicapi.npm;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 import io.github.easy4j.opencli.core.OpenCliAdapterChannel;
 import io.github.easy4j.opencli.core.OpenCliArgSupport;
 import io.github.easy4j.opencli.core.OpenCliExecutor;

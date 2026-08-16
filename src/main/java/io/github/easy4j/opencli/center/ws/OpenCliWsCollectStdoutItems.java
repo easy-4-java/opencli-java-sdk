@@ -1,8 +1,9 @@
 package io.github.easy4j.opencli.center.ws;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.json.JsonMapper;
 import io.github.easy4j.opencli.util.OpenCliStrings;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,7 +17,10 @@ import java.util.List;
  * @since 3.0.0
  */public final class OpenCliWsCollectStdoutItems {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    /** 与 Jackson 2.x 行为保持一致：容忍尾随内容（stdout 中 JSON 后可能带额外文本）。 */
+    private static final JsonMapper MAPPER = JsonMapper.builder()
+        .disable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS)
+        .build();
 
     private OpenCliWsCollectStdoutItems() {
     }

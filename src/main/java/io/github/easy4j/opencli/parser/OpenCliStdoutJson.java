@@ -1,8 +1,8 @@
 package io.github.easy4j.opencli.parser;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 import io.github.easy4j.opencli.core.OpenCliResult;
 import io.github.easy4j.opencli.core.OpenCliTypedResult;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 
 public final class OpenCliStdoutJson {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = new JsonMapper();
 
     private OpenCliStdoutJson() {
     }
@@ -42,7 +42,7 @@ public final class OpenCliStdoutJson {
         String trim = stdout.trim();
         try {
             return MAPPER.readTree(trim);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             log.debug("stdout is not strict JSON, wrapping as text: {}", e.getMessage());
             return MAPPER.getNodeFactory().textNode(stdout);
         }

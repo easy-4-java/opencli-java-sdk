@@ -1,8 +1,7 @@
 package io.github.easy4j.opencli.parser;
 
 import static org.junit.jupiter.api.Assertions.*;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.TextNode;
+import tools.jackson.databind.JsonNode;
 import io.github.easy4j.opencli.core.OpenCliResult;
 import io.github.easy4j.opencli.core.OpenCliTypedResult;
 import org.junit.jupiter.api.Test;
