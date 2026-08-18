@@ -40,7 +40,7 @@ import org.junit.jupiter.api.Test;
  * 强类型 SDK 门面 + Options 构建器的 argv 覆盖（canonical path）。
  * <p>
  * 与 {@link OpenCliAdapterCommandsCoverageTest} 的分工：
- * manifest 层对长尾 adapter 子命令做 {@link io.github.hiwepy.opencli.core.OpenCliAdapterCommandRequest} 冒烟；
+ * manifest 层对长尾 adapter 子命令做 {@link io.github.easy4j.opencli.core.OpenCliAdapterCommandRequest} 冒烟；
  * 本类对已有 typed client / Options 的入口断言 Options→argv 映射。
  * browser 细粒度回归另见 {@code OpenCliBrowserArgvTest}。
  * </p>
