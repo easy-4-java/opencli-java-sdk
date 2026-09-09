@@ -45,7 +45,7 @@
         
         <commons-exec.version>1.6.0</commons-exec.version>
         <commons-lang.version>2.6</commons-lang.version>
-        <jackson-bom.version>2.22.1</jackson-bom.version>
+        <jackson-bom.version>3.2.1</jackson-bom.version>
         <java-websocket.version>1.6.0</java-websocket.version>
         <junit-jupiter.version>6.1.0</junit-jupiter.version>
         <junit.version>4.13.2</junit.version>
@@ -74,7 +74,7 @@
         <dependencies>
             
             <dependency>
-                <groupId>com.fasterxml.jackson</groupId>
+                <groupId>tools.jackson</groupId>
                 <artifactId>jackson-bom</artifactId>
                 <version>${jackson-bom.version}</version>
                 <type>pom</type>
@@ -127,7 +127,7 @@
     <dependencies>
         
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
+            <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
         </dependency>
         
