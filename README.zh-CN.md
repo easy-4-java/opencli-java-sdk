@@ -2,14 +2,14 @@
 
 [English](./README.md) | [简体中文](./README.zh-CN.md)
 
-[![Java](https://img.shields.io/badge/Java-8-orange)](https://github.com/easy-4-java/opencli-java-sdk) [![License](https://img.shields.io/badge/license-Apache%202.0-green)](./LICENSE)
+[![Java](https://img.shields.io/badge/Java-21-orange)](https://github.com/easy-4-java/opencli-java-sdk) [![License](https://img.shields.io/badge/license-Apache%202.0-green)](./LICENSE)
 
 面向 OpenCLI 多适配器体系的 Java SDK：browser / desktop / public-api 适配器、远程 Agent 与中心 WebSocket
 
-> **当前分支**：`feature/1.0.x`
-> **版本**：`1.0.x.20260630-SNAPSHOT`
-> **JDK 基线**：8
-> **项目状态**：稳定（1.0.x 线）。尚未发布 Maven Central；制品通过 Aliyun Maven 仓库与 GitHub Releases 分发。
+> **当前分支**：`feature/3.0.x`
+> **版本**：`3.0.x.20260630-SNAPSHOT`
+> **JDK 基线**：21
+> **项目状态**：稳定（3.0.x 线）。尚未发布 Maven Central；制品通过 Aliyun Maven 仓库与 GitHub Releases 分发。
 
 ## 目录
 
@@ -55,7 +55,7 @@
 | 本地子进程执行 | 可用 | `OpenCliExecutor`（Commons Exec），统一异常（`OpenCliNonZeroExitException`、`OpenCliTimeoutException` 等） |
 | 适配器通道 | 可用 | `OpenCliAdapterChannel`（`invoke(List)` / 可变参数） |
 | 适配器注册表 | 可用 | `OpenCliAdapterIds` + `OpenCliAdapterTaxonomy`——共 173 个 adapter id（163 browser + 10 desktop），由上游清单生成 |
-| 强类型封装 | 可用 | `codex`、`cursor`、`gemini`、`claude`、`chatgpt`、`jimeng`、`deepseek`、`arxiv`、`npm`、`pypi`、`binance`、`wikipedia` |
+| 强类型封装 | 可用 | `codex`、`cursor`、`gemini`、`claude`、`chatgpt`、`jimeng`、`deepseek`、`kimi`、`qwen`、`doubao`、`grok`、`yuanbao`、`arxiv`、`npm`、`pypi`、`binance`、`wikipedia` |
 | 分类门面 | 可用 | `PublicApiClient`、`BrowserClient`、`DesktopClient`（或 `publicApis()` / `browsers()` / `desktops()`） |
 | 元命令 | 可用 | `cli.meta()`：`list`、`validate`、`plugin`、`daemon`、`profile`、`completion`、`skills`、`auth`、`antigravity` 等 |
 | 内置 browser 会话 API | 可用 | `cli.browser()`：`wait`（毫秒超时）、`extract`、`screenshot`、`getHtml` 等 |
@@ -69,7 +69,7 @@
 
 | 组件 | 版本 | 说明 |
 |---|---:|---|
-| JDK | 8+ | 1.0.x 线基线 |
+| JDK | 21+ | 1.0.x 线基线 |
 | commons-exec | — | 本地子进程执行 |
 | Unirest Java | — | 远程 Agent HTTP |
 | Java-WebSocket | — | 中心 WebSocket |
@@ -80,7 +80,7 @@
 
 | 版本线 | 分支 | JDK | 版本模式 | 用途 |
 |---|---|---:|---|---|
-| 1.0.x | `feature/1.0.x`（当前分支） | 8 | `1.0.x.*` | 供 Boot 2.x Starter 与存量项目使用 |
+| 1.0.x | `feature/1.0.x` | 8 | `1.0.x.*` | 供 Boot 2.x Starter 与存量项目使用 |
 | 2.0.x | `feature/2.0.x` | 17 | `2.0.x.*` | 供 Boot 3.x Starter 使用 |
 | 3.0.x | `feature/3.0.x` | 21 | `3.0.x.*` | 供 Boot 4.x Starter / 新项目使用 |
 
@@ -114,7 +114,7 @@
 |---|---|
 | `io.github.easy4j.opencli` | 门面 `OpenCliClient`、`OpenCliProperties`、`OpenCliExecutionTarget` |
 | `io.github.easy4j.opencli.core` | `OpenCliExecutor`、`OpenCliAdapterChannel`、结果对象、可用性探测 |
-| `io.github.easy4j.opencli.adapter` | 强类型适配器客户端（browser：chatgpt/claude/deepseek/gemini/jimeng；desktop：codex/cursor；publicapi：arxiv/binance/npm/pypi/wikipedia） |
+| `io.github.easy4j.opencli.adapter` | 强类型适配器客户端（browser：chatgpt/claude/deepseek/gemini/jimeng/kimi/qwen/doubao/grok/yuanbao；desktop：codex/cursor；publicapi：arxiv/binance/npm/pypi/wikipedia） |
 | `io.github.easy4j.opencli.browser` | 内置 browser 会话客户端与选项 |
 | `io.github.easy4j.opencli.facade` | `PublicApiClient` / `BrowserClient` / `DesktopClient` |
 | `io.github.easy4j.opencli.meta` | 元命令客户端（`list`、`plugin`、`daemon`、`profile`、`skills`、`auth` 等） |
@@ -132,14 +132,14 @@ Maven：
 <dependency>
     <groupId>io.github.easy4j</groupId>
     <artifactId>opencli-java-sdk</artifactId>
-    <version>1.0.x.20260630-SNAPSHOT</version>
+    <version>3.0.x.20260630-SNAPSHOT</version>
 </dependency>
 ```
 
 Gradle：
 
 ```groovy
-implementation 'io.github.easy4j:opencli-java-sdk:1.0.x.20260630-SNAPSHOT'
+implementation 'io.github.easy4j:opencli-java-sdk:3.0.x.x.20260630-SNAPSHOT'
 ```
 
 快照版本需要启用对应快照仓库（`pom.xml` 中 `distributionManagement` 指向 Aliyun Maven 仓库）。
@@ -230,7 +230,7 @@ agent.close();
 mvn clean verify
 ```
 
-- 单元测试覆盖适配器注册表、核心执行、browser / meta / remote 路径与 WS 工具（`src/test` 下 14 个测试源文件）。
+- 单元测试覆盖适配器注册表、核心执行、browser / meta / remote 路径与 WS 工具（`src/test` 下 19 个 Java 测试源文件）。
 - JaCoCo 在 `verify` 阶段执行 `prepare-agent`、`report` 与 `check`，行覆盖率规则为 **90%**（`haltOnFailure=false`）。
 - `scripts/generate_opencli_adapter_ids.py` 依据上游 `opencli/docs/adapters/index.md` + `cli-manifest.json` 重新生成 `OpenCliAdapterIds` / `OpenCliAdapterTaxonomy`（可用 `OPENCLI_ROOT` 指定上游源码树）。
 - 发布打包（`mvn -Prelease deploy`）附带 sources 与 javadoc 构件并执行 GPG 签名，对接 Sonatype Central Publishing；普通 `mvn deploy` 按版本后缀路由到 Aliyun Maven 仓库（见 `distributionManagement`）。
@@ -242,7 +242,7 @@ mvn clean verify
 |---|---|---|---|
 | `feature/1.0.x`（当前分支） | `1.0.x.*` | 8 | 仅接受兼容性修复与 JDK 8 安全的依赖升级 |
 | `feature/2.0.x` | `2.0.x.*` | 17 | JDK 17 线 |
-| `feature/3.0.x` | `3.0.x.*` | 21 | JDK 21 线 |
+| `feature/3.0.x`（当前分支） | `3.0.x.*` | 21 | JDK 21 线 |
 
 各分支 POM（JDK 与依赖栈随线变化）由 `scripts/render-branch-pom.py` 渲染。
 

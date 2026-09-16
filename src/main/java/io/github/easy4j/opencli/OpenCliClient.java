@@ -3,8 +3,13 @@ package io.github.easy4j.opencli;
 import io.github.easy4j.opencli.adapter.browser.chatgpt.ChatgptOpenCliClient;
 import io.github.easy4j.opencli.adapter.browser.claude.ClaudeOpenCliClient;
 import io.github.easy4j.opencli.adapter.browser.deepseek.DeepseekOpenCliClient;
+import io.github.easy4j.opencli.adapter.browser.doubao.DoubaoOpenCliClient;
 import io.github.easy4j.opencli.adapter.browser.gemini.GeminiOpenCliClient;
+import io.github.easy4j.opencli.adapter.browser.grok.GrokOpenCliClient;
 import io.github.easy4j.opencli.adapter.browser.jimeng.JimengOpenCliClient;
+import io.github.easy4j.opencli.adapter.browser.kimi.KimiOpenCliClient;
+import io.github.easy4j.opencli.adapter.browser.qwen.QwenOpenCliClient;
+import io.github.easy4j.opencli.adapter.browser.yuanbao.YuanbaoOpenCliClient;
 import io.github.easy4j.opencli.adapter.desktop.codex.CodexOpenCliClient;
 import io.github.easy4j.opencli.adapter.desktop.cursor.CursorOpenCliClient;
 import io.github.easy4j.opencli.adapter.publicapi.arxiv.ArxivOpenCliClient;
@@ -32,7 +37,7 @@ import lombok.Getter;
  * OpenCliResult result = client.chatgpt().ask("hello", null, null);
  * }</pre>
  *
- * @author <a href="https://github.com/loong10k">Loong Wan</a>
+ * @author [@Loong Wan](https://github.com/loong10k)
  * @since 3.0.0
  */public class OpenCliClient {
 
@@ -115,6 +120,33 @@ import lombok.Getter;
     /** @return DeepSeek 浏览器适配器客户端 */
     public DeepseekOpenCliClient deepseek() {
         return new DeepseekOpenCliClient(executor);
+    }
+
+    // ----- 浏览器强类型门面（新增五大站点） -----
+
+    /** @return Kimi Web 适配器 typed 客户端 */
+    public KimiOpenCliClient kimi() {
+        return new KimiOpenCliClient(executor);
+    }
+
+    /** @return 通义千问 Web 适配器 typed 客户端 */
+    public QwenOpenCliClient qwen() {
+        return new QwenOpenCliClient(executor);
+    }
+
+    /** @return 豆包 Web 适配器 typed 客户端 */
+    public DoubaoOpenCliClient doubao() {
+        return new DoubaoOpenCliClient(executor);
+    }
+
+    /** @return Grok Web 适配器 typed 客户端 */
+    public GrokOpenCliClient grok() {
+        return new GrokOpenCliClient(executor);
+    }
+
+    /** @return 腾讯元宝 Web 适配器 typed 客户端 */
+    public YuanbaoOpenCliClient yuanbao() {
+        return new YuanbaoOpenCliClient(executor);
     }
 
     // ----- 参考强类型门面（Public API） -----
