@@ -55,7 +55,7 @@
 | 本地子进程执行 | 可用 | `OpenCliExecutor`（Commons Exec），统一异常（`OpenCliNonZeroExitException`、`OpenCliTimeoutException` 等） |
 | 适配器通道 | 可用 | `OpenCliAdapterChannel`（`invoke(List)` / 可变参数） |
 | 适配器注册表 | 可用 | `OpenCliAdapterIds` + `OpenCliAdapterTaxonomy`——共 173 个 adapter id（163 browser + 10 desktop），由上游清单生成 |
-| 强类型封装 | 可用 | `codex`、`cursor`、`gemini`、`claude`、`chatgpt`、`jimeng`、`deepseek`、`arxiv`、`npm`、`pypi`、`binance`、`wikipedia` |
+| 强类型封装 | 可用 | `codex`、`cursor`、`gemini`、`claude`、`chatgpt`、`jimeng`、`deepseek`、`kimi`、`qwen`、`doubao`、`grok`、`yuanbao`、`arxiv`、`npm`、`pypi`、`binance`、`wikipedia` |
 | 分类门面 | 可用 | `PublicApiClient`、`BrowserClient`、`DesktopClient`（或 `publicApis()` / `browsers()` / `desktops()`） |
 | 元命令 | 可用 | `cli.meta()`：`list`、`validate`、`plugin`、`daemon`、`profile`、`completion`、`skills`、`auth`、`antigravity` 等 |
 | 内置 browser 会话 API | 可用 | `cli.browser()`：`wait`（毫秒超时）、`extract`、`screenshot`、`getHtml` 等 |
@@ -114,7 +114,7 @@
 |---|---|
 | `io.github.easy4j.opencli` | 门面 `OpenCliClient`、`OpenCliProperties`、`OpenCliExecutionTarget` |
 | `io.github.easy4j.opencli.core` | `OpenCliExecutor`、`OpenCliAdapterChannel`、结果对象、可用性探测 |
-| `io.github.easy4j.opencli.adapter` | 强类型适配器客户端（browser：chatgpt/claude/deepseek/gemini/jimeng；desktop：codex/cursor；publicapi：arxiv/binance/npm/pypi/wikipedia） |
+| `io.github.easy4j.opencli.adapter` | 强类型适配器客户端（browser：chatgpt/claude/deepseek/gemini/jimeng/kimi/qwen/doubao/grok/yuanbao；desktop：codex/cursor；publicapi：arxiv/binance/npm/pypi/wikipedia） |
 | `io.github.easy4j.opencli.browser` | 内置 browser 会话客户端与选项 |
 | `io.github.easy4j.opencli.facade` | `PublicApiClient` / `BrowserClient` / `DesktopClient` |
 | `io.github.easy4j.opencli.meta` | 元命令客户端（`list`、`plugin`、`daemon`、`profile`、`skills`、`auth` 等） |

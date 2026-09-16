@@ -56,7 +56,7 @@ Multi-adapter CLI integration SDK for OpenCLI: browser / desktop / public-API ad
 | Local subprocess execution | Available | `OpenCliExecutor` (Commons Exec), unified exceptions (`OpenCliNonZeroExitException`, `OpenCliTimeoutException`, ...) |
 | Adapter channel | Available | `OpenCliAdapterChannel` (`invoke(List)` / varargs) |
 | Adapter registry | Available | `OpenCliAdapterIds` + `OpenCliAdapterTaxonomy` — 173 adapter ids (163 browser + 10 desktop) generated from the upstream manifest |
-| Typed wrappers | Available | `codex`, `cursor`, `gemini`, `claude`, `chatgpt`, `jimeng`, `deepseek`, `arxiv`, `npm`, `pypi`, `binance`, `wikipedia` |
+| Typed wrappers | Available | `codex`, `cursor`, `gemini`, `claude`, `chatgpt`, `jimeng`, `deepseek`, `kimi`, `qwen`, `doubao`, `grok`, `yuanbao`, `arxiv`, `npm`, `pypi`, `binance`, `wikipedia` |
 | Categorized facades | Available | `PublicApiClient`, `BrowserClient`, `DesktopClient` (or `publicApis()` / `browsers()` / `desktops()`) |
 | Meta commands | Available | `cli.meta()`: `list`, `validate`, `plugin`, `daemon`, `profile`, `completion`, `skills`, `auth`, `antigravity`, ... |
 | Built-in browser session API | Available | `cli.browser()`: `wait` (ms timeout), `extract`, `screenshot`, `getHtml`, ... |
@@ -115,7 +115,7 @@ Single-module library (packaging `jar`). Package layout:
 |---|---|
 | `io.github.easy4j.opencli` | Facade `OpenCliClient`, `OpenCliProperties`, `OpenCliExecutionTarget` |
 | `io.github.easy4j.opencli.core` | `OpenCliExecutor`, `OpenCliAdapterChannel`, results, availability |
-| `io.github.easy4j.opencli.adapter` | Typed adapter clients (browser: chatgpt/claude/deepseek/gemini/jimeng; desktop: codex/cursor; publicapi: arxiv/binance/npm/pypi/wikipedia) |
+| `io.github.easy4j.opencli.adapter` | Typed adapter clients (browser: chatgpt/claude/deepseek/gemini/jimeng/kimi/qwen/doubao/grok/yuanbao; desktop: codex/cursor; publicapi: arxiv/binance/npm/pypi/wikipedia) |
 | `io.github.easy4j.opencli.browser` | Built-in browser session client + options |
 | `io.github.easy4j.opencli.facade` | `PublicApiClient` / `BrowserClient` / `DesktopClient` |
 | `io.github.easy4j.opencli.meta` | Meta clients (`list`, `plugin`, `daemon`, `profile`, `skills`, `auth`, ...) |

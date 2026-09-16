@@ -4,8 +4,13 @@ import io.github.easy4j.opencli.OpenCliClient;
 import io.github.easy4j.opencli.adapter.browser.chatgpt.ChatgptOpenCliClient;
 import io.github.easy4j.opencli.adapter.browser.claude.ClaudeOpenCliClient;
 import io.github.easy4j.opencli.adapter.browser.deepseek.DeepseekOpenCliClient;
+import io.github.easy4j.opencli.adapter.browser.doubao.DoubaoOpenCliClient;
 import io.github.easy4j.opencli.adapter.browser.gemini.GeminiOpenCliClient;
+import io.github.easy4j.opencli.adapter.browser.grok.GrokOpenCliClient;
 import io.github.easy4j.opencli.adapter.browser.jimeng.JimengOpenCliClient;
+import io.github.easy4j.opencli.adapter.browser.kimi.KimiOpenCliClient;
+import io.github.easy4j.opencli.adapter.browser.qwen.QwenOpenCliClient;
+import io.github.easy4j.opencli.adapter.browser.yuanbao.YuanbaoOpenCliClient;
 import io.github.easy4j.opencli.core.OpenCliAdapterChannel;
 import lombok.Getter;
 
@@ -50,5 +55,25 @@ import lombok.Getter;
 
     public DeepseekOpenCliClient deepseek() {
         return openCli.deepseek();
+    }
+
+    public KimiOpenCliClient kimi() {
+        return openCli.kimi();
+    }
+
+    public QwenOpenCliClient qwen() {
+        return openCli.qwen();
+    }
+
+    public DoubaoOpenCliClient doubao() {
+        return openCli.doubao();
+    }
+
+    public GrokOpenCliClient grok() {
+        return openCli.grok();
+    }
+
+    public YuanbaoOpenCliClient yuanbao() {
+        return openCli.yuanbao();
     }
 }
