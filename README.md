@@ -2,15 +2,15 @@
 
 [English](./README.md) | [简体中文](./README.zh-CN.md)
 
-[![Java](https://img.shields.io/badge/Java-17-orange)](https://github.com/easy-4-java/opencli-java-sdk) [![License](https://img.shields.io/badge/license-Apache%202.0-green)](./LICENSE)
+[![Java](https://img.shields.io/badge/Java-21-orange)](https://github.com/easy-4-java/opencli-java-sdk) [![License](https://img.shields.io/badge/license-Apache%202.0-green)](./LICENSE)
 
 Multi-adapter CLI integration SDK for OpenCLI: browser / desktop / public-API adapters, remote agent and center WebSocket
 [简体中文](./README.zh-CN.md)
 
-> **Current branch**: `feature/2.0.x`
-> **Version**: `2.0.x.x.20260630-SNAPSHOT`
-> **JDK baseline**: 8
-> **Project status**: stable (1.0.x line). Not yet published to Maven Central; artifacts are distributed via the Aliyun Maven repository and GitHub Releases.
+> **Current branch**: `feature/3.0.x`
+> **Version**: `3.0.x.20260630-SNAPSHOT`
+> **JDK baseline**: 21
+> **Project status**: stable (3.0.x line). Not yet published to Maven Central; artifacts are distributed via the Aliyun Maven repository and GitHub Releases.
 
 ## Table of Contents
 
@@ -56,7 +56,7 @@ Multi-adapter CLI integration SDK for OpenCLI: browser / desktop / public-API ad
 | Local subprocess execution | Available | `OpenCliExecutor` (Commons Exec), unified exceptions (`OpenCliNonZeroExitException`, `OpenCliTimeoutException`, ...) |
 | Adapter channel | Available | `OpenCliAdapterChannel` (`invoke(List)` / varargs) |
 | Adapter registry | Available | `OpenCliAdapterIds` + `OpenCliAdapterTaxonomy` — 173 adapter ids (163 browser + 10 desktop) generated from the upstream manifest |
-| Typed wrappers | Available | `codex`, `cursor`, `gemini`, `claude`, `chatgpt`, `jimeng`, `deepseek`, `arxiv`, `npm`, `pypi`, `binance`, `wikipedia` |
+| Typed wrappers | Available | `codex`, `cursor`, `gemini`, `claude`, `chatgpt`, `jimeng`, `deepseek`, `kimi`, `qwen`, `doubao`, `grok`, `yuanbao`, `arxiv`, `npm`, `pypi`, `binance`, `wikipedia` |
 | Categorized facades | Available | `PublicApiClient`, `BrowserClient`, `DesktopClient` (or `publicApis()` / `browsers()` / `desktops()`) |
 | Meta commands | Available | `cli.meta()`: `list`, `validate`, `plugin`, `daemon`, `profile`, `completion`, `skills`, `auth`, `antigravity`, ... |
 | Built-in browser session API | Available | `cli.browser()`: `wait` (ms timeout), `extract`, `screenshot`, `getHtml`, ... |
@@ -70,7 +70,7 @@ Multi-adapter CLI integration SDK for OpenCLI: browser / desktop / public-API ad
 
 | Component | Version | Notes |
 |---|---:|---|
-| JDK | 17+ | 1.0.x line baseline |
+| JDK | 21+ | 1.0.x line baseline |
 | commons-exec | — | Local subprocess execution |
 | Unirest Java | — | Remote agent HTTP |
 | Java-WebSocket | — | Center WebSocket |
@@ -81,7 +81,7 @@ Version-line matrix:
 
 | Version line | Branch | JDK | Version pattern | Purpose |
 |---|---|---:|---|---|
-| 1.0.x | `feature/2.0.x` (this branch) | 8 | `1.0.x.*` | For Boot 2.x starters and legacy projects |
+| 1.0.x | `feature/1.0.x` | 8 | `1.0.x.*` | For Boot 2.x starters and legacy projects |
 | 2.0.x | `feature/2.0.x` | 17 | `2.0.x.*` | For Boot 3.x starters |
 | 3.0.x | `feature/3.0.x` | 21 | `3.0.x.*` | For Boot 4.x starters / new projects |
 
@@ -115,7 +115,7 @@ Single-module library (packaging `jar`). Package layout:
 |---|---|
 | `io.github.easy4j.opencli` | Facade `OpenCliClient`, `OpenCliProperties`, `OpenCliExecutionTarget` |
 | `io.github.easy4j.opencli.core` | `OpenCliExecutor`, `OpenCliAdapterChannel`, results, availability |
-| `io.github.easy4j.opencli.adapter` | Typed adapter clients (browser: chatgpt/claude/deepseek/gemini/jimeng; desktop: codex/cursor; publicapi: arxiv/binance/npm/pypi/wikipedia) |
+| `io.github.easy4j.opencli.adapter` | Typed adapter clients (browser: chatgpt/claude/deepseek/gemini/jimeng/kimi/qwen/doubao/grok/yuanbao; desktop: codex/cursor; publicapi: arxiv/binance/npm/pypi/wikipedia) |
 | `io.github.easy4j.opencli.browser` | Built-in browser session client + options |
 | `io.github.easy4j.opencli.facade` | `PublicApiClient` / `BrowserClient` / `DesktopClient` |
 | `io.github.easy4j.opencli.meta` | Meta clients (`list`, `plugin`, `daemon`, `profile`, `skills`, `auth`, ...) |
@@ -133,14 +133,14 @@ Maven:
 <dependency>
     <groupId>io.github.easy4j</groupId>
     <artifactId>opencli-java-sdk</artifactId>
-    <version>2.0.x.x.20260630-SNAPSHOT</version>
+    <version>3.0.x.20260630-SNAPSHOT</version>
 </dependency>
 ```
 
 Gradle:
 
 ```groovy
-implementation 'io.github.easy4j:opencli-java-sdk:2.0.x.x.20260630-SNAPSHOT'
+implementation 'io.github.easy4j:opencli-java-sdk:3.0.x.x.20260630-SNAPSHOT'
 ```
 
 Snapshot builds require an enabled snapshot repository (Aliyun Maven snapshot repository per `distributionManagement` in `pom.xml`).
@@ -231,7 +231,7 @@ Protocol: edge sends `register`; center replies `registered`; center sends `coll
 mvn clean verify
 ```
 
-- Unit tests cover the adapter registry, core execution, browser/meta/remote paths and WS helpers (14 test sources under `src/test`).
+- Unit tests cover the adapter registry, core execution, browser/meta/remote paths and WS helpers (19 Java test sources under `src/test`).
 - JaCoCo runs `prepare-agent`, `report` and `check` on the `verify` phase with a **90% line-coverage** rule (`haltOnFailure=false`).
 - `scripts/generate_opencli_adapter_ids.py` regenerates `OpenCliAdapterIds` / `OpenCliAdapterTaxonomy` from the upstream `opencli/docs/adapters/index.md` + `cli-manifest.json` (set `OPENCLI_ROOT` to point at the upstream tree).
 - Release packaging (`mvn -Prelease deploy`) attaches sources and javadoc jars, GPG-signs artifacts and is wired for Sonatype Central Publishing; plain `mvn deploy` routes SNAPSHOT/release artifacts to the Aliyun Maven repository per `distributionManagement`.
@@ -243,7 +243,7 @@ mvn clean verify
 |---|---|---|---|
 | `feature/1.0.x` (this branch) | `1.0.x.*` | 8 | Compatibility fixes and JDK-8-safe dependency upgrades only |
 | `feature/2.0.x` | `2.0.x.*` | 17 | JDK 17 line |
-| `feature/3.0.x` | `3.0.x.*` | 21 | JDK 21 line |
+| `feature/3.0.x` (this branch) | `3.0.x.*` | 21 | JDK 21 line |
 
 Branch POMs (JDK and dependency stack per line) are rendered by `scripts/render-branch-pom.py`.
 
