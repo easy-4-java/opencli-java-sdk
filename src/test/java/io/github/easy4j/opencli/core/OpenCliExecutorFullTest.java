@@ -12,6 +12,8 @@ class OpenCliExecutorFullTest {
     @Test
     void shouldAcceptVarargsInvoke() {
         OpenCliProperties props = new OpenCliProperties();
+        // 指向确定不存在的可执行文件，避免依赖"宿主机恰好没装 opencli"。
+        props.setExecutable("/nonexistent/opencli-for-test");
         OpenCliExecutor executor = new OpenCliExecutor(props);
         assertThrows(Exception.class, () -> executor.invoke("chatgpt", "ask", "hello"));
     }
