@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """从 opencli cli-manifest.json 生成 Java SDK 100% 命令覆盖测试（请勿手改生成文件）。
 
 测试分层（两层互补，非重复）：

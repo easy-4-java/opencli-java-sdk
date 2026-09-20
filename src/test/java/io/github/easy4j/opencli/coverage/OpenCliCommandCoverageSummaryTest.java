@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 class OpenCliCommandCoverageSummaryTest {
 
     /** cli-manifest.json 条目数（adapter 子命令）。 */
-    static final int MANIFEST_ADAPTER_COMMANDS = 1275;
+    static final int MANIFEST_ADAPTER_COMMANDS = 1277;
 
     /** 根级 / meta 子命令数。 */
     static final int META_COMMANDS = 30;
@@ -24,7 +24,7 @@ class OpenCliCommandCoverageSummaryTest {
     static final int BROWSER_COMMANDS = 42;
 
     /** 合计需覆盖命令数。 */
-    static final int TOTAL_COMMANDS = 1347;
+    static final int TOTAL_COMMANDS = 1349;
 
     @Test
     void manifestResourceMatchesConstant() throws Exception {
@@ -36,6 +36,6 @@ class OpenCliCommandCoverageSummaryTest {
 
     @Test
     void totalCoverageBudget() {
-        assertEquals(1347, MANIFEST_ADAPTER_COMMANDS + META_COMMANDS + BROWSER_COMMANDS);
+        assertEquals(1349, MANIFEST_ADAPTER_COMMANDS + META_COMMANDS + BROWSER_COMMANDS);
     }
 }

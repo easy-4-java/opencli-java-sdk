@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 按分支名重写 opencli-java-sdk 的 pom.xml。
 
@@ -18,7 +16,7 @@ from __future__ import annotations
 import os
 import pathlib
 import sys
-from datetime import date
+from datetime import datetime
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 POM = ROOT / "pom.xml"
@@ -26,7 +24,7 @@ POM = ROOT / "pom.xml"
 def version_date_suffix() -> str:
     """SNAPSHOT: {date}-SNAPSHOT；RELEASE(RELEASE=1): 仅 {date}。"""
     raw = os.environ.get("RELEASE_DATE", "").strip()
-    day = raw if raw else date.today().strftime("%Y%m%d")
+    day = raw if raw else datetime.now().astimezone().date().strftime("%Y%m%d")
     if os.environ.get("RELEASE", "").strip().lower() in ("1", "true", "yes"):
         return day
     return f"{day}-SNAPSHOT"

@@ -9041,5 +9041,21 @@
     "subcommand": "whoami",
     "positionals": [],
     "options": {}
+  },
+  {
+    "site": "linkedin",
+    "subcommand": "company",
+    "positionals": [
+      "__coverage__"
+    ],
+    "options": {}
+  },
+  {
+    "site": "linkedin",
+    "subcommand": "connections",
+    "positionals": [],
+    "options": {
+      "limit": "__coverage__"
+    }
   }
 ]

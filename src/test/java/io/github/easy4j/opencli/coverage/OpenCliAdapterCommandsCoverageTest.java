@@ -32,7 +32,7 @@ import org.junit.jupiter.params.provider.MethodSource;
  */
 class OpenCliAdapterCommandsCoverageTest {
 
-    private static final int EXPECTED_MANIFEST_COMMAND_COUNT = 1275;
+    private static final int EXPECTED_MANIFEST_COMMAND_COUNT = 1277;
 
     /** Manifest 命令条目（与 manifest-coverage-commands.json 一一对应）。 */
     private static final class ManifestCommand {
