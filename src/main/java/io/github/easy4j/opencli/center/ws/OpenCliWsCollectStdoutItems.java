@@ -12,7 +12,7 @@ import java.util.List;
  * Parses local opencli stdout into an {@code items} array similar to
  * Python {@code agent_server._parse_output}, for use in {@code result} WebSocket messages.
  *
- * @author [@Loong Wan](https://github.com/loong10k)
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  */public final class OpenCliWsCollectStdoutItems {
 

@@ -6,7 +6,7 @@ import java.util.List;
  * Maps a domain request object to OpenCLI argv fragments (excluding the executable name
  * and adapter name).
  *
- * @author [@Loong Wan](https://github.com/loong10k)
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  */public interface OpenCliArgumentProvider {
 

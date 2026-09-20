@@ -11,7 +11,7 @@ import java.util.Objects;
  * into the argv list required by {@link io.github.easy4j.opencli.core.OpenCliExecutor#invoke(List)}:
  * {@code [site, command, ...positional, --k v..., -f format]}.
  *
- * @author [@Loong Wan](https://github.com/loong10k)
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  */public final class OpenCliCenterWsCollectToArgv {
 

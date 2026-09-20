@@ -4,7 +4,7 @@ package io.github.easy4j.opencli;
  * Determines where an OpenCLI command is executed: as a local subprocess or via a remote
  Agent HTTP API compatible with opencli-admin.
  *
- * @author [@Loong Wan](https://github.com/loong10k)
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  */public enum OpenCliExecutionTarget {
 
