@@ -17,7 +17,7 @@ import java.util.Optional;
  * Probes whether the local {@code opencli} executable is installed and capable of executing
  * a lightweight command ({@code opencli list}).
  *
- * @author [@Loong Wan](https://github.com/loong10k)
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  */public class OpenCliAvailabilityChecker {
 

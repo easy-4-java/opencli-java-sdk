@@ -4,7 +4,7 @@ package io.github.easy4j.opencli.util;
  * String utilities, avoiding hard dependency on JDK 11+ {@link String#isBlank()}
  * and consistent with the existing starter utility style.
  *
- * @author [@Loong Wan](https://github.com/loong10k)
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  */public final class OpenCliStrings {
 
