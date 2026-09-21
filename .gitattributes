@@ -1,0 +1,2 @@
+# The last TSV field intentionally encodes an empty argv token. Do not trim it.
+src/test/resources/opencli-contracts/v1/argv.tsv whitespace=-blank-at-eol
