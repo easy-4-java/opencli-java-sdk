@@ -1,0 +1,53 @@
+{
+  "status": "PASS",
+  "validator": "custom_document_structure_only",
+  "official_openspec_strict": "NOT_RUN_ENVIRONMENT",
+  "sdk_tests": "NOT_RUN",
+  "counts": {
+    "changes": 10,
+    "requirements": 59,
+    "scenarios": 118,
+    "implementation_tasks": 84,
+    "checked_tasks": 0,
+    "relative_links": 130
+  },
+  "errors": [],
+  "warnings": [],
+  "validator_negative_self_tests": [
+    {
+      "case": "missing_requirement_keyword",
+      "mutation_detected": true,
+      "error_count": 5
+    },
+    {
+      "case": "wrong_scenario_heading_level",
+      "mutation_detected": true,
+      "error_count": 6
+    },
+    {
+      "case": "missing_when",
+      "mutation_detected": true,
+      "error_count": 1
+    },
+    {
+      "case": "missing_then",
+      "mutation_detected": true,
+      "error_count": 1
+    },
+    {
+      "case": "checked_unimplemented_task",
+      "mutation_detected": true,
+      "error_count": 1
+    },
+    {
+      "case": "broken_relative_link",
+      "mutation_detected": true,
+      "error_count": 1
+    },
+    {
+      "case": "dependency_cycle",
+      "mutation_detected": true,
+      "error_count": 1
+    }
+  ]
+}
