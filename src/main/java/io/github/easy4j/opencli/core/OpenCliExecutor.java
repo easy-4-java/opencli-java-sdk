@@ -112,7 +112,7 @@ public class OpenCliExecutor {
         if (OpenCliStrings.isBlank(exe)) {
             throw new IllegalStateException("opencli.executable must not be blank");
         }
-        CommandLine cmd = new CommandLine(exe.trim());
+        CommandLine cmd = new LiteralCommandLine(exe.trim());
         appendLiteralArgs(cmd, properties.getLeadingArguments(), "leadingArguments");
         appendLiteralArgs(cmd, adapterAndRest, "adapterAndRest");
         return cmd;
