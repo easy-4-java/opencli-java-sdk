@@ -1,0 +1,126 @@
+name: OpenCLI Contracts
+
+on:
+  push:
+    branches:
+      - 'feature/1.0.x'
+      - 'feature/2.0.x'
+      - 'feature/3.0.x'
+      - 'feature/*-contract-hardening'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  specification:
+    name: OpenSpec strict and evidence-runner tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      OPENSPEC_TELEMETRY: '0'
+      DO_NOT_TRACK: '1'
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify report runner and shared fixture hashes
+        run: |
+          python3 -m unittest discover -s scripts/tests -v
+          (cd src/test/resources/opencli-contracts/v1 && sha256sum -c SHA256SUMS)
+      - name: Install pinned official OpenSpec
+        run: npm install --prefix "$RUNNER_TEMP/opencli-openspec" --ignore-scripts --no-audit --no-fund @fission-ai/openspec@1.13.1
+      - name: Validate all proposals and each change with strict mode
+        shell: bash
+        run: |
+          export PATH="$RUNNER_TEMP/opencli-openspec/node_modules/.bin:$PATH"
+          mkdir -p .spec-evidence
+          openspec --version | tee .spec-evidence/version.txt
+          openspec list --json > .spec-evidence/list.json
+          failed=0
+          for path in openspec/changes/*; do
+            [[ -d "$path" && "$(basename "$path")" != archive ]] || continue
+            change="$(basename "$path")"
+            if openspec validate "$change" --strict --no-interactive > ".spec-evidence/$change.log" 2>&1; then
+              printf '%s\tPASS\n' "$change"
+            else
+              cat ".spec-evidence/$change.log"
+              failed=1
+            fi
+          done
+          if ! openspec validate --all --strict --no-interactive > .spec-evidence/all.log 2>&1; then
+            cat .spec-evidence/all.log
+            failed=1
+          fi
+          exit "$failed"
+      - name: Upload specification evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: openspec-strict-${{ github.sha }}
+          path: .spec-evidence
+          if-no-files-found: error
+
+  jvm:
+    name: Branch-specific JVM contract verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - name: Select declared branch line
+        id: line
+        shell: bash
+        run: |
+          case "$GITHUB_REF_NAME" in
+            feature/1.0.x*) echo 'java=8' >> "$GITHUB_OUTPUT" ;;
+            feature/2.0.x*) echo 'java=17' >> "$GITHUB_OUTPUT" ;;
+            feature/3.0.x*) echo 'java=21' >> "$GITHUB_OUTPUT" ;;
+            *) echo 'Unsupported branch line' >&2; exit 1 ;;
+          esac
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ steps.line.outputs.java }}
+          cache: maven
+      - name: Record exact source and actual tools
+        run: |
+          mkdir -p .contract-evidence
+          git rev-parse HEAD > .contract-evidence/head.txt
+          java -version > .contract-evidence/java.txt 2>&1
+          bash ./mvnw -version > .contract-evidence/maven.txt 2>&1
+      - name: Full clean verify using this branch wrapper
+        id: verify
+        shell: bash
+        run: |
+          set +e
+          bash ./mvnw -B --no-transfer-progress clean verify > .contract-evidence/maven.log 2>&1
+          result=$?
+          printf '%s\n' "$result" > .contract-evidence/maven.exit
+          tail -100 .contract-evidence/maven.log
+          exit "$result"
+      - name: Require nonempty, non-skipped contract evidence
+        if: always()
+        shell: bash
+        run: |
+          test -f .contract-evidence/maven.exit
+          python3 scripts/contract_report.py \
+            --reports target/surefire-reports \
+            --head "$(cat .contract-evidence/head.txt)" \
+            --branch "$GITHUB_REF_NAME" \
+            --java-version-file .contract-evidence/java.txt \
+            --maven-version-file .contract-evidence/maven.txt \
+            --exit-code "$(cat .contract-evidence/maven.exit)" \
+            --suite argv=io.github.easy4j.opencli.contract.OpenCliArgvContractTest \
+            --output .contract-evidence/report.json
+      - name: Upload actual JVM evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: contracts-jdk-${{ steps.line.outputs.java }}-${{ github.sha }}
+          path: |
+            .contract-evidence
+            target/surefire-reports
+            target/site/jacoco
+          if-no-files-found: error
