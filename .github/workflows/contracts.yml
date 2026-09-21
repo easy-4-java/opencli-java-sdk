@@ -36,22 +36,22 @@ jobs:
         shell: bash
         run: |
           export PATH="$RUNNER_TEMP/opencli-openspec/node_modules/.bin:$PATH"
-          mkdir -p .spec-evidence
-          openspec --version | tee .spec-evidence/version.txt
-          openspec list --json > .spec-evidence/list.json
+          mkdir -p spec-evidence
+          openspec --version | tee spec-evidence/version.txt
+          openspec list --json > spec-evidence/list.json
           failed=0
           for path in openspec/changes/*; do
             [[ -d "$path" && "$(basename "$path")" != archive ]] || continue
             change="$(basename "$path")"
-            if openspec validate "$change" --strict --no-interactive > ".spec-evidence/$change.log" 2>&1; then
+            if openspec validate "$change" --strict --no-interactive > "spec-evidence/$change.log" 2>&1; then
               printf '%s\tPASS\n' "$change"
             else
-              cat ".spec-evidence/$change.log"
+              cat "spec-evidence/$change.log"
               failed=1
             fi
           done
-          if ! openspec validate --all --strict --no-interactive > .spec-evidence/all.log 2>&1; then
-            cat .spec-evidence/all.log
+          if ! openspec validate --all --strict --no-interactive > spec-evidence/all.log 2>&1; then
+            cat spec-evidence/all.log
             failed=1
           fi
           exit "$failed"
@@ -60,7 +60,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: openspec-strict-${{ github.sha }}
-          path: .spec-evidence
+          path: spec-evidence
           if-no-files-found: error
 
   jvm:
@@ -86,41 +86,45 @@ jobs:
           cache: maven
       - name: Record exact source and actual tools
         run: |
-          mkdir -p .contract-evidence
-          git rev-parse HEAD > .contract-evidence/head.txt
-          java -version > .contract-evidence/java.txt 2>&1
-          bash ./mvnw -version > .contract-evidence/maven.txt 2>&1
+          mkdir -p contract-evidence
+          git rev-parse HEAD > contract-evidence/head.txt
+          java -version > contract-evidence/java.txt 2>&1
+          if ! bash ./mvnw -version > contract-evidence/maven.txt 2>&1; then
+            cat contract-evidence/maven.txt
+            exit 1
+          fi
+          cat contract-evidence/java.txt contract-evidence/maven.txt
       - name: Full clean verify using this branch wrapper
         id: verify
         shell: bash
         run: |
           set +e
-          bash ./mvnw -B --no-transfer-progress clean verify > .contract-evidence/maven.log 2>&1
+          bash ./mvnw -B --no-transfer-progress clean verify > contract-evidence/maven.log 2>&1
           result=$?
-          printf '%s\n' "$result" > .contract-evidence/maven.exit
-          tail -100 .contract-evidence/maven.log
+          printf '%s\n' "$result" > contract-evidence/maven.exit
+          tail -100 contract-evidence/maven.log
           exit "$result"
       - name: Require nonempty, non-skipped contract evidence
         if: always()
         shell: bash
         run: |
-          test -f .contract-evidence/maven.exit
+          test -f contract-evidence/maven.exit
           python3 scripts/contract_report.py \
             --reports target/surefire-reports \
-            --head "$(cat .contract-evidence/head.txt)" \
+            --head "$(cat contract-evidence/head.txt)" \
             --branch "$GITHUB_REF_NAME" \
-            --java-version-file .contract-evidence/java.txt \
-            --maven-version-file .contract-evidence/maven.txt \
-            --exit-code "$(cat .contract-evidence/maven.exit)" \
+            --java-version-file contract-evidence/java.txt \
+            --maven-version-file contract-evidence/maven.txt \
+            --exit-code "$(cat contract-evidence/maven.exit)" \
             --suite argv=io.github.easy4j.opencli.contract.OpenCliArgvContractTest \
-            --output .contract-evidence/report.json
+            --output contract-evidence/report.json
       - name: Upload actual JVM evidence
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: contracts-jdk-${{ steps.line.outputs.java }}-${{ github.sha }}
           path: |
-            .contract-evidence
+            contract-evidence
             target/surefire-reports
             target/site/jacoco
           if-no-files-found: error
