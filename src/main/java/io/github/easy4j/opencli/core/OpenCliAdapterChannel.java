@@ -2,34 +2,27 @@ package io.github.easy4j.opencli.core;
 
 import io.github.easy4j.opencli.util.OpenCliStrings;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 针对单个 OpenCLI adapter 的轻量通道：自动在 argv 前插入 adapter id。
- */
-@Slf4j/**
-
- * Lightweight channel for a single OpenCLI adapter: automatically prepends the adapter id
- * to every argv invocation.
-
+ * Lightweight channel for one OpenCLI adapter. Values are literal argv tokens;
+ * only the separately supplied adapter identifier is normalized.
  *
-
  * @author <a href="https://github.com/loong10k">Loong Wan</a>
-
  * @since 3.0.0
-
  */
-
+@Slf4j
 public final class OpenCliAdapterChannel {
 
     private final OpenCliExecutor executor;
     private final String adapterId;
 
     /**
-     * @param executor   共享执行器，不得为 null
-     * @param adapterId  文档中的 adapter 名（如 {@code twitter}），不得为空白
+     * @param executor shared executor
+     * @param adapterId nonblank adapter identifier
      */
     public OpenCliAdapterChannel(OpenCliExecutor executor, String adapterId) {
         this.executor = Objects.requireNonNull(executor, "executor");
@@ -39,37 +32,31 @@ public final class OpenCliAdapterChannel {
         }
     }
 
-    /**
-     * @return 当前通道绑定的 adapter id
-     */
+    /** @return this channel's adapter identifier */
     public String getAdapterId() {
         return adapterId;
     }
 
     /**
-     * 调用 {@code opencli <adapter> <subcommandAndArgs...>}。
+     * Invoke an adapter with a snapshot of the supplied literal arguments.
+     * An empty list invokes its root; null elements are rejected.
      *
-     * @param subcommandAndArgs 子命令及后续参数；不得为 null，可为空（仅调 adapter 根命令时）
-     * @return 成功时的 {@link OpenCliResult}
+     * @param subcommandAndArgs subcommand and subsequent values
+     * @return execution result
      */
     public OpenCliResult invoke(List<String> subcommandAndArgs) {
-        Objects.requireNonNull(subcommandAndArgs, "subcommandAndArgs");
-        List<String> tokens = new ArrayList<>();
+        List<String> rest = OpenCliArgSupport.snapshotValues(subcommandAndArgs, "subcommandAndArgs");
+        List<String> tokens = new ArrayList<>(rest.size() + 1);
         tokens.add(adapterId);
-        for (String s : subcommandAndArgs) {
-            if (OpenCliStrings.isNotBlank(s)) {
-                tokens.add(s.trim());
-            }
-        }
-        log.debug("OpenCLI adapter invoke adapterId={} subcommandSummary={}", adapterId, summarizeSubcommand(tokens));
+        tokens.addAll(rest);
+        // Do not put prompt text or positional values in default diagnostic logs.
+        log.debug("OpenCLI adapter invoke argvSize={}", tokens.size());
         return executor.invoke(tokens);
     }
 
     /**
-     * 通过 {@link OpenCliAdapterCommandRequest} 发起调用（推荐测试与 SDK 侧结构化入口）。
-     *
-     * @param request 结构化子命令请求，不得为 null
-     * @return 执行结果
+     * @param request structured command request
+     * @return execution result
      */
     public OpenCliResult invoke(OpenCliAdapterCommandRequest request) {
         Objects.requireNonNull(request, "request");
@@ -77,38 +64,11 @@ public final class OpenCliAdapterChannel {
     }
 
     /**
-     * {@link #invoke(List)} 的可变参数形式。
-     *
-     * @param subcommandAndArgs 子命令及 flag
-     * @return 执行结果
+     * @param subcommandAndArgs subcommand and literal values
+     * @return execution result
      */
     public OpenCliResult invoke(String... subcommandAndArgs) {
-        List<String> list = new ArrayList<>();
-        if (Objects.nonNull(subcommandAndArgs)) {
-            for (String s : subcommandAndArgs) {
-                if (OpenCliStrings.isNotBlank(s)) {
-                    list.add(s.trim());
-                }
-            }
-        }
-        return invoke(list);
-    }
-
-    private static String summarizeSubcommand(List<String> tokens) {
-        if (tokens.size() <= 1) {
-            return "(root)";
-        }
-        int limit = Math.min(tokens.size(), 4);
-        StringBuilder sb = new StringBuilder();
-        for (int i = 1; i < limit; i++) {
-            if (i > 1) {
-                sb.append(' ');
-            }
-            sb.append(tokens.get(i));
-        }
-        if (tokens.size() > limit) {
-            sb.append(" ...");
-        }
-        return sb.toString();
+        Objects.requireNonNull(subcommandAndArgs, "subcommandAndArgs");
+        return invoke(Arrays.asList(subcommandAndArgs));
     }
 }
