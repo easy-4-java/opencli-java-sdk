@@ -1,0 +1,153 @@
+{
+  "kind": "SYNTHETIC_PLANNING_FIXTURES",
+  "execution_status": "NOT_RUN",
+  "warning": "Examples are proposed test inputs/expected contract behavior, not captured upstream output or executed regression evidence.",
+  "argv": [
+    {
+      "id": "ARGV-EMPTY",
+      "input": [
+        "demo",
+        "echo",
+        "",
+        "  x  ",
+        "\n中文\n"
+      ],
+      "expected_child_argv": [
+        "demo",
+        "echo",
+        "",
+        "  x  ",
+        "\n中文\n"
+      ]
+    },
+    {
+      "id": "ARGV-LITERAL",
+      "input": [
+        "demo",
+        "echo",
+        "--",
+        "-literal",
+        "$(printf SHOULD_NOT_RUN); *",
+        "--key=a=b"
+      ],
+      "expected": "each token remains literal; no shell expansion"
+    },
+    {
+      "id": "ARGV-REPEAT",
+      "input": [
+        "demo",
+        "echo",
+        "--tag",
+        "first",
+        "--tag",
+        "second",
+        "--keep-tab",
+        "false"
+      ],
+      "expected": "retain occurrences and explicit false on a compatible schema"
+    }
+  ],
+  "errors": [
+    {
+      "id": "ERR-YAML",
+      "process_exit_code": 77,
+      "stdout": "",
+      "stderr": "ok: false\nerror:\n  code: AUTH_REQUIRED\n  message: Login required\n  help: Open the browser and sign in\n  exitCode: 77\n# AutoFix: example comment\n",
+      "expected_code": "AUTH_REQUIRED",
+      "expected_help": "Open the browser and sign in"
+    },
+    {
+      "id": "ERR-MISMATCH",
+      "process_exit_code": 1,
+      "stderr": "ok: false\nerror:\n  code: AUTH_REQUIRED\n  message: Cross-package fixture\n  exitCode: 77\n",
+      "expected": {
+        "observed_process_exit": 1,
+        "reported_envelope_exit": 77,
+        "mismatch": true
+      }
+    },
+    {
+      "id": "ERR-MALFORMED",
+      "process_exit_code": 1,
+      "stderr": "{ incomplete",
+      "expected": "primary failure preserved; parser_state=UNPARSED"
+    },
+    {
+      "id": "ERR-TEXT-WARNING",
+      "process_exit_code": 0,
+      "stderr": "warning: harmless fixture",
+      "expected": "not automatically COMMAND_FAILURE"
+    }
+  ],
+  "remote_reject_before_io": [
+    {
+      "id": "REMOTE-BROWSER",
+      "argv": [
+        "browser",
+        "session-a",
+        "state"
+      ],
+      "reason": "no verified Browser session legacy collect contract"
+    },
+    {
+      "id": "REMOTE-ROOT",
+      "argv": [
+        "doctor"
+      ],
+      "reason": "not site+command legacy shape"
+    },
+    {
+      "id": "REMOTE-REPEAT",
+      "argv": [
+        "demo",
+        "echo",
+        "--tag",
+        "first",
+        "--tag",
+        "second"
+      ],
+      "reason": "Map cannot preserve repeated occurrences"
+    },
+    {
+      "id": "REMOTE-TERMINATOR",
+      "argv": [
+        "demo",
+        "echo",
+        "--",
+        "-value"
+      ],
+      "reason": "no proven lossless legacy mapping"
+    }
+  ],
+  "ws": [
+    {
+      "id": "WS-EARLY",
+      "state": "REGISTERING",
+      "message_type": "collect",
+      "expected_execution_count": 0
+    },
+    {
+      "id": "WS-DUPLICATE",
+      "same_request_id": true,
+      "same_payload": true,
+      "within_retention": true,
+      "expected_execution_count": 1
+    },
+    {
+      "id": "WS-COLLISION",
+      "same_request_id": true,
+      "same_payload": false,
+      "expected": "reject second payload without changing first task"
+    },
+    {
+      "id": "WS-AFTER-CLOSE",
+      "state": "CLOSED",
+      "action": "start",
+      "expected": "explicit lifecycle error"
+    }
+  ],
+  "privacy": {
+    "canary": "TEST_ONLY_CANARY_DO_NOT_LOG_7c5d",
+    "assertion": "absent from all SDK-owned default logs and safe exception diagnostics; present unchanged in authorized raw fixture output"
+  }
+}

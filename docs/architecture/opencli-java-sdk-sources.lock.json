@@ -1,0 +1,278 @@
+{
+  "audit_date": "2026-09-21",
+  "date_basis": "用户任务日期，UTC+08:00",
+  "sdk_refs": {
+    "feature/1.0.x": "2095f617d56789569d32cffe2cdedffe595270ba",
+    "feature/2.0.x": "26d703c72389361e1b755733ac61145f783334b5",
+    "feature/3.0.x": "a1278008c17fd94523ad47307183485fefdf67e0"
+  },
+  "upstream_ref": "8271afc67e8504bda94c147f446ee29775d08274",
+  "upstream_package_version": "1.8.8",
+  "source_method": "GitHub connector reads; no complete local checkout in this turn",
+  "sources": [
+    {
+      "id": "E01",
+      "repository": "easy-4-java/opencli-java-sdk",
+      "ref": "a1278008c17fd94523ad47307183485fefdf67e0",
+      "path": "src/main/java/io/github/easy4j/opencli/core/OpenCliExecutor.java",
+      "url": "https://github.com/easy-4-java/opencli-java-sdk/blob/a1278008c17fd94523ad47307183485fefdf67e0/src/main/java/io/github/easy4j/opencli/core/OpenCliExecutor.java",
+      "symbol": "invoke / appendCleanArgs / run / completeAfterWait",
+      "read_range": "全文",
+      "git_blob_sha": "ac1d8466dc9e7dc15e36cd2bdeb79fc2f8020661",
+      "observation": "本地 argv 经 trim 且空白 token 被丢弃；运行时分支选择本地或 legacy collect；失败日志及异常文本包含 commandLine。"
+    },
+    {
+      "id": "E02",
+      "repository": "easy-4-java/opencli-java-sdk",
+      "ref": "a1278008c17fd94523ad47307183485fefdf67e0",
+      "path": "src/main/java/io/github/easy4j/opencli/core/OpenCliAdapterChannel.java",
+      "url": "https://github.com/easy-4-java/opencli-java-sdk/blob/a1278008c17fd94523ad47307183485fefdf67e0/src/main/java/io/github/easy4j/opencli/core/OpenCliAdapterChannel.java",
+      "symbol": "invoke / summarizeSubcommand",
+      "read_range": "全文",
+      "git_blob_sha": "cfb19c473d86205f35c296fc1d7260296db248c6",
+      "observation": "通用 Adapter 通道及结构化请求入口已存在；通道再次 trim 参数，debug 摘要会拼接前几个参数。"
+    },
+    {
+      "id": "E03",
+      "repository": "easy-4-java/opencli-java-sdk",
+      "ref": "a1278008c17fd94523ad47307183485fefdf67e0",
+      "path": "src/main/java/io/github/easy4j/opencli/browser/support/OpenCliBrowserStateOptions.java",
+      "url": "https://github.com/easy-4-java/opencli-java-sdk/blob/a1278008c17fd94523ad47307183485fefdf67e0/src/main/java/io/github/easy4j/opencli/browser/support/OpenCliBrowserStateOptions.java",
+      "symbol": "appendTo",
+      "read_range": "全文",
+      "git_blob_sha": "f271b73c5943e00047f8e8bf1690b5f30e7f362e",
+      "observation": "已有 source 与 compareSources，分别输出 --source 和 --compare-sources。"
+    },
+    {
+      "id": "E04",
+      "repository": "easy-4-java/opencli-java-sdk",
+      "ref": "a1278008c17fd94523ad47307183485fefdf67e0",
+      "path": "src/main/java/io/github/easy4j/opencli/core/support/SubprocessExecutionSupport.java",
+      "url": "https://github.com/easy-4-java/opencli-java-sdk/blob/a1278008c17fd94523ad47307183485fefdf67e0/src/main/java/io/github/easy4j/opencli/core/support/SubprocessExecutionSupport.java",
+      "symbol": "configureMaxConcurrentExecutions / execute / executeWithinLimit / awaitResult",
+      "read_range": "全文",
+      "git_blob_sha": "bab1bc7684d5ffcc159f8784e9cdf50687ccbfec",
+      "observation": "进程并发是静态可替换 Semaphore；acquire 无超时；两个 ByteArrayOutputStream 无上限；中断路径无显式进程清理 finally。"
+    },
+    {
+      "id": "E05",
+      "repository": "easy-4-java/opencli-java-sdk",
+      "ref": "a1278008c17fd94523ad47307183485fefdf67e0",
+      "path": "src/main/java/io/github/easy4j/opencli/remote/OpenCliArgvToCollectParser.java",
+      "url": "https://github.com/easy-4-java/opencli-java-sdk/blob/a1278008c17fd94523ad47307183485fefdf67e0/src/main/java/io/github/easy4j/opencli/remote/OpenCliArgvToCollectParser.java",
+      "symbol": "parse / normalizeKey",
+      "read_range": "全文",
+      "git_blob_sha": "c4523656b65397d6545e6133ff16bff72c52865a",
+      "observation": "前两个 token 固定解析 site、command；使用 Map 保存选项；trim 参数并小写选项名；不识别 -- 终止符；负数下一参数可能被当作选项。"
+    },
+    {
+      "id": "E06",
+      "repository": "easy-4-java/opencli-java-sdk",
+      "ref": "a1278008c17fd94523ad47307183485fefdf67e0",
+      "path": "src/main/java/io/github/easy4j/opencli/remote/OpenCliRemoteAgentHttpClient.java",
+      "url": "https://github.com/easy-4-java/opencli-java-sdk/blob/a1278008c17fd94523ad47307183485fefdf67e0/src/main/java/io/github/easy4j/opencli/remote/OpenCliRemoteAgentHttpClient.java",
+      "symbol": "collect / mapResponse / AgentCollectEnvelope",
+      "read_range": "全文",
+      "git_blob_sha": "3949507a5526c7c9dee8538d3a2a14ae72166e38",
+      "observation": "对接 opencli-admin POST /collect；只读取 success/items/error；映射为本地 0/1；非 2xx 响应前 500 字符和远端 error 会写日志。"
+    },
+    {
+      "id": "E07",
+      "repository": "easy-4-java/opencli-java-sdk",
+      "ref": "a1278008c17fd94523ad47307183485fefdf67e0",
+      "path": "src/main/java/io/github/easy4j/opencli/center/ws/OpenCliWsReverseAgentClient.java",
+      "url": "https://github.com/easy-4-java/opencli-java-sdk/blob/a1278008c17fd94523ad47307183485fefdf67e0/src/main/java/io/github/easy4j/opencli/center/ws/OpenCliWsReverseAgentClient.java",
+      "symbol": "collectPool / handleTextMessage / runCollectSafe / stop / close",
+      "read_range": "全文",
+      "git_blob_sha": "3320285bcc7a46330b5ae896035c80c8025257b1",
+      "observation": "反向边缘 Worker，不是应用端 WS RPC transport；cachedThreadPool 无界；collect 不检查 registered 完成；未见 request_id 去重；close 不等待在途任务。"
+    },
+    {
+      "id": "E08",
+      "repository": "easy-4-java/opencli-java-sdk",
+      "ref": "a1278008c17fd94523ad47307183485fefdf67e0",
+      "path": "src/main/java/io/github/easy4j/opencli/core/OpenCliOutputParser.java",
+      "url": "https://github.com/easy-4-java/opencli-java-sdk/blob/a1278008c17fd94523ad47307183485fefdf67e0/src/main/java/io/github/easy4j/opencli/core/OpenCliOutputParser.java",
+      "symbol": "parseBestEffort",
+      "read_range": "全文",
+      "git_blob_sha": "97820a9382de0600580ec916017e47d7594dd0d4",
+      "observation": "只判断首尾括号的 JSON shape；不是错误协议解析。"
+    },
+    {
+      "id": "E09",
+      "repository": "easy-4-java/opencli-java-sdk",
+      "ref": "a1278008c17fd94523ad47307183485fefdf67e0",
+      "path": "src/main/java/io/github/easy4j/opencli/parser/OpenCliStdoutJson.java",
+      "url": "https://github.com/easy-4-java/opencli-java-sdk/blob/a1278008c17fd94523ad47307183485fefdf67e0/src/main/java/io/github/easy4j/opencli/parser/OpenCliStdoutJson.java",
+      "symbol": "parseLenient / typed",
+      "read_range": "全文",
+      "git_blob_sha": "abfcdccde33b2551150b06aacdcbce9b22a5b236",
+      "observation": "已有 JsonNode 泛型包装；解析失败返回 text node；尚不能当作 Browser 领域 DTO。"
+    },
+    {
+      "id": "E10",
+      "repository": "easy-4-java/opencli-java-sdk",
+      "ref": "a1278008c17fd94523ad47307183485fefdf67e0",
+      "path": "src/test/resources/opencli/manifest-coverage-meta.json",
+      "url": "https://github.com/easy-4-java/opencli-java-sdk/blob/a1278008c17fd94523ad47307183485fefdf67e0/src/test/resources/opencli/manifest-coverage-meta.json",
+      "symbol": "manifestCommandCount / siteCount",
+      "read_range": "全文",
+      "git_blob_sha": "09d64ff51911fc006955a55cbcab724129dbbe9b",
+      "observation": "记录的是 1275 条命令、173 个站点和本机绝对路径；不含上游 commit/version/hash。"
+    },
+    {
+      "id": "E11",
+      "repository": "easy-4-java/opencli-java-sdk",
+      "ref": "2095f617d56789569d32cffe2cdedffe595270ba",
+      "path": "src/test/java/io/github/easy4j/opencli/coverage/OpenCliAdapterCommandsCoverageTest.java",
+      "url": "https://github.com/easy-4-java/opencli-java-sdk/blob/2095f617d56789569d32cffe2cdedffe595270ba/src/test/java/io/github/easy4j/opencli/coverage/OpenCliAdapterCommandsCoverageTest.java",
+      "symbol": "adapterCommand",
+      "read_range": "全文",
+      "git_blob_sha": "87236529ae5cde55061f25eb64a156f526a7620f",
+      "observation": "使用 RecordingOpenCliExecutor；只检查非空结果与 argv 前两项，不执行真实 OpenCLI。"
+    },
+    {
+      "id": "E12",
+      "repository": "easy-4-java/opencli-java-sdk",
+      "ref": "a1278008c17fd94523ad47307183485fefdf67e0",
+      "path": "README.md",
+      "url": "https://github.com/easy-4-java/opencli-java-sdk/blob/a1278008c17fd94523ad47307183485fefdf67e0/README.md",
+      "symbol": "项目说明 / 兼容矩阵 / 使用示例",
+      "read_range": "1–180",
+      "git_blob_sha": "042a347e9f6ad9a2e69d9bf8e8c13a1e591b0724",
+      "observation": "明确已有通用 Adapter、Meta、Browser、HTTP 和 WS；3.x 文档同时存在 JDK 8、Jackson 2.17.x、错误 Gradle 版本示例等陈旧内容。"
+    },
+    {
+      "id": "E13",
+      "repository": "easy-4-java/opencli-java-sdk",
+      "ref": "2095f617d56789569d32cffe2cdedffe595270ba",
+      "path": "pom.xml",
+      "url": "https://github.com/easy-4-java/opencli-java-sdk/blob/2095f617d56789569d32cffe2cdedffe595270ba/pom.xml",
+      "symbol": "properties / dependencyManagement",
+      "read_range": "1–150",
+      "git_blob_sha": "1b0b97325576536b8770db9946a44047dc67ebb5",
+      "observation": "Java 8；Maven 属性 3.9.16；Jackson BOM 2.18.9；JUnit 5.11.4；POM 4.0.0。"
+    },
+    {
+      "id": "E14",
+      "repository": "easy-4-java/opencli-java-sdk",
+      "ref": "26d703c72389361e1b755733ac61145f783334b5",
+      "path": "pom.xml",
+      "url": "https://github.com/easy-4-java/opencli-java-sdk/blob/26d703c72389361e1b755733ac61145f783334b5/pom.xml",
+      "symbol": "properties",
+      "read_range": "1–86",
+      "git_blob_sha": "13625e78cf40b1a5462695e4d8780a212200d842",
+      "observation": "Java 17；Maven 属性 3.9.16；Jackson BOM 2.22.1；JUnit 6.1.0；POM 4.0.0。"
+    },
+    {
+      "id": "E15",
+      "repository": "easy-4-java/opencli-java-sdk",
+      "ref": "a1278008c17fd94523ad47307183485fefdf67e0",
+      "path": "pom.xml",
+      "url": "https://github.com/easy-4-java/opencli-java-sdk/blob/a1278008c17fd94523ad47307183485fefdf67e0/pom.xml",
+      "symbol": "modelVersion / properties / dependencyManagement",
+      "read_range": "1–150",
+      "git_blob_sha": "5dc8371f52b8f056de1cb07d9e0efb6cd653a836",
+      "observation": "Java 21；Maven 属性 4.0.0-rc-5；Jackson BOM 3.2.1 / tools.jackson；POM 4.1.0；description 尚写 2.x。"
+    },
+    {
+      "id": "E16",
+      "repository": "easy-4-java/opencli-java-sdk",
+      "ref": "a1278008c17fd94523ad47307183485fefdf67e0",
+      "path": ".github/workflows/ci.yml",
+      "url": "https://github.com/easy-4-java/opencli-java-sdk/blob/a1278008c17fd94523ad47307183485fefdf67e0/.github/workflows/ci.yml",
+      "symbol": "on / jobs.build",
+      "read_range": "全文",
+      "git_blob_sha": "de848421bc39110d52112761445f305dd72fc5f4",
+      "observation": "3.x workflow 仅针对该 feature 分支和手动触发；Ubuntu/JDK21/checked-in Maven wrapper；不能将规范分支无运行视为 CI 成功。"
+    },
+    {
+      "id": "E17",
+      "repository": "easy-4-java/opencli-java-sdk",
+      "ref": "2095f617d56789569d32cffe2cdedffe595270ba",
+      "path": "src/main/java/io/github/easy4j/opencli/core/OpenCliExecutor.java",
+      "url": "https://github.com/easy-4-java/opencli-java-sdk/blob/2095f617d56789569d32cffe2cdedffe595270ba/src/main/java/io/github/easy4j/opencli/core/OpenCliExecutor.java",
+      "symbol": "invoke / appendCleanArgs",
+      "read_range": "120–180",
+      "git_blob_sha": "f313578734adbefb58c94092a8e537adc6bb6963",
+      "observation": "1.x 同样 trim 并丢弃空白参数，已在本轮独立读取。"
+    },
+    {
+      "id": "E18",
+      "repository": "easy-4-java/opencli-java-sdk",
+      "ref": "26d703c72389361e1b755733ac61145f783334b5",
+      "path": "src/main/java/io/github/easy4j/opencli/core/OpenCliExecutor.java",
+      "url": "https://github.com/easy-4-java/opencli-java-sdk/blob/26d703c72389361e1b755733ac61145f783334b5/src/main/java/io/github/easy4j/opencli/core/OpenCliExecutor.java",
+      "symbol": "invoke / appendCleanArgs",
+      "read_range": "120–180",
+      "git_blob_sha": "ac1d8466dc9e7dc15e36cd2bdeb79fc2f8020661",
+      "observation": "2.x 同样 trim 并丢弃空白参数；返回 Git blob 与 3.x 此文件相同。"
+    },
+    {
+      "id": "U01",
+      "repository": "jackwener/OpenCLI",
+      "ref": "8271afc67e8504bda94c147f446ee29775d08274",
+      "path": "package.json",
+      "url": "https://github.com/jackwener/OpenCLI/blob/8271afc67e8504bda94c147f446ee29775d08274/package.json",
+      "symbol": "version / exports",
+      "read_range": "1–44",
+      "git_blob_sha": "988ca1b8d0df32cd31ee59c63f0327a4e35abf19",
+      "observation": "锁定 OpenCLI 1.8.8，./pipeline 是 JS package export，不足以证明存在公共 pipeline CLI。"
+    },
+    {
+      "id": "U02",
+      "repository": "jackwener/OpenCLI",
+      "ref": "8271afc67e8504bda94c147f446ee29775d08274",
+      "path": "src/help.ts",
+      "url": "https://github.com/jackwener/OpenCLI/blob/8271afc67e8504bda94c147f446ee29775d08274/src/help.ts",
+      "symbol": "ArgSpec / OptionSpec / COMMON_OPTIONS / BROWSER_COMMON_OPTIONS",
+      "read_range": "1–240",
+      "git_blob_sha": "409d69a38ff9d76bc2e9675aace757e4c2568851",
+      "observation": "Structured Help 包含 required、optional value、negate、choices；公共参数含 format、trace、window、site-session、keep-tab。"
+    },
+    {
+      "id": "U03",
+      "repository": "jackwener/OpenCLI",
+      "ref": "8271afc67e8504bda94c147f446ee29775d08274",
+      "path": "src/help.ts",
+      "url": "https://github.com/jackwener/OpenCLI/blob/8271afc67e8504bda94c147f446ee29775d08274/src/help.ts",
+      "symbol": "commanderPath / commanderNamespaceHelpData",
+      "read_range": "240–440",
+      "git_blob_sha": "409d69a38ff9d76bc2e9675aace757e4c2568851",
+      "observation": "命名空间 Help 返回 command_options、namespace_options、global_options；browser 路径包含 <session> 占位段。"
+    },
+    {
+      "id": "U04",
+      "repository": "jackwener/OpenCLI",
+      "ref": "8271afc67e8504bda94c147f446ee29775d08274",
+      "path": "src/errors.ts",
+      "url": "https://github.com/jackwener/OpenCLI/blob/8271afc67e8504bda94c147f446ee29775d08274/src/errors.ts",
+      "symbol": "ErrorEnvelope / toEnvelope",
+      "read_range": "1–250及245–文件末尾",
+      "git_blob_sha": "6f63a5baec6baa8333a4cb0911d310482ae73158",
+      "observation": "错误模型为 ok:false/error；wire 字段是 help；包含 error.exitCode 以及可选 trace；hint 转为 help。"
+    },
+    {
+      "id": "U05",
+      "repository": "jackwener/OpenCLI",
+      "ref": "8271afc67e8504bda94c147f446ee29775d08274",
+      "path": "src/commanderAdapter.ts",
+      "url": "https://github.com/jackwener/OpenCLI/blob/8271afc67e8504bda94c147f446ee29775d08274/src/commanderAdapter.ts",
+      "symbol": "renderError / resolveExitCode",
+      "read_range": "1–225",
+      "git_blob_sha": "57e73fb4d2ce487080a68137dcf1711c12a7e728",
+      "observation": "Adapter 错误通过 yaml.dump 后写 stderr，与成功数据 format 分开；可追加 # AutoFix 注释；进程 exit 与 envelope.exitCode 必须分别保留。"
+    },
+    {
+      "id": "U06",
+      "repository": "jackwener/OpenCLI",
+      "ref": "8271afc67e8504bda94c147f446ee29775d08274",
+      "path": "src/pipeline/index.ts",
+      "url": "https://github.com/jackwener/OpenCLI/blob/8271afc67e8504bda94c147f446ee29775d08274/src/pipeline/index.ts",
+      "symbol": "exports",
+      "read_range": "全文",
+      "git_blob_sha": "c9e1cd6cd8364c41ffdaa0a6f7a834ed432c2d62",
+      "observation": "导出 executePipeline、模板求值等 JS 能力；本轮未建立可供 Java subprocess 调用的公共 pipeline CLI 契约。"
+    }
+  ]
+}
