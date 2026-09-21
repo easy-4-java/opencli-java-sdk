@@ -15,32 +15,40 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Install pinned OpenCLI without lifecycle scripts
+      - name: Checkout exact upstream source, not an assumed npm publication
+        uses: actions/checkout@v7
+        with:
+          repository: jackwener/OpenCLI
+          ref: 8271afc67e8504bda94c147f446ee29775d08274
+          path: upstream-src
+          persist-credentials: false
+      - name: Build the locked source with dependency lifecycle scripts disabled
         shell: bash
         run: |
-          mkdir -p upstream-evidence "$RUNNER_TEMP/opencli-prefix" "$RUNNER_TEMP/opencli-isolated-home"
-          npm view @jackwener/opencli@1.8.8 version gitHead dist --json > upstream-evidence/npm-provenance.json
-          npm install --prefix "$RUNNER_TEMP/opencli-prefix" --ignore-scripts --no-audit --no-fund --save-exact @jackwener/opencli@1.8.8
+          mkdir -p upstream-evidence "$RUNNER_TEMP/opencli-isolated-home"
+          git -C upstream-src rev-parse HEAD > upstream-evidence/upstream-head.txt
+          npm view @jackwener/opencli@1.8.8 version gitHead dist --json > upstream-evidence/npm-provenance.json 2> upstream-evidence/npm-provenance.stderr || printf 'UNAVAILABLE_IN_REGISTRY\n' > upstream-evidence/npm-status.txt
+          (cd upstream-src && npm ci --ignore-scripts --no-audit --no-fund && npm run build)
       - name: Capture only bounded version and structured help
         shell: bash
         run: |
           export HOME="$RUNNER_TEMP/opencli-isolated-home"
-          CLI="$RUNNER_TEMP/opencli-prefix/node_modules/@jackwener/opencli/dist/src/main.js"
+          CLI="$GITHUB_WORKSPACE/upstream-src/dist/src/main.js"
           timeout 20 node "$CLI" --version > upstream-evidence/version.txt
           timeout 20 node "$CLI" --help -f json > upstream-evidence/root-help.json
           for namespace in browser daemon auth skills plugin adapter profile; do
             timeout 20 node "$CLI" "$namespace" --help -f json > "upstream-evidence/$namespace-help.json"
           done
-          cp "$RUNNER_TEMP/opencli-prefix/node_modules/@jackwener/opencli/cli-manifest.json" upstream-evidence/cli-manifest.json
-          cp "$RUNNER_TEMP/opencli-prefix/node_modules/@jackwener/opencli/package.json" upstream-evidence/package.json
-          tar -czf upstream-evidence/opencli-package.tar.gz -C "$RUNNER_TEMP/opencli-prefix/node_modules/@jackwener/opencli" dist/src cli-manifest.json package.json
+          cp upstream-src/cli-manifest.json upstream-evidence/cli-manifest.json
+          cp upstream-src/package.json upstream-evidence/package.json
+          tar -czf upstream-evidence/opencli-source.tar.gz -C upstream-src src cli-manifest.json package.json package-lock.json
           node --version > upstream-evidence/node-version.txt
           date -u +%FT%TZ > upstream-evidence/captured-at.txt
           (cd upstream-evidence && sha256sum *.json *.txt *.tar.gz > SHA256SUMS)
       - uses: actions/upload-artifact@v7
         if: always()
         with:
-          name: opencli-1.8.8-descriptive-${{ github.sha }}
+          name: opencli-source-8271afc-descriptive-${{ github.sha }}
           path: upstream-evidence
           retention-days: 14
           if-no-files-found: error
