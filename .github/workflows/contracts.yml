@@ -88,6 +88,8 @@ jobs:
         run: |
           mkdir -p contract-evidence
           git rev-parse HEAD > contract-evidence/head.txt
+          git archive -o contract-evidence/source.tar HEAD
+          sha256sum contract-evidence/source.tar > contract-evidence/source.sha256
           java -version > contract-evidence/java.txt 2>&1
           if ! bash ./mvnw -version > contract-evidence/maven.txt 2>&1; then
             cat contract-evidence/maven.txt
@@ -117,6 +119,9 @@ jobs:
             --maven-version-file contract-evidence/maven.txt \
             --exit-code "$(cat contract-evidence/maven.exit)" \
             --suite argv=io.github.easy4j.opencli.contract.OpenCliArgvContractTest \
+            --suite argv=io.github.easy4j.opencli.contract.OpenCliStructuredArgvContractTest \
+            --suite process=io.github.easy4j.opencli.contract.OpenCliProcessContractTest \
+            --suite process=io.github.easy4j.opencli.contract.OpenCliProcessBoundaryTest \
             --output contract-evidence/report.json
       - name: Upload actual JVM evidence
         if: always()

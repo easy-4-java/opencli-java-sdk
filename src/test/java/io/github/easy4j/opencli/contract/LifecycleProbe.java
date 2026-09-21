@@ -6,12 +6,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 
-/** Offline, self-bounded child fixture. Release files allow test cleanup even against broken SDKs. */
+/** Offline, self-bounded child fixture. Release files allow cleanup even against a broken SDK. */
 public final class LifecycleProbe {
     private LifecycleProbe() { }
 
     public static void main(String[] args) throws Exception {
         String mode = args[0];
+        if ("utf8".equals(mode)) {
+            System.out.write("中文".getBytes(StandardCharsets.UTF_8));
+            return;
+        }
         if ("stdout".equals(mode) || "stderr".equals(mode)) {
             byte[] block = new byte[8192];
             Arrays.fill(block, (byte) 'x');

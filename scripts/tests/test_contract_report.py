@@ -44,6 +44,15 @@ class ContractReportTest(unittest.TestCase):
         self.assertEqual(HEAD, report['head'])
         json.dumps(report)
 
+    def test_process_layer_is_separate_from_real_execution(self):
+        self.xml()
+        report = self.module.build_report(self.root, head=HEAD, branch='feature/2.0.x',
+            java_version='fixture-jdk', maven_version='fixture-maven', exit_code=0,
+            required_suites={'process': [SUITE]})
+        self.assertEqual('PASS', report['status'])
+        self.assertEqual(2, report['layers']['process']['executed'])
+        self.assertEqual('NOT_RUN', report['layers']['real-execution']['status'])
+
     def test_missing_report_fails(self):
         self.assertEqual('FAIL', self.report()['status'])
 

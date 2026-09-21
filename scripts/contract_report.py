@@ -11,7 +11,7 @@ import re
 import sys
 import xml.etree.ElementTree as ET
 
-LAYERS = ('enumeration', 'argv', 'protocol', 'typed-result', 'real-execution')
+LAYERS = ('enumeration', 'argv', 'process', 'protocol', 'typed-result', 'real-execution')
 
 
 def _suite_summary(suite):
@@ -50,7 +50,6 @@ def build_report(reports_dir, *, head, branch, java_version, maven_version, exit
                     raise ValueError('duplicate testsuite')
                 suites[name] = _suite_summary(suite)
         except (ET.ParseError, OSError, KeyError, ValueError):
-            # Do not copy testcase failure bodies or captured application output.
             problems.append('invalid or duplicate Surefire report: ' + path.name)
     layers = {}
     for layer in LAYERS:
@@ -71,7 +70,7 @@ def build_report(reports_dir, *, head, branch, java_version, maven_version, exit
             'head': head, 'branch': branch, 'javaVersion': java_version,
             'mavenVersion': maven_version, 'commandExitCode': exit_code,
             'layers': layers, 'problems': problems,
-            'scope': 'Explicit Surefire suites only; synthetic argv probes are not live OpenCLI verification.'}
+            'scope': 'Explicit Surefire suites only; synthetic argv/process probes are not live OpenCLI verification.'}
 
 
 def main(argv=None):
