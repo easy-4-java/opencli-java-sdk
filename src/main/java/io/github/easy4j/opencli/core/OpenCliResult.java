@@ -5,45 +5,23 @@ import lombok.Builder;
 import lombok.Getter;
 
 /**
- * 单次 OpenCLI 调用的原始结果载体。
- * <p>
- * {@link #remoteRawHttpBody} 仅在 {@link io.github.easy4j.opencli.OpenCliExecutionTarget#REMOTE_AGENT_HTTP}
- * 且 {@link io.github.easy4j.opencli.OpenCliProperties} 的 {@code remoteCaptureRawHttpResponse} 为 true 时填充，
- * 为 Agent 返回的完整 HTTP 响应体，便于审计或与 {@code stdout}（由 {@code items} 重组）对照。
- * </p>
+ * Raw result for one OpenCLI invocation. Raw output is business data, not a safe
+ * diagnostic string. Local execution adds bounded lifecycle evidence; legacy
+ * remote responses do not acquire an invented process exit or cleanup state.
+ *
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
+ * @since 3.0.0
  */
 @Getter
-@Builder/**
-
- * Raw result carrier for a single OpenCLI invocation.
- *
- * <p>{@link #remoteRawHttpBody} is only populated when using
- * {@link io.github.easy4j.opencli.OpenCliExecutionTarget#REMOTE_AGENT_HTTP}
- * and {@link io.github.easy4j.opencli.OpenCliProperties#isRemoteCaptureRawHttpResponse()}
- * is {@code true}.</p>
-
- *
-
- * @author <a href="https://github.com/loong10k">Loong Wan</a>
-
- * @since 3.0.0
-
- */
-
+@Builder
 public class OpenCliResult {
-
     private final String stdout;
-
     private final String stderr;
-
     private final Integer exitCode;
-
     private final boolean success;
-
     private final OpenCliParsedFields parsed;
-
-    /**
-     * 远端 Agent HTTP 响应全文；本地子进程模式或非调试场景下为 null。
-     */
+    /** Only populated by explicit remote HTTP raw capture. */
     private final String remoteRawHttpBody;
+    /** Observed local execution metadata; null for a legacy remote result. */
+    private final OpenCliExecutionDetails executionDetails;
 }
