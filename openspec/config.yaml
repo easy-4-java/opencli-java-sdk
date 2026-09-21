@@ -1,0 +1,23 @@
+schema: spec-driven
+
+context: |
+  Project: easy-4-java/opencli-java-sdk.
+  Language: Chinese prose, standard OpenSpec Requirement/Scenario headings.
+  Status: reviewed source evidence; proposals are DRAFT and not implemented.
+  Upstream: jackwener/OpenCLI 1.8.8 at 8271afc67e8504bda94c147f446ee29775d08274.
+  Branches: feature/1.0.x Java 8; feature/2.0.x Java 17; feature/3.0.x Java 21.
+  Preserve existing public API where possible; do not confuse opencli-admin with upstream OpenCLI.
+  Adapter errors use stderr YAML; wire field error.help differs from internal hint.
+  Do not claim CodeGraph, Maven, CLI smoke, CI or official strict validation without execution evidence.
+  See docs/architecture/opencli-java-sdk-reverification.md and the locked evidence ledger.
+
+rules:
+  proposal:
+    - Separate observed behavior, proposed change, and deferred scope.
+    - All proposals require review before implementation.
+  specs:
+    - Use stable requirement IDs and concrete WHEN/THEN scenarios.
+    - Add negative and information-preservation scenarios.
+  tasks:
+    - Keep implementation tasks unchecked until actual evidence exists.
+    - Write failing tests first; verify Java 8, 17, and 21 independently.
