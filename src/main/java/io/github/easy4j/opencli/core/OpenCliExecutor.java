@@ -16,7 +16,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,83 +29,64 @@ import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.exec.ExecuteWatchdog;
 
 /**
- * 基于 Apache Commons Exec 的 OpenCLI 子进程执行封装。
- * <p>
- * {@link #invoke(List)} 接受的参数为「紧跟可执行名之后」的完整 token 列表，形如
- * {@code [adapter, subcommand, ...]}；本地模式下会自动拼接 {@link OpenCliProperties} 的
- * {@code leadingArguments}。
- * </p>
- * <p>
- * 当 {@link OpenCliProperties} 的 {@code executionTarget} 为
- * {@link OpenCliExecutionTarget#REMOTE_AGENT_HTTP} 时，
- * 通过 {@link OpenCliRemoteAgentHttpClient} 调用远端 {@code POST /collect}；此时 {@code leadingArguments} 不参与请求，
- * argv 会被解析为 {@link OpenCliCollectRequest}（与 opencli-admin {@code agent_server} 契约一致）。
- * </p>
- */
-@Slf4j
-@Getter/**
-
  * OpenCLI subprocess execution wrapper based on Apache Commons Exec.
  *
- * <p>{@link #invoke(List)} accepts a token list that follows the executable name,
- * typically {@code [adapter, subcommand, ...]}. In local mode, {@link OpenCliProperties}
- * {@code leadingArguments} are automatically prepended.</p>
+ * <p>{@link #invoke(List)} accepts literal argv tokens following the executable name.
+ * Local invocation prepends {@link OpenCliProperties#getLeadingArguments()}.
+ * Empty and whitespace-only values are preserved; null tokens are rejected before
+ * transport selection. Command identifiers are validated separately.</p>
  *
- * <p>When {@link OpenCliProperties#getExecutionTarget()} is
- * {@link OpenCliExecutionTarget#REMOTE_AGENT_HTTP}, the invocation is forwarded to a
- * remote Agent via {@link OpenCliRemoteAgentHttpClient#collect(OpenCliCollectRequest)}.</p>
-
+ * <p>When the execution target is {@link OpenCliExecutionTarget#REMOTE_AGENT_HTTP},
+ * invocation uses the legacy opencli-admin {@code /collect} contract. That protocol's
+ * representation limits are separate from the local raw argv contract.</p>
  *
-
  * @author <a href="https://github.com/loong10k">Loong Wan</a>
-
  * @since 3.0.0
-
  */
-
+@Slf4j
+@Getter
 public class OpenCliExecutor {
 
     private final OpenCliProperties properties;
 
-    /**
-     * 懒加载，仅远程模式使用。
-     */
+    /** Lazily initialized for remote mode. */
     private volatile OpenCliRemoteAgentHttpClient remoteAgentHttpClient;
 
-    /**
-     * @param properties 运行时配置，不得为 null
-     */
+    /** @param properties runtime configuration */
     public OpenCliExecutor(OpenCliProperties properties) {
         this.properties = Objects.requireNonNull(properties, "properties");
         SubprocessExecutionSupport.configureMaxConcurrentExecutions(properties.getMaxConcurrentExecutions());
     }
 
     /**
-     * 执行 {@code opencli <adapter> ...} 完整 argv（不含可执行文件本身）。
+     * Invoke a snapshot of the complete argv vector, excluding the executable.
      *
-     * @param adapterAndRest 至少包含 adapter 名，后续为子命令与 flag；不得为 null
-     * @return 包含成功标记的执行结果
+     * @param adapterAndRest nonempty command and literal values
+     * @return execution result
      */
     public OpenCliResult invoke(List<String> adapterAndRest) {
-        Objects.requireNonNull(adapterAndRest, "adapterAndRest");
+        List<String> tokens = OpenCliArgSupport.snapshotValues(adapterAndRest, "adapterAndRest");
+        if (tokens.isEmpty()) {
+            throw new IllegalArgumentException("adapterAndRest must contain at least the command identifier");
+        }
+        if (OpenCliStrings.isBlank(tokens.get(0))) {
+            throw new IllegalArgumentException("adapterAndRest[0] command identifier must not be blank");
+        }
         if (properties.getExecutionTarget() == OpenCliExecutionTarget.REMOTE_AGENT_HTTP) {
-            log.debug("OpenCLI invoke remote agent argvSize={}", adapterAndRest.size());
+            log.debug("OpenCLI invoke remote agent argvSize={}", tokens.size());
             OpenCliCollectRequest req =
                 OpenCliArgvToCollectParser.parse(
-                    adapterAndRest,
+                    tokens,
                     properties.getRemoteOutputFormat(),
                     properties.getRemoteCollectMode(),
                     properties.getRemoteCdpEndpoint());
             return remoteAgent().collect(req);
         }
-        log.debug("OpenCLI invoke local argvSize={}", adapterAndRest.size());
-        CommandLine cmd = buildCommandLine(adapterAndRest);
+        log.debug("OpenCLI invoke local argvSize={}", tokens.size());
+        CommandLine cmd = buildCommandLine(tokens);
         return run(cmd);
     }
 
-    /**
-     * @return 远程 Agent HTTP 客户端（懒加载）
-     */
     private OpenCliRemoteAgentHttpClient remoteAgent() {
         if (Objects.isNull(remoteAgentHttpClient)) {
             synchronized (this) {
@@ -118,57 +99,40 @@ public class OpenCliExecutor {
     }
 
     /**
-     * 便捷重载：可变参数形式。
-     *
-     * @param adapterAndRest adapter 及后续 CLI token
-     * @return 执行结果
+     * @param adapterAndRest command and literal values
+     * @return execution result
      */
     public OpenCliResult invoke(String... adapterAndRest) {
-        List<String> list = new ArrayList<>();
-        if (Objects.nonNull(adapterAndRest)) {
-            for (String s : adapterAndRest) {
-                if (OpenCliStrings.isNotBlank(s)) {
-                    list.add(s.trim());
-                }
-            }
-        }
-        return invoke(list);
+        Objects.requireNonNull(adapterAndRest, "adapterAndRest");
+        return invoke(Arrays.asList(adapterAndRest));
     }
 
-    /**
-     * 拼装 {@link CommandLine}：executable + leading + tokens。
-     */
     private CommandLine buildCommandLine(List<String> adapterAndRest) {
-        if (adapterAndRest.isEmpty()) {
-            throw new IllegalArgumentException("adapterAndRest must contain at least the adapter id");
-        }
         String exe = properties.getExecutable();
         if (OpenCliStrings.isBlank(exe)) {
             throw new IllegalStateException("opencli.executable must not be blank");
         }
         CommandLine cmd = new CommandLine(exe.trim());
-        appendCleanArgs(cmd, properties.getLeadingArguments());
-        appendCleanArgs(cmd, adapterAndRest);
+        appendLiteralArgs(cmd, properties.getLeadingArguments(), "leadingArguments");
+        appendLiteralArgs(cmd, adapterAndRest, "adapterAndRest");
         return cmd;
     }
 
-    private static void appendCleanArgs(CommandLine cmd, List<String> args) {
-        if (Objects.isNull(args) || args.isEmpty()) {
+    private static void appendLiteralArgs(CommandLine cmd, List<String> args, String field) {
+        if (args == null) {
             return;
         }
-        for (String a : args) {
-            if (OpenCliStrings.isNotBlank(a)) {
-                cmd.addArgument(a.trim(), false);
-            }
+        for (String value : OpenCliArgSupport.snapshotValues(args, field)) {
+            cmd.addArgument(value, false);
         }
     }
 
     /**
-     * 将 {@code --key=value} 以句柄安全形式追加（含空格时由 Commons Exec 处理）。
+     * Append a {@code --key=value} token using Commons Exec quoting.
      *
-     * @param cmd   命令行
-     * @param key   必须以 {@code --} 开头
-     * @param value 非空值
+     * @param cmd command line
+     * @param key option name starting with {@code --}
+     * @param value non-null value
      */
     public static void appendQuotedKeyValue(CommandLine cmd, String key, String value) {
         Objects.requireNonNull(key, "key");

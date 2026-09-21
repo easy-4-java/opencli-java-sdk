@@ -116,7 +116,7 @@ class OpenCliAdapterCommandRequestTest {
     }
 
     @Test
-    void shouldSkipNullPositionalInToSubcommandAndArgs() {
+    void shouldPreserveEmptyPositionalInToSubcommandAndArgs() {
         OpenCliAdapterCommandRequest req = OpenCliAdapterCommandRequest.builder()
             .subcommand("sub")
             .positional("a")
@@ -124,7 +124,7 @@ class OpenCliAdapterCommandRequestTest {
             .positional("b")
             .build();
         List<String> argv = req.toSubcommandAndArgs();
-        assertEquals(Arrays.asList("sub", "a", "b"), argv);
+        assertEquals(Arrays.asList("sub", "a", "", "b"), argv);
     }
 
     @Test

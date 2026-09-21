@@ -15,9 +15,15 @@ class OpenCliArgSupportTest {
     }
 
     @Test
-    void shouldFilterNullAndBlankWhenMerging() {
-        List<String> result = OpenCliArgSupport.merge(Arrays.asList("a", null, "", "  ", "b"), Arrays.asList("c"));
-        assertEquals(Arrays.asList("a", "b", "c"), result);
+    void shouldRejectNullElementWhenMerging() {
+        assertThrows(IllegalArgumentException.class,
+            () -> OpenCliArgSupport.merge(Arrays.asList("a", null, "", "  ", "b"), Arrays.asList("c")));
+    }
+
+    @Test
+    void shouldPreserveEmptyAndBlankWhenMerging() {
+        assertEquals(Arrays.asList("a", "", "  ", "b", "c"),
+            OpenCliArgSupport.merge(Arrays.asList("a", "", "  ", "b"), Arrays.asList("c")));
     }
 
     @Test

@@ -1,55 +1,61 @@
 package io.github.easy4j.opencli.core;
 
-import io.github.easy4j.opencli.util.OpenCliStrings;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
 /**
  * CLI argument assembly utilities: merges business segments with pass-through
- * {@code additionalRawArgs}.
+ * {@code additionalRawArgs} without changing argument values.
  *
  * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
- */public final class OpenCliArgSupport {
+ */
+public final class OpenCliArgSupport {
 
     private OpenCliArgSupport() {
     }
 
     /**
-     * 将前缀片段与可选附加片段合并为连续 argv（过滤 null/空白）。
+     * Capture values before execution or queuing. Validate indices without exposing other values.
+     */
+    static List<String> snapshotValues(List<String> values, String field) {
+        Objects.requireNonNull(values, field);
+        List<String> copy = new ArrayList<>(values);
+        for (int i = 0; i < copy.size(); i++) {
+            if (copy.get(i) == null) {
+                throw new IllegalArgumentException(field + "[" + i + "] must not be null");
+            }
+        }
+        return Collections.unmodifiableList(copy);
+    }
+
+    /**
+     * Merge optional segments into a new argv list. Null segments are absent;
+     * null elements are invalid, while empty and whitespace-only values are preserved.
      *
-     * @param prefix           子命令与已建模参数，可为 null
-     * @param additionalRawArgs 额外原生参数，可为 null
-     * @return 新列表副本
+     * @param prefix command and modeled arguments, or null
+     * @param additionalRawArgs extra literal arguments, or null
+     * @return a new list, without modifying either source
      */
     public static List<String> merge(List<String> prefix, List<String> additionalRawArgs) {
         List<String> out = new ArrayList<>();
-        if (Objects.nonNull(prefix)) {
-            for (String s : prefix) {
-                if (OpenCliStrings.isNotBlank(s)) {
-                    out.add(s.trim());
-                }
-            }
+        if (prefix != null) {
+            out.addAll(snapshotValues(prefix, "prefix"));
         }
-        if (Objects.nonNull(additionalRawArgs)) {
-            for (String s : additionalRawArgs) {
-                if (OpenCliStrings.isNotBlank(s)) {
-                    out.add(s.trim());
-                }
-            }
+        if (additionalRawArgs != null) {
+            out.addAll(snapshotValues(additionalRawArgs, "additionalRawArgs"));
         }
         return out;
     }
 
     /**
-     * 追加 {@code --name=value}（value 含空格时由调用方决定是否使用
-     * {@link OpenCliExecutor#appendQuotedKeyValue(CommandLine, String, String)}；
-     * 此处仅做简单拼接）。
+     * Append one literal {@code --name=value} token.
      *
-     * @param target 目标列表，不得为 null
-     * @param name   完整名称（含 {@code --}，不含 {@code =}）
-     * @param value  非空值
+     * @param target destination list
+     * @param name full option name, including {@code --}
+     * @param value non-null value, which may be empty
      */
     public static void addOptionEquals(List<String> target, String name, String value) {
         Objects.requireNonNull(target, "target");
@@ -63,11 +69,11 @@ import java.util.Objects;
     }
 
     /**
-     * 追加 {@code --flag value} 双 token 形式。
+     * Append a {@code --flag value} pair without altering the value.
      *
-     * @param target 目标列表
-     * @param flag   如 {@code --limit}
-     * @param value  非空值
+     * @param target destination list
+     * @param flag option name
+     * @param value non-null value, which may be empty
      */
     public static void addOptionPair(List<String> target, String flag, String value) {
         Objects.requireNonNull(target, "target");
@@ -78,11 +84,11 @@ import java.util.Objects;
     }
 
     /**
-     * 当 {@code value} 非 null 时追加 {@code --flag value}。
+     * Append a pair when the optional value is non-null.
      *
-     * @param target 目标 argv 列表
-     * @param flag   选项名
-     * @param value  可为 null
+     * @param target destination list
+     * @param flag option name
+     * @param value optional value
      */
     public static void addOptionPairIfPresent(List<String> target, String flag, Object value) {
         if (Objects.nonNull(value)) {
@@ -91,11 +97,11 @@ import java.util.Objects;
     }
 
     /**
-     * 当 {@code enabled} 为 {@code true} 时追加 boolean flag（无值）。
+     * Append a presence-only flag when enabled. This helper is not a valued boolean option.
      *
-     * @param target  目标 argv 列表
-     * @param flag    如 {@code --follow}
-     * @param enabled 开关，null/false 时不追加
+     * @param target destination list
+     * @param flag option name
+     * @param enabled true to append; null/false to omit
      */
     public static void addFlagIfTrue(List<String> target, String flag, Boolean enabled) {
         if (Boolean.TRUE.equals(enabled)) {

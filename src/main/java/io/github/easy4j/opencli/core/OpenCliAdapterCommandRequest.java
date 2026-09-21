@@ -13,33 +13,18 @@ import lombok.Getter;
 import lombok.Singular;
 
 /**
- * 结构化 adapter 子命令请求：由子命令名、positional 参数与命名 options 构建 argv，
- * 供 {@link OpenCliAdapterChannel#invoke(OpenCliAdapterCommandRequest)} 及覆盖测试使用。
- * <p>
- * 禁止在测试中手工拼接 {@code List.of("sub", "--flag", "value")}；应通过 builder 建模参数。
- * </p>
+ * Structured adapter request. Positional and valued-option contents are literal;
+ * command and option identifiers are validated separately.
+ * The legacy options map represents a single-valued subset: Boolean values
+ * retain their historical presence-only flag semantics.
+ *
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
+ * @since 3.0.0
  */
 @Getter
-@Builder/**
-
- * Structured adapter subcommand request: builds argv from a subcommand name,
- * positional arguments, and named options for use with
- * {@link OpenCliAdapterChannel#invoke(OpenCliAdapterCommandRequest)}.
- *
- * <p>Avoid manually assembling {@code List.of("sub", "--flag", "value")} in tests;
- * use the builder to model parameters instead.</p>
-
- *
-
- * @author <a href="https://github.com/loong10k">Loong Wan</a>
-
- * @since 3.0.0
-
- */
-
+@Builder
 public final class OpenCliAdapterCommandRequest {
 
-    /** 子命令名（不含 adapter id）。 */
     private final String subcommand;
 
     @Getter(AccessLevel.NONE)
@@ -50,9 +35,7 @@ public final class OpenCliAdapterCommandRequest {
     @Builder.Default
     private final Map<String, Object> options = Collections.emptyMap();
 
-    /**
-     * @return positional 参数副本
-     */
+    /** @return an immutable copy of positional values */
     public List<String> getPositionals() {
         if (Objects.isNull(positionals)) {
             return Collections.emptyList();
@@ -60,9 +43,7 @@ public final class OpenCliAdapterCommandRequest {
         return Collections.unmodifiableList(new ArrayList<>(positionals));
     }
 
-    /**
-     * @return 命名选项副本
-     */
+    /** @return an immutable copy of named options */
     public Map<String, Object> getOptions() {
         if (Objects.isNull(options)) {
             return Collections.emptyMap();
@@ -71,20 +52,17 @@ public final class OpenCliAdapterCommandRequest {
     }
 
     /**
-     * 将本请求转换为 {@link OpenCliAdapterChannel#invoke(List)} 所需的 token 列表。
-     *
-     * @return 以 subcommand 开头、随后 positional、再 options 的 argv 片段
+     * @return subcommand, then unchanged positional values and named options
      */
     public List<String> toSubcommandAndArgs() {
         Objects.requireNonNull(subcommand, "subcommand");
+        if (OpenCliStrings.isBlank(subcommand)) {
+            throw new IllegalArgumentException("subcommand must not be blank");
+        }
         List<String> tokens = new ArrayList<>();
         tokens.add(subcommand.trim());
-        if (Objects.nonNull(positionals)) {
-            for (String p : positionals) {
-                if (OpenCliStrings.isNotBlank(p)) {
-                    tokens.add(p.trim());
-                }
-            }
+        if (positionals != null) {
+            tokens.addAll(OpenCliArgSupport.snapshotValues(positionals, "positionals"));
         }
         if (Objects.nonNull(options)) {
             for (Map.Entry<String, Object> entry : options.entrySet()) {
@@ -106,16 +84,14 @@ public final class OpenCliAdapterCommandRequest {
             return;
         }
         target.add(flag);
-        target.add(String.valueOf(value).trim());
+        target.add(String.valueOf(value));
     }
 
     /**
-     * 从 manifest 风格的 options map 创建请求（测试资源反序列化辅助）。
-     *
-     * @param subcommand 子命令
-     * @param positionals positional 列表，可为 null
-     * @param options 选项 map，可为 null
-     * @return 请求实例
+     * @param subcommand command identifier
+     * @param positionals optional positional values
+     * @param options optional legacy single-value options
+     * @return a structured request
      */
     public static OpenCliAdapterCommandRequest of(
         String subcommand,
