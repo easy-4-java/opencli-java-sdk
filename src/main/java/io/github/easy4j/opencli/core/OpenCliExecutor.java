@@ -63,7 +63,7 @@ import org.apache.commons.exec.ExecuteWatchdog;
 
  */
 
-public class OpenCliExecutor {
+public class OpenCliExecutor implements AutoCloseable {
 
     private final OpenCliProperties properties;
 
@@ -106,6 +106,19 @@ public class OpenCliExecutor {
     /**
      * @return 远程 Agent HTTP 客户端（懒加载）
      */
+    /**
+     * 释放远程传输资源：仅当 REMOTE_AGENT_HTTP 模式下已懒加载 HTTP 客户端时
+     * 生效（实例级 shutdown，不影响 JVM 中其它 Unirest 使用方）；本地模式为
+     * 空操作。close 之后远程调用不可用，本地调用不受影响。
+     */
+    @Override
+    public void close() {
+        OpenCliRemoteAgentHttpClient client = remoteAgentHttpClient;
+        if (Objects.nonNull(client)) {
+            client.close();
+        }
+    }
+
     private OpenCliRemoteAgentHttpClient remoteAgent() {
         if (Objects.isNull(remoteAgentHttpClient)) {
             synchronized (this) {
@@ -190,7 +203,8 @@ public class OpenCliExecutor {
         Map<String, String> environment = buildEnvironment();
         SubprocessExecutionSupport.ExecutionRequest request =
                 new SubprocessExecutionSupport.ExecutionRequest(
-                        commandLine, workingDirectory, environment, timeoutMs);
+                        commandLine, workingDirectory, environment, timeoutMs,
+                        properties.getMaxOutputBytes());
 
         try {
             SubprocessExecutionSupport.RunSession session = SubprocessExecutionSupport.execute(request);
@@ -229,13 +243,23 @@ public class OpenCliExecutor {
     private OpenCliResult completeAfterWait(
             CommandLine commandLine,
             long timeoutMs,
-            ByteArrayOutputStream out,
-            ByteArrayOutputStream err,
+            SubprocessExecutionSupport.BoundedOutputStream out,
+            SubprocessExecutionSupport.BoundedOutputStream err,
             DefaultExecuteResultHandler handler,
             ExecuteWatchdog watchdog,
             boolean waitTimedOut) {
         String stdoutStr = new String(out.toByteArray(), StandardCharsets.UTF_8);
         String stderrStr = new String(err.toByteArray(), StandardCharsets.UTF_8);
+        if (out.isOverflowed()) {
+            log.warn("OpenCLI stdout truncated at maxOutputBytes={}", properties.getMaxOutputBytes());
+            stdoutStr = stdoutStr + "\n[opencli-java-sdk] stdout truncated at maxOutputBytes="
+                    + properties.getMaxOutputBytes();
+        }
+        if (err.isOverflowed()) {
+            log.warn("OpenCLI stderr truncated at maxOutputBytes={}", properties.getMaxOutputBytes());
+            stderrStr = stderrStr + "\n[opencli-java-sdk] stderr truncated at maxOutputBytes="
+                    + properties.getMaxOutputBytes();
+        }
         OpenCliParsedFields parsed = OpenCliOutputParser.parseBestEffort(stdoutStr, stderrStr);
 
         if (waitTimedOut || watchdog.killedProcess()) {
