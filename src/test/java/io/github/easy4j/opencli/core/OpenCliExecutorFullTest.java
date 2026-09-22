@@ -35,6 +35,22 @@ class OpenCliExecutorFullTest {
     }
 
     @Test
+    void shouldTruncateOversizedOutputWithMarker() {
+        OpenCliProperties props = new OpenCliProperties();
+        props.setExecutable("/bin/sh");
+        props.setMaxOutputBytes(64L);
+        props.setCommandTimeoutMillis(30_000L);
+        OpenCliExecutor executor = new OpenCliExecutor(props);
+
+        OpenCliResult result = executor.invoke("-c",
+            "printf 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'");
+
+        assertTrue(result.isSuccess(), "truncation must not fail the run");
+        assertTrue(result.getStdout().contains("truncated"),
+            "overflow must leave a truncation marker: " + result.getStdout());
+    }
+
+    @Test
     void shouldDecodeUtf8OutputRegardlessOfPlatformCharset() {
         OpenCliProperties props = new OpenCliProperties();
         props.setExecutable("/bin/sh");

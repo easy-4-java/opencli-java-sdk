@@ -38,11 +38,15 @@ import lombok.extern.slf4j.Slf4j;
 
  */
 
-public final class OpenCliRemoteAgentHttpClient {
+public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
 
     private static final JsonMapper MAPPER = new JsonMapper();
 
     private final OpenCliProperties properties;
+
+    private final Object transportLock = new Object();
+    private volatile kong.unirest.UnirestInstance transport;
+    private volatile boolean closed;
 
     /**
      * @param properties 含 {@code remoteAgentBaseUrl} 等配置
@@ -73,7 +77,8 @@ public final class OpenCliRemoteAgentHttpClient {
         }
         try {
             HttpResponse<String> response =
-                Unirest.post(url)
+                transport()
+                    .post(url)
                     .connectTimeout(timeout)
                     .socketTimeout(timeout)
                     .header("Content-Type", "application/json; charset=UTF-8")
@@ -102,6 +107,44 @@ public final class OpenCliRemoteAgentHttpClient {
         } catch (UnirestException e) {
             log.warn("Agent HTTP failed url={} message={}", url, e.getMessage());
             throw new OpenCliExecutableFailureException("Agent HTTP I/O error: " + url + " — " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 懒加载本客户端私有的 Unirest 实例（{@code Unirest.spawn}）——
+     * shutdown 只影响自身，不触碰 JVM 全局主实例。
+     */
+    private kong.unirest.UnirestInstance transport() {
+        if (closed) {
+            throw new IllegalStateException("OpenCLI remote agent HTTP transport is closed");
+        }
+        kong.unirest.UnirestInstance instance = transport;
+        if (Objects.isNull(instance)) {
+            synchronized (transportLock) {
+                if (Objects.isNull(transport)) {
+                    transport = kong.unirest.Unirest.spawnInstance();
+                }
+                instance = transport;
+            }
+        }
+        return instance;
+    }
+
+    /**
+     * 关闭本客户端的 Unirest 实例（幂等）。close 之后远程调用抛
+     * {@link IllegalStateException}；JVM 全局主实例不受影响。
+     */
+    @Override
+    public void close() {
+        closed = true;
+        kong.unirest.UnirestInstance instance = transport;
+        if (Objects.nonNull(instance)) {
+            synchronized (transportLock) {
+                instance = transport;
+            }
+        }
+        if (Objects.nonNull(instance)) {
+            instance.shutDown();
         }
     }
 

@@ -39,7 +39,7 @@ import lombok.Getter;
  *
  * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
- */public class OpenCliClient {
+ */public class OpenCliClient implements AutoCloseable {
 
     @Getter
     private final OpenCliProperties properties;
@@ -118,6 +118,16 @@ import lombok.Getter;
     }
 
     /** @return DeepSeek 浏览器适配器客户端 */
+    /**
+     * 释放底层资源：本地模式为空操作；REMOTE_AGENT_HTTP 模式下关闭
+     * 远程传输（实例级 shutdown，不影响 JVM 其它 Unirest 使用方）。
+     * close 之后远程调用抛 IllegalStateException，本地调用不受影响。
+     */
+    @Override
+    public void close() {
+        executor.close();
+    }
+
     public DeepseekOpenCliClient deepseek() {
         return new DeepseekOpenCliClient(executor);
     }
