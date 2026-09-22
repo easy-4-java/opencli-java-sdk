@@ -8,6 +8,7 @@ import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.PumpStreamHandler;
 
 import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
@@ -71,8 +72,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
     private static RunSession executeWithinLimit(ExecutionRequest request) throws IOException, InterruptedException {
         long timeoutMs = Math.max(1L, request.getTimeoutMillis());
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        ByteArrayOutputStream err = new ByteArrayOutputStream();
+        BoundedOutputStream out = new BoundedOutputStream(request.getMaxOutputBytes());
+        BoundedOutputStream err = new BoundedOutputStream(request.getMaxOutputBytes());
 
         DefaultExecutor.Builder builder = DefaultExecutor.builder();
         if (request.getWorkingDirectory() != null) {
@@ -122,32 +123,43 @@ import java.util.concurrent.atomic.AtomicReference;
         private final File workingDirectory;
         private final Map<String, String> environment;
         private final long timeoutMillis;
+        private final long maxOutputBytes;
 
         public ExecutionRequest(
                 CommandLine commandLine,
                 File workingDirectory,
                 Map<String, String> environment,
                 long timeoutMillis) {
-            this.commandLine = Objects.requireNonNull(commandLine, "commandLine");
-            this.workingDirectory = workingDirectory;
-            this.environment = environment;
-            this.timeoutMillis = timeoutMillis;
-        }
+                this(commandLine, workingDirectory, environment, timeoutMillis, 0L);
+            }
+
+        public ExecutionRequest(
+                CommandLine commandLine,
+                File workingDirectory,
+                Map<String, String> environment,
+                long timeoutMillis,
+                long maxOutputBytes) {
+                this.commandLine = Objects.requireNonNull(commandLine, "commandLine");
+                this.workingDirectory = workingDirectory;
+                this.environment = environment;
+                this.timeoutMillis = timeoutMillis;
+                this.maxOutputBytes = maxOutputBytes;
+            }
     }
 
     @Getter
     public static final class RunSession {
 
-        private final ByteArrayOutputStream stdout;
-        private final ByteArrayOutputStream stderr;
+        private final BoundedOutputStream stdout;
+        private final BoundedOutputStream stderr;
         private final DefaultExecuteResultHandler handler;
         private final ExecuteWatchdog watchdog;
         private final long timeoutMillis;
         private final boolean waitTimedOut;
 
         RunSession(
-                ByteArrayOutputStream stdout,
-                ByteArrayOutputStream stderr,
+                BoundedOutputStream stdout,
+                BoundedOutputStream stderr,
                 DefaultExecuteResultHandler handler,
                 ExecuteWatchdog watchdog,
                 long timeoutMillis,
@@ -162,6 +174,62 @@ import java.util.concurrent.atomic.AtomicReference;
 
         public boolean timedOut() {
             return waitTimedOut || watchdog.killedProcess();
+        }
+
+        boolean isStdoutOverflowed() {
+            return stdout.isOverflowed();
+        }
+
+        boolean isStderrOverflowed() {
+            return stderr.isOverflowed();
+        }
+    }
+
+    /**
+     * 有界内存输出流：超过上限的字节直接丢弃（保留前 maxBytes 字节），
+     * 并置溢出标志供调用方追加截断标记。close 为空操作（纯内存流）。
+     */
+    public static final class BoundedOutputStream extends OutputStream {
+
+        private final ByteArrayOutputStream delegate = new ByteArrayOutputStream();
+        private final long maxBytes;
+        private boolean overflowed;
+
+        BoundedOutputStream(long maxBytes) {
+            // maxBytes <= 0 视为不限制
+            this.maxBytes = Math.max(0L, maxBytes);
+        }
+
+        @Override
+        public synchronized void write(int b) {
+            write(new byte[] {(byte) b}, 0, 1);
+        }
+
+        @Override
+        public synchronized void write(byte[] b, int off, int len) {
+            if (maxBytes == 0L) {
+                delegate.write(b, off, len);
+                return;
+            }
+            long remaining = maxBytes - delegate.size();
+            if (remaining <= 0L) {
+                overflowed = true;
+                return;
+            }
+            if (len > remaining) {
+                delegate.write(b, off, (int) remaining);
+                overflowed = true;
+            } else {
+                delegate.write(b, off, len);
+            }
+        }
+
+        public synchronized byte[] toByteArray() {
+            return delegate.toByteArray();
+        }
+
+        public synchronized boolean isOverflowed() {
+            return overflowed;
         }
     }
 }

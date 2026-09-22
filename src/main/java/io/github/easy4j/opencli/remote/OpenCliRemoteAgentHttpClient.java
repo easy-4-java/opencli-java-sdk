@@ -2,7 +2,7 @@ package io.github.easy4j.opencli.remote;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.github.easy4j.opencli.OpenCliProperties;
 import io.github.easy4j.opencli.core.OpenCliOutputParser;
 import io.github.easy4j.opencli.core.OpenCliResult;
@@ -10,7 +10,6 @@ import io.github.easy4j.opencli.exception.OpenCliExecutableFailureException;
 import io.github.easy4j.opencli.exception.OpenCliNonZeroExitException;
 import io.github.easy4j.opencli.parser.OpenCliParsedFields;
 import io.github.easy4j.opencli.util.OpenCliStrings;
-import java.io.IOException;
 import java.util.Objects;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
@@ -38,11 +37,15 @@ import lombok.extern.slf4j.Slf4j;
 
  */
 
-public final class OpenCliRemoteAgentHttpClient {
+public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonMapper MAPPER = new JsonMapper();
 
     private final OpenCliProperties properties;
+
+    private final Object transportLock = new Object();
+    private volatile kong.unirest.UnirestInstance transport;
+    private volatile boolean closed;
 
     /**
      * @param properties 含 {@code remoteAgentBaseUrl} 等配置
@@ -68,12 +71,13 @@ public final class OpenCliRemoteAgentHttpClient {
         String bodyJson;
         try {
             bodyJson = MAPPER.writeValueAsString(request);
-        } catch (IOException e) {
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
             throw new OpenCliExecutableFailureException("Failed to serialize collect request: " + e.getMessage(), e);
         }
         try {
             HttpResponse<String> response =
-                Unirest.post(url)
+                transport()
+                    .post(url)
                     .connectTimeout(timeout)
                     .socketTimeout(timeout)
                     .header("Content-Type", "application/json; charset=UTF-8")
@@ -96,12 +100,50 @@ public final class OpenCliRemoteAgentHttpClient {
             return mapResponse(respBody, url);
         } catch (OpenCliNonZeroExitException e) {
             throw e;
-        } catch (IOException e) {
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
             log.warn("Agent response parse failed url={} message={}", url, e.getMessage());
             throw new OpenCliExecutableFailureException("Failed to parse agent response: " + e.getMessage(), e);
         } catch (UnirestException e) {
             log.warn("Agent HTTP failed url={} message={}", url, e.getMessage());
             throw new OpenCliExecutableFailureException("Agent HTTP I/O error: " + url + " — " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 懒加载本客户端私有的 Unirest 实例（{@code Unirest.spawn}）——
+     * shutdown 只影响自身，不触碰 JVM 全局主实例。
+     */
+    private kong.unirest.UnirestInstance transport() {
+        if (closed) {
+            throw new IllegalStateException("OpenCLI remote agent HTTP transport is closed");
+        }
+        kong.unirest.UnirestInstance instance = transport;
+        if (Objects.isNull(instance)) {
+            synchronized (transportLock) {
+                if (Objects.isNull(transport)) {
+                    transport = kong.unirest.Unirest.spawnInstance();
+                }
+                instance = transport;
+            }
+        }
+        return instance;
+    }
+
+    /**
+     * 关闭本客户端的 Unirest 实例（幂等）。close 之后远程调用抛
+     * {@link IllegalStateException}；JVM 全局主实例不受影响。
+     */
+    @Override
+    public void close() {
+        closed = true;
+        kong.unirest.UnirestInstance instance = transport;
+        if (Objects.nonNull(instance)) {
+            synchronized (transportLock) {
+                instance = transport;
+            }
+        }
+        if (Objects.nonNull(instance)) {
+            instance.shutDown();
         }
     }
 
@@ -113,14 +155,16 @@ public final class OpenCliRemoteAgentHttpClient {
         return (int) Math.min(timeoutMs, Integer.MAX_VALUE);
     }
 
-    private OpenCliResult mapResponse(String respBody, String url) throws IOException {
+    private OpenCliResult mapResponse(String respBody, String url)
+            throws com.fasterxml.jackson.core.JsonProcessingException {
         String rawCapture = captureRawIfEnabled(respBody);
         AgentCollectEnvelope env;
         try {
             env = MAPPER.readValue(respBody, AgentCollectEnvelope.class);
-        } catch (IOException e) {
+        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
             log.warn("Agent response envelope parse failed url={} message={}", url, e.getMessage());
-            throw e;
+            throw new OpenCliExecutableFailureException(
+                "Failed to parse agent response envelope: " + e.getMessage(), e);
         }
         boolean success = Objects.nonNull(env.success) && env.success;
         String err = Objects.isNull(env.error) ? "" : env.error;

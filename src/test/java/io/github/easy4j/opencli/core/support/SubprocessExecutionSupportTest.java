@@ -39,6 +39,28 @@ class SubprocessExecutionSupportTest {
     }
 
     @Test
+    void shouldCapCapturedOutputAtMaxBytes() throws Exception {
+        org.apache.commons.exec.CommandLine cmd =
+            org.apache.commons.exec.CommandLine.parse("printf aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        SubprocessExecutionSupport.ExecutionRequest request = new SubprocessExecutionSupport.ExecutionRequest(
+            cmd, null, null, 10_000L, 16L);
+        SubprocessExecutionSupport.RunSession session = SubprocessExecutionSupport.execute(request);
+        assertEquals(16, session.getStdout().toByteArray().length);
+        assertTrue(session.isStdoutOverflowed());
+    }
+
+    @Test
+    void shouldNotOverflowWhenCapDisabled() throws Exception {
+        org.apache.commons.exec.CommandLine cmd =
+            org.apache.commons.exec.CommandLine.parse("printf aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        SubprocessExecutionSupport.ExecutionRequest request = new SubprocessExecutionSupport.ExecutionRequest(
+            cmd, null, null, 10_000L, 0L);
+        SubprocessExecutionSupport.RunSession session = SubprocessExecutionSupport.execute(request);
+        assertEquals(40, session.getStdout().toByteArray().length);
+        assertFalse(session.isStdoutOverflowed());
+    }
+
+    @Test
     void shouldBuildExecutionRequest() {
         org.apache.commons.exec.CommandLine cmd = org.apache.commons.exec.CommandLine.parse("echo");
         SubprocessExecutionSupport.ExecutionRequest req = new SubprocessExecutionSupport.ExecutionRequest(

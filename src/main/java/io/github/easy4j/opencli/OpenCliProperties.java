@@ -89,6 +89,12 @@ public class OpenCliProperties {
     private long commandTimeoutMillis = 300_000L;
 
     /**
+     * 子进程单流（stdout/stderr 各自计）输出捕获上限（字节）。超过部分丢弃，
+     * 并在结果字符串尾部追加截断标记；{@code <= 0} 表示不限制。默认 10 MiB。
+     */
+    private long maxOutputBytes = 10L * 1024 * 1024;
+
+    /**
      * 本机 CLI 子进程最大并发数；小于等于 0 时使用 CPU 核心数与 2 的较大值。
      */
     private int maxConcurrentExecutions = 0;

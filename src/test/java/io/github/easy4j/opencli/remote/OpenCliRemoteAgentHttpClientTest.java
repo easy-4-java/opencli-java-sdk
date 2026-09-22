@@ -160,4 +160,17 @@ class OpenCliRemoteAgentHttpClientTest {
             in.close();
         }
     }
+
+    /**
+     * close 幂等；close 之后 collect 抛 {@link IllegalStateException}。
+     */
+    @Test
+    void closeIsIdempotentAndRejectsLaterCollect() {
+        OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(
+            new io.github.easy4j.opencli.OpenCliProperties());
+        client.close();
+        client.close();
+        Assertions.assertThrows(IllegalStateException.class,
+            () -> client.collect(new OpenCliCollectRequest()));
+    }
 }
