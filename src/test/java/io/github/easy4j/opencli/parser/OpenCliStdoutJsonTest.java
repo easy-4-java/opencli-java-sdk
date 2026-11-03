@@ -10,6 +10,19 @@ import org.junit.jupiter.api.Test;
 class OpenCliStdoutJsonTest {
 
     @Test
+    void shouldPreserveWhitespaceOnlyOutput() {
+        assertEquals(" \n\t ", OpenCliStdoutJson.parseLenient(" \n\t ").textValue());
+    }
+
+    @Test
+    void shouldRetainJacksonTwoNodeContract() {
+        assertTrue(OpenCliStdoutJson.parseLenient("null").isNull());
+        assertEquals("hello", OpenCliStdoutJson.parseLenient("\"hello\"").textValue());
+        assertEquals(42, OpenCliStdoutJson.parseLenient("42").intValue());
+        assertEquals("{broken", OpenCliStdoutJson.parseLenient("{broken").textValue());
+    }
+
+    @Test
     void shouldParseValidJsonObject() {
         JsonNode node = OpenCliStdoutJson.parseLenient("{\"a\":1}");
         assertTrue(node.isObject());

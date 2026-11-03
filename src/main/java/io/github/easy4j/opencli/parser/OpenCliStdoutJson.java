@@ -41,7 +41,9 @@ public final class OpenCliStdoutJson {
         }
         String trim = stdout.trim();
         try {
-            return MAPPER.readTree(trim);
+            JsonNode node = MAPPER.readTree(trim);
+            return node == null || node.isMissingNode()
+                    ? MAPPER.getNodeFactory().textNode(stdout) : node;
         } catch (JsonProcessingException e) {
             log.debug("stdout is not strict JSON, wrapping as text: {}", e.getMessage());
             return MAPPER.getNodeFactory().textNode(stdout);
