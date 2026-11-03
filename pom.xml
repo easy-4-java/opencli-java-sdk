@@ -57,11 +57,13 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.version>3.0</maven.version>
+        <!-- Empty fallback supports direct surefire:test without prepare-agent. -->
+        <jacocoArgLine></jacocoArgLine>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- Dependency versions -->
         <commons-exec.version>1.6.0</commons-exec.version>
         <commons-lang.version>2.6</commons-lang.version>
-        <jackson.version>2.17.2</jackson.version>
+        <jackson.version>2.22.4</jackson.version>
         <java-websocket.version>1.6.0</java-websocket.version>
         <junit-jupiter.version>6.1.0</junit-jupiter.version>
         <junit.version>4.13.2</junit.version>
@@ -344,7 +346,7 @@
                     <configuration>
                         <skip>false</skip>
                         <skipTests>false</skipTests>
-                        <argLine>-Xmx1024m -Dfile.encoding=UTF-8</argLine>
+                        <argLine>@{jacocoArgLine} -Xmx1024m -Dfile.encoding=UTF-8</argLine>
                         <additionalClasspathElements>
                             <additionalClasspathElement>${basedir}/target/test-classes</additionalClasspathElement>
                         </additionalClasspathElements>
@@ -423,6 +425,9 @@
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
+                        <configuration>
+                            <propertyName>jacocoArgLine</propertyName>
+                        </configuration>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
