@@ -1,6 +1,7 @@
 package io.github.easy4j.opencli.core.support;
 
 import io.github.easy4j.opencli.core.OpenCliCancellationToken;
+import io.github.easy4j.opencli.core.OpenCliExecutionDetails.CleanupState;
 import io.github.easy4j.opencli.core.OpenCliExecutionDetails.TerminationReason;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -8,12 +9,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.ExecuteWatchdog;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -39,7 +43,53 @@ class SubprocessStreamFailureTest {
         assertTrue(session.getExecutionDetails().isStreamsDrained());
     }
 
-    private static final class IdleWatchdog extends ExecuteWatchdog {
+    @Test
+    void openReaderKeepsCleanupUnconfirmedAfterRootExit() throws Exception {
+        CountDownLatch releaseReader = new CountDownLatch(1);
+        CountDownLatch readerClosed = new CountDownLatch(1);
+        InputStream output = new InputStream() {
+            @Override
+            public int read() throws IOException {
+                try {
+                    releaseReader.await();
+                    return -1;
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                    throw new IOException(ex);
+                }
+            }
+
+            @Override
+            public void close() {
+                readerClosed.countDown();
+            }
+        };
+        OpenCliCancellationToken token = new OpenCliCancellationToken();
+        SubprocessExecutionSupport.Runtime runtime = new SubprocessExecutionSupport.Runtime(1,
+            builder -> new ExitedProcess(output), timeout -> new IdleWatchdog() {
+                @Override
+                public synchronized void start(Process process) {
+                    token.cancel();
+                }
+            });
+        SubprocessExecutionSupport.ExecutionRequest request = new SubprocessExecutionSupport.ExecutionRequest(
+            CommandLine.parse("fake"), null, null, 1_000L, 32, 32, 50L, System.nanoTime(), token);
+
+        try {
+            SubprocessExecutionSupport.RunSession session = runtime.execute(request);
+
+            assertEquals(TerminationReason.CANCELLED, session.getExecutionDetails().getTerminationReason());
+            assertEquals(0, session.getObservedExitCode());
+            assertEquals(CleanupState.UNCONFIRMED, session.getExecutionDetails().getCleanupState());
+            assertFalse(session.getExecutionDetails().isStreamsDrained());
+            assertTrue(runtime.isQuarantined());
+        } finally {
+            releaseReader.countDown();
+            assertTrue(readerClosed.await(1, TimeUnit.SECONDS));
+        }
+    }
+
+    private static class IdleWatchdog extends ExecuteWatchdog {
         IdleWatchdog() { super(1_000L); }
 
         @Override
@@ -49,8 +99,12 @@ class SubprocessStreamFailureTest {
     private static final class ExitedProcess extends Process {
         private final InputStream output;
 
+        ExitedProcess(InputStream output) {
+            this.output = output;
+        }
+
         ExitedProcess(IOException readFailure) {
-            output = new InputStream() {
+            this(new InputStream() {
                 private boolean emitted;
 
                 @Override
@@ -66,7 +120,7 @@ class SubprocessStreamFailureTest {
                     emitted = true;
                     return partial.length;
                 }
-            };
+            });
         }
 
         @Override

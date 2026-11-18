@@ -127,6 +127,8 @@ public final class SubprocessExecutionSupport {
             boolean interrupted = false;
             boolean cleanupOperationFailed = false;
             long queueWaitMillis = 0L;
+            Integer exit = null;
+            boolean streamsDrained = true;
             try {
                 while (!acquired && reason == null) {
                     if (Thread.interrupted()) {
@@ -249,7 +251,11 @@ public final class SubprocessExecutionSupport {
                             }
                         }
                         if (process.isAlive() && !tryForceStop(process)) { cleanupOperationFailed = true; }
-                        if (process.isAlive() || alive(stdoutReader) || alive(stderrReader)) {
+                        if (!process.isAlive()) {
+                            exit = process.exitValue();
+                        }
+                        streamsDrained = !alive(stdoutReader) && !alive(stderrReader);
+                        if (Objects.isNull(exit) || !streamsDrained) {
                             // A fixed runtime cannot accumulate unlimited uncertain children/readers.
                             quarantined = true;
                             if (reason == TerminationReason.PROCESS_EXIT) { reason = TerminationReason.CLEANUP_UNCONFIRMED; }
@@ -265,7 +271,6 @@ public final class SubprocessExecutionSupport {
             if (reason == TerminationReason.PROCESS_EXIT && (out.isTruncated() || err.isTruncated())) {
                 reason = TerminationReason.OUTPUT_LIMIT;
             }
-            Integer exit = process != null && !process.isAlive() ? process.exitValue() : null;
             DefaultExecuteResultHandler handler = new DefaultExecuteResultHandler();
             if (ioFailure != null) {
                 handler.onProcessFailed(new ExecuteException("Native process I/O failure", exit == null ? -1 : exit, ioFailure));
@@ -277,8 +282,8 @@ public final class SubprocessExecutionSupport {
             OpenCliExecutionDetails details = OpenCliExecutionDetails.builder()
                 .terminationReason(reason)
                 .cleanupState(process == null ? CleanupState.NOT_STARTED
-                    : process.isAlive() ? CleanupState.UNCONFIRMED : CleanupState.ROOT_EXIT_CONFIRMED)
-                .processStarted(process != null).streamsDrained(!alive(stdoutReader) && !alive(stderrReader))
+                    : Objects.isNull(exit) || !streamsDrained ? CleanupState.UNCONFIRMED : CleanupState.ROOT_EXIT_CONFIRMED)
+                .processStarted(process != null).streamsDrained(streamsDrained)
                 .cleanupOperationFailed(cleanupOperationFailed)
                 .stdoutCapturedBytes(out.size()).stdoutObservedBytes(out.observed()).stdoutTruncated(out.isTruncated())
                 .stderrCapturedBytes(err.size()).stderrObservedBytes(err.observed()).stderrTruncated(err.isTruncated())
