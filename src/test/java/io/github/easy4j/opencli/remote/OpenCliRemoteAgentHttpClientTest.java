@@ -552,6 +552,59 @@ class OpenCliRemoteAgentHttpClientTest {
     }
 
     @Test
+    void disconnectAfterAcceptingCollectDoesNotReplayOrInventAnExit() throws IOException {
+        try (JsonCollectStub stub = JsonCollectStub.start(HttpExchange::close);
+             OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(baseProps(stub.port()))) {
+            OpenCliCollectRequest request = OpenCliCollectRequest.builder().site("npm").command("search").build();
+            OpenCliExecutableFailureException failure = Assertions.assertThrows(
+                OpenCliExecutableFailureException.class, () -> client.collect(request));
+            Assertions.assertEquals(1, stub.requests());
+            OpenCliResult partial = failure.getPartialResult();
+            Assertions.assertNotNull(partial);
+            Assertions.assertFalse(partial.isSuccess());
+            Assertions.assertNull(partial.getExitCode());
+            Assertions.assertNull(partial.getRemoteRawHttpBody());
+            OpenCliRemoteExecutionDetails details = partial.getRemoteExecutionDetails();
+            Assertions.assertEquals(Outcome.TRANSPORT_FAILURE, details.getOutcome());
+            Assertions.assertTrue(details.isRemoteOutcomeUnknown());
+            Assertions.assertFalse(details.getObservedHttpStatus().isPresent());
+            Assertions.assertFalse(details.getObservedRemoteExitCode().isPresent());
+            Assertions.assertFalse(OpenCliDiagnosticExport.export(partial, 512).contains("httpStatus="));
+            Assertions.assertNull(failure.getCause());
+        }
+    }
+
+    @Test
+    void truncatedResponseBodyRetainsOnlyObservedHttpStatus() throws IOException {
+        try (JsonCollectStub stub = JsonCollectStub.start(exchange -> {
+            exchange.sendResponseHeaders(200, 64);
+            try (OutputStream body = exchange.getResponseBody()) {
+                body.write('{');
+            } finally {
+                exchange.close();
+            }
+        })) {
+            OpenCliProperties props = baseProps(stub.port());
+            props.setRemoteCaptureRawHttpResponse(true);
+            try (OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(props)) {
+                OpenCliCollectRequest request = OpenCliCollectRequest.builder().site("npm").command("search").build();
+                OpenCliExecutableFailureException failure = Assertions.assertThrows(
+                    OpenCliExecutableFailureException.class, () -> client.collect(request));
+                Assertions.assertEquals(1, stub.requests());
+                OpenCliResult partial = failure.getPartialResult();
+                Assertions.assertNotNull(partial);
+                OpenCliRemoteExecutionDetails details = partial.getRemoteExecutionDetails();
+                Assertions.assertEquals(Outcome.TRANSPORT_FAILURE, details.getOutcome());
+                Assertions.assertTrue(details.isRemoteOutcomeUnknown());
+                Assertions.assertEquals(200, details.getObservedHttpStatus().getAsInt());
+                Assertions.assertFalse(details.getObservedRemoteExitCode().isPresent());
+                Assertions.assertNull(partial.getExitCode());
+                Assertions.assertNull(partial.getRemoteRawHttpBody());
+            }
+        }
+    }
+
+    @Test
     void losslessAdapterRequestReachesLegacyEndpoint() throws IOException {
         try (JsonCollectStub stub = JsonCollectStub.start("{\"success\":true}");
              OpenCliExecutor executor = new OpenCliExecutor(baseProps(stub.port()))) {
