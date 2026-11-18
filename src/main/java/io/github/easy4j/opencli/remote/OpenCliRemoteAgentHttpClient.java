@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.github.easy4j.opencli.OpenCliProperties;
+import io.github.easy4j.opencli.OpenCliRemoteAuthentication;
 import io.github.easy4j.opencli.core.OpenCliOutputParser;
 import io.github.easy4j.opencli.core.OpenCliRemoteExecutionDetails;
 import io.github.easy4j.opencli.core.OpenCliRemoteExecutionDetails.ItemsSource;
@@ -21,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketTimeoutException;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -110,11 +112,14 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
             throw failure("Failed to serialize collect request", correlationId);
         }
 
-        HttpPost post;
-        try {
-            post = new HttpPost(base.trim().replaceAll("/+$", "") + "/collect");
-        } catch (IllegalArgumentException exception) {
-            throw failure("Invalid agent HTTP endpoint", correlationId);
+        URI endpoint = parseEndpoint(base, correlationId);
+        OpenCliRemoteAuthentication authentication = properties.getRemoteAuthentication();
+        HttpPost post = new HttpPost(endpoint);
+        if (Objects.nonNull(authentication)) {
+            if (!"https".equalsIgnoreCase(endpoint.getScheme())) {
+                throw failure("Remote authentication requires an HTTPS Agent", correlationId);
+            }
+            post.setHeader(authentication.getHeaderName(), authentication.headerValue());
         }
         post.setEntity(new StringEntity(bodyJson, ContentType.APPLICATION_JSON));
         CloseableHttpClient client = transport();
@@ -124,6 +129,7 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
         }
         int remainingMillis = (int) Math.max(1, TimeUnit.NANOSECONDS.toMillis(remainingNanos));
         post.setConfig(RequestConfig.custom()
+            .setAuthenticationEnabled(false)
             .setConnectionRequestTimeout(remainingMillis)
             .setConnectTimeout(remainingMillis)
             .setSocketTimeout(remainingMillis)
@@ -159,6 +165,21 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
         } finally {
             abort.cancel(false);
         }
+    }
+
+    private static URI parseEndpoint(String base, String correlationId) {
+        URI endpoint;
+        try {
+            endpoint = URI.create(base.trim());
+        } catch (IllegalArgumentException exception) {
+            throw failure("Invalid agent HTTP endpoint", correlationId);
+        }
+        if ((!"http".equalsIgnoreCase(endpoint.getScheme()) && !"https".equalsIgnoreCase(endpoint.getScheme()))
+                || Objects.isNull(endpoint.getHost()) || Objects.nonNull(endpoint.getRawUserInfo())
+                || Objects.nonNull(endpoint.getRawQuery()) || Objects.nonNull(endpoint.getRawFragment())) {
+            throw failure("Agent endpoint must be an HTTP base URL without user info, query or fragment", correlationId);
+        }
+        return URI.create(endpoint.toASCIIString().replaceAll("/+$", "") + "/collect");
     }
 
     private CloseableHttpClient transport() {

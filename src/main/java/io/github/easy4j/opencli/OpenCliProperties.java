@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
+import lombok.ToString;
 
 /**
  * OpenCLI runtime configuration POJO with no Spring dependency.
@@ -49,7 +50,12 @@ public class OpenCliProperties {
      * 远端 Agent 根 URL（不含尾斜杠），例如 {@code http://192.168.1.10:19823}。
      * <p>仅当 {@link #executionTarget} 为 {@link OpenCliExecutionTarget#REMOTE_AGENT_HTTP} 时必填。</p>
      */
+    @ToString.Exclude
     private String remoteAgentBaseUrl;
+
+    /** Explicit credential header for the configured HTTPS Agent. */
+    @ToString.Exclude
+    private OpenCliRemoteAuthentication remoteAuthentication;
 
     /**
      * 传给 Agent collect 的 {@code mode}：{@code bridge} 或 {@code cdp}（与 Agent 环境一致）。
