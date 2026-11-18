@@ -33,6 +33,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
+import org.apache.http.ParseException;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -140,15 +141,28 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
         try (CloseableHttpResponse response = client.execute(post)) {
             int status = response.getStatusLine().getStatusCode();
             observedStatus = status;
-            Optional<String> body = readBoundedBody(response.getEntity(), maxResponseBytes);
+            HttpEntity entity = response.getEntity();
+            Optional<byte[]> body = readBoundedBody(entity, maxResponseBytes);
             if (post.isAborted() || deadline - System.nanoTime() <= 0) {
                 throw new OpenCliRemoteTimeoutException(timeout, true, correlationId);
             }
-            String respBody = body.orElseThrow(
+            byte[] responseBytes = body.orElseThrow(
                 () -> new OpenCliRemoteResponseLimitException(status, maxResponseBytes, correlationId));
-            if (status < 200 || status >= 300) {
-                log.warn("Agent HTTP non-2xx correlationId={} status={} responseChars={}",
-                    correlationId, status, respBody.length());
+            boolean successfulStatus = status >= 200 && status < 300;
+            String respBody;
+            try {
+                respBody = decodeBody(entity, responseBytes);
+            } catch (IllegalArgumentException | ParseException e) {
+                log.warn("Agent content type invalid correlationId={} status={}", correlationId, status);
+                if (successfulStatus) {
+                    throw new OpenCliRemoteProtocolException("Invalid agent response content type", correlationId,
+                        failureSnapshot(status, Outcome.PROTOCOL_FAILURE, null));
+                }
+                respBody = null;
+            }
+            if (!successfulStatus) {
+                log.warn("Agent HTTP non-2xx correlationId={} status={} responseBytes={}",
+                    correlationId, status, responseBytes.length);
                 throw new OpenCliExecutableFailureException("Agent HTTP " + status + " correlationId=" + correlationId,
                     null, failureSnapshot(status, Outcome.HTTP_FAILURE, respBody));
             }
@@ -224,9 +238,9 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
         }
     }
 
-    private static Optional<String> readBoundedBody(HttpEntity entity, int limit) throws IOException {
+    private static Optional<byte[]> readBoundedBody(HttpEntity entity, int limit) throws IOException {
         if (Objects.isNull(entity)) {
-            return Optional.of("");
+            return Optional.of(new byte[0]);
         }
         // The response owns the stream. Closing the stream itself can drain an oversized entity.
         InputStream input = entity.getContent();
@@ -244,9 +258,13 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
             }
             body.write(buffer, 0, read);
         }
+        return Optional.of(body.toByteArray());
+    }
+
+    private static String decodeBody(HttpEntity entity, byte[] body) {
         ContentType type = ContentType.get(entity);
         Charset charset = Objects.nonNull(type) ? type.getCharset() : null;
-        return Optional.of(body.toString(Objects.nonNull(charset) ? charset.name() : StandardCharsets.UTF_8.name()));
+        return new String(body, Objects.nonNull(charset) ? charset : StandardCharsets.UTF_8);
     }
 
     private int resolveTimeoutMillis() {
