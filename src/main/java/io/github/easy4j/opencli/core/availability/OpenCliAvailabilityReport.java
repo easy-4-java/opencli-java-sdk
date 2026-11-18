@@ -40,24 +40,11 @@ public class OpenCliAvailabilityReport {
     }
 
     /**
-     * 构造面向日志/异常的诊断文本。
+     * 构造可写入日志的就绪状态摘要。可执行文件和原始探测消息可通过各自的 getter 读取。
      *
      * @return 说明字符串
      */
     public String toDiagnosticMessage() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("OpenCLI ");
-        sb.append(available ? "ready" : "unavailable");
-        sb.append(" [").append(status).append(']');
-        if (configuredExecutable != null) {
-            sb.append(" executable=").append(configuredExecutable);
-        }
-        if (resolvedExecutablePath != null) {
-            sb.append(" resolved=").append(resolvedExecutablePath);
-        }
-        if (message != null && !message.isEmpty()) {
-            sb.append(" — ").append(message);
-        }
-        return sb.toString();
+        return "OpenCLI " + (available ? "ready" : "unavailable") + " [" + status + "]";
     }
 }
