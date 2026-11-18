@@ -24,4 +24,6 @@ public class OpenCliResult {
     private final String remoteRawHttpBody;
     /** Observed local execution metadata; null for a legacy remote result. */
     private final OpenCliExecutionDetails executionDetails;
+    /** Evidence from a legacy HTTP collect response, if available. */
+    private final OpenCliRemoteExecutionDetails remoteExecutionDetails;
 }

@@ -6,6 +6,9 @@ import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.github.easy4j.opencli.OpenCliProperties;
 import io.github.easy4j.opencli.core.OpenCliOutputParser;
+import io.github.easy4j.opencli.core.OpenCliRemoteExecutionDetails;
+import io.github.easy4j.opencli.core.OpenCliRemoteExecutionDetails.ItemsSource;
+import io.github.easy4j.opencli.core.OpenCliRemoteExecutionDetails.Outcome;
 import io.github.easy4j.opencli.core.OpenCliResult;
 import io.github.easy4j.opencli.exception.OpenCliExecutableFailureException;
 import io.github.easy4j.opencli.exception.OpenCliNonZeroExitException;
@@ -138,9 +141,10 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
             if (status < 200 || status >= 300) {
                 log.warn("Agent HTTP non-2xx correlationId={} status={} responseChars={}",
                     correlationId, status, respBody.length());
-                throw failure("Agent HTTP " + status, correlationId);
+                throw new OpenCliExecutableFailureException("Agent HTTP " + status + " correlationId=" + correlationId,
+                    null, failureSnapshot(status, Outcome.HTTP_FAILURE, respBody));
             }
-            return mapResponse(respBody, correlationId);
+            return mapResponse(status, respBody, correlationId);
         } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
             log.warn("Agent response parse failed correlationId={}", correlationId);
             throw failure("Failed to parse agent response", correlationId);
@@ -231,7 +235,7 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
         return new OpenCliExecutableFailureException(message + " correlationId=" + correlationId, null);
     }
 
-    private OpenCliResult mapResponse(String respBody, String correlationId)
+    private OpenCliResult mapResponse(int status, String respBody, String correlationId)
             throws com.fasterxml.jackson.core.JsonProcessingException {
         String rawCapture = captureRawIfEnabled(respBody);
         JsonNode envelope;
@@ -240,55 +244,67 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
         } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
             log.warn("Agent response envelope parse failed correlationId={} responseChars={}",
                 correlationId, respBody.length());
-            throw new OpenCliRemoteProtocolException("Failed to parse agent response envelope", correlationId);
+            throw new OpenCliRemoteProtocolException("Failed to parse agent response envelope", correlationId,
+                failureSnapshot(status, Outcome.PROTOCOL_FAILURE, respBody));
         }
         if (Objects.isNull(envelope) || !envelope.isObject() || !envelope.path("success").isBoolean()) {
             log.warn("Agent response envelope status invalid correlationId={} responseChars={}",
                 correlationId, respBody.length());
-            throw new OpenCliRemoteProtocolException("Invalid agent response envelope status", correlationId);
+            throw new OpenCliRemoteProtocolException("Invalid agent response envelope status", correlationId,
+                failureSnapshot(status, Outcome.PROTOCOL_FAILURE, respBody));
         }
         JsonNode error = envelope.path("error");
         if (!error.isMissingNode() && !error.isNull() && !error.isTextual()) {
             log.warn("Agent response envelope error field invalid correlationId={} responseChars={}",
                 correlationId, respBody.length());
-            throw new OpenCliRemoteProtocolException("Invalid agent response envelope error field", correlationId);
+            throw new OpenCliRemoteProtocolException("Invalid agent response envelope error field", correlationId,
+                failureSnapshot(status, Outcome.PROTOCOL_FAILURE, respBody));
         }
         boolean success = envelope.path("success").booleanValue();
         String err = error.isTextual() ? error.asText() : "";
         JsonNode items = envelope.path("items");
         String stdout;
+        ItemsSource itemsSource;
         if (items.isMissingNode() || items.isNull()) {
             stdout = "[]";
-        } else if (items.isArray()) {
-            stdout = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(items);
+            itemsSource = items.isMissingNode() ? ItemsSource.ABSENT_DEFAULT : ItemsSource.NULL_DEFAULT;
         } else {
-            stdout = items.toPrettyString();
+            stdout = items.isArray() ? MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(items)
+                : items.toPrettyString();
+            itemsSource = ItemsSource.RESPONSE;
         }
         OpenCliParsedFields parsed = OpenCliOutputParser.parseBestEffort(stdout, err);
-        if (!success) {
-            log.warn(
-                "Agent collect reported failure correlationId={} errorChars={} stdoutLength={}",
-                correlationId,
-                err.length(),
-                stdout.length());
-            OpenCliResult failed =
-                OpenCliResult.builder()
-                    .stdout(stdout)
-                    .stderr(err)
-                    .exitCode(1)
-                    .success(false)
-                    .parsed(parsed)
-                    .remoteRawHttpBody(rawCapture)
-                    .build();
-            throw new OpenCliNonZeroExitException("OpenCLI agent reported failure correlationId=" + correlationId, failed);
-        }
-        return OpenCliResult.builder()
+        OpenCliResult result = OpenCliResult.builder()
             .stdout(stdout)
-            .stderr(err.isEmpty() ? "" : err)
-            .exitCode(0)
-            .success(true)
+            .stderr(err)
+            .exitCode(success ? 0 : 1)
+            .success(success)
             .parsed(parsed)
             .remoteRawHttpBody(rawCapture)
+            .remoteExecutionDetails(OpenCliRemoteExecutionDetails.builder()
+                .httpStatus(status)
+                .legacySuccess(success)
+                .outcome(success ? Outcome.SUCCESS : Outcome.COMMAND_FAILURE)
+                .itemsSource(itemsSource)
+                .build())
+            .build();
+        if (!success) {
+            log.warn("Agent collect reported failure correlationId={} errorChars={} stdoutLength={}",
+                correlationId, err.length(), stdout.length());
+            throw new OpenCliNonZeroExitException("OpenCLI agent reported failure correlationId=" + correlationId, result);
+        }
+        return result;
+    }
+
+    private OpenCliResult failureSnapshot(int status, Outcome outcome, String respBody) {
+        return OpenCliResult.builder()
+            .success(false)
+            .remoteRawHttpBody(captureRawIfEnabled(respBody))
+            .remoteExecutionDetails(OpenCliRemoteExecutionDetails.builder()
+                .httpStatus(status)
+                .outcome(outcome)
+                .itemsSource(ItemsSource.UNAVAILABLE)
+                .build())
             .build();
     }
 

@@ -5,6 +5,11 @@ import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import io.github.easy4j.opencli.OpenCliExecutionTarget;
 import io.github.easy4j.opencli.OpenCliProperties;
+import io.github.easy4j.opencli.core.OpenCliDiagnosticExport;
+import io.github.easy4j.opencli.core.OpenCliRemoteExecutionDetails;
+import io.github.easy4j.opencli.core.OpenCliRemoteExecutionDetails.ExitCodeSource;
+import io.github.easy4j.opencli.core.OpenCliRemoteExecutionDetails.ItemsSource;
+import io.github.easy4j.opencli.core.OpenCliRemoteExecutionDetails.Outcome;
 import io.github.easy4j.opencli.core.OpenCliResult;
 import io.github.easy4j.opencli.core.OpenCliExecutor;
 import io.github.easy4j.opencli.exception.OpenCliExecutableFailureException;
@@ -98,6 +103,20 @@ class OpenCliRemoteAgentHttpClientTest {
                             OpenCliCollectRequest.builder().site("x").command("y").build()));
             Assertions.assertNotNull(ex.getPartialResult());
             Assertions.assertEquals(json, ex.getPartialResult().getRemoteRawHttpBody());
+            OpenCliResult result = ex.getPartialResult();
+            OpenCliRemoteExecutionDetails details = result.getRemoteExecutionDetails();
+            Assertions.assertNotNull(details);
+            Assertions.assertEquals(200, details.getHttpStatus());
+            Assertions.assertEquals(Boolean.FALSE, details.getLegacySuccess());
+            Assertions.assertEquals(Outcome.COMMAND_FAILURE, details.getOutcome());
+            Assertions.assertEquals(ItemsSource.NULL_DEFAULT, details.getItemsSource());
+            Assertions.assertEquals(Integer.valueOf(1), result.getExitCode());
+            Assertions.assertEquals(ExitCodeSource.SYNTHETIC_COMPATIBILITY, details.getExitCodeSource());
+            Assertions.assertFalse(details.getObservedRemoteExitCode().isPresent());
+            Assertions.assertNull(result.getExecutionDetails());
+            String exported = OpenCliDiagnosticExport.export(result, 250);
+            Assertions.assertTrue(exported.contains("exitCodeSource=SYNTHETIC_COMPATIBILITY"));
+            Assertions.assertFalse(exported.contains("agent-error"));
         }
     }
 
@@ -308,6 +327,36 @@ class OpenCliRemoteAgentHttpClientTest {
     }
 
     @Test
+    void httpFailureRetainsItsStatusWithoutCreatingAProcessExit() throws IOException {
+        String body = "<html>fixture-proxy-error</html>";
+        try (JsonCollectStub stub = JsonCollectStub.start(body, 503)) {
+            OpenCliProperties props = baseProps(stub.port());
+            try (OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(props)) {
+                OpenCliCollectRequest request = OpenCliCollectRequest.builder().site("npm").command("search").build();
+                OpenCliExecutableFailureException failure = Assertions.assertThrows(
+                    OpenCliExecutableFailureException.class, () -> client.collect(request));
+                OpenCliResult partial = failure.getPartialResult();
+                Assertions.assertNotNull(partial);
+                Assertions.assertNull(partial.getRemoteRawHttpBody());
+                Assertions.assertNull(partial.getExitCode());
+                OpenCliRemoteExecutionDetails details = partial.getRemoteExecutionDetails();
+                Assertions.assertNotNull(details);
+                Assertions.assertEquals(503, details.getHttpStatus());
+                Assertions.assertNull(details.getLegacySuccess());
+                Assertions.assertEquals(Outcome.HTTP_FAILURE, details.getOutcome());
+                Assertions.assertEquals(ExitCodeSource.UNAVAILABLE, details.getExitCodeSource());
+                Assertions.assertFalse(details.getObservedRemoteExitCode().isPresent());
+
+                props.setRemoteCaptureRawHttpResponse(true);
+                OpenCliExecutableFailureException withCapture = Assertions.assertThrows(
+                    OpenCliExecutableFailureException.class, () -> client.collect(request));
+                Assertions.assertEquals(body, withCapture.getPartialResult().getRemoteRawHttpBody());
+                Assertions.assertFalse(withCapture.getMessage().contains("fixture-proxy-error"));
+            }
+        }
+    }
+
+    @Test
     void nonSuccessHttpResponseDoesNotExposeBodyCanaryInException() throws IOException {
         String canary = "body-secret-" + UUID.randomUUID();
         String urlCanary = "url-secret-" + UUID.randomUUID();
@@ -425,6 +474,13 @@ class OpenCliRemoteAgentHttpClientTest {
             OpenCliResult result = client.collect(request);
             Assertions.assertTrue(result.isSuccess());
             Assertions.assertEquals("[]", result.getStdout());
+            OpenCliRemoteExecutionDetails details = result.getRemoteExecutionDetails();
+            Assertions.assertNotNull(details);
+            Assertions.assertEquals(Outcome.SUCCESS, details.getOutcome());
+            Assertions.assertEquals(Boolean.TRUE, details.getLegacySuccess());
+            Assertions.assertEquals(ItemsSource.ABSENT_DEFAULT, details.getItemsSource());
+            Assertions.assertEquals(Integer.valueOf(0), result.getExitCode());
+            Assertions.assertFalse(details.getObservedRemoteExitCode().isPresent());
         }
     }
 
@@ -447,6 +503,11 @@ class OpenCliRemoteAgentHttpClientTest {
             OpenCliCollectRequest request = OpenCliCollectRequest.builder().site("x").command("y").build();
             OpenCliRemoteProtocolException failure = Assertions.assertThrows(
                 OpenCliRemoteProtocolException.class, () -> client.collect(request));
+            OpenCliResult partial = failure.getPartialResult();
+            Assertions.assertNotNull(partial);
+            Assertions.assertNull(partial.getExitCode());
+            Assertions.assertEquals(200, partial.getRemoteExecutionDetails().getHttpStatus());
+            Assertions.assertEquals(Outcome.PROTOCOL_FAILURE, partial.getRemoteExecutionDetails().getOutcome());
             Assertions.assertTrue(failure.getMessage().contains("response envelope"));
             Assertions.assertTrue(failure.getMessage().contains("correlationId="));
             Assertions.assertNull(failure.getCause());
