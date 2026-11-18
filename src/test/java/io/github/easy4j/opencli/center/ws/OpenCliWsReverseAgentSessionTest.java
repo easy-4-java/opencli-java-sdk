@@ -260,6 +260,53 @@ class OpenCliWsReverseAgentSessionTest {
     }
 
     @Test
+    void restartableStopDropsQueuedCollectsAndCancelsPastDrainDeadline(@TempDir Path temporary) throws Exception {
+        Path release = temporary.resolve("stop-release");
+        Path heartbeat = temporary.resolve("stop-heartbeat");
+        Path queued = temporary.resolve("stop-queued");
+        Path restarted = temporary.resolve("stop-restarted");
+        try (LocalCenter center = new LocalCenter()) {
+            OpenCliWsAgentConnectionProperties connection = center.agentProperties();
+            connection.setMaxConcurrentCollects(1);
+            connection.setMaxPendingCollects(1);
+            OpenCliProperties cli = probe(LifecycleProbe.class.getName());
+            cli.setCommandTimeoutMillis(20_000L);
+            try (OpenCliWsReverseAgentClient agent = new OpenCliWsReverseAgentClient(cli, connection)) {
+                agent.start();
+                WebSocket first = center.receive("register").socket;
+                first.send("{\"type\":\"registered\"}");
+                try {
+                    ObjectNode active = collect("active-stop", "heartbeat", heartbeat);
+                    active.putArray("positional_args").add(release.toString());
+                    first.send(active.toString());
+                    assertTrue(awaitMarker(heartbeat, 3_000L), "first collect did not start");
+                    sendHeldCollect(first, "queued-stop", queued, release);
+                    first.send("{\"type\":\"ping\"}");
+                    center.receive("pong");
+
+                    long stopStarted = System.nanoTime();
+                    agent.stop();
+                    assertTrue(System.nanoTime() - stopStarted < TimeUnit.SECONDS.toNanos(7));
+                    assertFalse(awaitMarker(queued, 500L), "queued collect started after stop");
+                    byte[] before = Files.readAllBytes(heartbeat);
+                    Thread.sleep(300L);
+                    assertTrue(Arrays.equals(before, Files.readAllBytes(heartbeat)), "active collect kept running after stop");
+
+                    agent.start();
+                    WebSocket second = center.receive("register").socket;
+                    assertNotSame(first, second);
+                    second.send("{\"type\":\"registered\"}");
+                    second.send(collect("queued-stop", "write", restarted).toString());
+                    assertTrue(center.receive("result").body.path("success").asBoolean());
+                    assertTrue(Files.exists(restarted));
+                } finally {
+                    Files.createFile(release);
+                }
+            }
+        }
+    }
+
+    @Test
     void closeDropsQueuedCollectsAndRejectsRestart(@TempDir Path temporary) throws Exception {
         Path release = temporary.resolve("release");
         Path active = temporary.resolve("active");
