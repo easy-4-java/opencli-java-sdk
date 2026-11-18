@@ -75,6 +75,7 @@ jobs:
         shell: bash
         run: |
           case "$GITHUB_REF_NAME" in
+            feature/REQ-20261118-wandl-opencli-contracts-20) echo 'java=17' >> "$GITHUB_OUTPUT" ;;
             feature/1.0.x*) echo 'java=8' >> "$GITHUB_OUTPUT" ;;
             feature/2.0.x*) echo 'java=17' >> "$GITHUB_OUTPUT" ;;
             feature/3.0.x*) echo 'java=21' >> "$GITHUB_OUTPUT" ;;
