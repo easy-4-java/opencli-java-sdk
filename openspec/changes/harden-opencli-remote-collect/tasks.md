@@ -100,3 +100,5 @@ argv 入口继续限制为 SDK 已登记适配器和可保真转换的参数。�
 本地 macOS 按平台步骤分别运行 Java 8、17、21，三线各执行 202 项，协议层各记录 93 项，其中 HTTP 套件 58 项。两个非法响应字符集用例均实际执行，覆盖收到 HTTP 200 和 503 时保留状态。三线零失败、零错误、零跳过。GitHub 平台结果按对应功能提交核验。
 
 实际 Agent 与 OpenCLI 1.8.8 的三线回环验收及默认端口兼容性差异见 [联调记录](evidence/2026-11-19-live-agent.md)。
+
+同一实际 Agent 的三线 HTTPS、Authorization 及证书名称负例，也已写入 [联调记录](evidence/2026-11-19-live-agent.md#https-和显式-authorization)。
