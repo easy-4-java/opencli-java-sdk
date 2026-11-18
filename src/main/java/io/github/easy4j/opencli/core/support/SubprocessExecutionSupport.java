@@ -95,8 +95,7 @@ public final class SubprocessExecutionSupport {
         private volatile boolean quarantined;
 
         public Runtime(int maxConcurrent) {
-            this(maxConcurrent, ProcessBuilder::start, timeoutMillis -> ExecuteWatchdog.builder()
-                .setTimeout(Duration.ofMillis(timeoutMillis)).get());
+            this(maxConcurrent, ProcessBuilder::start, SubprocessExecutionSupport::newWatchdog);
         }
 
         Runtime(int maxConcurrent, ProcessStarter processStarter, WatchdogFactory watchdogFactory) {
@@ -120,7 +119,7 @@ public final class SubprocessExecutionSupport {
             Process process = null;
             Reader stdoutReader = null;
             Reader stderrReader = null;
-            ExecuteWatchdog watchdog = watchdogFactory.create(request.timeoutMillis);
+            ExecuteWatchdog watchdog = null;
             TerminationReason reason = null;
             IOException ioFailure = null;
             boolean acquired = false;
@@ -214,7 +213,9 @@ public final class SubprocessExecutionSupport {
             } finally {
                 try {
                     try {
-                        watchdog.stop();
+                        if (Objects.nonNull(watchdog)) {
+                            watchdog.stop();
+                        }
                     } catch (RuntimeException ex) {
                         cleanupOperationFailed = true;
                     }
@@ -282,10 +283,16 @@ public final class SubprocessExecutionSupport {
                 .stderrCapturedBytes(err.size()).stderrObservedBytes(err.observed()).stderrTruncated(err.isTruncated())
                 .elapsedMillis(elapsedMillis(request.submittedAtNanos)).queueWaitMillis(queueWaitMillis)
                 .descendantsExitConfirmed(false).build();
-            return new RunSession(out, err, handler, watchdog, request.timeoutMillis,
+            // Preserve the legacy RunSession watchdog view even when nothing was started.
+            ExecuteWatchdog watchdogView = Objects.nonNull(watchdog) ? watchdog : newWatchdog(request.timeoutMillis);
+            return new RunSession(out, err, handler, watchdogView, request.timeoutMillis,
                 reason == TerminationReason.QUEUE_TIMEOUT || reason == TerminationReason.EXECUTION_TIMEOUT,
                 details, exit, ioFailure);
         }
+    }
+
+    private static ExecuteWatchdog newWatchdog(long timeoutMillis) {
+        return ExecuteWatchdog.builder().setTimeout(Duration.ofMillis(timeoutMillis)).get();
     }
 
     private static boolean alive(Thread thread) { return thread != null && thread.isAlive(); }

@@ -59,7 +59,6 @@ class SubprocessCleanupFaultTest {
     @Test
     void watchdogCreationFailureAfterSpawnStillCleansChildAndReleasesPermit() throws Exception {
         int[] starts = new int[1];
-        int[] watchdogCreations = new int[1];
         FakeProcess[] last = new FakeProcess[1];
         SubprocessExecutionSupport.Runtime runtime = new SubprocessExecutionSupport.Runtime(1,
             builder -> {
@@ -67,10 +66,8 @@ class SubprocessCleanupFaultTest {
                 last[0] = new FakeProcess(false);
                 return last[0];
             }, timeout -> {
-                if (++watchdogCreations[0] % 2 == 0) {
-                    throw new IllegalStateException("injected watchdog creation failure");
-                }
-                return new FakeWatchdog(false);
+                assertNotNull(last[0], "watchdog must be created after spawn");
+                throw new IllegalStateException("injected watchdog creation failure");
             });
 
         for (int attempt = 0; attempt < 2; attempt++) {
@@ -149,6 +146,24 @@ class SubprocessCleanupFaultTest {
         assertEquals(TerminationReason.RUNTIME_UNAVAILABLE,
             runtime.execute(next).getExecutionDetails().getTerminationReason());
         assertEquals(1, starts[0]);
+    }
+
+    @Test
+    void cancelledSubmissionDoesNotInitializeWatchdogOrSpawn() throws Exception {
+        OpenCliCancellationToken token = new OpenCliCancellationToken();
+        token.cancel();
+        SubprocessExecutionSupport.Runtime runtime = new SubprocessExecutionSupport.Runtime(1,
+            builder -> fail("cancelled submission must not spawn"),
+            timeout -> fail("cancelled submission must not initialize a watchdog"));
+        SubprocessExecutionSupport.ExecutionRequest request = new SubprocessExecutionSupport.ExecutionRequest(
+            CommandLine.parse("fake"), null, null, 1000L, 16, 16, 200L, System.nanoTime(), token);
+
+        SubprocessExecutionSupport.RunSession session = runtime.execute(request);
+
+        assertEquals(TerminationReason.CANCELLED, session.getExecutionDetails().getTerminationReason());
+        assertEquals(CleanupState.NOT_STARTED, session.getExecutionDetails().getCleanupState());
+        assertNull(session.getObservedExitCode());
+        assertNotNull(session.getWatchdog());
     }
 
     private static void assertCleanupSurvives(boolean failStop, boolean failDestroy) throws Exception {
