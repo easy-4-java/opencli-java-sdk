@@ -50,7 +50,7 @@ C10基础（锁定/fixture runner/门禁框架）先做；C10最终关闭需选�
 
 ## Migration plan
 
-在已补回的coverage基础上增量强化契约与适配测试，修复仍存在的README工具声明和示例。规范只有完成评审、实现和真实验收后才archive到openspec/specs；本包全部implementation tasks保持unchecked。
+在已补回的coverage基础上增量强化契约与适配测试，修复仍存在的README工具声明和示例。已验证的准备任务及其证据记录在 tasks.md；规范只有完成评审、实现和真实验收后才archive到openspec/specs。
 
 每条版本线的迁移分开验证：Java8/17/21、Jackson2/3、各自Maven wrapper。保留现有公开门面，涉及失败行为收紧时提供调用示例与兼容边界。
 
