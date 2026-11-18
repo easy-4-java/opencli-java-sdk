@@ -44,17 +44,24 @@ public final class OpenCliBrowserDecoder {
         String output = raw.getStdout();
         String prefix = "URL: ";
         int headerEnd = output.indexOf('\n');
-        int blankEnd = output.indexOf('\n', headerEnd + 1);
-        if (!output.startsWith(prefix) || headerEnd < prefix.length() || blankEnd < 0
-            || !output.substring(headerEnd + 1, blankEnd).chars().allMatch(ch -> ch == '\r')) {
+        if (!output.startsWith(prefix) || headerEnd < prefix.length()) {
+            return new OpenCliBrowserResult<>(raw, Status.INVALID_SHAPE, null);
+        }
+        int blankStart = headerEnd + 1;
+        int bodyStart;
+        if (output.startsWith("\r\n", blankStart)) {
+            bodyStart = blankStart + 2;
+        } else if (output.startsWith("\n", blankStart)) {
+            bodyStart = blankStart + 1;
+        } else {
             return new OpenCliBrowserResult<>(raw, Status.INVALID_SHAPE, null);
         }
         String url = output.substring(prefix.length(), headerEnd);
         if (url.endsWith("\r")) {
             url = url.substring(0, url.length() - 1);
         }
-        String body = output.substring(blankEnd + 1);
-        if (isBlankOutput(body)) {
+        String body = output.substring(bodyStart);
+        if (url.chars().anyMatch(Character::isISOControl) || isBlankOutput(body)) {
             return new OpenCliBrowserResult<>(raw, Status.INVALID_SHAPE, null);
         }
         return new OpenCliBrowserResult<>(raw, Status.PARSED, new OpenCliBrowserSnapshot(url, body));
