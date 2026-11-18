@@ -1,0 +1,2 @@
+# Preserve upstream stdout for SHA-256 verification.
+* -text whitespace=-blank-at-eof

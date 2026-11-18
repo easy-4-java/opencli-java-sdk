@@ -1,0 +1,124 @@
+{
+  "namespace": "auth",
+  "command": "opencli auth",
+  "usage": "opencli auth <command> [args] [options]",
+  "description": "Inspect website login status",
+  "command_count": 2,
+  "commands": [
+    {
+      "name": "refresh",
+      "command": "opencli auth refresh",
+      "usage": "opencli auth refresh [options]",
+      "description": "Touch logged-in site sessions to keep browser auth fresh",
+      "positionals": [],
+      "command_options": [
+        {
+          "name": "site",
+          "flags": "--site <sites>",
+          "help": "Comma-separated site names to refresh, e.g. github,claude",
+          "takes_value": "required"
+        },
+        {
+          "name": "all",
+          "flags": "--all",
+          "help": "Ignore the 24h refresh throttle and force every selected site",
+          "default": false
+        },
+        {
+          "name": "concurrency",
+          "flags": "--concurrency <n>",
+          "help": "Maximum sites to refresh at once",
+          "takes_value": "required"
+        },
+        {
+          "name": "timeout",
+          "flags": "--timeout <seconds>",
+          "help": "Per-site timeout in seconds",
+          "takes_value": "required"
+        },
+        {
+          "name": "format",
+          "flags": "-f, --format <fmt>",
+          "help": "Output format: table, plain, json, yaml, md, csv",
+          "takes_value": "required",
+          "default": "table"
+        }
+      ]
+    },
+    {
+      "name": "status",
+      "command": "opencli auth status",
+      "usage": "opencli auth status [options]",
+      "description": "Show login status for sites with auth adapters",
+      "positionals": [],
+      "command_options": [
+        {
+          "name": "site",
+          "flags": "--site <sites>",
+          "help": "Comma-separated site names to check, e.g. github,chatgpt",
+          "takes_value": "required"
+        },
+        {
+          "name": "full",
+          "flags": "--full",
+          "help": "Run full per-site whoami probes instead of quick no-navigation checks",
+          "default": false
+        },
+        {
+          "name": "concurrency",
+          "flags": "--concurrency <n>",
+          "help": "Maximum sites to check at once",
+          "takes_value": "required"
+        },
+        {
+          "name": "timeout",
+          "flags": "--timeout <seconds>",
+          "help": "Per-site timeout in seconds",
+          "takes_value": "required"
+        },
+        {
+          "name": "only",
+          "flags": "--only <status>",
+          "help": "Filter rows by status",
+          "takes_value": "required",
+          "default": "all",
+          "choices": [
+            "all",
+            "logged-in",
+            "not-logged-in",
+            "unknown",
+            "error"
+          ]
+        },
+        {
+          "name": "format",
+          "flags": "-f, --format <fmt>",
+          "help": "Output format: table, plain, json, yaml, md, csv",
+          "takes_value": "required",
+          "default": "table"
+        }
+      ]
+    }
+  ],
+  "namespace_options": [],
+  "global_options": [
+    {
+      "name": "version",
+      "flags": "-V, --version",
+      "help": "output the version number"
+    },
+    {
+      "name": "profile",
+      "flags": "--profile <name>",
+      "help": "Chrome profile/context alias for Browser Bridge commands",
+      "takes_value": "required"
+    }
+  ],
+  "structured_help": {
+    "formats": [
+      "yaml",
+      "json"
+    ],
+    "usage": "opencli auth --help -f yaml"
+  }
+}

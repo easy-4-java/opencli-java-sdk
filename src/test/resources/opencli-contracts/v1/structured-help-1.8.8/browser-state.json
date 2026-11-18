@@ -1,0 +1,57 @@
+{
+  "namespace": "browser",
+  "name": "state",
+  "command": "opencli browser <session> state",
+  "usage": "opencli browser <session> state [options]",
+  "description": "Page state: URL, title, interactive elements with [N] indices",
+  "positionals": [],
+  "command_options": [
+    {
+      "name": "source",
+      "flags": "--source <source>",
+      "help": "Snapshot backend: dom (default) or ax prototype",
+      "takes_value": "required",
+      "default": "dom"
+    },
+    {
+      "name": "compareSources",
+      "flags": "--compare-sources",
+      "help": "Print DOM vs AX snapshot metrics for observation promotion decisions",
+      "default": false
+    },
+    {
+      "name": "tab",
+      "flags": "--tab <targetId>",
+      "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+      "takes_value": "required"
+    }
+  ],
+  "namespace_options": [
+    {
+      "name": "window",
+      "flags": "--window <mode>",
+      "help": "Browser window mode: foreground or background",
+      "takes_value": "required"
+    }
+  ],
+  "global_options": [
+    {
+      "name": "version",
+      "flags": "-V, --version",
+      "help": "output the version number"
+    },
+    {
+      "name": "profile",
+      "flags": "--profile <name>",
+      "help": "Chrome profile/context alias for Browser Bridge commands",
+      "takes_value": "required"
+    }
+  ],
+  "structured_help": {
+    "formats": [
+      "yaml",
+      "json"
+    ],
+    "usage": "opencli browser <session> state --help -f yaml"
+  }
+}
