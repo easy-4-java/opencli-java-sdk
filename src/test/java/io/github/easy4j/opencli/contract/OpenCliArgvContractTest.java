@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /** Shared Java 8-compatible contract tests, with a real child rather than Recording executor. */
 class OpenCliArgvContractTest {
-    private static OpenCliProperties properties() {
+    static OpenCliProperties properties() {
         OpenCliProperties p = new OpenCliProperties();
         String exe = System.getProperty("os.name").startsWith("Windows") ? "java.exe" : "java";
         p.setExecutable(new File(new File(System.getProperty("java.home"), "bin"), exe).getAbsolutePath());
