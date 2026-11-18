@@ -15,9 +15,11 @@ public enum OpenCliHelpScope {
     BROWSER_GET("opencli browser <session> get", null, null, "browser", "browser", "fixture", "get"),
     BROWSER_STATE("opencli browser <session> state", "state", null, "browser", "browser", "fixture", "state"),
     META_AUTH("opencli auth", null, null, "auth", "auth"),
+    META_PROFILE("opencli profile", null, null, "profile", "profile"),
     META_LIST("opencli list", "list", null, null, "list"),
     SITE_NPM(null, null, "npm", null, "npm"),
-    SITE_NPM_SEARCH("opencli npm search", "search", "npm", null, "npm", "search");
+    SITE_NPM_SEARCH("opencli npm search", "search", "npm", null, "npm", "search"),
+    SITE_ZHIHU_HOT("opencli zhihu hot", "hot", "zhihu", null, "zhihu", "hot");
 
     private final String command;
     private final String name;

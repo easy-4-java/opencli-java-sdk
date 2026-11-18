@@ -32,6 +32,8 @@ public class OpenCliProperties {
     /** Maximum decoded HTTP response body bytes accepted from a remote Agent. */
     private int maxRemoteResponseBytes = 10 * 1024 * 1024;
     private String executable = "opencli";
+    /** Defaults applied when dispatching a schema-validated local command. */
+    private OpenCliInvocationContext invocationDefaults;
     private String workingDirectory;
     /** Total local queue and execution budget, or the remote HTTP transport budget. */
     private long commandTimeoutMillis = 300_000L;
@@ -60,6 +62,7 @@ public class OpenCliProperties {
     public OpenCliProperties copyForLocalCliExecution() {
         OpenCliProperties c = new OpenCliProperties();
         c.setExecutable(this.executable);
+        c.setInvocationDefaults(this.invocationDefaults);
         c.setWorkingDirectory(this.workingDirectory);
         c.setCommandTimeoutMillis(this.commandTimeoutMillis);
         c.setMaxOutputBytes(this.maxOutputBytes);

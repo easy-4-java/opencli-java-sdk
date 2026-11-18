@@ -33,6 +33,11 @@ public final class OpenCliCapabilityCommand {
      */
     public static List<String> bind(OpenCliCapabilitySnapshot snapshot, String command, String session,
         List<String> positionals, Map<String, String> options) {
+        return bind(snapshot, command, session, positionals, options, Collections.emptyList());
+    }
+
+    static List<String> bind(OpenCliCapabilitySnapshot snapshot, String command, String session,
+        List<String> positionals, Map<String, String> options, List<Argument> supplementaryGlobals) {
         Objects.requireNonNull(snapshot, "snapshot");
         Objects.requireNonNull(command, "command");
         if (snapshot.getStatus() != OpenCliCapabilitySnapshot.Status.AVAILABLE
@@ -46,13 +51,17 @@ public final class OpenCliCapabilityCommand {
             throw new IllegalArgumentException("The help command path cannot be bound");
         }
 
-        List<String> prefixOptions = new ArrayList<>();
+        List<String> rootOptions = new ArrayList<>();
+        List<String> namespaceOptions = new ArrayList<>();
         List<String> leafOptions = new ArrayList<>();
-        appendOptions(scope, leaf, options, prefixOptions, leafOptions);
+        appendOptions(scope, leaf, options, supplementaryGlobals, rootOptions, namespaceOptions, leafOptions);
 
-        List<String> argv = new ArrayList<>();
+        List<String> argv = new ArrayList<>(rootOptions);
         argv.add(path[1]);
-        argv.addAll(prefixOptions);
+        boolean browserSessionPath = "browser".equals(path[1]) && "<session>".equals(path[2]);
+        if (!browserSessionPath) {
+            argv.addAll(namespaceOptions);
+        }
         boolean sessionUsed = false;
         for (int index = 2; index < path.length; index++) {
             String token = path[index];
@@ -61,6 +70,7 @@ public final class OpenCliCapabilityCommand {
                     throw new IllegalArgumentException("A literal browser session identifier is required");
                 }
                 argv.add(session);
+                argv.addAll(namespaceOptions);
                 sessionUsed = true;
             } else {
                 if (!COMMAND_TOKEN.matcher(token).matches()) {
@@ -110,11 +120,15 @@ public final class OpenCliCapabilityCommand {
     }
 
     private static void appendOptions(OpenCliHelpSchema scope, OpenCliHelpSchema leaf, Map<String, String> options,
-        List<String> prefix, List<String> local) {
+        List<Argument> supplementaryGlobals, List<String> root, List<String> namespace, List<String> local) {
         Map<String, Option> definitions = new LinkedHashMap<>();
-        index(definitions, inherited(leaf.getGlobalOptions(), scope.getGlobalOptions()), prefix);
-        index(definitions, inherited(leaf.getNamespaceOptions(), scope.getNamespaceOptions()), prefix);
+        index(definitions, inherited(leaf.getGlobalOptions(), scope.getGlobalOptions()), root);
+        index(definitions, supplementaryGlobals, root);
+        index(definitions, inherited(leaf.getNamespaceOptions(), scope.getNamespaceOptions()), namespace);
         index(definitions, inherited(leaf.getCommonOptions(), scope.getCommonOptions()), local);
+        if (Boolean.TRUE.equals(leaf.getBrowser())) {
+            index(definitions, inherited(leaf.getBrowserCommonOptions(), scope.getBrowserCommonOptions()), local);
+        }
         index(definitions, leaf.getCommandOptions(), local);
         Set<Option> supplied = new HashSet<>();
         if (Objects.nonNull(options)) {

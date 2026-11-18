@@ -58,10 +58,10 @@ public final class OpenCliBrowserSession {
     private List<String> sessionPrefix() {
         List<String> tokens = new ArrayList<>();
         tokens.add("browser");
+        tokens.add(sessionName);
         if (Objects.nonNull(windowMode)) {
             OpenCliArgSupport.addOptionPair(tokens, "--window", windowMode);
         }
-        tokens.add(sessionName);
         return tokens;
     }
 
