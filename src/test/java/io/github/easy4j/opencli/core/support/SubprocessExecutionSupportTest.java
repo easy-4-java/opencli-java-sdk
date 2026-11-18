@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import io.github.easy4j.opencli.core.OpenCliExecutionDetails.TerminationReason;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import org.apache.commons.exec.CommandLine;
 import org.junit.jupiter.api.io.TempDir;
@@ -76,6 +77,26 @@ class SubprocessExecutionSupportTest {
         assertTrue(stdout.isOverflowed());
         assertFalse(stderr.isOverflowed());
         assertTrue(session.isStdoutOverflowed());
+    }
+
+    @Test
+    void legacyOutputStreamsAllowBoundedWritesWithoutChangingExecutionDetails() throws Exception {
+        CommandLine command = new CommandLine("/usr/bin/printf");
+        command.addArgument("abc");
+        SubprocessExecutionSupport.RunSession session = SubprocessExecutionSupport.execute(
+            new SubprocessExecutionSupport.ExecutionRequest(command, null, null, 10_000L, 5L));
+
+        SubprocessExecutionSupport.BoundedOutputStream stdout = session.getStdout();
+        SubprocessExecutionSupport.BoundedOutputStream stderr = session.getStderr();
+        stdout.write('d');
+        stdout.write(new byte[]{'x', 'e', 'f'}, 1, 2);
+        stderr.write(new byte[]{'!'}, 0, 1);
+
+        assertArrayEquals("abcde".getBytes(StandardCharsets.UTF_8), stdout.toByteArray());
+        assertTrue(stdout.isOverflowed());
+        assertArrayEquals(new byte[]{'!'}, stderr.toByteArray());
+        assertFalse(session.getExecutionDetails().isStdoutTruncated());
+        assertFalse(session.getExecutionDetails().isStderrTruncated());
     }
 
     @Test
