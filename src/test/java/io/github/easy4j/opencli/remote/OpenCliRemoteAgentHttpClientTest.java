@@ -28,11 +28,13 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.UUID;
@@ -44,6 +46,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
 import javax.net.ssl.SSLContext;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
+import org.apache.http.ProtocolVersion;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.conn.ClientConnectionManager;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.message.BasicHttpResponse;
+import org.apache.http.params.HttpParams;
+import org.apache.http.protocol.HttpContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -551,6 +563,124 @@ class OpenCliRemoteAgentHttpClientTest {
             for (Throwable cause = ex.getCause(); cause != null; cause = cause.getCause()) {
                 Assertions.assertFalse(cause.toString().contains(canary));
             }
+        }
+    }
+
+    @Test
+    void requestSerializationFailureIsPrivateAndNeverDispatched() throws IOException {
+        String canary = "serialization-private-" + UUID.randomUUID();
+        try (JsonCollectStub stub = JsonCollectStub.start("{\"success\":true}");
+             OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(baseProps(stub.port()))) {
+            OpenCliCollectRequest request = new OpenCliCollectRequest() {
+                @Override
+                public Map<String, Object> getArgs() {
+                    throw new IllegalStateException(canary);
+                }
+            };
+            ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+            PrintStream previous = System.err;
+            OpenCliExecutableFailureException failure;
+            try (PrintStream capture = new PrintStream(diagnostics, true, StandardCharsets.UTF_8.name())) {
+                System.setErr(capture);
+                try {
+                    failure = Assertions.assertThrows(OpenCliExecutableFailureException.class, () -> client.collect(request));
+                    failure.printStackTrace(capture);
+                } finally {
+                    System.setErr(previous);
+                }
+            }
+            String output = diagnostics.toString(StandardCharsets.UTF_8.name());
+            Assertions.assertTrue(failure.getMessage().contains("Failed to serialize collect request"));
+            Assertions.assertTrue(output.contains("Agent request serialization failed correlationId="));
+            Assertions.assertFalse(output.contains(canary));
+            Assertions.assertEquals(0, stub.requests());
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void responseCloseFailureProtectsProviderDetailsAndPrimaryOutcome(boolean validEnvelope) throws Exception {
+        String canary = "response-close-private-" + UUID.randomUUID();
+        String body = validEnvelope ? "{\"success\":true}" : "null";
+        CloseFailureResponse response = new CloseFailureResponse(body, canary);
+        try (OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(baseProps(1))) {
+            setTransport(client, response, null);
+            OpenCliExecutableFailureException failure = Assertions.assertThrows(
+                OpenCliExecutableFailureException.class, () -> client.collect(new OpenCliCollectRequest()));
+            OpenCliRemoteExecutionDetails details = failure.getPartialResult().getRemoteExecutionDetails();
+            Assertions.assertEquals(200, details.getHttpStatus());
+            Assertions.assertEquals(validEnvelope ? Outcome.TRANSPORT_FAILURE : Outcome.PROTOCOL_FAILURE, details.getOutcome());
+            Assertions.assertEquals(1, response.closeCalls);
+            StringWriter stack = new StringWriter();
+            failure.printStackTrace(new PrintWriter(stack));
+            Assertions.assertFalse(stack.toString().contains(canary));
+        }
+    }
+
+    @Test
+    void transportCloseFailureDoesNotExposeProviderDetails() throws Exception {
+        String canary = "transport-close-private-" + UUID.randomUUID();
+        OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(baseProps(1));
+        setTransport(client, null, new IllegalStateException(canary));
+        ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+        PrintStream previous = System.err;
+        try (PrintStream capture = new PrintStream(diagnostics, true, StandardCharsets.UTF_8.name())) {
+            System.setErr(capture);
+            try {
+                Assertions.assertDoesNotThrow(client::close);
+            } finally {
+                System.setErr(previous);
+            }
+        }
+        String output = diagnostics.toString(StandardCharsets.UTF_8.name());
+        Assertions.assertTrue(output.contains("Agent HTTP transport close failed"));
+        Assertions.assertFalse(output.contains(canary));
+    }
+
+    // Replace the native provider to inject close faults that a loopback server cannot reliably schedule.
+    private static void setTransport(OpenCliRemoteAgentHttpClient client, CloseableHttpResponse response,
+        RuntimeException shutdownFailure) throws ReflectiveOperationException {
+        Field transport = OpenCliRemoteAgentHttpClient.class.getDeclaredField("transport");
+        transport.setAccessible(true);
+        transport.set(client, new CloseableHttpClient() {
+            @Override
+            protected CloseableHttpResponse doExecute(HttpHost host, HttpRequest request, HttpContext context) {
+                return response;
+            }
+
+            @Override
+            public HttpParams getParams() {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public ClientConnectionManager getConnectionManager() {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
+            public void close() {
+                if (Objects.nonNull(shutdownFailure)) {
+                    throw shutdownFailure;
+                }
+            }
+        });
+    }
+
+    private static final class CloseFailureResponse extends BasicHttpResponse implements CloseableHttpResponse {
+        private final String canary;
+        private int closeCalls;
+
+        private CloseFailureResponse(String body, String canary) {
+            super(new ProtocolVersion("HTTP", 1, 1), 200, "OK");
+            this.canary = canary;
+            setEntity(new StringEntity(body, StandardCharsets.UTF_8));
+        }
+
+        @Override
+        public void close() throws IOException {
+            closeCalls++;
+            throw new IOException(canary);
         }
     }
 
