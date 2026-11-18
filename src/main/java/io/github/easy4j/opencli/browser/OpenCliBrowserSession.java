@@ -1,5 +1,9 @@
 package io.github.easy4j.opencli.browser;
 
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserDecoder;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserOpenResult;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserResult;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserTab;
 import io.github.easy4j.opencli.browser.support.OpenCliBrowserConsoleOptions;
 import io.github.easy4j.opencli.browser.support.OpenCliBrowserDragLocator;
 import io.github.easy4j.opencli.browser.support.OpenCliBrowserExtractOptions;
@@ -86,6 +90,11 @@ public final class OpenCliBrowserSession {
         return invokeSub(OpenCliLists.of("tab", "list"));
     }
 
+    /** @return strict interpretation of the tab list; execution exceptions retain their partial results */
+    public OpenCliBrowserResult<List<OpenCliBrowserTab>> tabListTyped() {
+        return OpenCliBrowserDecoder.tabList(tabList());
+    }
+
     /**
      * {@code browser tab new [url]}。
      *
@@ -147,6 +156,15 @@ public final class OpenCliBrowserSession {
             tab.appendTo(args);
         }
         return invokeSub(args);
+    }
+
+    /**
+     * @param url requested navigation URL
+     * @param tab optional target tab
+     * @return strict interpretation of the navigation result
+     */
+    public OpenCliBrowserResult<OpenCliBrowserOpenResult> openTyped(String url, OpenCliBrowserTabOptions tab) {
+        return OpenCliBrowserDecoder.open(open(url, tab));
     }
 
     /** {@code browser back} */
