@@ -24,6 +24,8 @@ public class OpenCliProperties {
     private String remoteCdpEndpoint = "";
     /** Raw HTTP capture is explicitly opt-in and may contain sensitive business data. */
     private boolean remoteCaptureRawHttpResponse = false;
+    /** Maximum decoded HTTP response body bytes accepted from a remote Agent. */
+    private int maxRemoteResponseBytes = 10 * 1024 * 1024;
     private String executable = "opencli";
     private String workingDirectory;
     /** Total local queue plus execution budget; remote mode uses an HTTP timeout. */

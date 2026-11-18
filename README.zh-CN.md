@@ -189,6 +189,7 @@ cli.gemini().deepResearch("topic",
 | `remoteOutputFormat` | `json` | 向 Agent 请求的输出格式 |
 | `remoteCdpEndpoint` | — | 可选，覆盖 Agent 默认 CDP 端点 |
 | `remoteCaptureRawHttpResponse` | `false` | 在 `OpenCliResult#getRemoteRawHttpBody()` 中保留原始 HTTP 报文（大响应请谨慎开启） |
+| `maxRemoteResponseBytes` | `10485760` | HTTP 解压后的响应体字节上限，须为正数。超限抛出 `OpenCliRemoteResponseLimitException`，含 HTTP 状态和上限。原文捕获受同一上限约束。 |
 
 本地 `browser console --follow` 和 `browser network --follow` 使用同步采集，受有限执行时限以及 stdout、stderr 字节上限约束。CLI 正常退出后返回采集结果。超时、中断、输出超限和非零退出时，可从执行异常取得终止原因与已有部分输出。禁用命令时限会在启动前被拒绝。当前接口仅支持同步采集。
 
