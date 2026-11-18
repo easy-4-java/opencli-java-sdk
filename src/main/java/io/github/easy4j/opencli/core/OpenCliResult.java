@@ -1,5 +1,6 @@
 package io.github.easy4j.opencli.core;
 
+import io.github.easy4j.opencli.parser.OpenCliErrorEnvelope;
 import io.github.easy4j.opencli.parser.OpenCliParsedFields;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,6 +25,8 @@ public class OpenCliResult {
     private final String remoteRawHttpBody;
     /** Observed local execution metadata; null for a legacy remote result. */
     private final OpenCliExecutionDetails executionDetails;
+    /** Structured stderr interpretation for local failures. */
+    private final OpenCliErrorEnvelope errorEnvelope;
     /** Evidence from a legacy HTTP collect response, if available. */
     private final OpenCliRemoteExecutionDetails remoteExecutionDetails;
 }
