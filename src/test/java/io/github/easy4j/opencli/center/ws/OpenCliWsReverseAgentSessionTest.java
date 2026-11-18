@@ -23,12 +23,15 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.net.ssl.SSLContext;
 import org.java_websocket.WebSocket;
@@ -614,7 +617,13 @@ class OpenCliWsReverseAgentSessionTest {
             }
         }
         String logText = diagnostics.toString(StandardCharsets.UTF_8.name());
-        assertTrue(logText.contains("failed to send WS result"));
+        Matcher connecting = Pattern.compile("opencli ws connecting correlationId=([a-f0-9-]+)").matcher(logText);
+        assertTrue(connecting.find(), "first connection has a safe correlation ID");
+        UUID firstCorrelationId = UUID.fromString(connecting.group(1));
+        assertTrue(connecting.find(), "reconnection has a safe correlation ID");
+        UUID secondCorrelationId = UUID.fromString(connecting.group(1));
+        assertFalse(firstCorrelationId.equals(secondCorrelationId));
+        assertTrue(logText.contains("failed to send WS result correlationId=" + firstCorrelationId));
         assertFalse(logText.contains(canary));
     }
 
