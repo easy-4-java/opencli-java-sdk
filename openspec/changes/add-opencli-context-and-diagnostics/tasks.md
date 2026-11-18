@@ -42,6 +42,8 @@
 
 一个 Java 客户端通过独立 JVM 子进程并发执行两个不同 profile/window 的调用。故意失败的调用及其 partial result 保留自己的 argv，另一调用保留自己的 argv。随后没有覆盖值的调用继续使用客户端的原默认值。现有回归同时验证显式 `false`、scope 冲突和未经验证诊断的 UNKNOWN。
 
+并发夹具使用临时目录中的两个同步信号。成功调用的子进程先发出就绪信号，失败调用才以 7 退出；父测试确认失败结果后释放成功调用。由此验证失败发生时成功调用确实尚未完成。以 `2986a86`、`a4687d1`、`72c9dd8` 为基线加入同步验证后，Java 8、17、21 的 `./mvnw -B -ntp -o clean verify` 分别通过 2235、2236、2235 项，零失败、零错误、零跳过。
+
 使用发布版 OpenCLI 1.8.8 的独立配置目录验证默认诊断只取版本，不执行安装版 CLI 的 startup hook。显式发起帮助探测会触发 fixture hook，后续默认诊断不会再次执行它。sitemap 和 trace 路径保持数据，pipeline CLI 仍为 DEFERRED。
 
 本分支以 `ee64145ca904f2384bed1265036cd7c2acc1f73b` 为基线，使用 JDK 8，提供安装版 CLI 对应的 `OPENCLI_INSTALLED_NODE` 与 `OPENCLI_INSTALLED_ENTRY` 后执行 `./mvnw -B -ntp -o -Dtest=OpenCliInvocationContextTest,OpenCliDiagnosticsTest,OpenCliReadOnlyDiagnosticsIT test`。8 项实际执行，零失败、零错误、零跳过，退出码为 0。报告位于 `target/surefire-reports`。
