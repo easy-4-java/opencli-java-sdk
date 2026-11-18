@@ -186,6 +186,7 @@ public final class SubprocessExecutionSupport {
                         reason = TerminationReason.IO_FAILURE;
                     }
                     while (reason == null) {
+                        IOException readFailure = readerFailure(stdoutReader, stderrReader);
                         if (out.isTruncated() || err.isTruncated()) {
                             reason = TerminationReason.OUTPUT_LIMIT;
                         } else if (Thread.interrupted()) {
@@ -193,12 +194,17 @@ public final class SubprocessExecutionSupport {
                             reason = TerminationReason.CANCELLED;
                         } else if (request.cancellationToken.isCancelled()) {
                             reason = TerminationReason.CANCELLED;
-                        } else if (Objects.nonNull(stdoutReader.failure) || Objects.nonNull(stderrReader.failure)) {
-                            ioFailure = Objects.nonNull(stdoutReader.failure)
-                                ? stdoutReader.failure : stderrReader.failure;
+                        } else if (Objects.nonNull(readFailure)) {
+                            ioFailure = readFailure;
                             reason = TerminationReason.IO_FAILURE;
                         } else if (!process.isAlive() && !stdoutReader.isAlive() && !stderrReader.isAlive()) {
-                            reason = watchdog.killedProcess() ? TerminationReason.EXECUTION_TIMEOUT : TerminationReason.PROCESS_EXIT;
+                            // A reader can publish its failure between the earlier check and thread exit.
+                            ioFailure = readerFailure(stdoutReader, stderrReader);
+                            if (Objects.nonNull(ioFailure)) {
+                                reason = TerminationReason.IO_FAILURE;
+                            } else {
+                                reason = watchdog.killedProcess() ? TerminationReason.EXECUTION_TIMEOUT : TerminationReason.PROCESS_EXIT;
+                            }
                         } else if (watchdog.killedProcess() || remaining(request.submittedAtNanos, budget) <= 0) {
                             reason = TerminationReason.EXECUTION_TIMEOUT;
                         } else {
@@ -471,6 +477,11 @@ public final class SubprocessExecutionSupport {
         synchronized void freeze() { frozen = true; }
     }
 
+    private static IOException readerFailure(Reader stdout, Reader stderr) {
+        IOException failure = stdout.failure;
+        return Objects.nonNull(failure) ? failure : stderr.failure;
+    }
+
     private static final class Reader extends Thread {
         private final InputStream input;
         private final BoundedCapture capture;
@@ -505,6 +516,8 @@ public final class SubprocessExecutionSupport {
         private final File workingDirectory;
         private final Map<String, String> environment;
         private final long timeoutMillis;
+        /** Requested legacy ceiling, or zero for independently configured stream limits. */
+        private final long maxOutputBytes;
         private final int stdoutLimitBytes;
         private final int stderrLimitBytes;
         private final long cleanupGraceMillis;
@@ -524,7 +537,7 @@ public final class SubprocessExecutionSupport {
             this(commandLine, workingDirectory, environment, timeoutMillis,
                 legacyLimit(maxOutputBytes, DEFAULT_STDOUT_LIMIT),
                 legacyLimit(maxOutputBytes, DEFAULT_STDERR_LIMIT), WAIT_GRACE_MILLIS,
-                System.nanoTime(), new OpenCliCancellationToken());
+                System.nanoTime(), new OpenCliCancellationToken(), maxOutputBytes);
         }
 
         private static int legacyLimit(long maxOutputBytes, int defaultLimit) {
@@ -535,6 +548,14 @@ public final class SubprocessExecutionSupport {
             Map<String, String> environment, long timeoutMillis, int stdoutLimitBytes,
             int stderrLimitBytes, long cleanupGraceMillis, long submittedAtNanos,
             OpenCliCancellationToken cancellationToken) {
+            this(commandLine, workingDirectory, environment, timeoutMillis, stdoutLimitBytes,
+                stderrLimitBytes, cleanupGraceMillis, submittedAtNanos, cancellationToken, 0L);
+        }
+
+        private ExecutionRequest(CommandLine commandLine, File workingDirectory,
+            Map<String, String> environment, long timeoutMillis, int stdoutLimitBytes,
+            int stderrLimitBytes, long cleanupGraceMillis, long submittedAtNanos,
+            OpenCliCancellationToken cancellationToken, long maxOutputBytes) {
             this.commandLine = Objects.requireNonNull(commandLine, "commandLine");
             List<String> argv = new ArrayList<>(Arrays.asList(commandLine.toStrings()));
             for (int i = 0; i < argv.size(); i++) {
@@ -549,6 +570,7 @@ public final class SubprocessExecutionSupport {
                 throw new IllegalArgumentException("stdout/stderr capture budgets must be positive");
             }
             this.timeoutMillis = timeoutMillis;
+            this.maxOutputBytes = maxOutputBytes;
             this.stdoutLimitBytes = stdoutLimitBytes;
             this.stderrLimitBytes = stderrLimitBytes;
             this.cleanupGraceMillis = cleanupGraceMillis;
@@ -557,10 +579,41 @@ public final class SubprocessExecutionSupport {
         }
     }
 
+    /** Bounded stdout or stderr snapshot returned by the low-level execution API. */
+    public static final class BoundedOutputStream extends OutputStream {
+        private final BoundedCapture capture;
+
+        private BoundedOutputStream(BoundedCapture capture) {
+            this.capture = capture;
+        }
+
+        @Override
+        public void write(int value) {
+            capture.write(value);
+        }
+
+        @Override
+        public void write(byte[] bytes, int offset, int length) {
+            capture.write(bytes, offset, length);
+        }
+
+        public byte[] toByteArray() {
+            return capture.toByteArray();
+        }
+
+        public boolean isOverflowed() {
+            return capture.isTruncated();
+        }
+
+        int bufferCapacity() {
+            return capture.bufferCapacity();
+        }
+    }
+
     @Getter
     public static final class RunSession {
-        private final ByteArrayOutputStream stdout;
-        private final ByteArrayOutputStream stderr;
+        private final BoundedOutputStream stdout;
+        private final BoundedOutputStream stderr;
         private final DefaultExecuteResultHandler handler;
         private final ExecuteWatchdog watchdog;
         private final long timeoutMillis;
@@ -570,12 +623,12 @@ public final class SubprocessExecutionSupport {
         /** Raw low-level I/O evidence, which can include local paths. Exclude it from default diagnostics. */
         private final IOException ioFailure;
 
-        RunSession(ByteArrayOutputStream stdout, ByteArrayOutputStream stderr,
+        RunSession(BoundedCapture stdout, BoundedCapture stderr,
             DefaultExecuteResultHandler handler, ExecuteWatchdog watchdog, long timeoutMillis,
             boolean waitTimedOut, OpenCliExecutionDetails executionDetails,
             Integer observedExitCode, IOException ioFailure) {
-            this.stdout = stdout;
-            this.stderr = stderr;
+            this.stdout = new BoundedOutputStream(stdout);
+            this.stderr = new BoundedOutputStream(stderr);
             this.handler = handler;
             this.watchdog = watchdog;
             this.timeoutMillis = timeoutMillis;

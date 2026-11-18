@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.ExecuteWatchdog;
 import org.junit.jupiter.api.Test;
@@ -39,7 +40,72 @@ class SubprocessStreamFailureTest {
         assertEquals(TerminationReason.IO_FAILURE,
             session.getExecutionDetails().getTerminationReason());
         assertSame(readFailure, session.getIoFailure());
-        assertEquals("abc", session.getStdout().toString(StandardCharsets.UTF_8.name()));
+        assertEquals("abc", new String(session.getStdout().toByteArray(), StandardCharsets.UTF_8));
+        assertTrue(session.getExecutionDetails().isStreamsDrained());
+    }
+
+    @Test
+    void readerFailureDuringRootExitPollDoesNotReportSuccessfulCompletion() throws Exception {
+        IOException readFailure = new IOException("reader failed while root exit was observed");
+        CountDownLatch readersStarted = new CountDownLatch(2);
+        CountDownLatch releaseFailure = new CountDownLatch(1);
+        AtomicReference<Thread> stdoutThread = new AtomicReference<>();
+        AtomicReference<Thread> stderrThread = new AtomicReference<>();
+        InputStream stdout = new InputStream() {
+            @Override
+            public int read() throws IOException {
+                stdoutThread.set(Thread.currentThread());
+                readersStarted.countDown();
+                try {
+                    assertTrue(releaseFailure.await(2, TimeUnit.SECONDS));
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                    throw new IOException(ex);
+                }
+                throw readFailure;
+            }
+        };
+        Process root = new ExitedProcess(stdout) {
+            @Override
+            public InputStream getErrorStream() {
+                return new InputStream() {
+                    @Override
+                    public int read() {
+                        stderrThread.set(Thread.currentThread());
+                        readersStarted.countDown();
+                        return -1;
+                    }
+                };
+            }
+
+            @Override
+            public boolean isAlive() {
+                if (releaseFailure.getCount() > 0) {
+                    try {
+                        assertTrue(readersStarted.await(2, TimeUnit.SECONDS));
+                        releaseFailure.countDown();
+                        stdoutThread.get().join(1_000);
+                        stderrThread.get().join(1_000);
+                        assertFalse(stdoutThread.get().isAlive());
+                        assertFalse(stderrThread.get().isAlive());
+                    } catch (InterruptedException ex) {
+                        Thread.currentThread().interrupt();
+                        throw new AssertionError(ex);
+                    }
+                }
+                return false;
+            }
+        };
+        SubprocessExecutionSupport.Runtime runtime = new SubprocessExecutionSupport.Runtime(1,
+            builder -> root, timeout -> new IdleWatchdog());
+        SubprocessExecutionSupport.ExecutionRequest request = new SubprocessExecutionSupport.ExecutionRequest(
+            CommandLine.parse("fake"), null, null, 3_000L, 32, 32, 200L,
+            System.nanoTime(), new OpenCliCancellationToken());
+
+        SubprocessExecutionSupport.RunSession session = runtime.execute(request);
+
+        assertEquals(TerminationReason.IO_FAILURE, session.getExecutionDetails().getTerminationReason());
+        assertSame(readFailure, session.getIoFailure());
         assertTrue(session.getExecutionDetails().isStreamsDrained());
     }
 
@@ -96,7 +162,7 @@ class SubprocessStreamFailureTest {
         public synchronized void start(Process process) { }
     }
 
-    private static final class ExitedProcess extends Process {
+    private static class ExitedProcess extends Process {
         private final InputStream output;
 
         ExitedProcess(InputStream output) {
