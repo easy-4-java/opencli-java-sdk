@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.CommandLine;
@@ -187,7 +188,7 @@ public class OpenCliExecutor implements AutoCloseable {
         Objects.requireNonNull(key, "key");
         Objects.requireNonNull(value, "value");
         if (!key.startsWith("--")) {
-            throw new IllegalArgumentException("CLI key must start with '--', got: " + key);
+            throw new IllegalArgumentException("CLI key must start with '--'");
         }
         String prefix = key.endsWith("=") ? key.substring(0, key.length() - 1) : key;
         cmd.addArgument(prefix + "=" + value, true);
@@ -206,10 +207,11 @@ public class OpenCliExecutor implements AutoCloseable {
                         commandLine, workingDirectory, environment, timeoutMs,
                         properties.getMaxOutputBytes());
 
+        String correlationId = UUID.randomUUID().toString();
         try {
             SubprocessExecutionSupport.RunSession session = SubprocessExecutionSupport.execute(request);
             return completeAfterWait(
-                    commandLine,
+                    correlationId,
                     timeoutMs,
                     session.getStdout(),
                     session.getStderr(),
@@ -217,13 +219,13 @@ public class OpenCliExecutor implements AutoCloseable {
                     session.getWatchdog(),
                     session.isWaitTimedOut());
         } catch (IOException e) {
-            log.warn("OpenCLI spawn failed commandLine={}, message={}", commandLine, e.getMessage());
+            log.warn("OpenCLI spawn failed correlationId={}", correlationId);
             throw new OpenCliExecutableFailureException(
-                    "OpenCLI could not be started (check PATH or executable path): " + commandLine, e);
+                    "OpenCLI could not be started correlationId=" + correlationId, null);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            log.warn("OpenCLI interrupted commandLine={}", commandLine);
-            throw new OpenCliException("Interrupted while awaiting OpenCLI subprocess", e, null);
+            log.warn("OpenCLI interrupted correlationId={}", correlationId);
+            throw new OpenCliException("Interrupted while awaiting OpenCLI subprocess correlationId=" + correlationId, null, null);
         }
     }
 
@@ -233,7 +235,7 @@ public class OpenCliExecutor implements AutoCloseable {
             File wd = new File(wdProperty.trim());
             if (!wd.isDirectory()) {
                 throw new OpenCliExecutableFailureException(
-                        "opencli.working-directory is not an existing directory: " + wd.getAbsolutePath(), null);
+                        "opencli.working-directory is not an existing directory", null);
             }
             return wd;
         }
@@ -241,7 +243,7 @@ public class OpenCliExecutor implements AutoCloseable {
     }
 
     private OpenCliResult completeAfterWait(
-            CommandLine commandLine,
+            String correlationId,
             long timeoutMs,
             SubprocessExecutionSupport.BoundedOutputStream out,
             SubprocessExecutionSupport.BoundedOutputStream err,
@@ -263,26 +265,25 @@ public class OpenCliExecutor implements AutoCloseable {
         OpenCliParsedFields parsed = OpenCliOutputParser.parseBestEffort(stdoutStr, stderrStr);
 
         if (waitTimedOut || watchdog.killedProcess()) {
-            log.warn("OpenCLI timed out commandLine={} timeoutMs={}", commandLine, timeoutMs);
+            log.warn("OpenCLI timed out correlationId={} timeoutMs={}", correlationId, timeoutMs);
             OpenCliResult partial = snapshot(stdoutStr, stderrStr, readExitQuietly(handler), parsed);
             throw new OpenCliTimeoutException(
-                    "OpenCLI timed out after " + timeoutMs + " ms: " + commandLine, partial);
+                    "OpenCLI timed out after " + timeoutMs + " ms correlationId=" + correlationId, partial);
         }
 
         Exception asyncFailure = handler.getException();
         if (asyncFailure instanceof ExecuteException) {
             ExecuteException ex = (ExecuteException) asyncFailure;
-            log.warn("OpenCLI failed exitCode={} commandLine={}", ex.getExitValue(), commandLine);
+            log.warn("OpenCLI failed correlationId={} exitCode={}", correlationId, ex.getExitValue());
             OpenCliResult failed = snapshot(stdoutStr, stderrStr, normalizeExitValue(ex.getExitValue()), parsed);
             throw new OpenCliNonZeroExitException(
-                    "OpenCLI failed (exitCode=" + ex.getExitValue() + "): " + commandLine, failed);
+                    "OpenCLI failed (exitCode=" + ex.getExitValue() + ") correlationId=" + correlationId, failed);
         }
         if (Objects.nonNull(asyncFailure)) {
-            log.error("OpenCLI async failure commandLine={}", commandLine, asyncFailure);
+            log.error("OpenCLI async failure correlationId={}", correlationId);
             OpenCliResult snapshot = snapshot(stdoutStr, stderrStr, readExitQuietly(handler), parsed);
             throw new OpenCliException(
-                    "OpenCLI async failure: " + commandLine + " cause=" + asyncFailure.getMessage(),
-                    asyncFailure, snapshot);
+                    "OpenCLI async failure correlationId=" + correlationId, null, snapshot);
         }
 
         final int exit;
@@ -290,16 +291,16 @@ public class OpenCliExecutor implements AutoCloseable {
             exit = handler.getExitValue();
         } catch (IllegalStateException e) {
             throw new OpenCliException(
-                    "OpenCLI completed without observable exit code: " + commandLine,
-                    e,
+                    "OpenCLI completed without observable exit code correlationId=" + correlationId,
+                    null,
                     snapshot(stdoutStr, stderrStr, null, parsed));
         }
 
         if (exit != 0) {
-            log.warn("OpenCLI non-zero exit exitCode={} commandLine={}", exit, commandLine);
+            log.warn("OpenCLI non-zero exit correlationId={} exitCode={}", correlationId, exit);
             OpenCliResult failed = snapshot(stdoutStr, stderrStr, exit, parsed);
             throw new OpenCliNonZeroExitException(
-                    "OpenCLI non-zero exit (exitCode=" + exit + "): " + commandLine, failed);
+                    "OpenCLI non-zero exit (exitCode=" + exit + ") correlationId=" + correlationId, failed);
         }
 
         return OpenCliResult.builder()

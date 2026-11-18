@@ -1,9 +1,9 @@
 package io.github.easy4j.opencli.center.ws;
 
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
-import tools.jackson.databind.json.JsonMapper;
 import io.github.easy4j.opencli.OpenCliProperties;
 import io.github.easy4j.opencli.core.OpenCliExecutor;
 import io.github.easy4j.opencli.core.OpenCliResult;
@@ -13,7 +13,6 @@ import io.github.easy4j.opencli.util.OpenCliStrings;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,7 +102,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
             try {
                 client.close();
             } catch (Exception e) {
-                log.debug("ws close ignored: {}", e.getMessage());
+                log.debug("ws close failed during stop");
             }
         }
         if (runnerThread != null) {
@@ -130,7 +129,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
                 break;
             } catch (Exception e) {
                 if (!shutdownRequested) {
-                    log.warn("opencli ws session failed (attempt {}): {}", attempt, e.getMessage());
+                    log.warn("opencli ws session failed attempt={}", attempt);
                 }
             }
             if (shutdownRequested) {
@@ -161,7 +160,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
         final CountDownLatch sessionClosed = new CountDownLatch(1);
         final AtomicReference<Throwable> handshakeFailure = new AtomicReference<>();
 
-        log.info("opencli ws connecting: {}", wsUrl);
+        log.info("opencli ws connecting");
         WebSocketClient client =
             new WebSocketClient(URI.create(wsUrl)) {
                 @Override
@@ -180,7 +179,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
                     try {
                         handleTextMessage(this, message, registered, handshakeFailure);
                     } catch (Exception e) {
-                        log.warn("handle ws message failed: {}", e.getMessage());
+                        log.warn("handle ws message failed");
                     }
                 }
 
@@ -192,8 +191,6 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
                             new IllegalStateException(
                                 "WebSocket closed before 'registered' (code="
                                     + code
-                                    + " reason="
-                                    + reason
                                     + ")"));
                         registered.countDown();
                     }
@@ -202,7 +199,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
 
                 @Override
                 public void onError(Exception ex) {
-                    log.warn("WebSocket error: {}", ex.toString());
+                    log.warn("WebSocket error");
                     if (registered.getCount() > 0) {
                         handshakeFailure.compareAndSet(null, ex);
                         registered.countDown();
@@ -213,7 +210,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
 
         activeClient = client;
         if (!client.connectBlocking(30, TimeUnit.SECONDS)) {
-            throw new IllegalStateException("WebSocket connectBlocking returned false: " + wsUrl);
+            throw new IllegalStateException("WebSocket connectBlocking returned false");
         }
 
         if (!registered.await(connectionProperties.getHandshakeTimeoutMillis(), TimeUnit.MILLISECONDS)) {
@@ -334,8 +331,8 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
                     : e.getMessage();
             sendResult(ws, requestId, false, Collections.<JsonNode>emptyList(), err);
         } catch (Exception e) {
-            log.warn("collect execution error request_id={}: {}", requestId, e.getMessage());
-            sendResult(ws, requestId, false, Collections.<JsonNode>emptyList(), e.getMessage());
+            log.warn("collect execution failed");
+            sendResult(ws, requestId, false, Collections.<JsonNode>emptyList(), "collect execution failed");
         }
     }
 
@@ -406,7 +403,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
             }
             ws.send(MAPPER.writeValueAsString(out));
         } catch (Exception e) {
-            log.error("failed to send WS result request_id={}: {}", requestId, e.getMessage());
+            log.error("failed to send WS result");
         }
     }
 }

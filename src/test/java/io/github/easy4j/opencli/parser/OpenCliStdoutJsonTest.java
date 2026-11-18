@@ -4,6 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import tools.jackson.databind.JsonNode;
 import io.github.easy4j.opencli.core.OpenCliResult;
 import io.github.easy4j.opencli.core.OpenCliTypedResult;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 class OpenCliStdoutJsonTest {
@@ -27,6 +31,27 @@ class OpenCliStdoutJsonTest {
         JsonNode node = OpenCliStdoutJson.parseLenient("not json at all");
         assertTrue(node.isTextual());
         assertEquals("not json at all", node.textValue());
+    }
+
+    @Test
+    void debugDiagnosticDoesNotExposeParserInput() throws Exception {
+        String canary = "stdoutsecret" + UUID.randomUUID().toString().replace("-", "");
+        ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+        PrintStream previousErr = System.err;
+        JsonNode node;
+        try (PrintStream capture = new PrintStream(diagnostics, true, "UTF-8")) {
+            System.setErr(capture);
+            try {
+                node = OpenCliStdoutJson.parseLenient(canary);
+            } finally {
+                System.setErr(previousErr);
+            }
+        }
+
+        assertEquals(canary, node.textValue());
+        String logText = diagnostics.toString(StandardCharsets.UTF_8.name());
+        assertTrue(logText.contains("stdout is not strict JSON"));
+        assertFalse(logText.contains(canary));
     }
 
     @Test
