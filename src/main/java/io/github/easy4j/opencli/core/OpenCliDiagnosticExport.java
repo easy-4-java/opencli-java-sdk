@@ -34,9 +34,12 @@ public final class OpenCliDiagnosticExport {
         }
 
         Integer exitCode = result.getExitCode();
+        OpenCliRemoteExecutionDetails remote = result.getRemoteExecutionDetails();
         String[] fields = {
             "success=" + result.isSuccess() + "\n",
+            Objects.isNull(remote) ? "" : "exitCodeSource=" + remote.getExitCodeSource() + "\n",
             Objects.isNull(exitCode) ? "" : "exitCode=" + exitCode + "\n",
+            Objects.isNull(remote) ? "" : "httpStatus=" + remote.getHttpStatus() + "\n",
             characterCount("stdoutChars", result.getStdout()),
             characterCount("stderrChars", result.getStderr()),
             characterCount("rawHttpChars", result.getRemoteRawHttpBody())
