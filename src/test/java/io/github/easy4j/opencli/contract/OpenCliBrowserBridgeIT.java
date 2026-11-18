@@ -3,12 +3,17 @@ package io.github.easy4j.opencli.contract;
 import io.github.easy4j.opencli.OpenCliClient;
 import io.github.easy4j.opencli.OpenCliProperties;
 import io.github.easy4j.opencli.browser.OpenCliBrowserSession;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserAnalysisResult;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserConsoleResult;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserFindResult;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserNetworkResult;
 import io.github.easy4j.opencli.browser.result.OpenCliBrowserOpenResult;
 import io.github.easy4j.opencli.browser.result.OpenCliBrowserResult;
 import io.github.easy4j.opencli.browser.result.OpenCliBrowserResult.Status;
 import io.github.easy4j.opencli.browser.result.OpenCliBrowserSnapshot;
 import io.github.easy4j.opencli.browser.result.OpenCliBrowserSourceComparison;
 import io.github.easy4j.opencli.browser.result.OpenCliBrowserTab;
+import io.github.easy4j.opencli.browser.support.OpenCliBrowserFindOptions;
 import io.github.easy4j.opencli.browser.support.OpenCliBrowserSnapshotSource;
 import java.net.URI;
 import java.util.Collections;
@@ -24,24 +29,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class OpenCliBrowserBridgeIT {
     @Test
     void typedResultsFromAnIsolatedChromePage() {
-        String fixtureUrl = requiredEnvironment("OPENCLI_BRIDGE_FIXTURE_URL");
-        URI uri = URI.create(fixtureUrl);
-        assertEquals("http", uri.getScheme());
-        assertEquals("127.0.0.1", uri.getHost());
-
-        OpenCliProperties properties = new OpenCliProperties();
-        properties.setExecutable(requiredEnvironment("OPENCLI_INSTALLED_NODE"));
-        properties.setLeadingArguments(Collections.singletonList(requiredEnvironment("OPENCLI_INSTALLED_ENTRY")));
-        properties.setCommandTimeoutMillis(30_000L);
-        try (OpenCliClient client = new OpenCliClient(properties)) {
+        String fixtureUrl = fixtureUrl();
+        try (OpenCliClient client = new OpenCliClient(properties())) {
             OpenCliBrowserSession session = new OpenCliBrowserSession(client.getExecutor(), "sdk-bridge-fixture", "background");
             OpenCliBrowserOpenResult opened = parsed(session.openTyped(fixtureUrl, null));
             assertEquals(fixtureUrl, opened.getUrl());
             assertNotNull(opened.getPageId());
 
             List<OpenCliBrowserTab> tabs = parsed(session.tabListTyped());
-            assertTrue(tabs.stream().anyMatch(tab -> opened.getPageId().equals(tab.getPageId())
-                && fixtureUrl.equals(tab.getUrl()) && tab.isActive()));
+            OpenCliBrowserTab openedTab = tabs.stream()
+                .filter(tab -> opened.getPageId().equals(tab.getPageId()) && fixtureUrl.equals(tab.getUrl()))
+                .findFirst().orElseThrow(() -> new AssertionError("The opened page must appear in the tab list"));
+            assertEquals(openedTab.getMetadata().get("active").asBoolean(), openedTab.isActive());
 
             OpenCliBrowserSnapshot dom = parsed(session.snapshotTyped(null, OpenCliBrowserSnapshotSource.DOM));
             assertEquals(fixtureUrl, dom.getUrl());
@@ -57,6 +56,50 @@ class OpenCliBrowserBridgeIT {
             assertTrue(comparison.getDom().isOk());
             assertTrue(comparison.getAx().isOk());
         }
+    }
+
+    @Test
+    void queryAndCaptureUseTheRealBridgeResponses() {
+        String fixtureUrl = fixtureUrl();
+        try (OpenCliClient client = new OpenCliClient(properties())) {
+            OpenCliBrowserSession session = new OpenCliBrowserSession(client.getExecutor(), "sdk-capture-fixture", "background");
+            parsed(session.openTyped(fixtureUrl, null));
+
+            OpenCliBrowserFindOptions options = OpenCliBrowserFindOptions.builder().css("#go").build();
+            OpenCliBrowserFindResult found = parsed(session.findTyped(null, null, options));
+            assertEquals(1, found.getMatchesN());
+            assertEquals("Continue", found.getEntries().get(0).getText());
+            assertNotNull(found.getEntries().get(0).getRef());
+
+            OpenCliBrowserConsoleResult console = parsed(session.consoleTyped(null, null));
+            assertEquals("sdk-capture-fixture", console.getSession());
+            assertTrue(console.getMessages().isEmpty());
+
+            String endpoint = URI.create(fixtureUrl).resolve("/api/items").toString();
+            OpenCliBrowserNetworkResult network = parsed(session.networkTyped(null, null));
+            assertTrue(network.getEntries().stream().anyMatch(entry ->
+                endpoint.equals(entry.getUrl()) && "GET".equals(entry.getMethod()) && entry.getStatus() == 200));
+
+            OpenCliBrowserAnalysisResult analysis = parsed(session.analyzeTyped(fixtureUrl, null));
+            assertEquals(fixtureUrl, analysis.getFinalUrl());
+            assertEquals("Bridge fixture", analysis.getTitle());
+        }
+    }
+
+    private static OpenCliProperties properties() {
+        OpenCliProperties properties = new OpenCliProperties();
+        properties.setExecutable(requiredEnvironment("OPENCLI_INSTALLED_NODE"));
+        properties.setLeadingArguments(Collections.singletonList(requiredEnvironment("OPENCLI_INSTALLED_ENTRY")));
+        properties.setCommandTimeoutMillis(30_000L);
+        return properties;
+    }
+
+    private static String fixtureUrl() {
+        String url = requiredEnvironment("OPENCLI_BRIDGE_FIXTURE_URL");
+        URI uri = URI.create(url);
+        assertEquals("http", uri.getScheme());
+        assertEquals("127.0.0.1", uri.getHost());
+        return url;
     }
 
     private static String requiredEnvironment(String name) {
