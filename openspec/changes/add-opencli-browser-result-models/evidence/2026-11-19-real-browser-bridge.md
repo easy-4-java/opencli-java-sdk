@@ -33,3 +33,10 @@ setTimeout(() => clearInterval(capture), 45000);
 ```
 
 本次无头 AX 返回页面根节点，未观察到按钮节点。Chrome 日志收到了测试 warning，OpenCLI 1.8.8 的真实扩展路径仍返回空控制台列表。非空控制台记录由隔离页面桩测试覆盖。真实账户、外部站点及托管 macOS runner 未参与。
+
+
+## 绑定标签页的生命周期
+
+复跑全部 `OpenCliBrowserBridgeIT` 用例时，在同一回环 HTTP 服务上提供 `/bound-fixture.html`，可以返回与上述 fixture 相同的 HTML。从这个 URL 启动临时 Chrome profile，让它成为活动标签页。新用例绑定该标签页，执行一次成功的 typed DOM 快照和一次错误目标页快照。关闭并重新创建 Java 客户端后，原标签页仍能通过同一 page ID 列出。用例最后显式解绑。
+
+Java 8、17、21 均执行全部 3 项 Browser Bridge 用例和配套结果与错误回归。每条线共 24 项，零失败、零错误、零跳过。使用回环页面和独立临时 profile。
