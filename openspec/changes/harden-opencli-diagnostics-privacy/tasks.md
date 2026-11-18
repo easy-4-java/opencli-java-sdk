@@ -11,7 +11,7 @@
 
 ## 2. 安全投影
 
-- [ ] 2.1 将commandLine/args/bodyPreview/remote error输出改成允许表元数据与correlationId。
+- [x] 2.1 将commandLine/args/bodyPreview/remote error输出改成允许表元数据与correlationId。见本文日志调用点核对。
 - [ ] 2.2 实现安全异常摘要和cause处理，避免logger输出provider原始对象。
 - [ ] 2.3 保留raw业务结果与默认关闭的HTTPdebugcapture，新增显式有限export策略。
 
@@ -57,3 +57,19 @@ OC-PRIV-001/004。Java 17 基线 `58f675a` 的两项回归均失败。输出 `Op
 OC-PRIV-001/003/004。Java 17 基线 `c6dc643` 的两项回归均失败。HTTP 收集 DTO 和生成的构建器会将命令、选项、位置参数和 CDP 地址拼进字符串，结构化本地请求构建器也会拼入命令及参数。三个默认字符串只保留类型名称。请求值仍由原访问器和协议序列化读取，结构化命令生成相同的字面 argv。
 
 Java 8 `15ef02a`、Java 17 `c6dc643`、Java 21 `d0f0205` 为回归前基线。三线各自用 Wrapper 执行 `./mvnw -B -ntp -o clean verify`，分别通过 2,244、2,245、2,244 项，零失败、零错误、零跳过。新增用例见 `OpenCliCollectRequestTest` 和 `OpenCliAdapterCommandRequestTest` 的 Surefire XML。全量回归同时覆盖 HTTP 线上字段和本地子进程调用。
+
+
+## WebSocket 连接关联与日志调用点核对
+
+OC-PRIV-001/004。Java 17 基线 `0b7091c` 的 TLS 重连用例中缺少连接关联 ID。实现为每次反向连接尝试生成独立 UUID，同一连接的建立、校验失败、回调、收集失败、投递失败和关闭失败日志复用该值。连接协议、业务结果和去重键各自沿用原值。TLS 回归注入包含测试标记的投递失败，验证原连接与失败日志共享 ID，重连使用新 ID，并保留显式重试和结果去重断言。
+
+Java 8 `cd1ceac`、Java 17 `0b7091c`、Java 21 `5bee58b` 是本轮修改前基线。三线各使用 Wrapper 执行 `./mvnw -B -ntp -o clean verify`，分别通过 2,244、2,245、2,244 项，零失败、零错误、零跳过。Java 17 修改前实际执行两个 TLS 参数用例，其中一个因缺少关联 ID 失败，修改后三线全量均通过。
+
+| SDK 发出日志的位置 | 调用点数 | 允许的动态值 | 运行证据 |
+| --- | ---: | --- | --- |
+| 本地执行器、适配器、浏览器命令入口 | 3 | 随机关联 ID、终止原因、退出码、字节数或参数个数 | `OpenCliProcessPrivacyTest` 与全量浏览器调用 |
+| JSON 输出检测、远端 argv 转换 | 2 | 长度或参数个数 | `OpenCliStdoutJsonTest`、`OpenCliArgvToCollectParserTest` |
+| HTTP 客户端 | 10 | 随机关联 ID、HTTP 状态、长度 | `OpenCliRemoteAgentHttpClientTest`，七个调用点实际执行 |
+| 反向 WebSocket 客户端 | 9 | 连接 UUID 或重连次数 | `OpenCliWsReverseAgentSessionTest`、`OpenCliWsReverseAgentClientTest`，七个调用点实际执行 |
+
+每线当前 JaCoCo 报告均覆盖 24 个 SDK 日志调用点中的 19 个。仍缺独立驱动 HTTP 请求序列化失败、外层 JSON 映射失败、HTTP transport 关闭失败、WebSocket onError 及 WebSocket 关闭抛异常的动态证据。源码核对确认这些日志也使用固定消息或 SDK 生成的 ID，JaCoCo 缺口由 1.1 和 2.2 继续跟踪。该核对限于 SDK 自身的日志调用与实测异常。

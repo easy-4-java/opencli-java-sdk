@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -74,7 +75,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
 
     private volatile boolean shutdownRequested;
 
-    private final AtomicReference<WebSocketClient> activeClient = new AtomicReference<>();
+    private final AtomicReference<WorkerSession> activeClient = new AtomicReference<>();
 
     private Thread runnerThread;
     private boolean stopping;
@@ -135,7 +136,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
      */
     public void stop() {
         long deadline = System.nanoTime() + CLOSE_WAIT_NANOS;
-        WebSocketClient client;
+        WorkerSession client;
         Thread runner;
         synchronized (this) {
             if (shutdownRequested || collectPool.isShutdown()) {
@@ -170,7 +171,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
     @Override
     public void close() {
         long deadline = System.nanoTime() + CLOSE_WAIT_NANOS;
-        WebSocketClient client;
+        WorkerSession client;
         Thread runner;
         synchronized (this) {
             if (collectPool.isShutdown()) {
@@ -197,10 +198,10 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
     }
 
     // The caller holds this worker's monitor while invalidating admission and the queue.
-    private WebSocketClient stopAdmission() {
+    private WorkerSession stopAdmission() {
         shutdownRequested = true;
         admissionEpoch++;
-        WebSocketClient client = activeClient.getAndSet(null);
+        WorkerSession client = activeClient.getAndSet(null);
         List<Runnable> pending = new ArrayList<>();
         collectPool.getQueue().drainTo(pending);
         for (Runnable waiting : pending) {
@@ -229,8 +230,9 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
         int attempt = 0;
         while (!shutdownRequested) {
             attempt++;
+            UUID correlationId = UUID.randomUUID();
             try {
-                runOneSession();
+                runOneSession(correlationId);
                 attempt = 0;
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -238,7 +240,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
                 break;
             } catch (Exception e) {
                 if (!shutdownRequested) {
-                    log.warn("opencli ws session failed attempt={}", attempt);
+                    log.warn("opencli ws session failed correlationId={} attempt={}", correlationId, attempt);
                 }
             }
             if (shutdownRequested) {
@@ -259,15 +261,15 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
         log.info("opencli ws agent runner stopped");
     }
 
-    private void runOneSession() throws Exception {
+    private void runOneSession(UUID correlationId) throws Exception {
         validateConnectionProperties();
         URI endpoint = URI.create(OpenCliCenterWsUrls.toAgentWebSocketUrl(
             connectionProperties.getCentralApiBaseUrl(), connectionProperties.getWebSocketPath()));
         // The default TLS client verifies the endpoint hostname. Plain WS has session-local identity.
         Object centerIdentity = "wss".equalsIgnoreCase(endpoint.getScheme()) ? endpoint : new Object();
 
-        log.info("opencli ws connecting");
-        WorkerSession client = new WorkerSession(endpoint, centerIdentity);
+        log.info("opencli ws connecting correlationId={}", correlationId);
+        WorkerSession client = new WorkerSession(endpoint, centerIdentity, correlationId);
         if (!publishSession(client)) {
             return;
         }
@@ -298,14 +300,16 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
 
     private final class WorkerSession extends WebSocketClient {
         private final Object centerIdentity;
+        private final UUID correlationId;
         private final AtomicReference<SessionPhase> phase = new AtomicReference<>(SessionPhase.CONNECTING);
         private final CountDownLatch registered = new CountDownLatch(1);
         private final CountDownLatch sessionClosed = new CountDownLatch(1);
         private final AtomicReference<Throwable> handshakeFailure = new AtomicReference<>();
 
-        WorkerSession(URI endpoint, Object centerIdentity) {
+        WorkerSession(URI endpoint, Object centerIdentity, UUID correlationId) {
             super(endpoint, new Draft_6455(Collections.emptyList(), maxInboundMessageBytes));
             this.centerIdentity = centerIdentity;
+            this.correlationId = correlationId;
         }
 
         @Override
@@ -327,7 +331,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
             try {
                 handleTextMessage(this, message);
             } catch (Exception e) {
-                log.warn("handle ws message failed");
+                log.warn("handle ws message failed correlationId={}", correlationId);
             }
         }
 
@@ -338,7 +342,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
 
         @Override
         public void onError(Exception ex) {
-            log.warn("WebSocket error");
+            log.warn("WebSocket error correlationId={}", correlationId);
             retire(ex);
         }
 
@@ -363,7 +367,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
         }
     }
 
-    private synchronized boolean publishSession(WebSocketClient client) {
+    private synchronized boolean publishSession(WorkerSession client) {
         if (shutdownRequested) {
             return false;
         }
@@ -371,15 +375,15 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
         return true;
     }
 
-    private boolean isCurrentSession(WebSocketClient client) {
+    private boolean isCurrentSession(WorkerSession client) {
         return !shutdownRequested && activeClient.get() == client;
     }
 
-    private static void closeSession(WebSocketClient client) {
+    private static void closeSession(WorkerSession client) {
         try {
             client.close();
         } catch (Exception e) {
-            log.debug("ws session close failed");
+            log.debug("ws session close failed correlationId={}", client.correlationId);
         }
     }
 
@@ -524,7 +528,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
             ObjectNode response = null;
             try {
                 if (mayStartCollect(epoch)) {
-                    response = executeCollect(key.requestId(), message, cancellation);
+                    response = executeCollect(key.requestId(), message, cancellation, socket.correlationId);
                 }
             } finally {
                 finishCollect(this, response);
@@ -535,7 +539,8 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
         }
     }
 
-    private ObjectNode executeCollect(String requestId, JsonNode msg, OpenCliCancellationToken cancellation) {
+    private ObjectNode executeCollect(String requestId, JsonNode msg, OpenCliCancellationToken cancellation,
+        UUID correlationId) {
         try {
             String site = msg.path("site").asText("");
             String command = msg.path("command").asText("");
@@ -557,7 +562,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
                 ? partial.getStderr() : e.getMessage();
             return result(requestId, false, Collections.emptyList(), err);
         } catch (Exception e) {
-            log.warn("collect execution failed");
+            log.warn("collect execution failed correlationId={}", correlationId);
             return result(requestId, false, Collections.emptyList(), "collect execution failed");
         }
     }
@@ -629,7 +634,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
         try {
             resultSender.accept(ws, MAPPER.writeValueAsString(result));
         } catch (Exception e) {
-            log.error("failed to send WS result");
+            log.error("failed to send WS result correlationId={}", ws.correlationId);
             ws.retire(e);
             closeSession(ws);
         }
