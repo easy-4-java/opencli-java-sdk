@@ -6,6 +6,22 @@ import org.junit.jupiter.api.Test;
 class SubprocessExecutionSupportTest {
 
     @Test
+    void shouldBoundBackingBufferGrowthAtTheConfiguredLimit() {
+        int limit = 8_193;
+        SubprocessExecutionSupport.BoundedCapture capture = new SubprocessExecutionSupport.BoundedCapture(limit);
+        byte[] chunk = new byte[8_192];
+        capture.write(chunk, 0, chunk.length);
+        capture.write(99);
+        capture.write(100);
+
+        assertEquals(limit, capture.bufferCapacity());
+        assertEquals(limit, capture.size());
+        assertEquals(99, capture.toByteArray()[limit - 1]);
+        assertEquals(limit + 1L, capture.observed());
+        assertTrue(capture.isTruncated());
+    }
+
+    @Test
     void shouldReturnDefaultMaxConcurrent() {
         int defaultVal = SubprocessExecutionSupport.defaultMaxConcurrentExecutions();
         assertTrue(defaultVal >= 2);

@@ -369,7 +369,7 @@ public final class SubprocessExecutionSupport {
         return millis * 1_000_000L;
     }
 
-    private static final class BoundedCapture extends ByteArrayOutputStream {
+    static final class BoundedCapture extends ByteArrayOutputStream {
         private final int limit;
         private long observed;
         private boolean truncated;
@@ -385,12 +385,18 @@ public final class SubprocessExecutionSupport {
             if (frozen) { return; }
             observed = observed > Long.MAX_VALUE - length ? Long.MAX_VALUE : observed + length;
             int retained = Math.min(length, limit - count);
+            int required = count + retained;
+            if (required > buf.length) {
+                int doubled = (int) Math.min(2L * buf.length, limit);
+                buf = Arrays.copyOf(buf, Math.max(required, doubled));
+            }
             super.write(bytes, offset, retained);
             truncated |= retained < length;
         }
 
         @Override
         public synchronized void write(int value) { write(new byte[]{(byte) value}, 0, 1); }
+        synchronized int bufferCapacity() { return buf.length; }
         synchronized boolean isTruncated() { return truncated; }
         synchronized long observed() { return observed; }
         synchronized void freeze() { frozen = true; }
