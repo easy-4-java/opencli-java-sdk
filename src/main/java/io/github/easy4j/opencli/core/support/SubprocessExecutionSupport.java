@@ -274,7 +274,7 @@ public final class SubprocessExecutionSupport {
             }
             DefaultExecuteResultHandler handler = new DefaultExecuteResultHandler();
             if (ioFailure != null) {
-                handler.onProcessFailed(new ExecuteException("Native process I/O failure", exit == null ? -1 : exit, ioFailure));
+                handler.onProcessFailed(new ExecuteException("Native process I/O failure", exit == null ? -1 : exit));
             } else if (exit != null && exit != 0) {
                 handler.onProcessFailed(new ExecuteException("Native process returned nonzero status", exit));
             } else if (exit != null) {
@@ -567,6 +567,7 @@ public final class SubprocessExecutionSupport {
         private final boolean waitTimedOut;
         private final OpenCliExecutionDetails executionDetails;
         private final Integer observedExitCode;
+        /** Raw low-level I/O evidence, which can include local paths. Exclude it from default diagnostics. */
         private final IOException ioFailure;
 
         RunSession(ByteArrayOutputStream stdout, ByteArrayOutputStream stderr,
