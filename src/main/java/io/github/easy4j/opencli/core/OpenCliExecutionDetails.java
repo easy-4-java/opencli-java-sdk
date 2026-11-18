@@ -13,7 +13,7 @@ public final class OpenCliExecutionDetails {
         CANCELLED, SPAWN_FAILED, IO_FAILURE, CLEANUP_UNCONFIRMED, RUNTIME_UNAVAILABLE
     }
 
-    /** Confirmation concerns the directly owned child, not an arbitrary process tree. */
+    /** Confirmation covers the directly owned child and its output readers at the cleanup deadline. */
     public enum CleanupState { NOT_STARTED, ROOT_EXIT_CONFIRMED, UNCONFIRMED }
 
     private final TerminationReason terminationReason;
