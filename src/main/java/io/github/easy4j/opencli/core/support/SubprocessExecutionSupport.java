@@ -475,6 +475,18 @@ public final class SubprocessExecutionSupport {
         synchronized boolean isTruncated() { return truncated; }
         synchronized long observed() { return observed; }
         synchronized void freeze() { frozen = true; }
+
+        private synchronized BoundedCapture writable() {
+            if (!frozen) {
+                return this;
+            }
+            BoundedCapture copy = new BoundedCapture(limit);
+            copy.buf = Arrays.copyOf(buf, count);
+            copy.count = count;
+            copy.observed = observed;
+            copy.truncated = truncated;
+            return copy;
+        }
     }
 
     private static IOException readerFailure(Reader stdout, Reader stderr) {
@@ -579,33 +591,35 @@ public final class SubprocessExecutionSupport {
         }
     }
 
-    /** Bounded stdout or stderr snapshot returned by the low-level execution API. */
+    /** Legacy output stream. The first caller write detaches from the recorded process output. */
     public static final class BoundedOutputStream extends OutputStream {
-        private final BoundedCapture capture;
+        private BoundedCapture capture;
 
         private BoundedOutputStream(BoundedCapture capture) {
             this.capture = capture;
         }
 
         @Override
-        public void write(int value) {
+        public synchronized void write(int value) {
+            capture = capture.writable();
             capture.write(value);
         }
 
         @Override
-        public void write(byte[] bytes, int offset, int length) {
+        public synchronized void write(byte[] bytes, int offset, int length) {
+            capture = capture.writable();
             capture.write(bytes, offset, length);
         }
 
-        public byte[] toByteArray() {
+        public synchronized byte[] toByteArray() {
             return capture.toByteArray();
         }
 
-        public boolean isOverflowed() {
+        public synchronized boolean isOverflowed() {
             return capture.isTruncated();
         }
 
-        int bufferCapacity() {
+        synchronized int bufferCapacity() {
             return capture.bufferCapacity();
         }
     }
