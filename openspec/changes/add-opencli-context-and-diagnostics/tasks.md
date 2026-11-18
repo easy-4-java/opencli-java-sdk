@@ -6,7 +6,7 @@
 
 ## 1. 上下文契约
 
-- [ ] 1.1 核实锁定版本profile与Browser公共options的scope和真实输出fixture。
+- [x] 1.1 核实锁定版本profile与Browser公共options的scope和真实输出fixture。见调用上下文证据。
 - [ ] 1.2 编写并发context隔离、false覆盖、scope冲突与诊断UNKNOWN的失败测试。
 
 ## 2. 增量API
@@ -30,3 +30,11 @@
 提供不可变 `OpenCliInvocationContext` 与 `OpenCliProperties.invocationDefaults`。调用的显式值覆盖默认值，false 会生成有值的 `--keep-tab false`。冲突的显式选项或当前范围不支持的参数在业务进程启动前拒绝。Browser 全局、命名空间和叶子选项分别绑定。见 [锁定版证据与使用示例](evidence/2026-11-19-invocation-context.md)。
 
 `OpenCliInvocationContextTest` 首先因缺少 API 无法编译。实现后用 JVM 子进程验证并发 profile/window、false 与默认继承、非 Browser scope 拒绝及显式冲突。仍需验收诊断与其只读边界。
+
+### OC-CTX-001 调用开始时固定位置参数
+
+在独立用户目录中以 OpenCLI 1.8.8 复采 `profile`、`zhihu hot` 和 `npm search` 的帮助，与归档逐字节一致。profile 帮助声明 global `--profile`，浏览器适配器帮助声明 `browser_common_options`，无浏览器适配器 npm 不声明同组参数。
+
+Java 17 基线 `2eb97e49` 的独立 JVM 定向测试在帮助探测暂停期间替换调用者列表的元素，原实现随后执行了新参数，测试退出 1。修复后，在启动探测前固定位置参数，继续由绑定器根据观测到的 schema 校验。本次执行使用初始值。
+
+以 `68c5b19`、`2eb97e49`、`5a464a3` 为基线加入修复，在 Java 8、17、21 执行 `./mvnw -B -ntp clean verify`，全量分别通过 2228、2229、2228 项。每条线均执行 15 项发现测试和 3 项上下文测试，零失败、零错误、零跳过。报告见 `target/surefire-reports`。
