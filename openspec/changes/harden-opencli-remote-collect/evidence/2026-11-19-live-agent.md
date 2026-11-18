@@ -40,3 +40,32 @@ uv run --no-project --with fastapi==0.165.0 --with pydantic==2.14.3 \
 ```
 
 在 SDK 功能分支以对应 JDK 执行 `OpenCliRemoteAgentHttpClientTest`，从生成的 Surefire XML 读取 `java.class.path`。用该 classpath 编译 [OpenCliAdminLoopbackProbe](fixtures/OpenCliAdminLoopbackProbe.java)，再用同一 classpath 加上探针输出目录运行，唯一参数为 `http://127.0.0.1:19823`。复现旧端口问题时，在无其他请求的临时 Agent 上改用 19825 并执行同一探针，首个成功断言会得到业务失败，Agent 日志会显示子进程退出 78。
+
+## HTTPS 和显式 Authorization
+
+在同一版本真实 Agent 前加入 [回环 TLS 代理](fixtures/opencli_agent_tls_proxy.py)。代理使用独立监听套接字，校验 Authorization 后只转发 JSON 请求体。证书只包含 IP SAN 127.0.0.1。Java 使用临时 JKS 信任库和 SDK 默认主机名校验。
+
+| 每条 Java 功能线的场景 | 观察结果 |
+| --- | --- |
+| 有效模拟令牌 | 收到 HTTP 200 与实际 CLI 帮助。Agent 每线收到一次请求。 |
+| 缺少令牌或错误令牌 | 两次均收到 HTTP 401，SDK 保留 HTTP 状态并标为 HTTP_FAILURE，CLI 退出码为空。 |
+| 请求主机名改为 localhost | 证书名称不匹配，SDK 标为 TRANSPORT_FAILURE，HTTP 状态为空。 |
+
+Java 8 `afc6b33`、Java 17 `58f675a` 和 Java 21 `5cfa937` 各通过四项。代理日志显示三次转发和六次拒绝。主机名不匹配的请求未进入代理路由。三份 Java 输出与完整异常栈均未出现金丝雀令牌。认证由回环代理执行，生产 Agent 的网关、凭据和部署策略仍需现场验收。
+
+复用前一节的 Agent 源码、OpenCLI 环境和隔离启动脚本，把代理脚本复制到临时目录。生成专用于该目录的证书、信任库和随机测试令牌。
+
+```sh
+openssl req -x509 -newkey rsa:2048 -sha256 -nodes -days 1 \
+  -subj '/CN=OpenCLI Loopback Fixture' -addext 'subjectAltName=IP:127.0.0.1' \
+  -keyout key.pem -out cert.pem
+keytool -importcert -noprompt -storetype JKS -keystore trust.jks \
+  -storepass changeit -alias opencli-loopback -file cert.pem
+openssl rand -hex 24 > token
+chmod 600 token
+uv run --no-project --with fastapi==0.165.0 --with pydantic==2.14.3 \
+  --with uvicorn==0.54.0 --with pyyaml==6.0.3 --with httpx==0.28.1 \
+  python opencli_agent_tls_proxy.py
+```
+
+在对应 JDK 下运行同一个 Java 探针，启动参数增加 `-Djavax.net.ssl.trustStore` 和 `-Djavax.net.ssl.trustStorePassword`。探针依次读取 HTTPS 端点和令牌文件绝对路径。代理端口记录在临时目录的 `tls-port` 中。复跑结束后，在临时目录创建 `stop` 让两个监听器正常退出。
