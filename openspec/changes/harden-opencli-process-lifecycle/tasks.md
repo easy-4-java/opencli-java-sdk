@@ -18,7 +18,7 @@
 ## 3. 兼容和证据
 
 - [ ] 3.1 明确 0/负数配置语义、总预算与 cleanup grace、同步 follow 限制。
-- [ ] 3.2 在三线和声明支持的 OS 上验证真实进程资源回收；能力缺口不得标绿。
+- [x] 3.2 在三线和声明支持的 OS 上验证真实进程资源回收；能力缺口不得标绿。
 - [ ] 3.3 回归现有超时/UTF-8/异常测试，记录 HEAD、数量、跳过项和退出码。
 
 ## 证据交付模板（实施时填写）
@@ -131,3 +131,13 @@ Java 8 `1310c54`、Java 17 `1946d9f`、Java 21 `89da70e` 为修改前基线。�
 ### Windows 与 Linux 的真实 Browser Bridge 验收
 
 在独立 runner 使用锁定版本的 OpenCLI、扩展归档及 Chrome for Testing。真实 Node daemon 和临时 Chrome profile 只访问回环页面。沿用 `OpenCliBrowserBridgeIT` 验证类型结果、查询、绑定标签页及有界采集。验证完成后检查同一个 daemon 和 Chrome 进程仍在运行，上传本次 Surefire XML。缺报告、跳过或任一进程异常退出均判失败。
+
+六份托管工件各通过 4 项，零失败、零错误、零跳过。Windows 的第一轮绑定在页面加载前取到空标签页。修复后通过 Chrome DevTools 在测试开始前准备并激活独立标签页，绑定、客户端关闭及重新创建均保持同一 page ID。三线同时验证类型结果、本地 HTTP 采集、有界 follow 的超时与输出超限，以及共享 daemon 和 Chrome 继续运行。
+
+| JDK | 验证提交 | Windows 和 Ubuntu |
+| --- | --- | --- |
+| 8 | `8c713df1216ec3442d41d0b82df84a00bd55a799` | [GitHub Actions](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44413589035) |
+| 17 | `a164812beb68a8fe9306f9659d50760cd59257f5` | [GitHub Actions](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44413590326) |
+| 21 | `75263b16edbd713e44c930a0d367b8e34f2a9ec0` | [GitHub Actions](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44413590206) |
+
+每份工件包含当前 SHA 的实际 Maven、JDK 版本、Surefire XML、报告和进程身份。macOS 使用上文记录的独立实测。直属进程和 SDK 读取线程按已证明的所有权清理，未追踪后代继续明示为未确认。此验收完成 C02 3.2 的平台证据；C10 最终集成仍待关闭。
