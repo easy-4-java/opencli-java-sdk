@@ -111,11 +111,11 @@
                 <version>${lombok.version}</version>
             </dependency>
             <dependency>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-            <version>2.7</version>
-        </dependency>
-        <!-- For Commons Exec -->
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>2.7</version>
+            </dependency>
+            <!-- For Commons Exec -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-exec</artifactId>
@@ -151,7 +151,6 @@
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <version>2.7</version>
         </dependency>
         <!-- For Commons Exec -->
         <dependency>
