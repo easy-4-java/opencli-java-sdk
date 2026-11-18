@@ -174,7 +174,12 @@ public final class SubprocessExecutionSupport {
                     long remaining = remaining(request.submittedAtNanos, budget);
                     watchdog = watchdogFactory.create(
                         Math.max(1L, TimeUnit.NANOSECONDS.toMillis(Math.max(0L, remaining))));
-                    watchdog.start(process);
+                    try {
+                        watchdog.start(process);
+                    } catch (RuntimeException ex) {
+                        ioFailure = new IOException("Failed to start execution watchdog", ex);
+                        reason = TerminationReason.IO_FAILURE;
+                    }
                     while (reason == null) {
                         if (out.isTruncated() || err.isTruncated()) {
                             reason = TerminationReason.OUTPUT_LIMIT;

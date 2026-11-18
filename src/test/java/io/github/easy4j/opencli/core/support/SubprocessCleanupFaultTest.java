@@ -28,6 +28,35 @@ class SubprocessCleanupFaultTest {
     }
 
     @Test
+    void watchdogStartFailureStillCleansOwnedChildAndReleasesPermit() throws Exception {
+        int[] starts = new int[1];
+        FakeProcess[] last = new FakeProcess[1];
+        SubprocessExecutionSupport.Runtime runtime = new SubprocessExecutionSupport.Runtime(1,
+            builder -> {
+                starts[0]++;
+                last[0] = new FakeProcess(false);
+                return last[0];
+            }, timeout -> new FakeWatchdog(false, true));
+
+        for (int attempt = 0; attempt < 2; attempt++) {
+            SubprocessExecutionSupport.ExecutionRequest request = new SubprocessExecutionSupport.ExecutionRequest(
+                CommandLine.parse("fake"), null, null, 1000L, 16, 16, 200L,
+                System.nanoTime(), new OpenCliCancellationToken());
+
+            SubprocessExecutionSupport.RunSession session = runtime.execute(request);
+
+            assertEquals(TerminationReason.IO_FAILURE,
+                session.getExecutionDetails().getTerminationReason());
+            assertInstanceOf(IllegalStateException.class, session.getIoFailure().getCause());
+            assertEquals(CleanupState.ROOT_EXIT_CONFIRMED,
+                session.getExecutionDetails().getCleanupState());
+            assertFalse(last[0].isAlive());
+            assertFalse(runtime.isQuarantined());
+        }
+        assertEquals(2, starts[0]);
+    }
+
+    @Test
     void unconfirmedForcedStopQuarantinesRuntimeWithoutFabricatingExit() throws Exception {
         OpenCliCancellationToken token = new OpenCliCancellationToken();
         int[] starts = new int[1];
@@ -93,14 +122,24 @@ class SubprocessCleanupFaultTest {
 
     private static final class FakeWatchdog extends ExecuteWatchdog {
         private final boolean failStop;
+        private final boolean failStart;
 
         FakeWatchdog(boolean failStop) {
+            this(failStop, false);
+        }
+
+        FakeWatchdog(boolean failStop, boolean failStart) {
             super(1000L);
             this.failStop = failStop;
+            this.failStart = failStart;
         }
 
         @Override
-        public synchronized void start(Process process) { }
+        public synchronized void start(Process process) {
+            if (failStart) {
+                throw new IllegalStateException("injected watchdog start failure");
+            }
+        }
 
         @Override
         public synchronized void stop() {
