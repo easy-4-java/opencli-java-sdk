@@ -3,6 +3,7 @@ package io.github.easy4j.opencli.core;
 import io.github.easy4j.opencli.OpenCliExecutionTarget;
 import io.github.easy4j.opencli.OpenCliProperties;
 import io.github.easy4j.opencli.core.OpenCliExecutionDetails.TerminationReason;
+import io.github.easy4j.opencli.parser.OpenCliErrorDecoder;
 import io.github.easy4j.opencli.core.support.SubprocessExecutionSupport;
 import io.github.easy4j.opencli.exception.OpenCliException;
 import io.github.easy4j.opencli.exception.OpenCliExecutableFailureException;
@@ -206,7 +207,10 @@ public class OpenCliExecutor implements AutoCloseable {
             && details.isStreamsDrained();
         OpenCliResult result = OpenCliResult.builder().stdout(stdout).stderr(stderr).exitCode(exit)
             .success(success).parsed(OpenCliOutputParser.parseBestEffort(stdout, stderr))
-            .executionDetails(details).build();
+            .executionDetails(details)
+            .errorEnvelope(success ? null : OpenCliErrorDecoder.decode(stderr, exit,
+                reason != TerminationReason.PROCESS_EXIT || !details.isStreamsDrained() || details.isStderrTruncated()))
+            .build();
         if (success) { return result; }
         if (reason == TerminationReason.QUEUE_TIMEOUT || reason == TerminationReason.EXECUTION_TIMEOUT) {
             throw new OpenCliTimeoutException("OpenCLI deadline exceeded: " + reason, result);
