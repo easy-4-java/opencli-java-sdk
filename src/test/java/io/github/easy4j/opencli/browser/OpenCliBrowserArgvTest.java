@@ -56,7 +56,7 @@ class OpenCliBrowserArgvTest {
     void windowModePrefix() {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         session(exec).tabList();
-        assertEquals(Arrays.asList("browser", "--window", "background", "work", "tab", "list"), exec.lastInvocation());
+        assertEquals(Arrays.asList("browser", "work", "--window", "background", "tab", "list"), exec.lastInvocation());
     }
 
     @Test
@@ -64,7 +64,7 @@ class OpenCliBrowserArgvTest {
         RecordingOpenCliExecutor exec = new RecordingOpenCliExecutor();
         session(exec).waitFor("selector", ".loaded", null, 15_000L);
         assertEquals(
-            Arrays.asList("browser", "--window", "background", "work", "wait", "selector", ".loaded", "--timeout", "15000"),
+            Arrays.asList("browser", "work", "--window", "background", "wait", "selector", ".loaded", "--timeout", "15000"),
             exec.lastInvocation());
     }
 
@@ -161,7 +161,7 @@ class OpenCliBrowserArgvTest {
                 .textMax(120)
                 .build());
         List<String> argv = exec.lastInvocation();
-        assertEquals(Arrays.asList("get", "html"), argv.subList(argv.indexOf("work") + 1, argv.indexOf("work") + 3));
+        assertEquals(Arrays.asList("browser", "work", "--window", "background", "get", "html"), argv.subList(0, 6));
         assertTrue(argv.contains("--selector"));
         assertTrue(argv.contains("--children-max"));
         assertTrue(argv.contains("--text-max"));

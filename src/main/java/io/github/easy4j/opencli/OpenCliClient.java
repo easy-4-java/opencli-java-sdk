@@ -122,6 +122,21 @@ import lombok.Getter;
         return capabilityDiscovery.invoke(scope, command, session, positionals, options);
     }
 
+    /**
+     * Dispatches a schema-validated command with explicit invocation context.
+     * @param scope verified help query containing the leaf
+     * @param command exact leaf display path
+     * @param session browser session identifier, or null
+     * @param positionals literal arguments in schema order, or null
+     * @param options explicit command flags, or null
+     * @param context immutable overrides of client context defaults
+     * @return local execution result
+     */
+    public OpenCliResult invokeDiscovered(OpenCliHelpScope scope, String command, String session,
+        List<String> positionals, Map<String, String> options, OpenCliInvocationContext context) {
+        return capabilityDiscovery.invoke(scope, command, session, positionals, options, context);
+    }
+
     // ----- 参考强类型门面（Desktop） -----
 
     /** @return Codex 桌面适配器客户端 */

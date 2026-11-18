@@ -24,3 +24,9 @@
 ## 证据交付模板（实施时填写）
 
 每项任务的完成记录包含：Requirement/Scenario、分支HEAD、测试命令、失败→通过证据、测试数/跳过数、退出码、报告位置。没有记录的任务保持未完成。
+
+## OC-CTX-001/002 不可变上下文与作用域
+
+提供不可变 `OpenCliInvocationContext` 与 `OpenCliProperties.invocationDefaults`。调用的显式值覆盖默认值，false 会生成有值的 `--keep-tab false`。冲突的显式选项或当前范围不支持的参数在业务进程启动前拒绝。Browser 全局、命名空间和叶子选项分别绑定。见 [锁定版证据与使用示例](evidence/2026-11-19-invocation-context.md)。
+
+`OpenCliInvocationContextTest` 首先因缺少 API 无法编译。实现后用 JVM 子进程验证并发 profile/window、false 与默认继承、非 Browser scope 拒绝及显式冲突。仍需验收诊断与其只读边界。

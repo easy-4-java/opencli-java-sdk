@@ -106,6 +106,7 @@ public final class OpenCliHelpParser {
             .command(command)
             .namespace(text(node.path("namespace")))
             .site(site)
+            .browser(bool(node.path("browser")))
             .aliases(array(node.path("aliases"), OpenCliHelpParser::requiredName))
             .commands(array(node.path("commands"), OpenCliHelpParser::schema))
             .positionals(array(node.path("positionals"), OpenCliHelpParser::argument))
@@ -113,6 +114,7 @@ public final class OpenCliHelpParser {
             .namespaceOptions(array(node.path("namespace_options"), OpenCliHelpParser::argument))
             .globalOptions(array(node.path("global_options"), OpenCliHelpParser::argument))
             .commonOptions(array(node.path("common_options"), OpenCliHelpParser::argument))
+            .browserCommonOptions(array(node.path("browser_common_options"), OpenCliHelpParser::argument))
             .sourceJson(node.toString())
             .build();
     }

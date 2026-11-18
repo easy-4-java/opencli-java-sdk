@@ -23,7 +23,7 @@ class OpenCliCapabilityCommandTest {
         options.put("--switch", "false");
         List<String> args = OpenCliCapabilityCommand.bind(snapshot, PATH, "session-a",
             Arrays.asList("first", "--second"), options);
-        assertEquals(Arrays.asList("browser", "--window", "background", "session-a", "state",
+        assertEquals(Arrays.asList("browser", "session-a", "--window", "background", "state",
             "--label", "--no-cache", "--switch", "false", "--", "first", "--second"), args);
     }
 
