@@ -94,6 +94,7 @@ class SubprocessStreamFailureTest {
 
         assertEquals(TerminationReason.IO_FAILURE, session.getExecutionDetails().getTerminationReason());
         assertSame(nativeFailure, session.getIoFailure().getCause());
+        assertEquals(Integer.valueOf(0), session.getObservedExitCode());
         assertEquals("abc", new String(session.getStdout().toByteArray(), StandardCharsets.UTF_8));
         assertTrue(session.getExecutionDetails().isStreamsDrained());
         assertFalse(diagnostics.toString(StandardCharsets.UTF_8.name()).contains(canary));
