@@ -64,7 +64,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
 
     private volatile boolean shutdownRequested;
 
-    private volatile WebSocketClient activeClient;
+    private final AtomicReference<WebSocketClient> activeClient = new AtomicReference<>();
 
     private Thread runnerThread;
 
@@ -112,8 +112,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
      */
     public synchronized void stop() {
         shutdownRequested = true;
-        WebSocketClient client = activeClient;
-        activeClient = null;
+        WebSocketClient client = activeClient.getAndSet(null);
         if (Objects.nonNull(client)) {
             try {
                 client.close();
@@ -200,6 +199,10 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
             new WebSocketClient(endpoint) {
                 @Override
                 public void onOpen(ServerHandshake handshake) {
+                    if (!isCurrentSession(this)) {
+                        closeSession(this);
+                        return;
+                    }
                     try {
                         send(buildRegisterJson());
                     } catch (Exception e) {
@@ -220,6 +223,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
 
                 @Override
                 public void onClose(int code, String reason, boolean remote) {
+                    activeClient.compareAndSet(this, null);
                     if (registered.getCount() > 0) {
                         handshakeFailure.compareAndSet(
                             null,
@@ -234,6 +238,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
 
                 @Override
                 public void onError(Exception ex) {
+                    activeClient.compareAndSet(this, null);
                     log.warn("WebSocket error");
                     if (registered.getCount() > 0) {
                         handshakeFailure.compareAndSet(null, ex);
@@ -243,26 +248,48 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
                 }
             };
 
-        activeClient = client;
-        if (!client.connectBlocking(30, TimeUnit.SECONDS)) {
-            throw new IllegalStateException("WebSocket connectBlocking returned false");
+        if (!publishSession(client)) {
+            return;
         }
-
-        if (!registered.await(connectionProperties.getHandshakeTimeoutMillis(), TimeUnit.MILLISECONDS)) {
-            client.close();
-            throw new IllegalStateException("Timeout waiting for 'registered' from center");
-        }
-        Throwable hf = handshakeFailure.get();
-        if (Objects.nonNull(hf)) {
-            client.close();
-            if (hf instanceof Exception) {
-                throw (Exception) hf;
+        try {
+            if (!client.connectBlocking(30, TimeUnit.SECONDS)) {
+                throw new IllegalStateException("WebSocket connectBlocking returned false");
             }
-            throw new IllegalStateException(hf);
+            if (!registered.await(connectionProperties.getHandshakeTimeoutMillis(), TimeUnit.MILLISECONDS)) {
+                throw new IllegalStateException("Timeout waiting for 'registered' from center");
+            }
+            Throwable hf = handshakeFailure.get();
+            if (Objects.nonNull(hf)) {
+                if (hf instanceof Exception) {
+                    throw (Exception) hf;
+                }
+                throw new IllegalStateException(hf);
+            }
+            sessionClosed.await();
+        } finally {
+            activeClient.compareAndSet(client, null);
+            closeSession(client);
         }
+    }
 
-        sessionClosed.await();
-        activeClient = null;
+    private synchronized boolean publishSession(WebSocketClient client) {
+        if (shutdownRequested) {
+            return false;
+        }
+        activeClient.set(client);
+        return true;
+    }
+
+    private boolean isCurrentSession(WebSocketClient client) {
+        return !shutdownRequested && activeClient.get() == client;
+    }
+
+    private static void closeSession(WebSocketClient client) {
+        try {
+            client.close();
+        } catch (Exception e) {
+            log.debug("ws session close failed");
+        }
     }
 
     private void validateConnectionProperties() {
@@ -315,6 +342,9 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
         CountDownLatch registered,
         AtomicReference<Throwable> handshakeFailure)
         throws Exception {
+        if (!isCurrentSession(ws)) {
+            return;
+        }
         JsonNode root = MAPPER.readTree(payload);
         String type = root.path("type").asText("");
         if ("registered".equals(type)) {
@@ -335,7 +365,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
                 sendResult(ws, result("", false, Collections.emptyList(), "invalid worker request ID"));
                 return;
             }
-            if (shutdownRequested || !ws.isOpen() || registered.getCount() > 0
+            if (!isCurrentSession(ws) || !ws.isOpen() || registered.getCount() > 0
                 || Objects.nonNull(handshakeFailure.get())) {
                 sendResult(ws, result(requestId, false, Collections.emptyList(), "worker is not registered"));
                 return;
@@ -378,7 +408,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
         } finally {
             collectRequests.complete(key, response);
         }
-        if (Objects.nonNull(response) && ws.isOpen()) {
+        if (Objects.nonNull(response) && isCurrentSession(ws) && ws.isOpen()) {
             sendResult(ws, response);
         }
     }
