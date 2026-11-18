@@ -108,23 +108,29 @@ public final class OpenCliAdapterCommandRequest {
                 }
                 OpenCliOptionSchema schema = occurrence.getSchema();
                 String name = schema.getName();
-                List<String> argv = occurrence.toTokens();
-                String wireName = argv.get(0);
-                if (legacyFlags.contains(name) || legacyFlags.contains(wireName)) {
-                    throw new IllegalArgumentException("Legacy and ordered options must not overlap");
-                }
                 OpenCliOptionSchema previous = seen.put(name, schema);
-                if (previous != null && (!schema.isRepeatable() || !previous.equals(schema))) {
+                if (Objects.nonNull(previous) && (!schema.isRepeatable() || !previous.equals(schema))) {
                     throw new IllegalArgumentException("Repeated option is not allowed by one consistent schema");
                 }
-                String previousCanonical = wireNames.put(wireName, name);
-                if (previousCanonical != null && !previousCanonical.equals(name)) {
-                    throw new IllegalArgumentException("Different schemas emit the same option identifier");
+                reserveOptionName(wireNames, legacyFlags, name, name);
+                if (schema.getKind() == OpenCliOptionSchema.Kind.NEGATABLE_FLAG) {
+                    reserveOptionName(wireNames, legacyFlags, schema.negatedName(), name);
                 }
-                tokens.addAll(argv);
+                tokens.addAll(occurrence.toTokens());
             }
         }
         return tokens;
+    }
+
+    private static void reserveOptionName(Map<String, String> wireNames, Set<String> legacyFlags,
+        String wireName, String canonicalName) {
+        if (legacyFlags.contains(wireName)) {
+            throw new IllegalArgumentException("Legacy and ordered options must not overlap");
+        }
+        String previous = wireNames.putIfAbsent(wireName, canonicalName);
+        if (Objects.nonNull(previous) && !previous.equals(canonicalName)) {
+            throw new IllegalArgumentException("Different schemas reserve the same option identifier");
+        }
     }
 
     private static Map<String, Object> snapshotOptions(Map<String, Object> source) {

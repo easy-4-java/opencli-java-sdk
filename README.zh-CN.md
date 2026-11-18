@@ -202,6 +202,13 @@ cli.gemini().deepResearch("topic",
 <a id="8-core-usage"></a>
 ## 8. 核心用法
 
+### 本地 argv 迁移
+
+- 本地调用原样保留空字符串、边界空白、Unicode、换行和字面参数终止符。此前依赖 SDK 裁剪或丢弃参数的调用方，应在调用前显式处理自己的输入。
+- 调用适配器根命令时使用无参调用或空列表。varargs 数组与 token 不能为 null，空字符串仍是有效参数值。
+- 旧选项 Map 的布尔 `false` 继续表示省略。显式布尔值使用有对应 schema 的 `OpenCliOption.value`，否定选项使用 `OpenCliOption.negated`。可否定的结构化选项同时占用正向名和否定别名，避免与旧 Map 或其他结构化选项冲突。
+- Windows 使用 `node.exe` 等原生可执行文件的完整路径，并在 `leadingArguments` 中指定已安装的 OpenCLI JavaScript 入口。SDK 拒绝批处理入口。在 JVM 严格进程模式下，原生可执行文件参数中的字面双引号在启动前被明确拒绝，错误包含参数索引。
+
 ### 8.1 meta() 与 browser()
 
 ```java
