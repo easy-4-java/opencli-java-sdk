@@ -40,3 +40,9 @@
 ## OC-BROWSER-001/002/004 state 与 AX
 
 `OpenCliBrowserResultTest` 在缺少 state 类型模型和门面入口时无法编译。实现后验收 DOM 与 AX 文本、对比 JSON、单侧失败、无法识别的输出及 typed null source 拒绝。原有 String source 和 compareSources 继续由既有 Options 传递。见 [四份上游入口样本](evidence/2026-11-19-state-dom-and-ax.md)。
+
+### OC-BROWSER-002 state 文本边界回归
+
+Java 17 基线 `b1d83867` 的定向测试把含重复回车的分隔行误判为 `PARSED`，构建退出 1。修复后，空行只接受 LF 或 CRLF。URL 头含控制字符时按 `INVALID_SHAPE` 返回，保留原始执行结果。正常 CRLF 快照的正文逐字符保留。
+
+以 `4d3d57e`、`b1d83867`、`5242e11` 为基线加入修复后，Java 8、17、21 的 `./mvnw -B -ntp clean verify` 全量分别通过 2219、2220、2219 项。每线执行 8 项 Browser 结果测试，零失败、零错误、零跳过，退出码均为 0。另用 OpenCLI 1.8.8 的真实入口与原隔离页面桩重采四份 state 样本，与归档逐字节一致。
