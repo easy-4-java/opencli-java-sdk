@@ -12,7 +12,7 @@
 
 ## 2. 最小适配修复
 
-- [ ] 2.1 引入显式 legacy capability guard 和保真转换子集，避免无条件解析任意 argv。
+- [x] 2.1 引入显式 legacy capability guard 和保真转换子集，避免无条件解析任意 argv。
 - [x] 2.2 区分 HTTP、协议与命令失败，保留兼容退出码及其来源。见 OC-REMOTE-003/004 验证。
 - [x] 2.3 使 body/timeout 有界并实现可测试的显式 header 配置，保持 TLS。见 OC-REMOTE-005/006 验证。
 
@@ -20,7 +20,7 @@
 
 - [x] 3.1 验证凭据、URL query、正文和异常 cause 的默认诊断边界。见 OC-REMOTE-006 验证。
 - [x] 3.2 在三分支分别跑本地 HTTP fixture；记录旧 API 的行为收紧与迁移例子。见三线验证。
-- [ ] 3.3 未取得服务端契约的扩展仍标记 unsupported，不借此宣称远程全量兼容。
+- [x] 3.3 未取得服务端契约的扩展仍标记 unsupported，不借此宣称远程全量兼容。
 
 ## 证据交付模板（实施时填写）
 
@@ -83,3 +83,12 @@ JDK 17 基线中，chunked 响应每 125 ms 持续发送数据，900 ms 的原�
 | 21 | `85de78f4e847ac1c1ff73d855573954a5898e9ee` | 2178 | 92.52% |
 
 这组测试覆盖可控 HTTP 和 HTTPS 服务端。真实 opencli-admin 部署的认证协议及扩展契约仍待验收。
+
+
+## C04 实施核对与中断结果
+
+JDK 17 基线的两项新测试均失败。Agent 接收请求后断开以及发出 HTTP 200 后提前中断正文，都只得到无 partial result 的异常。修复后，异常类型保持兼容，partial result 标记 `TRANSPORT_FAILURE` 和远端结果未知。已观察的 HTTP 状态得以保留，未收到响应头时状态为空。没有 CLI 退出码或不完整正文，诊断导出也不显示未观察的 HTTP 状态。每种场景桩均只收到一次请求。
+
+argv 入口继续限制为 SDK 已登记适配器和可保真转换的参数。测试同时检查正常映射和被拒绝的零请求路径。已验证范围为回环 legacy Agent DTO、显式请求头与 HTTP/TLS 传输。生产部署特有扩展与未经证实的认证协议保持 unsupported。
+
+本分支以 `807801e785d5fa5ffd9607165f44ae0e1faa6e07` 为基线，使用 JDK 17 执行 `./mvnw -B -ntp -o -Dtest=OpenCliRemoteAgentHttpClientTest,OpenCliArgvToCollectParserTest,OpenCliArgvToCollectParserFullTest,OpenCliDiagnosticExportTest test`，退出码为 0。81 项实际执行，其中 56 项为 HTTP 客户端测试，零失败、零错误、零跳过。报告位于 `target/surefire-reports`。
