@@ -16,6 +16,8 @@ import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -110,6 +112,11 @@ class OpenCliRemoteAgentHttpClientTest {
             Assertions.assertFalse(ex.toString().contains(urlCanary));
             String logText = diagnostics.toString(StandardCharsets.UTF_8.name());
             Assertions.assertTrue(logText.contains("Agent HTTP non-2xx"));
+            Matcher correlation = Pattern.compile("correlationId=([0-9a-f-]{36})")
+                .matcher(ex.getMessage());
+            Assertions.assertTrue(correlation.find());
+            Assertions.assertDoesNotThrow(() -> UUID.fromString(correlation.group(1)));
+            Assertions.assertTrue(logText.contains(correlation.group(0)));
             Assertions.assertFalse(logText.contains(canary));
             Assertions.assertFalse(logText.contains(urlCanary));
             for (Throwable cause = ex.getCause(); cause != null; cause = cause.getCause()) {

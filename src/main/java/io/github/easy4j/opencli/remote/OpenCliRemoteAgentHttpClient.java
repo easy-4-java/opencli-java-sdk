@@ -11,6 +11,7 @@ import io.github.easy4j.opencli.exception.OpenCliNonZeroExitException;
 import io.github.easy4j.opencli.parser.OpenCliParsedFields;
 import io.github.easy4j.opencli.util.OpenCliStrings;
 import java.util.Objects;
+import java.util.UUID;
 import kong.unirest.HttpResponse;
 import kong.unirest.Unirest;
 import kong.unirest.UnirestException;
@@ -68,11 +69,13 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
         }
         String url = base.trim().replaceAll("/+$", "") + "/collect";
         int timeout = resolveTimeoutMillis();
+        String correlationId = UUID.randomUUID().toString();
         String bodyJson;
         try {
             bodyJson = MAPPER.writeValueAsString(request);
         } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
-            throw new OpenCliExecutableFailureException("Failed to serialize collect request", null);
+            log.warn("Agent request serialization failed correlationId={}", correlationId);
+            throw failure("Failed to serialize collect request", correlationId);
         }
         try {
             HttpResponse<String> response =
@@ -86,18 +89,19 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
             int status = response.getStatus();
             String respBody = Objects.isNull(response.getBody()) ? "" : response.getBody();
             if (status < 200 || status >= 300) {
-                log.warn("Agent HTTP non-2xx status={} responseChars={}", status, respBody.length());
-                throw new OpenCliExecutableFailureException("Agent HTTP " + status, null);
+                log.warn("Agent HTTP non-2xx correlationId={} status={} responseChars={}",
+                    correlationId, status, respBody.length());
+                throw failure("Agent HTTP " + status, correlationId);
             }
-            return mapResponse(respBody);
+            return mapResponse(respBody, correlationId);
         } catch (OpenCliNonZeroExitException e) {
             throw e;
         } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
-            log.warn("Agent response parse failed");
-            throw new OpenCliExecutableFailureException("Failed to parse agent response", null);
+            log.warn("Agent response parse failed correlationId={}", correlationId);
+            throw failure("Failed to parse agent response", correlationId);
         } catch (UnirestException e) {
-            log.warn("Agent HTTP I/O failed");
-            throw new OpenCliExecutableFailureException("Agent HTTP I/O error", null);
+            log.warn("Agent HTTP I/O failed correlationId={}", correlationId);
+            throw failure("Agent HTTP I/O error", correlationId);
         }
     }
 
@@ -147,15 +151,20 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
         return (int) Math.min(timeoutMs, Integer.MAX_VALUE);
     }
 
-    private OpenCliResult mapResponse(String respBody)
+    private static OpenCliExecutableFailureException failure(String message, String correlationId) {
+        return new OpenCliExecutableFailureException(message + " correlationId=" + correlationId, null);
+    }
+
+    private OpenCliResult mapResponse(String respBody, String correlationId)
             throws com.fasterxml.jackson.core.JsonProcessingException {
         String rawCapture = captureRawIfEnabled(respBody);
         AgentCollectEnvelope env;
         try {
             env = MAPPER.readValue(respBody, AgentCollectEnvelope.class);
         } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
-            log.warn("Agent response envelope parse failed responseChars={}", respBody.length());
-            throw new OpenCliExecutableFailureException("Failed to parse agent response envelope", null);
+            log.warn("Agent response envelope parse failed correlationId={} responseChars={}",
+                correlationId, respBody.length());
+            throw failure("Failed to parse agent response envelope", correlationId);
         }
         boolean success = Objects.nonNull(env.success) && env.success;
         String err = Objects.isNull(env.error) ? "" : env.error;
@@ -170,7 +179,8 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
         OpenCliParsedFields parsed = OpenCliOutputParser.parseBestEffort(stdout, err);
         if (!success) {
             log.warn(
-                "Agent collect reported failure errorChars={} stdoutLength={}",
+                "Agent collect reported failure correlationId={} errorChars={} stdoutLength={}",
+                correlationId,
                 err.length(),
                 stdout.length());
             OpenCliResult failed =
@@ -182,7 +192,7 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
                     .parsed(parsed)
                     .remoteRawHttpBody(rawCapture)
                     .build();
-            throw new OpenCliNonZeroExitException("OpenCLI agent reported failure", failed);
+            throw new OpenCliNonZeroExitException("OpenCLI agent reported failure correlationId=" + correlationId, failed);
         }
         return OpenCliResult.builder()
             .stdout(stdout)
