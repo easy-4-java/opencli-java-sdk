@@ -32,6 +32,7 @@ jobs:
           python3 -m unittest discover -s scripts/tests -v
           (cd src/test/resources/opencli-contracts/v1 && sha256sum -c SHA256SUMS)
           (cd src/test/resources/opencli-contracts/v1/structured-help-1.8.8 && sha256sum --strict -c SHA256SUMS)
+          (cd src/test/resources/opencli-contracts/v1/browser-output-1.8.8 && sha256sum --strict -c SHA256SUMS)
       - name: Install pinned official OpenSpec
         run: npm install --prefix "$RUNNER_TEMP/opencli-openspec" --ignore-scripts --no-audit --no-fund @fission-ai/openspec@1.13.1
       - name: Validate all proposals and each change with strict mode
@@ -128,6 +129,14 @@ jobs:
             --suite process=io.github.easy4j.opencli.contract.OpenCliProcessContractTest \
             --suite process=io.github.easy4j.opencli.contract.OpenCliProcessBoundaryTest \
             --suite process=io.github.easy4j.opencli.core.support.SubprocessCleanupFaultTest \
+            --suite protocol=io.github.easy4j.opencli.center.ws.OpenCliWsReverseAgentSessionTest \
+            --suite protocol=io.github.easy4j.opencli.center.ws.OpenCliWsCollectRequestsTest \
+            --suite protocol=io.github.easy4j.opencli.remote.OpenCliRemoteAgentHttpClientTest \
+            --suite protocol=io.github.easy4j.opencli.contract.OpenCliErrorEnvelopeTest \
+            --suite typed-result=io.github.easy4j.opencli.contract.OpenCliBrowserResultTest \
+            --suite typed-result=io.github.easy4j.opencli.contract.OpenCliBrowserEvidenceResultTest \
+            --suite typed-result=io.github.easy4j.opencli.capability.OpenCliDiagnosticsTest \
+            --suite argv=io.github.easy4j.opencli.capability.OpenCliInvocationContextTest \
             --output contract-evidence/report.json
       - name: Upload actual JVM evidence
         if: always()
@@ -177,7 +186,7 @@ jobs:
           mvn -version > platform-evidence/maven.txt 2>&1
           result=0
           mvn -B --no-transfer-progress \
-            -Dtest=OpenCliArgvContractTest,OpenCliStructuredArgvContractTest,OpenCliProcessContractTest,OpenCliProcessBoundaryTest,SubprocessCleanupFaultTest,OpenCliWsReverseAgentSessionTest,OpenCliWsCollectRequestsTest,OpenCliProcessPrivacyTest,OpenCliArgSupportTest#shouldKeepConversionExceptionAndNestedCausePrivate,SubprocessExecutionSupportTest#shouldKeepNativePathOutOfDefaultHandlerException \
+            -Dtest=OpenCliErrorEnvelopeTest,OpenCliBrowserResultTest,OpenCliBrowserEvidenceResultTest,OpenCliDiagnosticsTest,OpenCliInvocationContextTest,OpenCliArgvContractTest,OpenCliStructuredArgvContractTest,OpenCliProcessContractTest,OpenCliProcessBoundaryTest,SubprocessCleanupFaultTest,OpenCliWsReverseAgentSessionTest,OpenCliWsCollectRequestsTest,OpenCliProcessPrivacyTest,OpenCliArgSupportTest#shouldKeepConversionExceptionAndNestedCausePrivate,SubprocessExecutionSupportTest#shouldKeepNativePathOutOfDefaultHandlerException \
             test > platform-evidence/maven.log 2>&1 || result=$?
           tail -100 platform-evidence/maven.log
           python scripts/contract_report.py \
@@ -197,25 +206,16 @@ jobs:
             --suite process=io.github.easy4j.opencli.core.OpenCliProcessPrivacyTest \
             --suite argv=io.github.easy4j.opencli.core.OpenCliArgSupportTest \
             --suite process=io.github.easy4j.opencli.core.support.SubprocessExecutionSupportTest \
+            --suite protocol=io.github.easy4j.opencli.contract.OpenCliErrorEnvelopeTest \
+            --suite typed-result=io.github.easy4j.opencli.contract.OpenCliBrowserResultTest \
+            --suite typed-result=io.github.easy4j.opencli.contract.OpenCliBrowserEvidenceResultTest \
+            --suite typed-result=io.github.easy4j.opencli.capability.OpenCliDiagnosticsTest \
+            --suite argv=io.github.easy4j.opencli.capability.OpenCliInvocationContextTest \
             --output platform-evidence/report.json
           exit "$result"
       - name: Verify npm-installed OpenCLI on Windows
         if: runner.os == 'Windows'
-        run: |
-          install_dir="$RUNNER_TEMP/opencli-launcher-check"
-          npm install --prefix "$install_dir" --ignore-scripts --no-audit --no-fund @jackwener/opencli@1.8.8
-          package_dir="$install_dir/node_modules/@jackwener/opencli"
-          cli_entry="$package_dir/dist/src/main.js"
-          registry="$install_dir/registry.json"
-          node "$cli_entry" --version | tee platform-evidence/installed-opencli-version.txt
-          grep -Fx '1.8.8' platform-evidence/installed-opencli-version.txt
-          node "$cli_entry" list -f json > "$registry"
-          OPENCLI_INSTALLED_NODE="$(node -p 'process.execPath')"
-          OPENCLI_INSTALLED_ENTRY="$(cygpath -w "$cli_entry")"
-          OPENCLI_INSTALLED_REGISTRY="$(cygpath -w "$registry")"
-          OPENCLI_INSTALLED_BATCH_SHIM="$(cygpath -w "$install_dir/node_modules/.bin/opencli.cmd")"
-          export OPENCLI_INSTALLED_NODE OPENCLI_INSTALLED_ENTRY OPENCLI_INSTALLED_REGISTRY OPENCLI_INSTALLED_BATCH_SHIM
-          mvn -B --no-transfer-progress -Dtest=OpenCliInstalledLauncherIT,OpenCliCapabilityOverrideIT,OpenCliReadOnlyDiagnosticsIT test
+        run: bash scripts/run_installed_contracts.sh mvn
       - name: Upload platform subprocess evidence
         if: always()
         uses: actions/upload-artifact@v7

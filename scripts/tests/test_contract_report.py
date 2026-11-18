@@ -7,6 +7,7 @@ import unittest
 SCRIPT = pathlib.Path(__file__).resolve().parents[1] / 'contract_report.py'
 HEAD = 'd0c8056990f7a47fcc202acffa387ba066bcfc67'
 SUITE = 'io.github.easy4j.opencli.contract.OpenCliArgvContractTest'
+SECOND_SUITE = 'io.github.easy4j.opencli.contract.OpenCliStructuredArgvContractTest'
 
 
 class ContractReportTest(unittest.TestCase):
@@ -19,21 +20,21 @@ class ContractReportTest(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = pathlib.Path(self.temp.name)
 
-    def xml(self, tests=2, skipped=0, failures=0, errors=0):
+    def xml(self, tests=2, skipped=0, failures=0, errors=0, suite=SUITE):
         executed = tests - skipped
         cases = []
         for i in range(tests):
             child = '<skipped/>' if i >= executed else ('<failure/>' if i < failures else ('<error/>' if i < failures + errors else ''))
             cases.append('<testcase name="case' + str(i) + '">' + child + '</testcase>')
-        (self.root / ('TEST-' + SUITE + '.xml')).write_text(
-            '<testsuite name="' + SUITE + '" tests="' + str(tests) + '" skipped="' + str(skipped)
+        (self.root / ('TEST-' + suite + '.xml')).write_text(
+            '<testsuite name="' + suite + '" tests="' + str(tests) + '" skipped="' + str(skipped)
             + '" failures="' + str(failures) + '" errors="' + str(errors) + '">' + ''.join(cases) + '</testsuite>', encoding='utf-8')
 
     def report(self, **kwargs):
         return self.module.build_report(self.root, head=kwargs.get('head', HEAD),
             branch='feature/2.0.x', java_version='openjdk 17 (test fixture)',
             maven_version='Apache Maven (test fixture)', exit_code=kwargs.get('exit_code', 0),
-            required_suites={'argv': [SUITE]})
+            required_suites=kwargs.get('required_suites', {'argv': [SUITE]}))
 
     def test_complete_argv_evidence_passes_but_live_is_not_run(self):
         self.xml()
@@ -59,6 +60,19 @@ class ContractReportTest(unittest.TestCase):
     def test_zero_tests_fails(self):
         self.xml(tests=0)
         self.assertEqual('FAIL', self.report()['status'])
+
+    def test_zero_tests_in_one_required_suite_cannot_hide_behind_a_passing_suite(self):
+        self.xml()
+        self.xml(tests=0, suite=SECOND_SUITE)
+        result = self.report(required_suites={'argv': [SUITE, SECOND_SUITE]})
+        self.assertEqual('FAIL', result['status'])
+        self.assertEqual([SECOND_SUITE], result['layers']['argv']['unprovenSuites'])
+
+    def test_suite_cannot_supply_multiple_evidence_layers(self):
+        self.xml()
+        result = self.report(required_suites={'argv': [SUITE], 'real-execution': [SUITE]})
+        self.assertEqual('FAIL', result['status'])
+        self.assertIn('suite attribution must be unique across layers', result['problems'])
 
     def test_all_skipped_fails(self):
         self.xml(tests=2, skipped=2)

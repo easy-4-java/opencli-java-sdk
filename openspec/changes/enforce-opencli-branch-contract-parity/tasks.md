@@ -44,3 +44,9 @@ OC-PARITY-004：维护线原 CI 将 JaCoCo 参数丢在 Surefire JVM 之外，�
 ### 结构化帮助证据门禁
 
 OC-PARITY-003/004：在 `98f28346e7bc3307608122a0086a8e1072e39536` 的 GitHub 工件中，Surefire 记录了三个通过的 `OpenCliStructuredHelpFixtureTest` 用例，契约报告的枚举层仍显示 `NOT_RUN`。从该工件重放报告命令并声明枚举套件后，枚举层显示 `PASS`、执行三项，真实 CLI 执行层仍为 `NOT_RUN`。移除套件报告时，报告命令返回非零。三条开发线使用同一份 SHA-256 清单检查九个帮助样本，在临时副本的 `root.json` 末尾追加换行会使校验失败。样本提供离线结构证据，实时能力发现和真实执行由对应任务另行验收。
+
+### 每个必选套件的执行证据
+
+OC-PARITY-003/004：当同一层含一个已执行套件及一个零用例套件时，旧报告返回 PASS。把同一套件注册到 argv 与 real-execution 也会重复记账。新增两个失败回归后，报告逐套件检查非零执行、零跳过、零失败及零错误，并拒绝同一套件跨层归因。问题套件列在 `unprovenSuites`。
+
+JVM 和平台报告显式登记错误报文、浏览器 typed 结果、上下文和诊断测试。Windows npm 安装版检查用独立 `installed-report.json`，保留实际 Node、OpenCLI、Java 和 Maven 版本、源码 SHA 与执行退出码。真实 CLI 层的范围为安装版 launcher 与隔离的 help、插件和诊断测试。普通 JVM 或平台报告缺少此层时保持 NOT_RUN。用于 Browser 结果解析的全部归档样本继续按 SHA-256 验证。
