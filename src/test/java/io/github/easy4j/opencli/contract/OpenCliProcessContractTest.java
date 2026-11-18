@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -317,6 +318,50 @@ class OpenCliProcessContractTest {
             release(gate);
             assertTrue(one.get(5, TimeUnit.SECONDS).isSuccess());
             assertTrue(two.get(5, TimeUnit.SECONDS).isSuccess());
+        } finally {
+            release(gate);
+            workers.shutdownNow();
+            assertTrue(workers.awaitTermination(5, TimeUnit.SECONDS));
+        }
+    }
+
+    @Test
+    void queuedInvocationUsesItsArgvSnapshotAfterCallerMutation() throws Exception {
+        OpenCliProcessRuntime runtime = new OpenCliProcessRuntime(1);
+        OpenCliExecutor blocker = new OpenCliExecutor(properties(1), runtime);
+        OpenCliProperties echoProperties = properties(1);
+        List<String> leading = echoProperties.getLeadingArguments();
+        leading.set(leading.size() - 1, ContractProbe.class.getName());
+        OpenCliExecutor echo = new OpenCliExecutor(echoProperties, runtime);
+        List<String> expected = Arrays.asList("demo", "echo", "", "  原始值  ");
+        CountDownLatch copied = new CountDownLatch(1);
+        List<String> input = new ArrayList<String>(expected) {
+            @Override
+            public Object[] toArray() {
+                Object[] result = super.toArray();
+                copied.countDown();
+                return result;
+            }
+        };
+        Path active = dir.resolve("argv-blocker");
+        Path gate = dir.resolve("argv-release");
+        ExecutorService workers = Executors.newFixedThreadPool(2);
+        try {
+            Future<OpenCliResult> running = workers.submit(() ->
+                blocker.invoke("hold", active.toString(), gate.toString()));
+            assertTrue(awaitFile(active, 5_000L));
+            Future<OpenCliResult> queued = workers.submit(() -> echo.invoke(input));
+            assertTrue(copied.await(2, TimeUnit.SECONDS));
+            assertEquals(expected, input);
+            assertFalse(queued.isDone());
+
+            input.set(3, "changed");
+            input.add("late");
+            release(gate);
+
+            assertTrue(running.get(5, TimeUnit.SECONDS).isSuccess());
+            assertEquals(expected, OpenCliArgvContractTest.received(queued.get(5, TimeUnit.SECONDS)));
+            assertEquals(Arrays.asList("demo", "echo", "", "changed", "late"), input);
         } finally {
             release(gate);
             workers.shutdownNow();
