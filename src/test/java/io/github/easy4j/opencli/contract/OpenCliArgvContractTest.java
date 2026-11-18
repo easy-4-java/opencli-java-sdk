@@ -45,7 +45,8 @@ class OpenCliArgvContractTest {
             p.setExecutable(node);
             try {
                 URI location = Objects.requireNonNull(probe, "Windows argv fixture is required").toURI();
-                p.setLeadingArguments(Collections.singletonList(new File(location).getAbsolutePath()));
+                p.getLeadingArguments().clear();
+                p.getLeadingArguments().add(new File(location).getAbsolutePath());
             } catch (URISyntaxException e) {
                 throw new AssertionError("Invalid Windows argv fixture location", e);
             }
