@@ -12,6 +12,7 @@ import tempfile
 import threading
 import time
 from urllib.error import URLError
+from urllib.parse import quote
 from urllib.request import Request, urlopen
 from zipfile import ZipFile
 
@@ -95,6 +96,26 @@ def wait_for_bridge(daemon, browser):
     raise RuntimeError('The extension did not connect to the isolated daemon')
 
 
+def prepare_bound_tab(profile, url):
+    # Windows Chrome can open a startup tab before its URL is set. Provision the
+    # user tab via the independent DevTools endpoint and wait for navigation.
+    deadline = time.monotonic() + 15
+    port_file = profile / 'DevToolsActivePort'
+    while not port_file.exists() and time.monotonic() < deadline:
+        time.sleep(0.1)
+    port = int(port_file.read_text(encoding='utf-8').splitlines()[0])
+    endpoint = f'http://127.0.0.1:{port}/json'
+    with urlopen(Request(endpoint + '/new?' + quote(url, safe=':/'), method='PUT'), timeout=5) as response:
+        target = json.load(response)['id']
+    while time.monotonic() < deadline:
+        with urlopen(endpoint + '/list', timeout=2) as response:
+            if any(page['id'] == target and page.get('url') == url for page in json.load(response)):
+                with urlopen(endpoint + '/activate/' + target, timeout=2):
+                    return
+        time.sleep(0.1)
+    raise RuntimeError('The original Chrome fixture tab did not finish navigation')
+
+
 def stop(process):
     if process is None or process.poll() is not None:
         return
@@ -148,12 +169,13 @@ def execute(args, root, evidence):
             with (evidence / 'daemon.log').open('w') as log:
                 daemon = subprocess.Popen([node, str(args.cli_entry.with_name('daemon.js'))],
                                           cwd=root, env=env, stdout=log, stderr=subprocess.STDOUT)
+            profile = root / 'profile'
             chrome_args = [
                 '--headless=new', '--no-first-run', '--no-default-browser-check',
                 '--disable-background-networking', '--disable-component-update',
                 '--disable-sync', '--remote-debugging-port=0', '--no-proxy-server',
                 '--host-resolver-rules=MAP localhost 127.0.0.1',
-                '--user-data-dir=' + str(root / 'profile'),
+                '--user-data-dir=' + str(profile),
                 '--disable-extensions-except=' + str(extension), '--load-extension=' + str(extension),
             ]
             if sys.platform == 'linux' and os.environ.get('GITHUB_ACTIONS') == 'true':
@@ -162,9 +184,10 @@ def execute(args, root, evidence):
             if sys.platform == 'darwin':
                 chrome_args.append('--use-mock-keychain')
             with (evidence / 'chrome.log').open('w') as log:
-                browser = subprocess.Popen([str(chrome), *chrome_args, url.replace('/fixture', '/bound-fixture')],
+                browser = subprocess.Popen([str(chrome), *chrome_args, 'about:blank'],
                                            cwd=root, env=env, stdout=log, stderr=subprocess.STDOUT)
             wait_for_bridge(daemon, browser)
+            prepare_bound_tab(profile, url.replace('/fixture', '/bound-fixture'))
             with (evidence / 'maven.log').open('w') as log:
                 result = subprocess.run([*maven_command, '-B', '--no-transfer-progress', '-Dtest=OpenCliBrowserBridgeIT', 'test'],
                                         env=env, stdout=log, stderr=subprocess.STDOUT, timeout=180)
