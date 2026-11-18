@@ -30,17 +30,27 @@ public final class OpenCliHelpParser {
      * @return a structured schema or a reason it could not be recognized
      */
     public static OpenCliHelpResult parse(String rawHelp) {
-        if (OpenCliStrings.isBlank(rawHelp)) {
+        if (Objects.isNull(rawHelp)) {
             return unknown(rawHelp, Reason.EMPTY);
         }
-        String input = rawHelp.trim();
-        if (input.charAt(0) != '{') {
+        int start = 0;
+        while (start < rawHelp.length() && " \t\r\n".indexOf(rawHelp.charAt(start)) >= 0) {
+            start++;
+        }
+        if (start == rawHelp.length()) {
+            return unknown(rawHelp, Reason.EMPTY);
+        }
+        char first = rawHelp.charAt(start);
+        if (first < ' ') {
+            return unknown(rawHelp, Reason.INVALID_JSON);
+        }
+        if (first != '{') {
             return unknown(rawHelp, Reason.UNSUPPORTED_FORMAT);
         }
 
         JsonNode root;
         try {
-            root = READER.readTree(input);
+            root = READER.readTree(rawHelp);
         } catch (JsonProcessingException ex) {
             return unknown(rawHelp, Reason.INVALID_JSON);
         }
