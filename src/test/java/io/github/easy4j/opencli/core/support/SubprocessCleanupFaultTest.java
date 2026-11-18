@@ -164,6 +164,8 @@ class SubprocessCleanupFaultTest {
         assertEquals(CleanupState.NOT_STARTED, session.getExecutionDetails().getCleanupState());
         assertNull(session.getObservedExitCode());
         assertNotNull(session.getWatchdog());
+        assertEquals(0, ((SubprocessExecutionSupport.BoundedCapture) session.getStdout()).bufferCapacity());
+        assertEquals(0, ((SubprocessExecutionSupport.BoundedCapture) session.getStderr()).bufferCapacity());
     }
 
     private static void assertCleanupSurvives(boolean failStop, boolean failDestroy) throws Exception {
