@@ -13,6 +13,8 @@ import java.nio.file.Path;
 import org.apache.commons.exec.CommandLine;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 @org.junit.jupiter.api.parallel.Isolated
 class SubprocessExecutionSupportTest {
@@ -35,8 +37,9 @@ class SubprocessExecutionSupportTest {
         assertFalse(diagnostics.toString().contains(canary));
     }
 
-    @Test
-    void rejectsQuotedWindowsArgumentsBeforeNativeSpawnInStrictMode() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"fixture.exe", "C:\\tools\\fixturecmd.exe", "C:/tools/fixturecmd.exe", "node"})
+    void rejectsQuotedWindowsArgumentsBeforeNativeSpawnInStrictMode(String executable) throws Exception {
         String previousOs = System.getProperty("os.name");
         String property = "jdk.lang.Process.allowAmbiguousCommands";
         String previousMode = System.getProperty(property);
@@ -45,10 +48,10 @@ class SubprocessExecutionSupportTest {
             launches.incrementAndGet();
             throw new IOException("fixture must not launch");
         }, timeout -> new org.apache.commons.exec.ExecuteWatchdog(timeout));
-        CommandLine command = new CommandLine("fixture.exe") {
+        CommandLine command = new CommandLine(executable) {
             @Override
             public String[] toStrings() {
-                return new String[]{"fixture.exe", "\"private-quoted-value\""};
+                return new String[]{executable, "\"private-quoted-value\""};
             }
         };
         SubprocessExecutionSupport.ExecutionRequest request =

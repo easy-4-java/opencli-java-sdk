@@ -19,7 +19,7 @@
 - [x] 3.1 补 List/varargs/typed/request 等价与用户列表不被修改的测试。
 - [x] 3.2 检查 Windows launcher 与引号边界，未测试的平台明确保留未验证状态。
 - [x] 3.3 分别在三条 feature 线运行共享 vectors 和现有测试，记录允许差异。
-- [ ] 3.4 评审迁移说明与完整 diff；需求通过后再申请 archive，不在文档阶段勾选。
+- [x] 3.4 评审迁移说明与完整 diff；归档随最终集成验收申请。
 
 ## 证据交付模板（实施时填写）
 
@@ -42,3 +42,10 @@
 独立评审复现了 Windows 严格进程模式下潜在的字面引号降级，以及可否定选项混用否定别名的冲突。Java 17 基线 `75160c6` 的两项定向测试均失败。原生 EXE 的严格模式会在取得子进程前报告无法保真的参数索引，消息不含值，普通参数仍可执行。可否定 schema 同时保留正向名和否定别名，两种排列顺序和旧 Map 均不会发出冲突组合。
 
 修复后 Java 8、17、21 各用自己的 Wrapper 执行 `./mvnw -B -ntp -o clean verify`，分别通过 2,257、2,258、2,257 项，零失败、零错误、零跳过。仍待以新提交的 Windows 托管报告和独立复审作为 3.4 的最终依据。
+
+
+在上一轮候选 `a965392`、`4fa19df`、`4411a4b` 的三份 Windows 工件中，分别确认严格模式用例与否定别名用例真实执行并通过。随后独立复审发现严格模式还需覆盖名称以 `cmd.exe` 结尾的普通 EXE，以及无扩展名的原生启动名。启动检查现在按 basename 精确识别实际的 `cmd.exe`，以相同规则处理正反斜杠路径。两个路径变体和无扩展名用例均在模拟严格 Windows 启动器中断言未调用进程启动器。双语迁移说明已同步此边界。
+
+独立复审确认两类问题已解决。最终三线本地 Wrapper 全量分别执行 2,260、2,261、2,260 项，失败、错误、跳过均为 0。再次比对目标分支 JVM 声明，原有的 151 个类型和 1,687 个成员仍保留。C01 技术评审完成，当前 PR 仍按 C02 与 C10 的独立门禁推进。
+
+[Java 8 Windows 结果](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44409386904) · [Java 17 Windows 结果](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44409386886) · [Java 21 Windows 结果](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44409386943)
