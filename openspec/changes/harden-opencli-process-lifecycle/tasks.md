@@ -90,4 +90,11 @@ JDK 17 定向 29 项通过。JDK 21 使用仓库 Maven Wrapper 执行 `-B -ntp -
 
 真实 Browser Bridge 1.0.24、OpenCLI 1.8.8 和临时 Chrome 在回环页面上执行两次同步 `network --follow --all`。配置 4,500 ms 与 64 KiB 上限时，结果为 `EXECUTION_TIMEOUT`。配置 12,000 ms 与 2 KiB 上限时，结果为 `OUTPUT_LIMIT`。两次均保留页面请求证据并确认直属进程退出，页面 ID 保持不变。测试进程还验证同一 daemon PID 和 Chrome 进程仍存活。每次使用新的页面 URL 与会话，避免复用已停止产生测试流量的旧页面。
 
-已核对 JDK 8、17、21 的托管基线报告，共八个平台作业。它们分别实际执行独立进程存活、调用取消、线程中断后的直属进程回收、以及继承管道且身份未确认的后代不被停止这四个用例，均无跳过和失败。JDK 8 托管范围为 Intel macOS 和 Windows。JDK 17、21 加测 Apple Silicon macOS。新工作流要求在报告中出具 `SubprocessCompletionRaceTest` 的执行证据，新增托管门禁仍待本提交运行结果。后代身份未知继续通过清理状态和 `descendantsExitConfirmed` 表达。
+已核对 JDK 8、17、21 的托管基线报告，共八个平台作业。它们分别实际执行独立进程存活、调用取消、线程中断后的直属进程回收、以及继承管道且身份未确认的后代不被停止这四个用例，均无跳过和失败。JDK 8 托管范围为 Intel macOS 和 Windows。JDK 17、21 加测 Apple Silicon macOS。新工作流要求在报告中出具 `SubprocessCompletionRaceTest` 的执行证据，已从 Java 8、17、21 的八份托管工件读取该套件的 Surefire XML，每份报告均实际执行同时信号完成和中断清理两项用例，零失败、零跳过。见 [Java 8](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44393705999)、[Java 17](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44394674731)、[Java 21](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44393703895)。后代身份未知继续通过清理状态和 `descendantsExitConfirmed` 表达。
+
+
+## 继承管道测试的清理同步
+
+Java 21 的一次运行中，未知后代仍在更新心跳，JUnit 已开始清理临时目录，产生 DirectoryNotEmptyException。Java 17 回归加入尾部确认后，旧 fixture 实际执行 1 项、失败 1 项，缺少最后一次心跳确认。现在测试发出自己的 release 信号，等待后代在完成所有心跳写入后创建确认文件，再交还临时目录。测试仍在发出 release 之前确认后代存活及取消预算，SDK 的执行和清理逻辑未改动。
+
+各分支使用 Wrapper 分别在 Java 8、17、21 运行 OpenCliProcessContractTest、OpenCliProcessBoundaryTest、SubprocessCompletionRaceTest、OpenCliProcessPrivacyTest，每条线 31 项通过，零失败、零错误、零跳过。报告位于 target/surefire-reports。
