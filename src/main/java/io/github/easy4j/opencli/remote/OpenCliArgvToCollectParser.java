@@ -145,13 +145,7 @@ public final class OpenCliArgvToCollectParser {
             b.cdpEndpoint(cdpEndpoint.trim());
         }
         OpenCliCollectRequest request = b.build();
-        log.debug(
-            "Parsed collect request site={} command={} format={} positionalCount={} argCount={}",
-            site,
-            command,
-            format,
-            positional.size(),
-            args.size());
+        log.debug("Parsed collect request positionalCount={} argCount={}", positional.size(), args.size());
         return request;
     }
 

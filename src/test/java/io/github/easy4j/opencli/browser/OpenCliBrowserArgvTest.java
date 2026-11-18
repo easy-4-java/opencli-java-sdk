@@ -12,7 +12,11 @@ import io.github.easy4j.opencli.browser.support.OpenCliBrowserScreenshotOptions;
 import io.github.easy4j.opencli.browser.support.OpenCliBrowserStateOptions;
 import io.github.easy4j.opencli.browser.support.OpenCliBrowserTabOptions;
 import io.github.easy4j.opencli.support.RecordingOpenCliExecutor;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.UUID;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
@@ -23,6 +27,29 @@ class OpenCliBrowserArgvTest {
 
     private OpenCliBrowserSession session(RecordingOpenCliExecutor exec) {
         return new OpenCliBrowserClient(exec).session("work", "background");
+    }
+
+    @Test
+    void debugLogsKeepSessionIdentifiersAndUrlOutOfTheSummary() throws Exception {
+        RecordingOpenCliExecutor executor = new RecordingOpenCliExecutor();
+        String sessionName = "session-" + UUID.randomUUID();
+        String url = "https://example.test/?token=" + UUID.randomUUID();
+        OpenCliBrowserSession browser = new OpenCliBrowserClient(executor).session(sessionName, null);
+        ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+        PrintStream original = System.err;
+
+        try (PrintStream capture = new PrintStream(diagnostics, true, StandardCharsets.UTF_8.name())) {
+            System.setErr(capture);
+            browser.tabNew(url);
+        } finally {
+            System.setErr(original);
+        }
+
+        assertEquals(Arrays.asList("browser", sessionName, "tab", "new", url), executor.lastInvocation());
+        String logs = diagnostics.toString(StandardCharsets.UTF_8.name());
+        assertTrue(logs.contains("OpenCLI browser"));
+        assertFalse(logs.contains(sessionName), "Session name must stay out of SDK diagnostics");
+        assertFalse(logs.contains(url), "URL must stay out of SDK diagnostics");
     }
 
     @Test
