@@ -52,7 +52,8 @@ class OpenCliReadOnlyDiagnosticsIT {
 
         try (OpenCliClient client = new OpenCliClient(properties)) {
             OpenCliDiagnostics first = client.diagnose();
-            assertEquals(Status.AVAILABLE, first.observation(Check.VERSION).getStatus());
+            assertEquals(Status.AVAILABLE, first.observation(Check.VERSION).getStatus(),
+                first.observation(Check.VERSION).getReason());
             assertEquals("1.8.8", first.getVersion());
             assertEquals(Status.UNKNOWN, first.observation(Check.STRUCTURED_HELP).getStatus());
             assertFalse(Files.exists(marker));
