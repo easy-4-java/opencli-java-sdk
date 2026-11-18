@@ -436,6 +436,7 @@ class OpenCliProcessContractTest {
         Path parent = dir.resolve("parent");
         Path descendant = dir.resolve("descendant");
         Path release = dir.resolve("release");
+        Path stopped = dir.resolve("descendant-stopped");
         OpenCliCancellationToken token = new OpenCliCancellationToken();
         OpenCliProperties properties = properties(1);
         properties.setCleanupGraceMillis(250L);
@@ -444,7 +445,7 @@ class OpenCliProcessContractTest {
         try {
             Future<OpenCliException> failure = worker.submit(() -> assertThrows(OpenCliException.class,
                 () -> executor.invoke(Arrays.asList("inherited-pipes", parent.toString(),
-                    release.toString(), descendant.toString()), token)));
+                    release.toString(), descendant.toString(), stopped.toString()), token)));
             assertTrue(awaitFile(descendant, 5_000L), "descendant never inherited the pipes");
             token.cancel();
             OpenCliExecutionDetails details = failure.get(1_500L, TimeUnit.MILLISECONDS).getPartialResult()
@@ -466,6 +467,7 @@ class OpenCliProcessContractTest {
             release(release);
             worker.shutdownNow();
             assertTrue(worker.awaitTermination(5, TimeUnit.SECONDS));
+            assertTrue(awaitFile(stopped, 5_000L), "descendant did not acknowledge its final heartbeat");
         }
     }
 
