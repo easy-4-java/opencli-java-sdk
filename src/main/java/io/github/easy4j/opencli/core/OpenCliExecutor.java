@@ -165,7 +165,7 @@ public class OpenCliExecutor implements AutoCloseable {
         try {
             return complete(processRuntime.execute(request));
         } catch (IOException ex) {
-            throw new OpenCliExecutableFailureException("OpenCLI process could not be started", ex);
+            throw new OpenCliExecutableFailureException("OpenCLI process could not be started", null);
         } catch (InterruptedException ex) {
             Thread.currentThread().interrupt();
             throw new OpenCliException("Interrupted while awaiting OpenCLI subprocess", ex, null);
@@ -193,12 +193,13 @@ public class OpenCliExecutor implements AutoCloseable {
             throw new OpenCliTimeoutException("OpenCLI deadline exceeded: " + reason, result);
         }
         if (reason == TerminationReason.SPAWN_FAILED) {
-            throw new OpenCliExecutableFailureException("OpenCLI process could not be started", session.getIoFailure(), result);
+            throw new OpenCliExecutableFailureException("OpenCLI process could not be started", null, result);
         }
         if (reason == TerminationReason.PROCESS_EXIT && exit != null && exit != 0) {
             throw new OpenCliNonZeroExitException("OpenCLI returned nonzero exitCode=" + exit, result);
         }
-        throw new OpenCliException("OpenCLI execution ended: " + reason, session.getIoFailure(), result);
+        // Native I/O errors may include executable paths or other invocation data.
+        throw new OpenCliException("OpenCLI execution ended: " + reason, result);
     }
 
     private File resolveWorkingDirectory() {
