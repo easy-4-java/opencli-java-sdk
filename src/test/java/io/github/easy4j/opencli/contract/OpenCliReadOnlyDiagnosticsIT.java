@@ -65,6 +65,9 @@ class OpenCliReadOnlyDiagnosticsIT {
             Files.delete(marker);
             assertEquals(Status.STALE, client.diagnose().observation(Check.STRUCTURED_HELP).getStatus());
             assertFalse(Files.exists(marker));
+        } finally {
+            // Unlink the installed-package junction before JUnit walks the temporary home on Windows JDK 8.
+            Files.deleteIfExists(home.resolve(".opencli/node_modules/@jackwener/opencli"));
         }
     }
 

@@ -62,6 +62,9 @@ class OpenCliCapabilityOverrideIT {
             Files.delete(plugin);
             assertEquals(local.getHelpSha256(), discover(client).getHelpSha256());
             assertFalse(Files.exists(marker), "metadata discovery must not invoke the adapter handler");
+        } finally {
+            // Unlink the installed-package junction before JUnit walks the temporary home on Windows JDK 8.
+            Files.deleteIfExists(home.resolve(".opencli/node_modules/@jackwener/opencli"));
         }
     }
 
