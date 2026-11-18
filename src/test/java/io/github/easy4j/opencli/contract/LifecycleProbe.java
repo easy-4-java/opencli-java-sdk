@@ -31,11 +31,18 @@ public final class LifecycleProbe {
             writeStream(stream, Integer.parseInt(args[1]));
             return;
         }
-        if ("inherited-pipes".equals(mode)) {
+        if ("inherited-pipes".equals(mode) || "isolated-pipes".equals(mode)) {
             String executable = System.getProperty("os.name").startsWith("Windows") ? "java.exe" : "java";
             Path java = Paths.get(System.getProperty("java.home"), "bin", executable);
-            new ProcessBuilder(java.toString(), "-cp", System.getProperty("java.class.path"),
-                LifecycleProbe.class.getName(), "heartbeat", args[3], args[2], args[4]).inheritIO().start();
+            ProcessBuilder descendant = new ProcessBuilder(java.toString(), "-cp", System.getProperty("java.class.path"),
+                LifecycleProbe.class.getName(), "heartbeat", args[3], args[2], args[4]);
+            if ("inherited-pipes".equals(mode)) {
+                descendant.inheritIO();
+            } else {
+                Path log = Paths.get(args[3]).resolveSibling("descendant.log");
+                descendant.redirectErrorStream(true).redirectOutput(log.toFile());
+            }
+            descendant.start();
         }
         if ("capture-hold".equals(mode)) {
             writeStream(System.out, Integer.parseInt(args[3]));

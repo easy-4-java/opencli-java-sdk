@@ -104,3 +104,11 @@ Java 21 的一次运行中，未知后代仍在更新心跳，JUnit 已开始清
 Java 8、21 功能线的平台矩阵加入 Ubuntu，Java 17 保留现有 Ubuntu JVM 作业。三线平台作业均显式选择旧版输出流的有界写入用例。该用例通过本线 JVM 启动现有 LifecycleProbe，检查退出后从旧 API 写入时的字节上限，并验证此前记录的进程截断事实保持准确。
 
 本地 macOS 上用三个分支的 Wrapper 复跑进程契约、结束竞态、读取失败及两个低层用例，每线 24 项通过，零失败、零错误、零跳过。Linux、macOS 和 Windows 的托管证据按精确功能提交核对。
+
+## 输出读取异常和后代独立管道
+
+OC-PROC-004/005。Java 17 基线 `1946d9f` 的两个故障注入场景均将运行时读取或关闭异常误报为 `PROCESS_EXIT`。Reader 现在报告 `IO_FAILURE`，保留已读取字节、实际直属退出码和显式低层原因。SDK 的默认异常摘要保留固定消息。故障注入用例确认原始 provider 标记不会进入默认诊断。
+
+真实 JVM 进程夹具分别使用继承管道和独立输出文件。两种情况下，取消父进程后，未追踪的后代都继续更新心跳。独立输出用例确认 SDK 可报告 `ROOT_EXIT_CONFIRMED` 和已排空自己的读取线程，同时 `descendantsExitConfirmed` 为 false。继承管道未排空时继续标记 `UNCONFIRMED`。用例通过释放文件停止自己的后代，并等待其最后一次写入的确认。
+
+Java 8 `1310c54`、Java 17 `1946d9f`、Java 21 `89da70e` 为修改前基线。各线使用 Wrapper 执行 `./mvnw -B -ntp -o clean verify`，分别通过 2,254、2,255、2,254 项，零失败、零错误、零跳过。报告为 `SubprocessStreamFailureTest` 与 `OpenCliProcessContractTest` 的 Surefire XML。此处给出直属进程和管道边界的运行证据。多平台的已声明能力与未追踪后代的限制继续由 3.2 验收。

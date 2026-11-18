@@ -510,6 +510,8 @@ public final class SubprocessExecutionSupport {
                 }
             } catch (IOException ex) {
                 failure = ex;
+            } catch (RuntimeException ex) {
+                failure = new IOException("Native process output stream failed", ex);
             }
         }
     }

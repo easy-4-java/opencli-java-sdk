@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -16,6 +17,9 @@ import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.ExecuteWatchdog;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.parallel.Isolated;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -23,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /** Verifies that reader-thread I/O faults survive into the terminal result. */
+@Isolated
 @Timeout(5)
 class SubprocessStreamFailureTest {
 
@@ -42,6 +47,56 @@ class SubprocessStreamFailureTest {
         assertSame(readFailure, session.getIoFailure());
         assertEquals("abc", new String(session.getStdout().toByteArray(), StandardCharsets.UTF_8));
         assertTrue(session.getExecutionDetails().isStreamsDrained());
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void uncheckedPipeFailureKeepsPartialOutputAndDoesNotEscapeTheReader(boolean duringClose) throws Exception {
+        String canary = "private-provider-pipe-fault";
+        RuntimeException nativeFailure = new IllegalStateException(canary);
+        InputStream output = new ByteArrayInputStream("abc".getBytes(StandardCharsets.UTF_8)) {
+            @Override
+            public synchronized int read(byte[] bytes, int offset, int length) {
+                int read = super.read(bytes, offset, length);
+                if (read < 0 && !duringClose) {
+                    throw nativeFailure;
+                }
+                return read;
+            }
+
+            @Override
+            public void close() {
+                if (duringClose) {
+                    throw nativeFailure;
+                }
+            }
+        };
+        SubprocessExecutionSupport.Runtime runtime = new SubprocessExecutionSupport.Runtime(1,
+            builder -> new ExitedProcess(output), timeout -> new IdleWatchdog());
+        SubprocessExecutionSupport.ExecutionRequest request = new SubprocessExecutionSupport.ExecutionRequest(
+            CommandLine.parse("fake"), null, null, 1_000L, 32, 32, 100L,
+            System.nanoTime(), new OpenCliCancellationToken());
+
+        ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+        PrintStream previous = System.err;
+        SubprocessExecutionSupport.RunSession session;
+        try (PrintStream capture = new PrintStream(diagnostics, true, StandardCharsets.UTF_8.name())) {
+            System.setErr(capture);
+            try {
+                session = runtime.execute(request);
+                if (session.getHandler().getException() != null) {
+                    session.getHandler().getException().printStackTrace(capture);
+                }
+            } finally {
+                System.setErr(previous);
+            }
+        }
+
+        assertEquals(TerminationReason.IO_FAILURE, session.getExecutionDetails().getTerminationReason());
+        assertSame(nativeFailure, session.getIoFailure().getCause());
+        assertEquals("abc", new String(session.getStdout().toByteArray(), StandardCharsets.UTF_8));
+        assertTrue(session.getExecutionDetails().isStreamsDrained());
+        assertFalse(diagnostics.toString(StandardCharsets.UTF_8.name()).contains(canary));
     }
 
     @Test
