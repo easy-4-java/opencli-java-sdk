@@ -1,6 +1,6 @@
 # 隔离执行上下文与只读诊断
 
-> Proposal specification. Status: DRAFT / NOT_IMPLEMENTED.
+> Implementation verified on the feature branches. PR review and merge are pending.
 
 ## ADDED Requirements
 

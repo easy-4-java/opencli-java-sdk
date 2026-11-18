@@ -5,6 +5,7 @@ import io.github.easy4j.opencli.OpenCliInvocationContext;
 import io.github.easy4j.opencli.OpenCliInvocationContext.SiteSession;
 import io.github.easy4j.opencli.OpenCliInvocationContext.WindowMode;
 import io.github.easy4j.opencli.OpenCliProperties;
+import io.github.easy4j.opencli.exception.OpenCliNonZeroExitException;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -28,6 +29,29 @@ class OpenCliInvocationContextTest {
             Future<String> b = pool.submit(() -> state(client, "profile-b", WindowMode.FOREGROUND));
             assertEquals("--profile|profile-a|browser|session-a|--window|background|state", a.get(12, TimeUnit.SECONDS));
             assertEquals("--profile|profile-b|browser|session-a|--window|foreground|state", b.get(12, TimeUnit.SECONDS));
+        } finally {
+            pool.shutdownNow();
+        }
+    }
+
+    @Test
+    void failedInvocationKeepsItsContextWithoutChangingConcurrentOrDefaultCalls() throws Exception {
+        OpenCliProperties properties = properties();
+        properties.setInvocationDefaults(OpenCliInvocationContext.builder().profile("profile-default")
+            .window(WindowMode.FOREGROUND).build());
+        ExecutorService pool = Executors.newFixedThreadPool(2);
+        try (OpenCliClient client = new OpenCliClient(properties)) {
+            Future<OpenCliNonZeroExitException> failure = pool.submit(() -> assertThrows(
+                OpenCliNonZeroExitException.class, () -> state(client, "profile-failure", WindowMode.BACKGROUND)));
+            Future<String> success = pool.submit(() -> state(client, "profile-success", WindowMode.FOREGROUND));
+
+            assertEquals("--profile|profile-success|browser|session-a|--window|foreground|state",
+                success.get(12, TimeUnit.SECONDS));
+            assertEquals("--profile|profile-failure|browser|session-a|--window|background|state",
+                failure.get(12, TimeUnit.SECONDS).getPartialResult().getStdout());
+            assertEquals("--profile|profile-default|browser|session-a|--window|foreground|state",
+                client.invokeDiscovered(OpenCliHelpScope.BROWSER_STATE, "opencli browser <session> state",
+                    "session-a", null, null).getStdout());
         } finally {
             pool.shutdownNow();
         }
@@ -99,6 +123,9 @@ class OpenCliInvocationContextTest {
                         System.exit(4);
                     }
                     System.out.print(String.join("|", args));
+                    if (argv.startsWith("--profile profile-failure ")) {
+                        System.exit(7);
+                    }
             }
         }
 
