@@ -57,28 +57,8 @@ public final class OpenCliBrowserSession {
     private OpenCliResult invokeSub(List<String> subcommandAndOptions) {
         List<String> tokens = sessionPrefix();
         tokens.addAll(subcommandAndOptions);
-        log.debug("OpenCLI browser session={} subcommandSummary={}", sessionName, summarizeSubcommand(tokens));
+        log.debug("OpenCLI browser invoke argvSize={}", tokens.size());
         return executor.invoke(tokens);
-    }
-
-    private static String summarizeSubcommand(List<String> tokens) {
-        int start = tokens.indexOf("browser");
-        int from = start >= 0 && start + 2 < tokens.size() ? start + 2 : 0;
-        int limit = Math.min(tokens.size(), from + 3);
-        if (from >= tokens.size()) {
-            return "(root)";
-        }
-        StringBuilder sb = new StringBuilder();
-        for (int i = from; i < limit; i++) {
-            if (i > from) {
-                sb.append(' ');
-            }
-            sb.append(tokens.get(i));
-        }
-        if (tokens.size() > limit) {
-            sb.append(" ...");
-        }
-        return sb.toString();
     }
 
     private static void appendTabAndLocator(

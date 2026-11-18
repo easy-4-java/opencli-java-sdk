@@ -1,10 +1,40 @@
 package io.github.easy4j.opencli.remote;
 
 import static org.junit.jupiter.api.Assertions.*;
-import java.util.*;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 class OpenCliArgvToCollectParserTest {
+
+    @Test
+    void debugLogsDoNotExposeCallerOwnedRoutingAndFormatValues() {
+        String site = "site-" + UUID.randomUUID();
+        String command = "command-" + UUID.randomUUID();
+        String format = "format-" + UUID.randomUUID();
+        ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+        PrintStream original = System.err;
+        OpenCliCollectRequest request;
+
+        try (PrintStream capture = new PrintStream(diagnostics, true, StandardCharsets.UTF_8)) {
+            System.setErr(capture);
+            request = OpenCliArgvToCollectParser.parse(Arrays.asList(site, command), format, "cdp", "");
+        } finally {
+            System.setErr(original);
+        }
+
+        assertEquals(site, request.getSite());
+        assertEquals(command, request.getCommand());
+        assertEquals(format, request.getFormat());
+        String logs = diagnostics.toString(StandardCharsets.UTF_8);
+        assertTrue(logs.contains("Parsed collect request"));
+        assertFalse(logs.contains(site), "Site must stay out of SDK diagnostics");
+        assertFalse(logs.contains(command), "Command must stay out of SDK diagnostics");
+        assertFalse(logs.contains(format), "Format must stay out of SDK diagnostics");
+    }
 
     @Test
     void shouldParseBasicArgv() {
