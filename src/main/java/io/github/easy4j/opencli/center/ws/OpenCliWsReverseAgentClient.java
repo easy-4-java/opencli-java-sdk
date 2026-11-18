@@ -1,6 +1,8 @@
 package io.github.easy4j.opencli.center.ws;
 
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
@@ -31,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.drafts.Draft_6455;
 import org.java_websocket.handshake.ServerHandshake;
 
 /**
@@ -54,12 +57,14 @@ import org.java_websocket.handshake.ServerHandshake;
 public final class OpenCliWsReverseAgentClient implements AutoCloseable {
 
     private static final JsonMapper MAPPER = new JsonMapper();
+    private static final ObjectReader MESSAGE_READER = MAPPER.reader().with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
     private static final long CLOSE_WAIT_NANOS = TimeUnit.SECONDS.toNanos(5);
 
     private final OpenCliExecutor localExecutor;
 
     private final OpenCliWsAgentConnectionProperties connectionProperties;
 
+    private final int maxInboundMessageBytes;
     private final ThreadPoolExecutor collectPool;
     private final Set<CollectTask> collectTasks = new HashSet<>();
     private final OpenCliWsCollectRequests collectRequests =
@@ -82,6 +87,10 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
         Objects.requireNonNull(openCliProperties, "openCliProperties");
         this.connectionProperties =
             Objects.requireNonNull(connectionProperties, "connectionProperties");
+        this.maxInboundMessageBytes = connectionProperties.getMaxInboundMessageBytes();
+        if (maxInboundMessageBytes <= 0 || maxInboundMessageBytes == Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("Inbound WebSocket message size must have a positive finite limit");
+        }
         int workers = connectionProperties.getMaxConcurrentCollects();
         int pending = connectionProperties.getMaxPendingCollects();
         if (workers <= 0 || pending < 0 || (long) workers + pending >= Integer.MAX_VALUE) {
@@ -249,64 +258,8 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
         // The default TLS client verifies the endpoint hostname. Plain WS has session-local identity.
         Object centerIdentity = "wss".equalsIgnoreCase(endpoint.getScheme()) ? endpoint : new Object();
 
-        final CountDownLatch registered = new CountDownLatch(1);
-        final CountDownLatch sessionClosed = new CountDownLatch(1);
-        final AtomicReference<Throwable> handshakeFailure = new AtomicReference<>();
-
         log.info("opencli ws connecting");
-        WebSocketClient client =
-            new WebSocketClient(endpoint) {
-                @Override
-                public void onOpen(ServerHandshake handshake) {
-                    if (!isCurrentSession(this)) {
-                        closeSession(this);
-                        return;
-                    }
-                    try {
-                        send(buildRegisterJson());
-                    } catch (Exception e) {
-                        handshakeFailure.set(e);
-                        registered.countDown();
-                        close();
-                    }
-                }
-
-                @Override
-                public void onMessage(String message) {
-                    try {
-                        handleTextMessage(this, centerIdentity, message, registered, handshakeFailure);
-                    } catch (Exception e) {
-                        log.warn("handle ws message failed");
-                    }
-                }
-
-                @Override
-                public void onClose(int code, String reason, boolean remote) {
-                    activeClient.compareAndSet(this, null);
-                    if (registered.getCount() > 0) {
-                        handshakeFailure.compareAndSet(
-                            null,
-                            new IllegalStateException(
-                                "WebSocket closed before 'registered' (code="
-                                    + code
-                                    + ")"));
-                        registered.countDown();
-                    }
-                    sessionClosed.countDown();
-                }
-
-                @Override
-                public void onError(Exception ex) {
-                    activeClient.compareAndSet(this, null);
-                    log.warn("WebSocket error");
-                    if (registered.getCount() > 0) {
-                        handshakeFailure.compareAndSet(null, ex);
-                        registered.countDown();
-                    }
-                    sessionClosed.countDown();
-                }
-            };
-
+        WorkerSession client = new WorkerSession(endpoint, centerIdentity);
         if (!publishSession(client)) {
             return;
         }
@@ -314,20 +267,91 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
             if (!client.connectBlocking(30, TimeUnit.SECONDS)) {
                 throw new IllegalStateException("WebSocket connectBlocking returned false");
             }
-            if (!registered.await(connectionProperties.getHandshakeTimeoutMillis(), TimeUnit.MILLISECONDS)) {
+            if (!client.registered.await(connectionProperties.getHandshakeTimeoutMillis(), TimeUnit.MILLISECONDS)) {
                 throw new IllegalStateException("Timeout waiting for 'registered' from center");
             }
-            Throwable hf = handshakeFailure.get();
+            Throwable hf = client.handshakeFailure.get();
             if (Objects.nonNull(hf)) {
                 if (hf instanceof Exception) {
                     throw (Exception) hf;
                 }
                 throw new IllegalStateException(hf);
             }
-            sessionClosed.await();
+            client.sessionClosed.await();
         } finally {
-            activeClient.compareAndSet(client, null);
+            client.retire(null);
             closeSession(client);
+        }
+    }
+
+    private enum SessionPhase {
+        CONNECTING, REGISTERING, READY, RETIRED
+    }
+
+    private final class WorkerSession extends WebSocketClient {
+        private final Object centerIdentity;
+        private final AtomicReference<SessionPhase> phase = new AtomicReference<>(SessionPhase.CONNECTING);
+        private final CountDownLatch registered = new CountDownLatch(1);
+        private final CountDownLatch sessionClosed = new CountDownLatch(1);
+        private final AtomicReference<Throwable> handshakeFailure = new AtomicReference<>();
+
+        WorkerSession(URI endpoint, Object centerIdentity) {
+            super(endpoint, new Draft_6455(Collections.emptyList(), maxInboundMessageBytes));
+            this.centerIdentity = centerIdentity;
+        }
+
+        @Override
+        public void onOpen(ServerHandshake handshake) {
+            if (!isCurrentSession(this) || !phase.compareAndSet(SessionPhase.CONNECTING, SessionPhase.REGISTERING)) {
+                closeSession(this);
+                return;
+            }
+            try {
+                send(buildRegisterJson());
+            } catch (Exception e) {
+                retire(e);
+                closeSession(this);
+            }
+        }
+
+        @Override
+        public void onMessage(String message) {
+            try {
+                handleTextMessage(this, message);
+            } catch (Exception e) {
+                log.warn("handle ws message failed");
+            }
+        }
+
+        @Override
+        public void onClose(int code, String reason, boolean remote) {
+            retire(new IllegalStateException("WebSocket closed before 'registered' (code=" + code + ")"));
+        }
+
+        @Override
+        public void onError(Exception ex) {
+            log.warn("WebSocket error");
+            retire(ex);
+        }
+
+        void acknowledgeRegistration() {
+            if (phase.compareAndSet(SessionPhase.REGISTERING, SessionPhase.READY)) {
+                registered.countDown();
+            }
+        }
+
+        boolean isReady() {
+            return phase.get() == SessionPhase.READY;
+        }
+
+        void retire(Throwable cause) {
+            SessionPhase previous = phase.getAndSet(SessionPhase.RETIRED);
+            activeClient.compareAndSet(this, null);
+            if (previous == SessionPhase.CONNECTING || previous == SessionPhase.REGISTERING) {
+                handshakeFailure.compareAndSet(null, cause);
+                registered.countDown();
+            }
+            sessionClosed.countDown();
         }
     }
 
@@ -394,20 +418,17 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
         return MAPPER.writeValueAsString(reg);
     }
 
-    private void handleTextMessage(
-        WebSocketClient ws,
-        Object centerIdentity,
-        String payload,
-        CountDownLatch registered,
-        AtomicReference<Throwable> handshakeFailure)
-        throws Exception {
+    private void handleTextMessage(WorkerSession ws, String payload) throws Exception {
         if (!isCurrentSession(ws)) {
             return;
         }
-        JsonNode root = MAPPER.readTree(payload);
+        JsonNode root = MESSAGE_READER.readTree(payload);
+        if (Objects.isNull(root) || !root.isObject()) {
+            return;
+        }
         String type = root.path("type").asText("");
         if ("registered".equals(type)) {
-            registered.countDown();
+            ws.acknowledgeRegistration();
             return;
         }
         if ("ping".equals(type)) {
@@ -424,12 +445,11 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
                 sendResult(ws, result("", false, Collections.emptyList(), "invalid worker request ID"));
                 return;
             }
-            if (!isCurrentSession(ws) || !ws.isOpen() || registered.getCount() > 0
-                || Objects.nonNull(handshakeFailure.get())) {
+            if (!isCurrentSession(ws) || !ws.isOpen() || !ws.isReady()) {
                 sendResult(ws, result(requestId, false, Collections.emptyList(), "worker is not registered"));
                 return;
             }
-            admitCollect(ws, centerIdentity, requestId, root);
+            admitCollect(ws, ws.centerIdentity, requestId, root);
         }
     }
 
