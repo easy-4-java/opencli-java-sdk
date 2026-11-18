@@ -39,6 +39,9 @@ BrowserBridge.prototype.connect = async ({ session }) => {
       ] }).text;
     },
     async consoleMessages() {
+      if (process.env.OPENCLI_FIXTURE_CONSOLE_LEVEL === '1') {
+        return [{ level: 'warning', text: 'Fixture warning', timestamp: 1735689600000 }];
+      }
       return [{ type: 'warning', text: 'Fixture warning', timestamp: 1735689600000 }];
     },
     async readNetworkCapture() {

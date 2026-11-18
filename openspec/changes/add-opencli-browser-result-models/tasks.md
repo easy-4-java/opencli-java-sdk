@@ -50,3 +50,9 @@ Java 17 基线 `b1d83867` 的定向测试把含重复回车的分隔行误判为
 ## OC-BROWSER-001/002/003/005 find、console、network 与 analyze
 
 `OpenCliBrowserEvidenceResultTest` 首先因缺少模型和门面而无法编译。实现后验收有限的 find 条目、整数 ref 保真、采集 count 与数组一致性、分析扩展信息和原有执行失败。流式采集及网络详情在 typed 入口启动前拒绝，保留 raw 方法。见 [输出证据、支持表和迁移方式](evidence/2026-11-19-find-console-network-analyze.md)。
+
+### OC-BROWSER-003 console 级别回归
+
+锁定版 CLI 的 console 过滤同时识别 `type` 和 `level`。Java 17 基线 `115b0955` 在仅含 `level` 的 [CLI 输出](evidence/2026-11-19-find-console-network-analyze.md) 上返回空级别，定向测试退出 1。补齐兼容读取后，调用方通过 `getType()` 取得原级别，元数据仍保留原始键。
+
+以 `a0c66c9`、`115b0955`、`7992972` 为基线，在 Java 8、17、21 执行 `./mvnw -B -ntp clean verify`，分别通过 2224、2225、2224 项，全量零失败、零错误、零跳过。每条线均运行 5 项 `OpenCliBrowserEvidenceResultTest`，报告见 `target/surefire-reports`。

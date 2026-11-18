@@ -56,6 +56,15 @@ class OpenCliBrowserEvidenceResultTest {
     }
 
     @Test
+    void readsTheConsoleLevelWhenTheTypeFieldIsAbsent() {
+        OpenCliBrowserConsoleResult console = OpenCliBrowserDecoder.console(raw("console-level")).getValue();
+        OpenCliBrowserConsoleResult.Message message = console.getMessages().get(0);
+        assertEquals("warning", message.getType());
+        assertEquals("warning", message.getMetadata().get("level").asText());
+        assertFalse(message.getMetadata().has("type"));
+    }
+
+    @Test
     void retainsAnalysisMetadataWithoutFollowingAdvice() {
         OpenCliBrowserAnalysisResult analysis = OpenCliBrowserDecoder.analyze(raw("analyze")).getValue();
         assertEquals("Fixture page", analysis.getTitle());
