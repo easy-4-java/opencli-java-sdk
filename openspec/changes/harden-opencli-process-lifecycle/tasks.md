@@ -127,3 +127,7 @@ Java 8 `1310c54`、Java 17 `1946d9f`、Java 21 `89da70e` 为修改前基线。�
 | 21 | `e4022f1c7a3cf9789e347270143ec5f013f58f99` | [Ubuntu、Intel 与 Apple Silicon macOS、Windows](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44410064678) |
 
 清理结果区分直属进程与未知后代。若直属进程退出、读取线程排空，可报告 `ROOT_EXIT_CONFIRMED`，同时将 `descendantsExitConfirmed` 保持为 false。无法确认读取线程排空时返回 `UNCONFIRMED`。真实 Browser Bridge 的共享 daemon 与 Chrome 存活证据来自 macOS 回环联调，Windows/Linux 平台工件使用真实 JVM 子进程夹具。3.2 继续记录跨平台真实 Bridge 验收和未追踪后代的能力边界。
+
+### Windows 与 Linux 的真实 Browser Bridge 验收
+
+在独立 runner 使用锁定版本的 OpenCLI、扩展归档及 Chrome for Testing。真实 Node daemon 和临时 Chrome profile 只访问回环页面。沿用 `OpenCliBrowserBridgeIT` 验证类型结果、查询、绑定标签页及有界采集。验证完成后检查同一个 daemon 和 Chrome 进程仍在运行，上传本次 Surefire XML。缺报告、跳过或任一进程异常退出均判失败。
