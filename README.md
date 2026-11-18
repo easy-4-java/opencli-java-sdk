@@ -176,8 +176,12 @@ Configuration is object-based via `OpenCliProperties`:
 | `executionTarget` | `LOCAL_PROCESS` | `LOCAL_PROCESS` or `REMOTE_AGENT_HTTP` |
 | `executable` | `opencli` | Executable name or absolute path |
 | `workingDirectory` | — | Subprocess working directory |
-| `commandTimeoutMillis` | `300000` | Command timeout (ms; reused as HTTP timeout in remote mode) |
-| `maxConcurrentExecutions` | `0` | Max concurrent subprocesses (0 = unlimited) |
+| `commandTimeoutMillis` | `300000` | Positive timeout in milliseconds. Local queueing and execution share one monotonic deadline. Remote mode uses an HTTP timeout. |
+| `maxConcurrentExecutions` | `0` | Per-client subprocess capacity, fixed at construction. Zero uses `max(2, availableProcessors)`. Negative values are invalid. |
+| `maxStdoutBytes` | `8388608` | Positive local stdout capture limit in bytes. |
+| `maxStderrBytes` | `2097152` | Positive local stderr capture limit in bytes. |
+| `maxOutputBytes` | `10485760` | Legacy ceiling for each local stream. A positive value can reduce either limit. A nonpositive value leaves the two stream limits in effect. |
+| `cleanupGraceMillis` | `5000` | Positive, separate local cleanup grace in milliseconds. Timeout values must fit the monotonic nanosecond budget. |
 | `startupProbeTimeoutMillis` | `30000` | Availability-probe timeout |
 | `environment` | `{}` | Extra environment variables (e.g. `OPENCLI_CDP_ENDPOINT`) |
 | `remoteAgentBaseUrl` | — | Remote agent base URL |
@@ -188,6 +192,7 @@ Configuration is object-based via `OpenCliProperties`:
 
 Notes:
 
+- Local `browser console --follow` uses synchronous capture and the same finite timeout and byte limits. It returns collected output after completion or a terminal condition. It provides no live output stream.
 - In remote mode the `stdout` is the JSON `items` the agent returned (parsed into line items per `format`), which may differ from local raw subprocess text; `leadingArguments` are local-only and are not injected on the remote path.
 - `execution-target=REMOTE_AGENT_HTTP` makes the availability probe report `SKIPPED_REMOTE_MODE` (treated as startable).
 

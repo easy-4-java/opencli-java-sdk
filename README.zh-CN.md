@@ -175,8 +175,12 @@ cli.gemini().deepResearch("topic",
 | `executionTarget` | `LOCAL_PROCESS` | `LOCAL_PROCESS` 或 `REMOTE_AGENT_HTTP` |
 | `executable` | `opencli` | 可执行文件名或绝对路径 |
 | `workingDirectory` | — | 子进程工作目录 |
-| `commandTimeoutMillis` | `300000` | 命令超时（毫秒；远程模式复用为 HTTP 超时） |
-| `maxConcurrentExecutions` | `0` | 最大并发子进程数（0 = 不限） |
+| `commandTimeoutMillis` | `300000` | 正数，单位毫秒。本地排队与执行共享同一个单调时钟预算，远程模式使用 HTTP 超时。 |
+| `maxConcurrentExecutions` | `0` | 每个客户端的子进程并发数，构造时固定。零使用 `max(2, availableProcessors)`，负数无效。 |
+| `maxStdoutBytes` | `8388608` | 本地标准输出采集上限，单位字节，必须为正数。 |
+| `maxStderrBytes` | `2097152` | 本地标准错误采集上限，单位字节，必须为正数。 |
+| `maxOutputBytes` | `10485760` | 每个本地输出流的兼容上限。正数可进一步降低各流的上限，非正数沿用分别配置的上限。 |
+| `cleanupGraceMillis` | `5000` | 独立的本地清理等待上限，单位毫秒，必须为正数。时间配置必须可换算成单调时钟的纳秒预算。 |
 | `startupProbeTimeoutMillis` | `30000` | 可用性探测超时 |
 | `environment` | `{}` | 额外环境变量（如 `OPENCLI_CDP_ENDPOINT`） |
 | `remoteAgentBaseUrl` | — | 远程 Agent 根地址 |
@@ -184,6 +188,8 @@ cli.gemini().deepResearch("topic",
 | `remoteOutputFormat` | `json` | 向 Agent 请求的输出格式 |
 | `remoteCdpEndpoint` | — | 可选，覆盖 Agent 默认 CDP 端点 |
 | `remoteCaptureRawHttpResponse` | `false` | 在 `OpenCliResult#getRemoteRawHttpBody()` 中保留原始 HTTP 报文（大响应请谨慎开启） |
+
+本地 `browser console --follow` 使用同步采集，仍受超时和输出字节上限约束。命令完成或进入终止状态后返回已采集输出，不提供实时输出流。
 
 注意事项：
 

@@ -17,7 +17,7 @@
 
 ## 3. 兼容和证据
 
-- [ ] 3.1 明确 0/负数配置语义、总预算与 cleanup grace、同步 follow 限制。
+- [x] 3.1 明确 0/负数配置语义、总预算与 cleanup grace、同步 follow 限制。
 - [ ] 3.2 在三线和声明支持的 OS 上验证真实进程资源回收；能力缺口不得标绿。
 - [x] 3.3 回归现有超时/UTF-8/异常测试，记录 HEAD、数量、跳过项和退出码。
 
@@ -36,3 +36,6 @@ OC-PROC-001/002 使用实际子进程验证独立及共享许可、排队超时�
 | 21 | `a9d690675e1e7b5febab12eea2b17cfca77de4de` | 旧执行器的 `OpenCliProcessContractTest` 8 项失败。回移后 `bash ./mvnw -B -ntp -o clean verify` 退出 0，2,087 项通过，0 失败、错误或跳过。[CI](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44307253570) |
 
 各线的 JaCoCo 90% 告警门槛保留。完整后代所有权与回收证明、声明支持的 OS 实机矩阵、持续输出策略和独立评审仍待完成。
+
+
+中英文 README 已对齐当前本地执行器的配置默认值、非法值、排队与执行共用预算、独立清理等待，以及同步 `--follow` 的限制。配置边界由 `OpenCliProcessBoundaryTest` 和 `OpenCliProcessContractTest` 验证。连续输出策略完整验收仍跟踪 OC-PROC-006。
