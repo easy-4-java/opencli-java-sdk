@@ -31,6 +31,12 @@ public final class LifecycleProbe {
             writeStream(stream, Integer.parseInt(args[1]));
             return;
         }
+        if ("inherited-pipes".equals(mode)) {
+            String executable = System.getProperty("os.name").startsWith("Windows") ? "java.exe" : "java";
+            Path java = Paths.get(System.getProperty("java.home"), "bin", executable);
+            new ProcessBuilder(java.toString(), "-cp", System.getProperty("java.class.path"),
+                LifecycleProbe.class.getName(), "heartbeat", args[3], args[2]).inheritIO().start();
+        }
         if ("capture-hold".equals(mode)) {
             writeStream(System.out, Integer.parseInt(args[3]));
             writeStream(System.err, Integer.parseInt(args[4]));

@@ -4,6 +4,7 @@ import io.github.easy4j.opencli.OpenCliProperties;
 import io.github.easy4j.opencli.browser.OpenCliBrowserClient;
 import io.github.easy4j.opencli.browser.OpenCliBrowserSession;
 import io.github.easy4j.opencli.browser.OpenCliBrowserSession.OpenCliBrowserNetworkOptions;
+import io.github.easy4j.opencli.core.OpenCliCancellationToken;
 import io.github.easy4j.opencli.core.OpenCliExecutionDetails;
 import io.github.easy4j.opencli.core.OpenCliExecutionDetails.TerminationReason;
 import io.github.easy4j.opencli.core.OpenCliExecutor;
@@ -385,6 +386,44 @@ class OpenCliProcessContractTest {
             release(gate);
             workers.shutdownNow();
             assertTrue(workers.awaitTermination(5, TimeUnit.SECONDS));
+        }
+    }
+
+    @Test
+    void cancelledParentWithInheritedPipesReturnsWithinCleanupBudget() throws Exception {
+        Path parent = dir.resolve("parent");
+        Path descendant = dir.resolve("descendant");
+        Path release = dir.resolve("release");
+        OpenCliCancellationToken token = new OpenCliCancellationToken();
+        OpenCliProperties properties = properties(1);
+        properties.setCleanupGraceMillis(250L);
+        OpenCliExecutor executor = new OpenCliExecutor(properties);
+        ExecutorService worker = Executors.newSingleThreadExecutor();
+        try {
+            Future<OpenCliException> failure = worker.submit(() -> assertThrows(OpenCliException.class,
+                () -> executor.invoke(Arrays.asList("inherited-pipes", parent.toString(),
+                    release.toString(), descendant.toString()), token)));
+            assertTrue(awaitFile(descendant, 5_000L), "descendant never inherited the pipes");
+            token.cancel();
+            OpenCliExecutionDetails details = failure.get(1_500L, TimeUnit.MILLISECONDS).getPartialResult()
+                .getExecutionDetails();
+            assertEquals(TerminationReason.CANCELLED, details.getTerminationReason());
+            assertFalse(details.isDescendantsExitConfirmed());
+            if (!details.isStreamsDrained()) {
+                assertEquals(OpenCliExecutionDetails.CleanupState.UNCONFIRMED, details.getCleanupState());
+            }
+            byte[] firstHeartbeat = Files.readAllBytes(descendant);
+            long start = System.nanoTime();
+            while (Arrays.equals(firstHeartbeat, Files.readAllBytes(descendant))
+                && System.nanoTime() - start < TimeUnit.SECONDS.toNanos(1)) {
+                Thread.sleep(20L);
+            }
+            assertFalse(Arrays.equals(firstHeartbeat, Files.readAllBytes(descendant)),
+                "the untracked descendant was stopped by cancellation");
+        } finally {
+            release(release);
+            worker.shutdownNow();
+            assertTrue(worker.awaitTermination(5, TimeUnit.SECONDS));
         }
     }
 
