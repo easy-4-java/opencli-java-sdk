@@ -1,24 +1,24 @@
 # C03 Tasks · 上游错误协议解析与证据保真
 
-> 已采集上游 stderr 样本，decoder 实现待评审。文档/格式检查通过不允许提前勾选。
+> 错误信封实现和回归已在三条功能分支核对，待 PR 评审与合并。验收证据见下文。
 
 关联规范：[spec](specs/opencli-error-envelope/spec.md)。
 
 ## 1. 错误 fixture
 
 - [x] 1.1 从锁定上游 renderError/真实只读负例建立 YAML fixture，保存版本与 hash。见 [上游 stderr 采样](evidence/2026-11-18-upstream-stderr.md)。
-- [ ] 1.2 补 JSON、纯文本、AutoFix 注释、exit mismatch、unknown code、malformed 和恶意 YAML 失败测试。
+- [x] 1.2 补 JSON、纯文本、AutoFix 注释、exit mismatch、unknown code、malformed 和恶意 YAML 失败测试。
 
 ## 2. decoder 与结果
 
-- [ ] 2.1 选定三线可用的安全 YAML 实现并验证安全配置，不复制不兼容 Jackson imports。见 [三线候选探针](evidence/2026-11-18-yaml-parser-review.md)。
-- [ ] 2.2 实现有界 shape 校验和 provenance 模型，保留 help/trace/unknown fields。
-- [ ] 2.3 接入本地异常与 partial result，避免 parser 抢占 primary failure。
+- [x] 2.1 选定三线可用的安全 YAML 实现并验证安全配置，不复制不兼容 Jackson imports。见 [三线候选探针](evidence/2026-11-18-yaml-parser-review.md)。
+- [x] 2.2 实现有界 shape 校验和 provenance 模型，保留 help/trace/unknown fields。
+- [x] 2.3 接入本地异常与 partial result，避免 parser 抢占 primary failure。
 
 ## 3. 回归与迁移
 
-- [ ] 3.1 验证诊断日志不会输出 parser exception 中的原始敏感片段，配合 C09。
-- [ ] 3.2 验证写操作不会因解析器或 help 自动重试。
+- [x] 3.1 验证诊断日志不会输出 parser exception 中的原始敏感片段，配合 C09。
+- [x] 3.2 验证写操作不会因解析器或 help 自动重试。
 - [x] 3.3 在三个分支运行共享失败 fixtures，记录真实结果并更新迁移说明。见三线回归。
 
 ## 证据交付模板（实施时填写）
@@ -38,3 +38,14 @@ JSON 复用各版本线 Jackson，严格检查重复键、尾随内容及嵌套�
 在 Java 8 的 `dbe677e`、Java 17 的 `f52262ec` 和 Java 21 的 `25e1c58` 上加入 YAML/JSON 等价用例后，分别执行 `./mvnw -B -ntp clean verify`。三线均退出 0，全量通过 2210、2211、2210 项测试。每条线的 `OpenCliErrorEnvelopeTest` 运行 6 项，零失败、零错误、零跳过。报告位于 `target/surefire-reports`。
 
 等价用例核对同一错误的扩展字段类型和两种格式标记。观察退出码 1、信封报告退出码 77 和不一致标记均独立保留。旧调用方可继续以异常类型及 `getPartialResult().getExitCode()` 处理执行状态。需要诊断详情的调用方可从 partial result 读取 `getErrorEnvelope()`，并按解析状态判断字段是否可用。文本、截断和超时仍可通过 `getStderr()` 取得已捕获的原始内容。
+
+
+## C03 实施核对
+
+- OC-ERR-001 / OC-ERR-002。归档 YAML 和等价 JSON 验证错误码、help、AutoFix 原文、trace 及扩展字段类型，纯文本随退出状态处理。
+- OC-ERR-003。真实子进程和等价解码用例核对实际退出 1、报告退出 77 和 mismatch 各自保留。
+- OC-ERR-004。回归覆盖输入上限、嵌套深度、重复键、多文档、显式标签、锚点、别名及畸形 JSON/YAML。
+- OC-ERR-005。真实进程的非零退出和超时用例验证主异常、部分信封和原始 stderr。新增畸形 YAML 用例同时捕获 SDK 默认诊断和完整异常栈，确认原始 canary 只出现在显式读取的 stderr。
+- OC-ERR-006。真实子进程用 marker 计数，验证解析 AutoFix 建议时只执行一次。
+
+本分支以 `ff9d99934f655883a575d342e852d06bce03db08` 为基线，使用 JDK 17 执行 `./mvnw -B -ntp -o -Dtest=OpenCliErrorEnvelopeTest,OpenCliProcessPrivacyTest,OpenCliStdoutJsonTest test`。退出码为 0。21 项实际执行，其中 8 项为错误信封回归，零失败、零错误、零跳过。报告位于 `target/surefire-reports`。
