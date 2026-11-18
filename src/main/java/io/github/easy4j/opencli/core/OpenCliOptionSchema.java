@@ -57,6 +57,10 @@ public final class OpenCliOptionSchema {
     /** @return declared input kind */
     public Kind getKind() { return kind; }
 
+    String negatedName() {
+        return "--no-" + name.substring(2);
+    }
+
     /** @return whether the command accepts repeated occurrences */
     public boolean isRepeatable() { return repeatable; }
 

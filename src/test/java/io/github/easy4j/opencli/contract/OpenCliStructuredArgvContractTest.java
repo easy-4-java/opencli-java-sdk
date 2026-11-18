@@ -132,6 +132,26 @@ class OpenCliStructuredArgvContractTest {
     }
 
     @Test
+    void aNegatableOptionReservesBothSpellingsAcrossAllOccurrences() {
+        Object cache = schema("negatableFlag", "--cache", false);
+        OpenCliAdapterCommandRequest.OpenCliAdapterCommandRequestBuilder legacy =
+            OpenCliAdapterCommandRequest.builder().subcommand("echo")
+                .options(Collections.<String, Object>singletonMap("no-cache", true));
+        add(legacy, flag("present", cache));
+        assertThrows(IllegalArgumentException.class, () -> legacy.build().toSubcommandAndArgs());
+
+        for (boolean reversed : new boolean[]{false, true}) {
+            OpenCliAdapterCommandRequest.OpenCliAdapterCommandRequestBuilder ordered =
+                OpenCliAdapterCommandRequest.builder().subcommand("echo");
+            Object positive = flag("present", cache);
+            Object alias = flag("present", schema("flag", "--no-cache", false));
+            add(ordered, reversed ? alias : positive);
+            add(ordered, reversed ? positive : alias);
+            assertThrows(IllegalArgumentException.class, () -> ordered.build().toSubcommandAndArgs());
+        }
+    }
+
+    @Test
     void mutableOccurrenceValueIsCapturedWhenCreated() {
         StringBuilder text = new StringBuilder(" before ");
         Object occurrence = value(schema("value", "--text", false), text);

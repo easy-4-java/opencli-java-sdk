@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import io.github.easy4j.opencli.core.OpenCliExecutionDetails.TerminationReason;
 import io.github.easy4j.opencli.contract.LifecycleProbe;
 import java.io.File;
+import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
@@ -12,6 +14,7 @@ import org.apache.commons.exec.CommandLine;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.api.Test;
 
+@org.junit.jupiter.api.parallel.Isolated
 class SubprocessExecutionSupportTest {
 
     @Test
@@ -30,6 +33,42 @@ class SubprocessExecutionSupportTest {
         StringWriter diagnostics = new StringWriter();
         session.getHandler().getException().printStackTrace(new PrintWriter(diagnostics));
         assertFalse(diagnostics.toString().contains(canary));
+    }
+
+    @Test
+    void rejectsQuotedWindowsArgumentsBeforeNativeSpawnInStrictMode() throws Exception {
+        String previousOs = System.getProperty("os.name");
+        String property = "jdk.lang.Process.allowAmbiguousCommands";
+        String previousMode = System.getProperty(property);
+        AtomicInteger launches = new AtomicInteger();
+        SubprocessExecutionSupport.Runtime runtime = new SubprocessExecutionSupport.Runtime(1, builder -> {
+            launches.incrementAndGet();
+            throw new IOException("fixture must not launch");
+        }, timeout -> new org.apache.commons.exec.ExecuteWatchdog(timeout));
+        CommandLine command = new CommandLine("fixture.exe") {
+            @Override
+            public String[] toStrings() {
+                return new String[]{"fixture.exe", "\"private-quoted-value\""};
+            }
+        };
+        SubprocessExecutionSupport.ExecutionRequest request =
+            new SubprocessExecutionSupport.ExecutionRequest(command, null, null, 1_000L);
+        try {
+            System.setProperty("os.name", "Windows");
+            System.setProperty(property, "false");
+            UnsupportedOperationException failure = assertThrows(
+                UnsupportedOperationException.class, () -> runtime.execute(request));
+            assertTrue(failure.getMessage().contains("argv[1]"));
+            assertFalse(failure.getMessage().contains("private-quoted-value"));
+            assertEquals(0, launches.get());
+        } finally {
+            System.setProperty("os.name", previousOs);
+            if (previousMode == null) {
+                System.clearProperty(property);
+            } else {
+                System.setProperty(property, previousMode);
+            }
+        }
     }
 
     @Test
