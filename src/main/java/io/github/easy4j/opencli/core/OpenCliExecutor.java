@@ -106,7 +106,7 @@ public class OpenCliExecutor implements AutoCloseable {
             }
             OpenCliCollectRequest req = OpenCliArgvToCollectParser.parse(tokens,
                 properties.getRemoteOutputFormat(), properties.getRemoteCollectMode(), properties.getRemoteCdpEndpoint());
-            return remoteAgent().collect(req);
+            return remoteAgent().collect(req, submittedAtNanos);
         }
         CommandLine commandLine = buildCommandLine(tokens);
         return run(commandLine, timeoutMillis, submittedAtNanos, cancellationToken);

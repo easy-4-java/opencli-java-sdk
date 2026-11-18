@@ -15,7 +15,7 @@ import lombok.Data;
  * </p>
  * <p>
  * {@link #commandTimeoutMillis} 在本地模式下用于子进程 Watchdog；在
- * {@link OpenCliExecutionTarget#REMOTE_AGENT_HTTP} 模式下用作 HTTP 客户端超时上限。
+ * {@link OpenCliExecutionTarget#REMOTE_AGENT_HTTP} 模式下为连接池等待、建连和读取响应共享的总预算。
  * </p>
  */
 @Data/**
@@ -86,7 +86,7 @@ public class OpenCliProperties {
     private String workingDirectory;
 
     /**
-     * 单次调用超时（毫秒）：本地模式用于子进程 Watchdog；远程模式用于 Agent HTTP 请求。
+     * 单次调用超时（毫秒）：本地模式用于子进程 Watchdog；远程模式下覆盖 Agent HTTP 传输全过程。
      */
     private long commandTimeoutMillis = 300_000L;
 

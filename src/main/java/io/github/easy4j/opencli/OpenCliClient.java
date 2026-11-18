@@ -120,7 +120,7 @@ import lombok.Getter;
     /** @return DeepSeek 浏览器适配器客户端 */
     /**
      * 释放底层资源：本地模式为空操作；REMOTE_AGENT_HTTP 模式下关闭
-     * 远程传输（实例级 shutdown，不影响 JVM 其它 Unirest 使用方）。
+     * 远程 HTTP 连接池（仅释放该实例持有的资源）。
      * close 之后远程调用抛 IllegalStateException，本地调用不受影响。
      */
     @Override
