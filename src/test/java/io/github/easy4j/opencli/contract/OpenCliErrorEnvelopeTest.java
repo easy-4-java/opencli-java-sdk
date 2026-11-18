@@ -54,6 +54,30 @@ class OpenCliErrorEnvelopeTest {
     }
 
     @Test
+    void equivalentYamlAndJsonPreserveWireTypesAndExitProvenance() {
+        String yaml = "ok: false\nerror:\n  code: PLUGIN_FUTURE\n  message: failed\n"
+            + "  exitCode: 77\n  help: retry\n  values: [false, off, null, 1.25, 2147483648, 2026-11-19]\n"
+            + "trace: {summaryPath: missing-fixture.json}\n# AutoFix remains in stderr\n";
+        String json = "{\"ok\":false,\"error\":{\"code\":\"PLUGIN_FUTURE\",\"message\":\"failed\","
+            + "\"exitCode\":77,\"help\":\"retry\",\"values\":[false,\"off\",null,1.25,2147483648,\"2026-11-19\"]},"
+            + "\"trace\":{\"summaryPath\":\"missing-fixture.json\"}}";
+
+        OpenCliErrorEnvelope yamlEnvelope = OpenCliErrorDecoder.decode(yaml, 1, false);
+        OpenCliErrorEnvelope jsonEnvelope = OpenCliErrorDecoder.decode(json, 1, false);
+        assertEquals(OpenCliErrorEnvelope.Status.DECODED, yamlEnvelope.getStatus());
+        assertEquals(OpenCliErrorEnvelope.Status.DECODED, jsonEnvelope.getStatus());
+        assertEquals(OpenCliErrorEnvelope.Format.YAML, yamlEnvelope.getFormat());
+        assertEquals(OpenCliErrorEnvelope.Format.JSON, jsonEnvelope.getFormat());
+        assertEquals(jsonEnvelope.getEnvelopeFields(), yamlEnvelope.getEnvelopeFields());
+        assertEquals(Integer.valueOf(1), jsonEnvelope.getObservedProcessExit());
+        assertEquals(jsonEnvelope.getObservedProcessExit(), yamlEnvelope.getObservedProcessExit());
+        assertEquals(Integer.valueOf(77), jsonEnvelope.getReportedExit());
+        assertEquals(jsonEnvelope.getReportedExit(), yamlEnvelope.getReportedExit());
+        assertTrue(yamlEnvelope.isExitMismatch());
+        assertTrue(jsonEnvelope.isExitMismatch());
+    }
+
+    @Test
     void rejectsUnsafeDocumentsAndDistinguishesOrdinaryDiagnostics() {
         String root = "ok: false\nerror: {code: TEST, message: failed, exitCode: 1}\n";
         for (String input : Arrays.asList(root + "value: !fixture x\n", root + "value: &fixture x\n",
