@@ -1,0 +1,72 @@
+name: Platform subprocess contracts
+
+on:
+  push:
+    branches: [feature/REQ-20261118-wandl-opencli-privacy-10]
+
+permissions:
+  contents: read
+
+jobs:
+  process-platform:
+    name: Subprocess contracts (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15-intel, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '8'
+          cache: maven
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        if: runner.os == 'Windows'
+        with:
+          node-version: '22'
+      - name: Exercise real subprocess contracts
+        run: |
+          mkdir -p platform-evidence
+          if [[ "$RUNNER_OS" == Windows ]]; then
+            OPENCLI_CONTRACT_NODE_EXECUTABLE="$(node -p 'process.execPath')"
+            export OPENCLI_CONTRACT_NODE_EXECUTABLE
+          fi
+          java -version > platform-evidence/java.txt 2>&1
+          mvn -version > platform-evidence/maven.txt 2>&1
+          result=0
+          mvn -B --no-transfer-progress \
+            -Dtest=OpenCliArgvContractTest,OpenCliStructuredArgvContractTest,OpenCliProcessContractTest,OpenCliProcessBoundaryTest,SubprocessStreamFailureTest \
+            test > platform-evidence/maven.log 2>&1 || result=$?
+          tail -100 platform-evidence/maven.log
+          python scripts/contract_report.py \
+            --reports target/surefire-reports \
+            --head "$(git rev-parse HEAD)" \
+            --branch "$GITHUB_REF_NAME" \
+            --java-version-file platform-evidence/java.txt \
+            --maven-version-file platform-evidence/maven.txt \
+            --exit-code "$result" \
+            --suite argv=io.github.easy4j.opencli.contract.OpenCliArgvContractTest \
+            --suite argv=io.github.easy4j.opencli.contract.OpenCliStructuredArgvContractTest \
+            --suite process=io.github.easy4j.opencli.contract.OpenCliProcessContractTest \
+            --suite process=io.github.easy4j.opencli.contract.OpenCliProcessBoundaryTest,SubprocessStreamFailureTest \
+            --suite cleanup=io.github.easy4j.opencli.core.support.SubprocessStreamFailureTest \
+            --output platform-evidence/report.json
+          exit "$result"
+      - name: Upload platform subprocess evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: subprocess-${{ matrix.os }}-${{ github.sha }}
+          path: |
+            platform-evidence
+            target/surefire-reports
+          if-no-files-found: error

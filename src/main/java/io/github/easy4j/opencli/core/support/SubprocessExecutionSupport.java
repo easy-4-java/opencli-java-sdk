@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Semaphore;
@@ -160,7 +161,7 @@ public final class SubprocessExecutionSupport {
                     }
                 }
                 if (acquired && reason == null) {
-                    ProcessBuilder builder = new ProcessBuilder(request.nativeArgv);
+                    ProcessBuilder builder = new ProcessBuilder(processArguments(request.nativeArgv));
                     if (request.workingDirectory != null) { builder.directory(request.workingDirectory); }
                     if (request.environment != null) {
                         builder.environment().clear();
@@ -310,6 +311,48 @@ public final class SubprocessExecutionSupport {
         }
     }
     private static long remaining(long start, long budget) { return budget - (System.nanoTime() - start); }
+    // The Windows JDK legacy serializer treats a surrounding quote pair as already encoded.
+    @SuppressWarnings("removal")
+    private static List<String> processArguments(List<String> argv) {
+        String executable = argv.get(0).toLowerCase(Locale.ROOT);
+        if (!System.getProperty("os.name").startsWith("Windows") || !executable.endsWith(".exe")
+            || executable.endsWith("cmd.exe") || Objects.nonNull(System.getSecurityManager())
+            || "false".equalsIgnoreCase(System.getProperty("jdk.lang.Process.allowAmbiguousCommands"))) {
+            return argv;
+        }
+        List<String> arguments = new ArrayList<>(argv);
+        for (int i = 1; i < arguments.size(); i++) {
+            String argument = arguments.get(i);
+            if (argument.indexOf('"') >= 0) {
+                arguments.set(i, quoteWindowsExecutableArgument(argument));
+            }
+        }
+        return arguments;
+    }
+
+    /** Windows CRT quoting for arguments with literal quotes in a native executable. */
+    private static String quoteWindowsExecutableArgument(String argument) {
+        StringBuilder quoted = new StringBuilder(argument.length() + 2).append('"');
+        int backslashes = 0;
+        for (int i = 0; i < argument.length(); i++) {
+            char character = argument.charAt(i);
+            if (character == '\\') {
+                backslashes++;
+                continue;
+            }
+            int escaped = character == '"' ? backslashes * 2 + 1 : backslashes;
+            for (int j = 0; j < escaped; j++) {
+                quoted.append('\\');
+            }
+            quoted.append(character);
+            backslashes = 0;
+        }
+        for (int i = 0; i < backslashes * 2; i++) {
+            quoted.append('\\');
+        }
+        return quoted.append('"').toString();
+    }
+
     private static long elapsedMillis(long start) { return TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start); }
 
     private static long nanos(long millis, String field) {
