@@ -9,6 +9,9 @@ import io.github.easy4j.opencli.exception.OpenCliNonZeroExitException;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Scanner;
@@ -17,6 +20,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,20 +39,25 @@ class OpenCliInvocationContextTest {
     }
 
     @Test
-    void failedInvocationKeepsItsContextWithoutChangingConcurrentOrDefaultCalls() throws Exception {
+    void failedInvocationKeepsItsContextWithoutChangingConcurrentOrDefaultCalls(@TempDir Path coordination) throws Exception {
         OpenCliProperties properties = properties();
         properties.setInvocationDefaults(OpenCliInvocationContext.builder().profile("profile-default")
             .window(WindowMode.FOREGROUND).build());
+        properties.getEnvironment().put("OPENCLI_CONTEXT_TEST_COORDINATION", coordination.toString());
         ExecutorService pool = Executors.newFixedThreadPool(2);
         try (OpenCliClient client = new OpenCliClient(properties)) {
             Future<OpenCliNonZeroExitException> failure = pool.submit(() -> assertThrows(
                 OpenCliNonZeroExitException.class, () -> state(client, "profile-failure", WindowMode.BACKGROUND)));
             Future<String> success = pool.submit(() -> state(client, "profile-success", WindowMode.FOREGROUND));
 
-            assertEquals("--profile|profile-success|browser|session-a|--window|foreground|state",
-                success.get(12, TimeUnit.SECONDS));
+            OpenCliNonZeroExitException failed = failure.get(20, TimeUnit.SECONDS);
+            assertEquals(Integer.valueOf(7), failed.getPartialResult().getExitCode());
             assertEquals("--profile|profile-failure|browser|session-a|--window|background|state",
-                failure.get(12, TimeUnit.SECONDS).getPartialResult().getStdout());
+                failed.getPartialResult().getStdout());
+            assertFalse(success.isDone());
+            Files.createFile(coordination.resolve("release-peer"));
+            assertEquals("--profile|profile-success|browser|session-a|--window|foreground|state",
+                success.get(20, TimeUnit.SECONDS));
             assertEquals("--profile|profile-default|browser|session-a|--window|foreground|state",
                 client.invokeDiscovered(OpenCliHelpScope.BROWSER_STATE, "opencli browser <session> state",
                     "session-a", null, null).getStdout());
@@ -124,8 +133,25 @@ class OpenCliInvocationContextTest {
                     }
                     System.out.print(String.join("|", args));
                     if (argv.startsWith("--profile profile-failure ")) {
+                        Path coordination = Paths.get(System.getenv("OPENCLI_CONTEXT_TEST_COORDINATION"));
+                        awaitFile(coordination.resolve("peer-ready"));
                         System.exit(7);
                     }
+                    if (argv.startsWith("--profile profile-success ")) {
+                        Path coordination = Paths.get(System.getenv("OPENCLI_CONTEXT_TEST_COORDINATION"));
+                        Files.createFile(coordination.resolve("peer-ready"));
+                        awaitFile(coordination.resolve("release-peer"));
+                    }
+            }
+        }
+
+        private static void awaitFile(Path file) throws Exception {
+            long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10);
+            while (!Files.exists(file)) {
+                if (System.nanoTime() >= deadline) {
+                    throw new IllegalStateException("Timed out waiting for peer fixture signal");
+                }
+                Thread.sleep(20);
             }
         }
 
