@@ -194,6 +194,7 @@ Notes:
 - A legacy HTTP `/collect` reply must contain a JSON boolean `success`. Invalid envelopes raise `OpenCliRemoteProtocolException`, which extends `OpenCliExecutableFailureException`. A valid reply with `success: true` and omitted or null `items` still returns `[]`.
 - Legacy HTTP argv dispatch accepts SDK-listed adapters and one subcommand. Root metadata, Browser sessions, external passthrough, repeated options, `--`, and tokens whose spacing or leading dash cannot be preserved are rejected before HTTP. Place positionals before options. Use local execution for commands that need the original argv. A deployment with its own adapter contract can use the explicit `OpenCliCollectRequest` API.
 - A collect timeout raises `OpenCliRemoteTimeoutException`. After dispatch to the HTTP transport, `isRemoteOutcomeUnknown()` is true. Collect does not automatically retry or follow redirects.
+- Inspect `getRemoteExecutionDetails()` on the result or on an exception’s `getPartialResult()` to distinguish HTTP status, Agent business status and the source of `items`. The legacy 0/1 returned by `getExitCode()` is synthetic. HTTP and protocol failure snapshots have no exit code. Accepted response text is available in those snapshots only when raw capture is enabled.
 - `execution-target=REMOTE_AGENT_HTTP` makes the availability probe report `SKIPPED_REMOTE_MODE` (treated as startable).
 
 <a id="8-core-usage"></a>

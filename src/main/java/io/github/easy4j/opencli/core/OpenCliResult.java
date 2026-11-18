@@ -49,4 +49,6 @@ public class OpenCliResult {
 
     /** Bounded local execution evidence, when available. */
     private final OpenCliExecutionDetails executionDetails;
+    /** Evidence from a legacy HTTP collect response, if available. */
+    private final OpenCliRemoteExecutionDetails remoteExecutionDetails;
 }

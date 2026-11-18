@@ -193,6 +193,7 @@ cli.gemini().deepResearch("topic",
 - 旧版 HTTP `/collect` 响应须包含 JSON 布尔字段 `success`。无效响应抛出 `OpenCliRemoteProtocolException`，它继承 `OpenCliExecutableFailureException`。当 `success: true` 且 `items` 缺失或为 null 时，仍返回 `[]`。
 - 旧版 HTTP argv 调用仅接收 SDK 清单中的适配器及其子命令。根命令、Browser 会话、外部程序透传、重复选项、`--` 以及无法保留边界空格或前导短横的参数会在发请求前被拒绝。位置参数应在选项前。需要原样传递 argv 时使用本地执行，已有自定义 Agent 契约时可用显式 `OpenCliCollectRequest` API。
 - 远程调用超时抛出 `OpenCliRemoteTimeoutException`。请求提交给 HTTP 传输后，`isRemoteOutcomeUnknown()` 为 true。客户端不会自动重试或跟随重定向。
+- 通过结果或异常的 `getPartialResult()` 调用 `getRemoteExecutionDetails()`，查看 HTTP 状态、Agent 业务状态和 `items` 的来源。`getExitCode()` 的 0/1 是兼容映射。HTTP 或协议失败快照没有退出码。仅在开启原文捕获时，失败快照才携带已通过字节上限检查的响应正文。
 - `execution-target=REMOTE_AGENT_HTTP` 时可用性探测报告 `SKIPPED_REMOTE_MODE`（视为可启动）。
 
 <a id="8-core-usage"></a>
