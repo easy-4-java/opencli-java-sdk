@@ -47,10 +47,17 @@ JDK 17 两项定向红灯实际退出 1。选项对象的 `toString()` 抛出带
 | JSON 解析 DEBUG、默认不写入的有界导出 | `OpenCliStdoutJsonTest`、`OpenCliDiagnosticExportTest` |
 | 启动日志的可用性摘要，配置和探测原始值的显式读取 | `OpenCliAvailabilityReportTest` |
 
-JDK 17 使用系统 Maven 执行 `-B -ntp -o clean verify`，2,134 项通过，0 失败、0 错误、0 跳过。中英文 README 记录应用显式访问原始低层诊断的责任。C03 的 YAML 解码器仍待实施，对其解析日志的验证保留在后续矩阵中。
+JDK 17 使用系统 Maven 执行 `-B -ntp -o clean verify`，2,134 项通过，0 失败、0 错误、0 跳过。中英文 README 记录应用显式访问原始低层诊断的责任。畸形 YAML 的验证见 C03 的隐私回归及下文。
 
 ## 启动诊断摘要验证
 
 JDK 17 基线 `0cbb3ee750062675813f1d3389c5f7f14b50345c` 的定向用例在 3 项中失败 1 项。面向日志的 `toDiagnosticMessage()` 输出了配置值、解析后的可执行文件路径和原始探测消息。修改后，该方法只输出就绪状态和状态码。用例继续断言 `getConfiguredExecutable()`、`getResolvedExecutablePath()` 和 `getMessage()` 保留原始值。
 
 三条线使用其 Maven Wrapper 运行 `./mvnw -B -ntp clean verify`，报告位于各自的 `target/surefire-reports`。Java 8 提交 `49250f97cb6618502b40e5989b8521fc733d7fab`、Java 17 本提交和 Java 21 提交 `7001ed85439408f9d2724e7edee92d3cfc7853e9` 分别通过 2178、2179、2178 项，均为零失败、零错误、零跳过。
+
+
+## 本地失败诊断关联
+
+OC-PRIV-001/004。OpenCliProcessPrivacyTest 的新用例在 Java 17 基线复现缺少 correlationId，退出 1。现在本地进程失败时由 SDK 生成随机 UUID，在 DEBUG 日志及返回的异常消息中使用同一值。日志只记录终止原因、退出码和捕获字节数。测试扫描捕获的日志和完整异常栈，同时通过 partialResult 校验 stderr 原值。C03 的 OpenCliErrorEnvelopeTest 覆盖含敏感标记的畸形 YAML，并确认解析器原文不进入默认诊断。
+
+Java 8、17、21 分别用各自 Wrapper 运行 OpenCliProcessPrivacyTest、OpenCliErrorEnvelopeTest 和 OpenCliProcessContractTest，每条线执行 31 项，零失败、零错误、零跳过。报告位于 target/surefire-reports。Java 21 的先前运行曾出现继承管道用例的 JUnit 临时目录清理竞态，本次重跑通过。该竞态需要独立处理。

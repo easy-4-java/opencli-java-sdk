@@ -131,6 +131,7 @@ jobs:
             --suite process=io.github.easy4j.opencli.core.support.SubprocessCleanupFaultTest \
             --suite process=io.github.easy4j.opencli.core.support.SubprocessCompletionRaceTest \
             --suite process=io.github.easy4j.opencli.core.support.SubprocessStreamFailureTest \
+            --suite process=io.github.easy4j.opencli.core.OpenCliProcessPrivacyTest \
             --suite protocol=io.github.easy4j.opencli.center.ws.OpenCliWsReverseAgentSessionTest \
             --suite protocol=io.github.easy4j.opencli.center.ws.OpenCliWsCollectRequestsTest \
             --suite protocol=io.github.easy4j.opencli.remote.OpenCliRemoteAgentHttpClientTest \
