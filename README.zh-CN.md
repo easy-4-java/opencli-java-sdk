@@ -29,7 +29,7 @@
 
 ### 1.1 是什么
 
-**opencli-java-sdk** 将 Java 应用与 [OpenCLI](https://github.com/partme-ai/opencli) 多适配器 CLI 生态对接。它通过 Commons Exec 执行 `opencli <adapter> ...` 子进程，提供类型化结果（`OpenCliResult` / `OpenCliTypedResult`）与统一异常语义，并支持远程 HTTP Agent（Unirest）与中心 WebSocket 反向 Agent 客户端（Java-WebSocket）。可在 JDK 8 线编译运行。
+**opencli-java-sdk** 将 Java 应用与 [OpenCLI](https://github.com/partme-ai/opencli) 多适配器 CLI 生态对接。它通过 Commons Exec 执行 `opencli <adapter> ...` 子进程，提供类型化结果（`OpenCliResult` / `OpenCliTypedResult`）与统一异常语义，并支持远程 HTTP Agent（Apache HttpClient）与中心 WebSocket 反向 Agent 客户端（Java-WebSocket）。可在 JDK 8 线编译运行。
 
 ### 1.2 不是什么
 
@@ -72,7 +72,7 @@
 | JDK | 17+ | 2.0.x 线基线 |
 | Maven | 3.9.16 | 仓库 Maven Wrapper 版本 |
 | commons-exec | 1.6.0 | 本地子进程执行 |
-| Unirest Java | 3.14.5 | 远程 Agent HTTP |
+| Apache HttpClient | 由 Unirest Java 3.14.5 提供 | 远程 Agent HTTP |
 | Java-WebSocket | 1.6.0 | 中心 WebSocket |
 | `com.fasterxml.jackson.core:jackson-databind` | 2.22.1 | JSON 解析 |
 | SLF4J | 2.0.18 | 日志门面 |
@@ -101,7 +101,7 @@
 |            强类型封装（codex、npm...）     |
 |  meta      list / validate / plugin / ... |
 |  browser   会话 API（wait、extract...）    |
-|  remote    POST {base}/collect（Unirest） |
+|  remote    POST {base}/collect（Apache HttpClient） |
 |  center    WebSocket 反向 Agent           |
 +------------------------------------------+
         |
@@ -176,7 +176,7 @@ cli.gemini().deepResearch("topic",
 | `executionTarget` | `LOCAL_PROCESS` | `LOCAL_PROCESS` 或 `REMOTE_AGENT_HTTP` |
 | `executable` | `opencli` | 可执行文件名或绝对路径 |
 | `workingDirectory` | — | 子进程工作目录 |
-| `commandTimeoutMillis` | `300000` | 正数，单位毫秒。本地排队与执行共享同一个单调时钟预算，远程模式使用 HTTP 超时。 |
+| `commandTimeoutMillis` | `300000` | 正数，单位毫秒。本地排队与执行共享同一个单调时钟预算，远程连接池等待、建连和读取响应共享调用预算。 |
 | `maxConcurrentExecutions` | `0` | 每个客户端的子进程并发数，构造时固定。零使用 `max(2, availableProcessors)`，负数无效。 |
 | `maxStdoutBytes` | `8388608` | 本地标准输出采集上限，单位字节，必须为正数。 |
 | `maxStderrBytes` | `2097152` | 本地标准错误采集上限，单位字节，必须为正数。 |
@@ -198,6 +198,7 @@ cli.gemini().deepResearch("topic",
 - 远程模式下 `stdout` 为 Agent 返回的 `items` 的 JSON（已按 `format` 解析为行列表），与本地原始子进程文本可能不同；`leadingArguments` 等仅影响本地进程拼装，**远程路径不注入**。
 - 旧版 HTTP `/collect` 响应须包含 JSON 布尔字段 `success`。无效响应抛出 `OpenCliRemoteProtocolException`，它继承 `OpenCliExecutableFailureException`。当 `success: true` 且 `items` 缺失或为 null 时，仍返回 `[]`。
 - 旧版 HTTP argv 调用仅接收 SDK 清单中的适配器及其子命令。根命令、Browser 会话、外部程序透传、重复选项、`--` 以及无法保留边界空格或前导短横的参数会在发请求前被拒绝。位置参数应在选项前。需要原样传递 argv 时使用本地执行，已有自定义 Agent 契约时可用显式 `OpenCliCollectRequest` API。
+- 远程调用超时抛出 `OpenCliRemoteTimeoutException`。请求提交给 HTTP 传输后，`isRemoteOutcomeUnknown()` 为 true。客户端不会自动重试或跟随重定向。
 - `execution-target=REMOTE_AGENT_HTTP` 时可用性探测报告 `SKIPPED_REMOTE_MODE`（视为可启动）。
 
 ### Windows npm 启动入口

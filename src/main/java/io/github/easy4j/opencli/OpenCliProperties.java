@@ -9,7 +9,7 @@ import lombok.Data;
 /**
  * OpenCLI runtime configuration without Spring dependencies.
  * Local execution uses a monotonic submission-to-exit deadline; cleanup has a
- * separate finite grace. Remote HTTP retains its own transport timeout semantics.
+ * separate finite grace. Remote HTTP uses one invocation budget for transport I/O.
  *
  * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
@@ -28,7 +28,7 @@ public class OpenCliProperties {
     private int maxRemoteResponseBytes = 10 * 1024 * 1024;
     private String executable = "opencli";
     private String workingDirectory;
-    /** Total local queue plus execution budget; remote mode uses an HTTP timeout. */
+    /** Total local queue and execution budget, or the remote HTTP transport budget. */
     private long commandTimeoutMillis = 300_000L;
     /** Legacy per-stream ceiling; nonpositive values keep the finite stdout/stderr budgets. */
     private long maxOutputBytes = 10L * 1024 * 1024;

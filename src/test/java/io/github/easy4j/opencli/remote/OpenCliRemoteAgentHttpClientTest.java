@@ -11,6 +11,7 @@ import io.github.easy4j.opencli.exception.OpenCliExecutableFailureException;
 import io.github.easy4j.opencli.exception.OpenCliNonZeroExitException;
 import io.github.easy4j.opencli.exception.OpenCliRemoteProtocolException;
 import io.github.easy4j.opencli.exception.OpenCliRemoteResponseLimitException;
+import io.github.easy4j.opencli.exception.OpenCliRemoteTimeoutException;
 import io.github.easy4j.opencli.meta.OpenCliExternalClient;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -97,6 +98,86 @@ class OpenCliRemoteAgentHttpClientTest {
                             OpenCliCollectRequest.builder().site("x").command("y").build()));
             Assertions.assertNotNull(ex.getPartialResult());
             Assertions.assertEquals(json, ex.getPartialResult().getRemoteRawHttpBody());
+        }
+    }
+
+    @Test
+    void totalDeadlineStopsAnActiveChunkedResponseAndDoesNotRetry() throws IOException {
+        AtomicInteger writes = new AtomicInteger();
+        AtomicInteger requests = new AtomicInteger();
+        try (JsonCollectStub stub = JsonCollectStub.start(exchange -> {
+            if (requests.incrementAndGet() > 1) {
+                byte[] reply = "{\"success\":true}".getBytes(StandardCharsets.UTF_8);
+                exchange.sendResponseHeaders(200, reply.length);
+                try (OutputStream output = exchange.getResponseBody()) {
+                    output.write(reply);
+                }
+                return;
+            }
+            exchange.sendResponseHeaders(200, 0);
+            try (OutputStream output = exchange.getResponseBody()) {
+                for (int index = 0; index < 50; index++) {
+                    output.write(' ');
+                    output.flush();
+                    writes.incrementAndGet();
+                    try {
+                        Thread.sleep(125);
+                    } catch (InterruptedException interrupted) {
+                        Thread.currentThread().interrupt();
+                        return;
+                    }
+                }
+            }
+        })) {
+            OpenCliProperties props = baseProps(stub.port());
+            props.setCommandTimeoutMillis(900);
+            try (OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(props)) {
+                OpenCliCollectRequest request = OpenCliCollectRequest.builder().site("npm").command("search").build();
+                OpenCliRemoteTimeoutException timeout = Assertions.assertTimeoutPreemptively(
+                    Duration.ofSeconds(3), () -> Assertions.assertThrows(
+                        OpenCliRemoteTimeoutException.class, () -> client.collect(request)));
+                Assertions.assertEquals(900, timeout.getTimeoutMillis());
+                Assertions.assertTrue(timeout.isRemoteOutcomeUnknown());
+                Assertions.assertNull(timeout.getCause());
+                Assertions.assertTrue(writes.get() > 1);
+                Assertions.assertNull(timeout.getPartialResult());
+                Assertions.assertEquals(1, stub.requests());
+                props.setCommandTimeoutMillis(4_000);
+                Assertions.assertTrue(client.collect(request).isSuccess());
+                Assertions.assertEquals(2, stub.requests());
+            }
+        }
+    }
+
+    @Test
+    void refusesAnExpiredInvocationBudgetBeforeDispatch() throws IOException {
+        try (JsonCollectStub stub = JsonCollectStub.start("{\"success\":true}")) {
+            OpenCliProperties props = baseProps(stub.port());
+            props.setCommandTimeoutMillis(100);
+            try (OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(props)) {
+                OpenCliCollectRequest request = OpenCliCollectRequest.builder().site("npm").command("search").build();
+                long submittedAt = System.nanoTime() - TimeUnit.SECONDS.toNanos(1);
+                OpenCliRemoteTimeoutException timeout = Assertions.assertThrows(
+                    OpenCliRemoteTimeoutException.class, () -> client.collect(request, submittedAt));
+                Assertions.assertFalse(timeout.isRemoteOutcomeUnknown());
+                Assertions.assertEquals(0, stub.requests());
+            }
+        }
+    }
+
+    @Test
+    void doesNotReplayCollectAtARedirectLocation() throws IOException {
+        try (JsonCollectStub stub = JsonCollectStub.start(exchange -> {
+            exchange.getResponseHeaders().set("Location", "/collect?retry=true");
+            exchange.sendResponseHeaders(307, -1);
+            exchange.close();
+        });
+             OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(baseProps(stub.port()))) {
+            OpenCliCollectRequest request = OpenCliCollectRequest.builder().site("npm").command("search").build();
+            OpenCliExecutableFailureException failure = Assertions.assertThrows(
+                OpenCliExecutableFailureException.class, () -> client.collect(request));
+            Assertions.assertTrue(failure.getMessage().contains("307"));
+            Assertions.assertEquals(1, stub.requests());
         }
     }
 
