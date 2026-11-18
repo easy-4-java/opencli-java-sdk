@@ -121,3 +121,7 @@ Java 17 的独立定向评审以 `c6d544638e44dba3c53ec3e5a6f65f2f20a16340` 的 
 独立评审确认 GitHub 的 JVM 报告漏列 `OpenCliCapabilityDiscoveryTest` 和 `OpenCliCapabilityCommandTest`。用原工作流的四组报告参数逐一重放，任一个能力套件的 XML 缺失、零用例或全跳过时，24 个反例仍返回成功。
 
 三线平台作业现在显式运行两个套件，在枚举层登记 DiscoveryTest，在 argv 层登记 CommandTest。Java 17 的完整 JVM 报告也登记这两个套件。使用现有 Surefire 结果重放更新后的四组参数，完整报告均退出 0，24 个反例均退出 1，准确标识缺失或未执行的套件。各线的报告脚本回归均通过 17 项。
+
+### 最终候选的逐项追溯
+
+[需求、测试方法、实现提交与三线候选工件](evidence/final-requirement-trace.md) 按 59 个 Requirement 标识逐项记录。勾选最终门禁时，以最新候选的实际托管结果和独立整合评审为准。
