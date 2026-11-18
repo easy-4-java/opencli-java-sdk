@@ -24,9 +24,12 @@ import io.github.easy4j.opencli.capability.OpenCliHelpScope;
 import io.github.easy4j.opencli.core.OpenCliAdapterChannel;
 import io.github.easy4j.opencli.meta.OpenCliMetaClient;
 import io.github.easy4j.opencli.core.OpenCliExecutor;
+import io.github.easy4j.opencli.core.OpenCliResult;
 import io.github.easy4j.opencli.facade.BrowserClient;
 import io.github.easy4j.opencli.facade.DesktopClient;
 import io.github.easy4j.opencli.facade.PublicApiClient;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import lombok.Getter;
 
@@ -103,6 +106,20 @@ import lombok.Getter;
      */
     public OpenCliCapabilitySnapshot discoverCapabilities(OpenCliHelpScope scope) {
         return capabilityDiscovery.refresh(scope);
+    }
+
+    /**
+     * Refreshes structured help and invokes an explicitly selected, validated local command.
+     * @param scope verified help query containing the leaf
+     * @param command exact leaf display path from help
+     * @param session browser session identifier, or null when the command has no session
+     * @param positionals user-supplied positionals in schema order, or null
+     * @param options option spellings and values, with null for bare flags
+     * @return local execution result
+     */
+    public OpenCliResult invokeDiscovered(OpenCliHelpScope scope, String command, String session,
+        List<String> positionals, Map<String, String> options) {
+        return capabilityDiscovery.invoke(scope, command, session, positionals, options);
     }
 
     // ----- 参考强类型门面（Desktop） -----
