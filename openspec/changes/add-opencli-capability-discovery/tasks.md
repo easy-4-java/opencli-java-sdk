@@ -63,3 +63,9 @@ OC-CAP-005 根目录形态与本地回退：JDK 17 基线 `b22796f3` 上，空�
 真实 JVM 子进程在版本号后输出 NUL 和换行。JDK 17 基线 `532cf673` 的定向回归检测到后续帮助进程被启动，退出码为 1。修复后仅允许空格、制表符、回车和换行包围版本号。遇到 NUL 时返回 `UNKNOWN/INVALID_VERSION_OUTPUT`，观测版本为空，且不启动帮助进程。
 
 在固定范围帮助探测基线 `8d1ccb6`、`a6b59b54`、`e83bc00` 上应用修复后，分别用 Java 8、17、21 执行 `./mvnw -B -ntp clean verify`。三个构建均退出 0，各运行 12 项发现测试。全量测试数分别为 2200、2201、2200，零失败、零错误、零跳过。报告见 `target/surefire-reports`。
+
+## OC-CAP-002/003 类型化本地调用
+
+`OpenCliClient.invokeDiscovered` 对本地配置取快照，刷新指定范围，选择显式给定的叶子路径，校验后通过同一执行器运行时提交字面参数。需要提供浏览器会话时，必须填入合法会话标识。校验覆盖必选项和值、声明 choices、可选值 flag、显式 false、否定拼写和可变位置参数；用字面分隔符隔离可能像选项的位置参数。不可用或过期的帮助无法进入类型化执行。原有本地 raw 入口独立可用。
+
+`OpenCliCapabilityCommandTest` 和 `OpenCliCapabilityDiscoveryTest` 以失败→通过验证新 API、字段级错误和真实 JVM 子进程收到的 argv。当前仅对已验证的 OpenCLI 1.8.8 执行发现绑定；测试不依赖浏览器账户。
