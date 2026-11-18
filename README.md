@@ -195,6 +195,7 @@ Notes:
 
 - Local `browser console --follow` and `browser network --follow` use synchronous capture with a finite execution timeout and stdout/stderr byte limits. A successful CLI exit returns the collected output. Timeout, cancellation, excess output, and nonzero exit expose the termination reason and available partial output through the execution exception. A disabled command timeout is rejected before launch. Live streaming is unsupported.
 - In remote mode the `stdout` is the JSON `items` the agent returned (parsed into line items per `format`), which may differ from local raw subprocess text; `leadingArguments` are local-only and are not injected on the remote path.
+- A legacy HTTP `/collect` reply must contain a JSON boolean `success`. Invalid envelopes raise `OpenCliRemoteProtocolException`, which extends `OpenCliExecutableFailureException`. A valid reply with `success: true` and omitted or null `items` still returns `[]`.
 - `execution-target=REMOTE_AGENT_HTTP` makes the availability probe report `SKIPPED_REMOTE_MODE` (treated as startable).
 
 ### Windows npm launcher

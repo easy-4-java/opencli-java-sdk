@@ -1,13 +1,15 @@
 package io.github.easy4j.opencli.remote;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.github.easy4j.opencli.OpenCliProperties;
 import io.github.easy4j.opencli.core.OpenCliOutputParser;
 import io.github.easy4j.opencli.core.OpenCliResult;
 import io.github.easy4j.opencli.exception.OpenCliExecutableFailureException;
 import io.github.easy4j.opencli.exception.OpenCliNonZeroExitException;
+import io.github.easy4j.opencli.exception.OpenCliRemoteProtocolException;
 import io.github.easy4j.opencli.parser.OpenCliParsedFields;
 import io.github.easy4j.opencli.util.OpenCliStrings;
 import java.util.Objects;
@@ -41,6 +43,9 @@ import lombok.extern.slf4j.Slf4j;
 public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
 
     private static final JsonMapper MAPPER = new JsonMapper();
+    private static final ObjectReader ENVELOPE_READER = MAPPER.reader().with(
+        DeserializationFeature.FAIL_ON_TRAILING_TOKENS,
+        DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY);
 
     private final OpenCliProperties properties;
 
@@ -158,28 +163,35 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
     private OpenCliResult mapResponse(String respBody, String correlationId)
             throws com.fasterxml.jackson.core.JsonProcessingException {
         String rawCapture = captureRawIfEnabled(respBody);
-        AgentCollectEnvelope env;
+        JsonNode envelope;
         try {
-            env = MAPPER.readValue(respBody, AgentCollectEnvelope.class);
+            envelope = ENVELOPE_READER.readTree(respBody);
         } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
             log.warn("Agent response envelope parse failed correlationId={} responseChars={}",
                 correlationId, respBody.length());
-            throw failure("Failed to parse agent response envelope", correlationId);
+            throw new OpenCliRemoteProtocolException("Failed to parse agent response envelope", correlationId);
         }
-        if (Objects.isNull(env)) {
-            log.warn("Agent response envelope missing correlationId={} responseChars={}",
+        if (Objects.isNull(envelope) || !envelope.isObject() || !envelope.path("success").isBoolean()) {
+            log.warn("Agent response envelope status invalid correlationId={} responseChars={}",
                 correlationId, respBody.length());
-            throw failure("Missing agent response envelope", correlationId);
+            throw new OpenCliRemoteProtocolException("Invalid agent response envelope status", correlationId);
         }
-        boolean success = Objects.nonNull(env.success) && env.success;
-        String err = Objects.isNull(env.error) ? "" : env.error;
+        JsonNode error = envelope.path("error");
+        if (!error.isMissingNode() && !error.isNull() && !error.isTextual()) {
+            log.warn("Agent response envelope error field invalid correlationId={} responseChars={}",
+                correlationId, respBody.length());
+            throw new OpenCliRemoteProtocolException("Invalid agent response envelope error field", correlationId);
+        }
+        boolean success = envelope.path("success").booleanValue();
+        String err = error.isTextual() ? error.asText() : "";
+        JsonNode items = envelope.path("items");
         String stdout;
-        if (Objects.isNull(env.items) || env.items.isNull()) {
+        if (items.isMissingNode() || items.isNull()) {
             stdout = "[]";
-        } else if (env.items.isArray()) {
-            stdout = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(env.items);
+        } else if (items.isArray()) {
+            stdout = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(items);
         } else {
-            stdout = env.items.toPrettyString();
+            stdout = items.toPrettyString();
         }
         OpenCliParsedFields parsed = OpenCliOutputParser.parseBestEffort(stdout, err);
         if (!success) {
@@ -216,13 +228,4 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
         return respBody;
     }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private static final class AgentCollectEnvelope {
-
-        public Boolean success;
-
-        public JsonNode items;
-
-        public String error;
-    }
 }
