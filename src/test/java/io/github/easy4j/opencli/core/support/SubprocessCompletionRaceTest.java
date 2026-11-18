@@ -42,7 +42,7 @@ class SubprocessCompletionRaceTest {
             OpenCliCancellationToken token = new OpenCliCancellationToken();
             currentToken.set(token);
             SubprocessExecutionSupport.ExecutionRequest request = new SubprocessExecutionSupport.ExecutionRequest(
-                CommandLine.parse("fake"), null, null, 1_000L, 32, 32, 100L,
+                CommandLine.parse("fake"), null, null, 1_000L, 32, 32, 1_000L,
                 System.nanoTime(), token);
             SubprocessExecutionSupport.RunSession session = runtime.execute(request);
 
