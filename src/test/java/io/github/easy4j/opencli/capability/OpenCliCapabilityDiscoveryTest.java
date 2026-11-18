@@ -11,8 +11,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -277,6 +279,34 @@ class OpenCliCapabilityDiscoveryTest {
     }
 
     @Test
+    void invocationSnapshotsPositionalsBeforeWaitingForHelp(@TempDir Path directory) throws Exception {
+        Path entered = directory.resolve("entered");
+        Path release = directory.resolve("release");
+        OpenCliProperties properties = properties("structured");
+        properties.getEnvironment().put("OPENCLI_TEST_HOLD_SCOPED_HELP", directory.toString());
+        List<String> positionals = new CopyOnWriteArrayList<>(Collections.singletonList("original"));
+        ExecutorService caller = Executors.newSingleThreadExecutor();
+
+        try (OpenCliClient client = new OpenCliClient(properties)) {
+            Future<String> invocation = caller.submit(() -> client.invokeDiscovered(OpenCliHelpScope.SITE_NPM_SEARCH,
+                "opencli npm search", null, positionals, null).getStdout());
+            try {
+                long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+                while (!Files.exists(entered) && System.nanoTime() < deadline) {
+                    Thread.sleep(10);
+                }
+                assertTrue(Files.exists(entered), "discovery must reach the help probe");
+                positionals.set(0, "updated");
+            } finally {
+                Files.createFile(release);
+            }
+            assertEquals("original", invocation.get(5, TimeUnit.SECONDS));
+        } finally {
+            caller.shutdownNow();
+        }
+    }
+
+    @Test
     void invokesBoundBrowserLeafThroughLocalExecutor() {
         try (OpenCliClient client = new OpenCliClient(properties("structured"))) {
             assertEquals("bound session-a", client.invokeDiscovered(OpenCliHelpScope.BROWSER_STATE,
@@ -329,6 +359,12 @@ class OpenCliCapabilityDiscoveryTest {
                 System.out.print("raw available");
                 return;
             }
+            String scopedHelp = System.getenv("OPENCLI_TEST_HOLD_SCOPED_HELP");
+            if (Objects.nonNull(scopedHelp) && args.length == 4
+                && Arrays.asList("npm", "search", "--").equals(Arrays.asList(args).subList(0, 3))) {
+                System.out.print(args[3]);
+                return;
+            }
             if (args.length > 3 && Arrays.asList("--help", "-f", "json")
                 .equals(Arrays.asList(args).subList(args.length - 3, args.length))) {
                 if ("new-version-error".equals(mode) || "error".equals(mode)) {
@@ -346,6 +382,13 @@ class OpenCliCapabilityDiscoveryTest {
                     case "npm": fixture = "site-npm.json"; break;
                     case "npm search": fixture = "site-npm-search.json"; break;
                     default: throw new IllegalArgumentException("Unapproved fixture command");
+                }
+                if (Objects.nonNull(scopedHelp) && "npm search".equals(path)) {
+                    Path directory = Paths.get(scopedHelp);
+                    Files.createFile(directory.resolve("entered"));
+                    while (!Files.exists(directory.resolve("release"))) {
+                        Thread.sleep(10);
+                    }
                 }
                 String help = readFixture("wrong-help".equals(mode) ? "root.json" : fixture);
                 if ("unverified-override".equals(mode) && "npm search".equals(path)) {

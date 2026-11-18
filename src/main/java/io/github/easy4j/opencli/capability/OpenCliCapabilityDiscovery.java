@@ -4,6 +4,7 @@ import io.github.easy4j.opencli.OpenCliExecutionTarget;
 import io.github.easy4j.opencli.OpenCliInvocationContext;
 import io.github.easy4j.opencli.OpenCliProperties;
 import io.github.easy4j.opencli.capability.OpenCliCapabilitySnapshot.Status;
+import io.github.easy4j.opencli.core.OpenCliArgSupport;
 import io.github.easy4j.opencli.core.OpenCliExecutionDetails.TerminationReason;
 import io.github.easy4j.opencli.core.OpenCliExecutor;
 import io.github.easy4j.opencli.core.OpenCliResult;
@@ -113,12 +114,13 @@ public final class OpenCliCapabilityDiscovery {
         OpenCliProperties local = configured.copyForLocalCliExecution();
         Map<String, String> effectiveOptions =
             OpenCliInvocationContext.mergeOptions(local.getInvocationDefaults(), context, options);
+        List<String> positionalSnapshot = OpenCliArgSupport.merge(null, positionals);
         OpenCliCapabilitySnapshot snapshot = refresh(scope, local);
         if (snapshot.getStatus() == Status.AVAILABLE && !VERIFIED_HELP_VERSION.equals(snapshot.getObservedVersion())) {
             throw new UnsupportedOperationException("Discovered command execution requires the verified help version");
         }
         List<Argument> globals = verifiedAdapterGlobals(snapshot, local, effectiveOptions);
-        List<String> argv = OpenCliCapabilityCommand.bind(snapshot, command, session, positionals, effectiveOptions, globals);
+        List<String> argv = OpenCliCapabilityCommand.bind(snapshot, command, session, positionalSnapshot, effectiveOptions, globals);
         local.setExecutable(snapshot.getExecutable());
         try (OpenCliExecutor invocation = new OpenCliExecutor(local, executor.getProcessRuntime())) {
             return invocation.invokeLocalOnly(argv);
