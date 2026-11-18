@@ -241,6 +241,8 @@ Protocol: edge sends `register`; center replies `registered`; center sends `coll
 
 The reverse agent accepts up to four concurrent collect tasks and 32 queued tasks by default. Set `maxConcurrentCollects` and `maxPendingCollects` on the connection properties before constructing the agent to change the limits. A queue capacity of zero disables waiting. When full, the agent replies with a failed `result` and the error `worker is busy`.
 
+Collect request IDs must be nonblank strings of at most 128 UTF-8 bytes. The agent suppresses identical in-flight requests and rejects a reused ID with a different payload. An explicit retry may return a result marked `cached: true`. The in-memory cache keeps up to 1,024 completed results for at most ten minutes. Replay across reconnects requires the same TLS-verified endpoint. Plain WebSocket connections keep session-local deduplication. Restarting the agent discards its cache.
+
 ### Diagnostic export
 
 Call `OpenCliDiagnosticExport.export(result, 512)` explicitly with an `OpenCliResult` or an exception's partial result. The byte budget applies to UTF-8 text. Output contains only status and field lengths, with a `truncated=true` marker when fields do not fit. Field lengths can disclose how much data was present.

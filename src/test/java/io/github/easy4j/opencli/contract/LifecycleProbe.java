@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 
 /** Offline, self-bounded child fixture. Release files allow cleanup even against a broken SDK. */
@@ -33,7 +34,12 @@ public final class LifecycleProbe {
             return;
         }
         Path marker = Paths.get(args[1]);
-        Files.write(marker, "started".getBytes(StandardCharsets.UTF_8));
+        if ("count-hold".equals(mode)) {
+            Files.write(marker, "started\n".getBytes(StandardCharsets.UTF_8),
+                StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+        } else {
+            Files.write(marker, "started".getBytes(StandardCharsets.UTF_8));
+        }
         if ("write".equals(mode)) { return; }
         Path release = Paths.get(args[2]);
         long start = System.nanoTime();

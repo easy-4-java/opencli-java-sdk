@@ -8,10 +8,13 @@ import io.github.easy4j.opencli.contract.ContractProbe;
 import io.github.easy4j.opencli.contract.LifecycleProbe;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.KeyStore;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashSet;
@@ -24,11 +27,16 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
+import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
 import org.java_websocket.server.WebSocketServer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.api.parallel.Isolated;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -41,6 +49,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Isolated
 class OpenCliWsReverseAgentSessionTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -242,6 +251,162 @@ class OpenCliWsReverseAgentSessionTest {
         }
     }
 
+    @Test
+    void duplicateRequestRunsOnceAndReplaysCompletedResult(@TempDir Path temporary) throws Exception {
+        Path marker = temporary.resolve("starts");
+        Path release = temporary.resolve("release");
+        Path changed = temporary.resolve("changed");
+        String payload = collect("same", "count-hold", marker)
+            .set("positional_args", MAPPER.createArrayNode().add(release.toString())).toString();
+        try (LocalCenter center = new LocalCenter();
+             OpenCliWsReverseAgentClient agent = new OpenCliWsReverseAgentClient(
+                 probe(LifecycleProbe.class.getName()), center.agentProperties())) {
+            agent.start();
+            WebSocket socket = center.receive("register").socket;
+            socket.send("{\"type\":\"registered\"}");
+            try {
+                socket.send(payload);
+                assertTrue(awaitMarker(marker, 3_000), "original child did not start");
+                socket.send(payload);
+                socket.send(collect("same", "write", changed).toString());
+                JsonNode conflict = center.receive("result").body;
+                assertFalse(Files.exists(changed), "conflicting request started a child");
+                assertFalse(conflict.path("success").asBoolean());
+                assertEquals("worker request ID conflict", conflict.path("error").asText());
+            } finally {
+                Files.createFile(release);
+            }
+            JsonNode completed = center.receive("result").body;
+            assertTrue(completed.path("success").asBoolean());
+            assertFalse(completed.has("cached"));
+            socket.send(payload);
+            JsonNode replayed = center.receive("result").body;
+            assertTrue(replayed.path("cached").asBoolean());
+            assertEquals(completed.path("items"), replayed.path("items"));
+            assertEquals(Arrays.asList("started"), Files.readAllLines(marker, StandardCharsets.UTF_8));
+        }
+    }
+
+    @Test
+    void rejectsInvalidRequestIdsBeforeExecution(@TempDir Path temporary) throws Exception {
+        Path marker = temporary.resolve("invalid-id-start");
+        try (LocalCenter center = new LocalCenter();
+             OpenCliWsReverseAgentClient agent = new OpenCliWsReverseAgentClient(
+                 probe(LifecycleProbe.class.getName()), center.agentProperties())) {
+            agent.start();
+            WebSocket socket = center.receive("register").socket;
+            socket.send("{\"type\":\"registered\"}");
+            for (JsonNode invalid : Arrays.asList(MAPPER.nullNode(), MAPPER.getNodeFactory().textNode(" 　"),
+                MAPPER.getNodeFactory().numberNode(42), MAPPER.getNodeFactory().textNode("界".repeat(43)))) {
+                ObjectNode payload = collect("unused", "write", marker);
+                payload.set("request_id", invalid);
+                socket.send(payload.toString());
+                JsonNode reply = center.receive("result").body;
+                assertEquals("", reply.path("request_id").asText());
+                assertFalse(reply.path("success").asBoolean());
+                assertEquals("invalid worker request ID", reply.path("error").asText());
+                assertFalse(Files.exists(marker));
+            }
+            String limit = "界".repeat(42) + "ab";
+            socket.send(collect(limit, "write", marker).toString());
+            JsonNode accepted = center.receive("result").body;
+            assertEquals(limit, accepted.path("request_id").asText());
+            assertTrue(accepted.path("success").asBoolean());
+            assertTrue(Files.exists(marker));
+        }
+    }
+
+    @Test
+    void plainWebSocketReconnectDoesNotExposePreviousSessionCache(@TempDir Path temporary) throws Exception {
+        verifyReconnectReplay(temporary, null, false);
+    }
+
+    @Test
+    void verifiedTlsReconnectReplaysOnlyAfterAnExplicitRetry(@TempDir Path temporary) throws Exception {
+        Path storePath = temporary.resolve("center.p12");
+        String keytool = System.getProperty("os.name").startsWith("Windows") ? "keytool.exe" : "keytool";
+        Path tool = Paths.get(System.getProperty("java.home"), "bin", keytool);
+        Process keygen = new ProcessBuilder(tool.toString(), "-genkeypair", "-alias", "center", "-keyalg", "RSA",
+            "-keysize", "2048", "-dname", "CN=localhost", "-ext", "SAN=IP:127.0.0.1", "-validity", "1",
+            "-storetype", "PKCS12", "-keystore", storePath.toString(), "-storepass", "test-password")
+            .redirectErrorStream(true).redirectOutput(temporary.resolve("keytool.log").toFile()).start();
+        try {
+            assertTrue(keygen.waitFor(10, TimeUnit.SECONDS));
+            assertEquals(0, keygen.exitValue());
+        } finally {
+            if (keygen.isAlive()) {
+                keygen.destroyForcibly();
+            }
+        }
+        KeyStore store = KeyStore.getInstance("PKCS12");
+        try (InputStream input = Files.newInputStream(storePath)) {
+            store.load(input, "test-password".toCharArray());
+        }
+        KeyManagerFactory keys = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        keys.init(store, "test-password".toCharArray());
+        SSLContext server = SSLContext.getInstance("TLS");
+        server.init(keys.getKeyManagers(), null, null);
+        TrustManagerFactory trust = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        trust.init(store);
+        SSLContext trustedClient = SSLContext.getInstance("TLS");
+        trustedClient.init(null, trust.getTrustManagers(), null);
+        SSLContext previous = SSLContext.getDefault();
+        try {
+            SSLContext.setDefault(trustedClient);
+            verifyReconnectReplay(temporary, server, true);
+        } finally {
+            SSLContext.setDefault(previous);
+        }
+    }
+
+    private static void verifyReconnectReplay(Path temporary, SSLContext tls, boolean expectCache) throws Exception {
+        Path marker = temporary.resolve("reconnect-start");
+        Path release = temporary.resolve("reconnect-release");
+        ObjectNode request = collect("resend", "count-hold", marker);
+        request.putArray("positional_args").add(release.toString());
+        try (LocalCenter center = new LocalCenter(tls)) {
+            OpenCliWsAgentConnectionProperties connection = center.agentProperties();
+            connection.setMaxConcurrentCollects(1);
+            try (OpenCliWsReverseAgentClient agent = new OpenCliWsReverseAgentClient(
+                probe(LifecycleProbe.class.getName()), connection)) {
+                agent.start();
+                WebSocket first = center.receive("register").socket;
+                first.send("{\"type\":\"registered\"}");
+                try {
+                    first.send(request.toString());
+                    assertTrue(awaitMarker(marker, 3_000));
+                    first.close();
+                    WebSocket second = center.receive("register").socket;
+                    second.send("{\"type\":\"registered\"}");
+                    second.send("{\"type\":\"ping\"}");
+                    center.receive("pong");
+                    Files.createFile(release);
+                    second.send(collect("barrier", "write", temporary.resolve("barrier")).toString());
+                    JsonNode barrier = center.receive("result").body;
+                    assertEquals("barrier", barrier.path("request_id").asText());
+                    assertTrue(barrier.path("success").asBoolean());
+                    assertEquals(Arrays.asList("started"), Files.readAllLines(marker, StandardCharsets.UTF_8));
+
+                    second.send(request.toString());
+                    JsonNode reply = center.receive("result").body;
+                    assertTrue(reply.path("success").asBoolean(), reply::toString);
+                    assertEquals(expectCache, reply.path("cached").asBoolean());
+                    assertEquals(expectCache ? Arrays.asList("started") : Arrays.asList("started", "started"),
+                        Files.readAllLines(marker, StandardCharsets.UTF_8));
+                } finally {
+                    if (!Files.exists(release)) {
+                        Files.createFile(release);
+                    }
+                }
+            }
+        }
+    }
+
+    private static ObjectNode collect(String id, String command, Path marker) {
+        return MAPPER.createObjectNode().put("type", "collect").put("request_id", id)
+            .put("site", command).put("command", marker.toString());
+    }
+
     private static void sendHeldCollect(WebSocket socket, String id, Path marker, Path release) {
         ObjectNode message = MAPPER.createObjectNode()
             .put("type", "collect").put("request_id", id).put("site", "hold").put("command", marker.toString());
@@ -303,8 +468,18 @@ class OpenCliWsReverseAgentSessionTest {
         private final BlockingQueue<WireMessage> messages = new LinkedBlockingQueue<>();
         private final AtomicReference<Exception> failure = new AtomicReference<>();
 
+        private final boolean secure;
+
         private LocalCenter() throws Exception {
+            this(null);
+        }
+
+        private LocalCenter(SSLContext tls) throws Exception {
             super(new InetSocketAddress("127.0.0.1", 0), 1);
+            this.secure = Objects.nonNull(tls);
+            if (secure) {
+                setWebSocketFactory(new DefaultSSLWebSocketServerFactory(tls));
+            }
             start();
             if (!started.await(5, TimeUnit.SECONDS) || Objects.nonNull(failure.get())) {
                 stop(1_000);
@@ -314,7 +489,7 @@ class OpenCliWsReverseAgentSessionTest {
 
         private OpenCliWsAgentConnectionProperties agentProperties() {
             OpenCliWsAgentConnectionProperties properties = new OpenCliWsAgentConnectionProperties();
-            properties.setCentralApiBaseUrl("http://127.0.0.1:" + getPort());
+            properties.setCentralApiBaseUrl((secure ? "https" : "http") + "://127.0.0.1:" + getPort());
             properties.setAgentAdvertiseUrl(AGENT_URL);
             properties.setMinReconnectDelayMillis(25);
             properties.setMaxReconnectDelayMillis(50);

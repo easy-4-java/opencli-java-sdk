@@ -8,9 +8,10 @@ import io.github.easy4j.opencli.OpenCliProperties;
 import io.github.easy4j.opencli.core.OpenCliExecutor;
 import io.github.easy4j.opencli.core.OpenCliResult;
 import io.github.easy4j.opencli.exception.OpenCliException;
-import io.github.easy4j.opencli.exception.OpenCliNonZeroExitException;
 import io.github.easy4j.opencli.util.OpenCliStrings;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -59,6 +60,8 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
     private final OpenCliWsAgentConnectionProperties connectionProperties;
 
     private final ExecutorService collectPool;
+    private final OpenCliWsCollectRequests collectRequests =
+        new OpenCliWsCollectRequests(1024, TimeUnit.MINUTES.toNanos(10), System::nanoTime);
 
     private volatile boolean shutdownRequested;
 
@@ -133,6 +136,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
             }
             stop();
             collectPool.shutdownNow();
+            collectRequests.clear();
             runner = runnerThread;
         }
         long deadline = System.nanoTime() + CLOSE_WAIT_NANOS;
@@ -183,9 +187,10 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
 
     private void runOneSession() throws Exception {
         validateConnectionProperties();
-        String wsUrl =
-            OpenCliCenterWsUrls.toAgentWebSocketUrl(
-                connectionProperties.getCentralApiBaseUrl(), connectionProperties.getWebSocketPath());
+        URI endpoint = URI.create(OpenCliCenterWsUrls.toAgentWebSocketUrl(
+            connectionProperties.getCentralApiBaseUrl(), connectionProperties.getWebSocketPath()));
+        // The default TLS client verifies the endpoint hostname. Plain WS has session-local identity.
+        Object centerIdentity = "wss".equalsIgnoreCase(endpoint.getScheme()) ? endpoint : new Object();
 
         final CountDownLatch registered = new CountDownLatch(1);
         final CountDownLatch sessionClosed = new CountDownLatch(1);
@@ -193,7 +198,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
 
         log.info("opencli ws connecting");
         WebSocketClient client =
-            new WebSocketClient(URI.create(wsUrl)) {
+            new WebSocketClient(endpoint) {
                 @Override
                 public void onOpen(ServerHandshake handshake) {
                     try {
@@ -208,7 +213,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
                 @Override
                 public void onMessage(String message) {
                     try {
-                        handleTextMessage(this, message, registered, handshakeFailure);
+                        handleTextMessage(this, centerIdentity, message, registered, handshakeFailure);
                     } catch (Exception e) {
                         log.warn("handle ws message failed");
                     }
@@ -306,6 +311,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
 
     private void handleTextMessage(
         WebSocketClient ws,
+        Object centerIdentity,
         String payload,
         CountDownLatch registered,
         AtomicReference<Throwable> handshakeFailure)
@@ -324,25 +330,61 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
             return;
         }
         if ("collect".equals(type)) {
-            if (shutdownRequested || !ws.isOpen() || registered.getCount() > 0
-                || Objects.nonNull(handshakeFailure.get())) {
-                sendResult(ws, root.path("request_id").asText(""), false, Collections.emptyList(),
-                    "worker is not registered");
+            JsonNode id = root.path("request_id");
+            String requestId = id.isTextual() ? id.textValue() : "";
+            if (OpenCliStrings.isBlank(requestId.strip()) || requestId.getBytes(StandardCharsets.UTF_8).length > 128) {
+                sendResult(ws, result("", false, Collections.emptyList(), "invalid worker request ID"));
                 return;
             }
-            try {
-                collectPool.execute(() -> runCollectSafe(ws, root));
-            } catch (RejectedExecutionException e) {
-                sendResult(ws, root.path("request_id").asText(""), false, Collections.emptyList(), "worker is busy");
+            if (shutdownRequested || !ws.isOpen() || registered.getCount() > 0
+                || Objects.nonNull(handshakeFailure.get())) {
+                sendResult(ws, result(requestId, false, Collections.emptyList(), "worker is not registered"));
+                return;
             }
+            admitCollect(ws, centerIdentity, requestId, root);
         }
     }
 
-    private void runCollectSafe(WebSocketClient ws, JsonNode msg) {
-        if (collectPool.isShutdown() || Thread.currentThread().isInterrupted()) {
-            return;
+    private void admitCollect(WebSocketClient ws, Object centerIdentity, String requestId, JsonNode payload)
+        throws Exception {
+        OpenCliWsCollectRequests.Key key = new OpenCliWsCollectRequests.Key(centerIdentity, requestId);
+        byte[] digest = MessageDigest.getInstance("SHA-256").digest(MAPPER.writeValueAsBytes(payload));
+        OpenCliWsCollectRequests.Admission admission = collectRequests.reserve(key, digest);
+        switch (admission.status()) {
+            case IN_FLIGHT:
+                return;
+            case CONFLICT:
+                sendResult(ws, result(requestId, false, Collections.emptyList(), "worker request ID conflict"));
+                return;
+            case CACHED:
+                sendResult(ws, admission.cachedResult());
+                return;
+            case ACCEPTED:
+                try {
+                    collectPool.execute(() -> runCollectSafe(ws, key, payload));
+                } catch (RejectedExecutionException e) {
+                    collectRequests.complete(key, null);
+                    sendResult(ws, result(requestId, false, Collections.emptyList(), "worker is busy"));
+                }
+                return;
         }
-        String requestId = msg.path("request_id").asText("");
+    }
+
+    private void runCollectSafe(WebSocketClient ws, OpenCliWsCollectRequests.Key key, JsonNode msg) {
+        ObjectNode response = null;
+        try {
+            if (!collectPool.isShutdown() && !Thread.currentThread().isInterrupted()) {
+                response = executeCollect(key.requestId(), msg);
+            }
+        } finally {
+            collectRequests.complete(key, response);
+        }
+        if (Objects.nonNull(response) && ws.isOpen()) {
+            sendResult(ws, response);
+        }
+    }
+
+    private ObjectNode executeCollect(String requestId, JsonNode msg) {
         try {
             String site = msg.path("site").asText("");
             String command = msg.path("command").asText("");
@@ -355,27 +397,17 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
             OpenCliResult r = localExecutor.invoke(argv);
             List<JsonNode> items = OpenCliWsCollectStdoutItems.parseItems(r.getStdout(), format);
             if (!r.isSuccess()) {
-                sendResult(ws, requestId, false, items, "opencli reported failure");
-                return;
+                return result(requestId, false, items, "opencli reported failure");
             }
-            sendResult(ws, requestId, true, items, null);
-        } catch (OpenCliNonZeroExitException e) {
-            OpenCliResult partial = e.getPartialResult();
-            String err =
-                Objects.nonNull(partial) && OpenCliStrings.isNotBlank(partial.getStderr())
-                    ? partial.getStderr()
-                    : e.getMessage();
-            sendResult(ws, requestId, false, Collections.<JsonNode>emptyList(), err);
+            return result(requestId, true, items, null);
         } catch (OpenCliException e) {
             OpenCliResult partial = e.getPartialResult();
-            String err =
-                Objects.nonNull(partial) && OpenCliStrings.isNotBlank(partial.getStderr())
-                    ? partial.getStderr()
-                    : e.getMessage();
-            sendResult(ws, requestId, false, Collections.<JsonNode>emptyList(), err);
+            String err = Objects.nonNull(partial) && OpenCliStrings.isNotBlank(partial.getStderr())
+                ? partial.getStderr() : e.getMessage();
+            return result(requestId, false, Collections.emptyList(), err);
         } catch (Exception e) {
             log.warn("collect execution failed");
-            sendResult(ws, requestId, false, Collections.<JsonNode>emptyList(), "collect execution failed");
+            return result(requestId, false, Collections.emptyList(), "collect execution failed");
         }
     }
 
@@ -427,26 +459,26 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
         return list;
     }
 
-    private static void sendResult(
-        WebSocketClient ws, String requestId, boolean success, List<JsonNode> items, String error) {
+    private static ObjectNode result(String requestId, boolean success, List<JsonNode> items, String error) {
+        ObjectNode out = MAPPER.createObjectNode();
+        out.put("type", "result");
+        out.put("request_id", requestId);
+        out.put("success", success);
+        ArrayNode arr = out.putArray("items");
+        if (Objects.nonNull(items)) {
+            items.forEach(arr::add);
+        }
+        if (Objects.isNull(error) || error.isEmpty()) {
+            out.putNull("error");
+        } else {
+            out.put("error", error);
+        }
+        return out;
+    }
+
+    private static void sendResult(WebSocketClient ws, ObjectNode result) {
         try {
-            ObjectNode out = MAPPER.createObjectNode();
-            out.put("type", "result");
-            out.put("request_id", requestId);
-            out.put("success", success);
-            ArrayNode arr = MAPPER.createArrayNode();
-            if (Objects.nonNull(items)) {
-                for (JsonNode i : items) {
-                    arr.add(i);
-                }
-            }
-            out.set("items", arr);
-            if (Objects.isNull(error) || error.isEmpty()) {
-                out.putNull("error");
-            } else {
-                out.put("error", error);
-            }
-            ws.send(MAPPER.writeValueAsString(out));
+            ws.send(MAPPER.writeValueAsString(result));
         } catch (Exception e) {
             log.error("failed to send WS result");
         }
