@@ -1,0 +1,71 @@
+package io.github.easy4j.opencli.contract;
+
+import io.github.easy4j.opencli.OpenCliClient;
+import io.github.easy4j.opencli.OpenCliProperties;
+import io.github.easy4j.opencli.browser.OpenCliBrowserSession;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserOpenResult;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserResult;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserResult.Status;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserSnapshot;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserSourceComparison;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserTab;
+import io.github.easy4j.opencli.browser.support.OpenCliBrowserSnapshotSource;
+import java.net.URI;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+/** Opt-in verification against an externally provisioned disposable Browser Bridge. */
+class OpenCliBrowserBridgeIT {
+    @Test
+    void typedResultsFromAnIsolatedChromePage() {
+        String fixtureUrl = requiredEnvironment("OPENCLI_BRIDGE_FIXTURE_URL");
+        URI uri = URI.create(fixtureUrl);
+        assertEquals("http", uri.getScheme());
+        assertEquals("127.0.0.1", uri.getHost());
+
+        OpenCliProperties properties = new OpenCliProperties();
+        properties.setExecutable(requiredEnvironment("OPENCLI_INSTALLED_NODE"));
+        properties.setLeadingArguments(Collections.singletonList(requiredEnvironment("OPENCLI_INSTALLED_ENTRY")));
+        properties.setCommandTimeoutMillis(30_000L);
+        try (OpenCliClient client = new OpenCliClient(properties)) {
+            OpenCliBrowserSession session = new OpenCliBrowserSession(client.getExecutor(), "sdk-bridge-fixture", "background");
+            OpenCliBrowserOpenResult opened = parsed(session.openTyped(fixtureUrl, null));
+            assertEquals(fixtureUrl, opened.getUrl());
+            assertNotNull(opened.getPageId());
+
+            List<OpenCliBrowserTab> tabs = parsed(session.tabListTyped());
+            assertTrue(tabs.stream().anyMatch(tab -> opened.getPageId().equals(tab.getPageId())
+                && fixtureUrl.equals(tab.getUrl()) && tab.isActive()));
+
+            OpenCliBrowserSnapshot dom = parsed(session.snapshotTyped(null, OpenCliBrowserSnapshotSource.DOM));
+            assertEquals(fixtureUrl, dom.getUrl());
+            assertTrue(dom.getText().contains("Continue"));
+
+            OpenCliBrowserSnapshot ax = parsed(session.snapshotTyped(null, OpenCliBrowserSnapshotSource.AX));
+            assertEquals(fixtureUrl, ax.getUrl());
+            assertTrue(ax.getText().contains("RootWebArea"));
+            assertTrue(ax.getText().contains("Bridge fixture"));
+
+            OpenCliBrowserSourceComparison comparison = parsed(session.compareStateSourcesTyped(null));
+            assertEquals(fixtureUrl, comparison.getUrl());
+            assertTrue(comparison.getDom().isOk());
+            assertTrue(comparison.getAx().isOk());
+        }
+    }
+
+    private static String requiredEnvironment(String name) {
+        return Objects.requireNonNull(System.getenv(name), name + " fixture is required");
+    }
+
+    private static <T> T parsed(OpenCliBrowserResult<T> result) {
+        assertEquals(Status.PARSED, result.getStatus());
+        assertNotNull(result.getValue());
+        return result.getValue();
+    }
+}
