@@ -7,12 +7,9 @@ import org.junit.jupiter.api.Test;
 class OpenCliArgvToCollectParserFullTest {
 
     @Test
-    void shouldParseDashDashFlagWithNextOption() {
-        // --verbose followed by another flag means --verbose is boolean
-        OpenCliCollectRequest req = OpenCliArgvToCollectParser.parse(
-            Arrays.asList("npm", "search", "react", "--verbose", "--limit", "5"), "json", "cdp", "");
-        assertEquals(Boolean.TRUE, req.getArgs().get("verbose"));
-        assertEquals("5", req.getArgs().get("limit"));
+    void shouldRejectAnOptionWithoutAValueBeforeAnotherOption() {
+        assertThrows(IllegalArgumentException.class, () -> OpenCliArgvToCollectParser.parse(
+            Arrays.asList("npm", "search", "react", "--limit", "--verbose"), "json", "cdp", ""));
     }
 
     @Test

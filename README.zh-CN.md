@@ -191,7 +191,7 @@ cli.gemini().deepResearch("topic",
 
 - 远程模式下 `stdout` 为 Agent 返回的 `items` 的 JSON（已按 `format` 解析为行列表），与本地原始子进程文本可能不同；`leadingArguments` 等仅影响本地进程拼装，**远程路径不注入**。
 - 旧版 HTTP `/collect` 响应须包含 JSON 布尔字段 `success`。无效响应抛出 `OpenCliRemoteProtocolException`，它继承 `OpenCliExecutableFailureException`。当 `success: true` 且 `items` 缺失或为 null 时，仍返回 `[]`。
-- 旧版 HTTP argv 调用仅接收 SDK 清单中的适配器及其子命令。根命令、Browser 会话、外部程序透传、重复选项、`--` 以及无法保留边界空格或前导短横的参数会在发请求前被拒绝。位置参数应在选项前。需要原样传递 argv 时使用本地执行，已有自定义 Agent 契约时可用显式 `OpenCliCollectRequest` API。
+- 旧版 HTTP argv 调用仅接收 SDK 清单中的适配器及其子命令。根命令、Browser 会话、外部程序透传、重复选项、`--` 以及无法保留边界空格或前导短横的参数会在发请求前被拒绝。位置参数应在选项前，每个选项必须显式带值。旧版服务会给每个选项补一个值，裸开关应使用本地执行。需要原样传递 argv 时使用本地执行，已有自定义 Agent 契约时可用显式 `OpenCliCollectRequest` API。
 - 远程调用超时抛出 `OpenCliRemoteTimeoutException`。请求提交给 HTTP 传输后，`isRemoteOutcomeUnknown()` 为 true。客户端不会自动重试或跟随重定向。
 - 通过结果或异常的 `getPartialResult()` 调用 `getRemoteExecutionDetails()`，查看 HTTP 状态、Agent 业务状态和 `items` 的来源。`getExitCode()` 的 0/1 是兼容映射。HTTP 或协议失败快照没有退出码。仅在开启原文捕获时，失败快照才携带已通过字节上限检查的响应正文。
 - collect 连接在完整响应到达前中断时，失败快照标记 `TRANSPORT_FAILURE`，`isRemoteOutcomeUnknown()` 为 true。未收到响应头时，`getObservedHttpStatus()` 为空。快照不包含 CLI 退出码或不完整响应正文。服务端扩展须经过对应 Agent 契约验证。

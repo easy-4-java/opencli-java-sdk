@@ -66,18 +66,20 @@ public final class OpenCliArgvToCollectParser {
             }
             String key = shortFormat ? "format" : requireIdentifier(option.substring(2));
             boolean isFormat = "format".equals(key) || "f".equals(key);
-            Object value = Boolean.TRUE;
+            String value;
             if (separator >= 0) {
                 value = requireValue(token.substring(separator + 1));
-            } else if (index < adapterAndRest.size()
-                    && (Objects.isNull(adapterAndRest.get(index)) || !adapterAndRest.get(index).startsWith("-"))) {
+            } else {
+                if (index == adapterAndRest.size()) {
+                    throw new IllegalArgumentException("Legacy collect requires an explicit option value");
+                }
                 value = requireValue(adapterAndRest.get(index++));
             }
             if (isFormat) {
-                if (formatSpecified || !(value instanceof String)) {
+                if (formatSpecified) {
                     throw new IllegalArgumentException("Legacy collect requires a single explicit format value");
                 }
-                format = (String) value;
+                format = value;
                 formatSpecified = true;
             } else if (Objects.nonNull(args.putIfAbsent(key, value))) {
                 throw new IllegalArgumentException("Legacy collect cannot preserve a repeated option");
