@@ -166,6 +166,11 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
                 correlationId, respBody.length());
             throw failure("Failed to parse agent response envelope", correlationId);
         }
+        if (Objects.isNull(env)) {
+            log.warn("Agent response envelope missing correlationId={} responseChars={}",
+                correlationId, respBody.length());
+            throw failure("Missing agent response envelope", correlationId);
+        }
         boolean success = Objects.nonNull(env.success) && env.success;
         String err = Objects.isNull(env.error) ? "" : env.error;
         String stdout;

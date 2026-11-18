@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
@@ -123,6 +125,35 @@ class OpenCliRemoteAgentHttpClientTest {
                 Assertions.assertFalse(cause.toString().contains(canary));
                 Assertions.assertFalse(cause.toString().contains(urlCanary));
             }
+        }
+    }
+
+    @Test
+    void malformedHttpEndpointDoesNotExposeCredentialsInPublicStackTrace() {
+        String credential = "private-" + UUID.randomUUID();
+        OpenCliProperties properties = baseProps(1);
+        properties.setRemoteAgentBaseUrl("http://operator:" + credential + "@invalid host");
+        try (OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(properties)) {
+            OpenCliCollectRequest request = OpenCliCollectRequest.builder().site("x").command("y").build();
+            OpenCliExecutableFailureException failure = Assertions.assertThrows(
+                OpenCliExecutableFailureException.class, () -> client.collect(request));
+            StringWriter stack = new StringWriter();
+            failure.printStackTrace(new PrintWriter(stack));
+            Assertions.assertFalse(stack.toString().contains(credential));
+            Assertions.assertTrue(failure.getMessage().contains("correlationId="));
+        }
+    }
+
+    @Test
+    void nullEnvelopeUsesSafeCorrelatedParseFailure() throws IOException {
+        try (JsonCollectStub stub = JsonCollectStub.start("null");
+             OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(baseProps(stub.port()))) {
+            OpenCliCollectRequest request = OpenCliCollectRequest.builder().site("x").command("y").build();
+            OpenCliExecutableFailureException failure = Assertions.assertThrows(
+                OpenCliExecutableFailureException.class, () -> client.collect(request));
+            Assertions.assertTrue(failure.getMessage().contains("response envelope"));
+            Assertions.assertTrue(failure.getMessage().contains("correlationId="));
+            Assertions.assertNull(failure.getCause());
         }
     }
 

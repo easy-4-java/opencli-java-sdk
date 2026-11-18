@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 class OpenCliArgSupportTest {
@@ -62,7 +63,12 @@ class OpenCliArgSupportTest {
     @Test
     void shouldThrowWhenNameDoesNotStartWithDash() {
         List<String> target = new ArrayList<>();
-        assertThrows(IllegalArgumentException.class, () -> OpenCliArgSupport.addOptionEquals(target, "key", "value"));
+        String optionCanary = "private-option-" + UUID.randomUUID();
+        IllegalArgumentException failure = assertThrows(IllegalArgumentException.class,
+            () -> OpenCliArgSupport.addOptionEquals(target, optionCanary, "value"));
+        assertTrue(failure.getMessage().contains("must start with '--'"));
+        assertFalse(failure.toString().contains(optionCanary));
+        assertTrue(target.isEmpty());
     }
 
     @Test
