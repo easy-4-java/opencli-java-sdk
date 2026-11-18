@@ -49,6 +49,8 @@ import lombok.Getter;
     @Getter
     private final OpenCliExecutor executor;
 
+    private final OpenCliCapabilityDiscovery capabilityDiscovery;
+
     /**
      * Constructs with default configuration (executable assumed to be {@code opencli} on PATH).
      */
@@ -60,8 +62,7 @@ import lombok.Getter;
      * @param properties 运行配置，不得为 null
      */
     public OpenCliClient(OpenCliProperties properties) {
-        this.properties = Objects.requireNonNull(properties, "properties");
-        this.executor = new OpenCliExecutor(properties);
+        this(properties, new OpenCliExecutor(properties));
     }
 
     /**
@@ -73,6 +74,7 @@ import lombok.Getter;
     public OpenCliClient(OpenCliProperties properties, OpenCliExecutor executor) {
         this.properties = Objects.requireNonNull(properties, "properties");
         this.executor = Objects.requireNonNull(executor, "executor");
+        this.capabilityDiscovery = new OpenCliCapabilityDiscovery(executor);
     }
 
     /**
@@ -87,10 +89,10 @@ import lombok.Getter;
 
     /**
      * Probes version and root structured help on the configured absolute local executable.
-     * @return a fresh observation with help, provenance and failure status
+     * @return a current observation or a stale matching snapshot with the refresh failure
      */
     public OpenCliCapabilitySnapshot discoverCapabilities() {
-        return OpenCliCapabilityDiscovery.discover(executor);
+        return capabilityDiscovery.refresh();
     }
 
     // ----- 参考强类型门面（Desktop） -----
