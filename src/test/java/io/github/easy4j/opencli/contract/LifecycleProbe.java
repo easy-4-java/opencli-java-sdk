@@ -35,7 +35,7 @@ public final class LifecycleProbe {
             String executable = System.getProperty("os.name").startsWith("Windows") ? "java.exe" : "java";
             Path java = Paths.get(System.getProperty("java.home"), "bin", executable);
             new ProcessBuilder(java.toString(), "-cp", System.getProperty("java.class.path"),
-                LifecycleProbe.class.getName(), "heartbeat", args[3], args[2]).inheritIO().start();
+                LifecycleProbe.class.getName(), "heartbeat", args[3], args[2], args[4]).inheritIO().start();
         }
         if ("capture-hold".equals(mode)) {
             writeStream(System.out, Integer.parseInt(args[3]));
@@ -61,6 +61,9 @@ public final class LifecycleProbe {
                 Files.write(marker, Integer.toString(++tick).getBytes(StandardCharsets.UTF_8));
             }
             Thread.sleep(20L);
+        }
+        if ("heartbeat".equals(mode) && args.length == 4) {
+            Files.createFile(Paths.get(args[3]));
         }
     }
 
