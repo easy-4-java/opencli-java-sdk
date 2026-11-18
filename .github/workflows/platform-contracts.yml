@@ -57,8 +57,8 @@ jobs:
             --suite argv=io.github.easy4j.opencli.contract.OpenCliArgvContractTest \
             --suite argv=io.github.easy4j.opencli.contract.OpenCliStructuredArgvContractTest \
             --suite process=io.github.easy4j.opencli.contract.OpenCliProcessContractTest \
-            --suite process=io.github.easy4j.opencli.contract.OpenCliProcessBoundaryTest,SubprocessStreamFailureTest \
-            --suite cleanup=io.github.easy4j.opencli.core.support.SubprocessStreamFailureTest \
+            --suite process=io.github.easy4j.opencli.contract.OpenCliProcessBoundaryTest \
+            --suite process=io.github.easy4j.opencli.core.support.SubprocessStreamFailureTest \
             --output platform-evidence/report.json
           exit "$result"
       - name: Upload platform subprocess evidence
