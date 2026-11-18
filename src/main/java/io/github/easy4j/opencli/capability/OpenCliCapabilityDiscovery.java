@@ -45,6 +45,7 @@ public final class OpenCliCapabilityDiscovery {
     private final OpenCliExecutor executor;
     private long nextAttempt;
     private long lastPublishedAttempt;
+    private OpenCliCapabilitySnapshot lastRootObservation;
     private final Map<OpenCliHelpScope, OpenCliCapabilitySnapshot> lastAvailable =
         new EnumMap<>(OpenCliHelpScope.class);
 
@@ -79,6 +80,22 @@ public final class OpenCliCapabilityDiscovery {
      */
     public OpenCliCapabilitySnapshot refresh(OpenCliHelpScope scope) {
         return refresh(scope, executor.getProperties());
+    }
+
+    /**
+     * Runs the bounded version fast path and reports history separately.
+     * @return per-check observations without launching help, doctor or repair commands
+     */
+    public OpenCliDiagnostics diagnose() {
+        OpenCliProperties properties = executor.getProperties();
+        if (properties.getExecutionTarget() == OpenCliExecutionTarget.REMOTE_AGENT_HTTP) {
+            return OpenCliDiagnostics.remote();
+        }
+        OpenCliCapabilitySnapshot previous;
+        synchronized (this) {
+            previous = lastRootObservation;
+        }
+        return OpenCliDiagnostics.local(observe(OpenCliHelpScope.ROOT_HELP, properties, false), previous);
     }
 
     /**
@@ -156,7 +173,7 @@ public final class OpenCliCapabilityDiscovery {
         synchronized (this) {
             attempt = ++nextAttempt;
         }
-        return publish(attempt, observe(scope, configured));
+        return publish(attempt, observe(scope, configured, true));
     }
 
     private synchronized OpenCliCapabilitySnapshot publish(long attempt, OpenCliCapabilitySnapshot current) {
@@ -169,20 +186,25 @@ public final class OpenCliCapabilityDiscovery {
                 || (Objects.nonNull(current.getObservedVersion())
                     && !old.getObservedVersion().equals(current.getObservedVersion())));
         OpenCliHelpScope scope = current.getHelpScope();
+        OpenCliCapabilitySnapshot result = current;
         if (current.getStatus() == Status.AVAILABLE) {
             lastAvailable.put(scope, current);
-            return current;
+        } else {
+            OpenCliCapabilitySnapshot previous = lastAvailable.get(scope);
+            if (current.getStatus() == Status.UNKNOWN && Objects.nonNull(previous)) {
+                result = previous.toBuilder().status(Status.STALE).reason(current.getReason())
+                    .failedRefresh(current).build();
+            } else {
+                lastAvailable.remove(scope);
+            }
         }
-        OpenCliCapabilitySnapshot previous = lastAvailable.get(scope);
-        if (current.getStatus() == Status.UNKNOWN && Objects.nonNull(previous)) {
-            return previous.toBuilder().status(Status.STALE).reason(current.getReason())
-                .failedRefresh(current).build();
+        if (scope == OpenCliHelpScope.ROOT_HELP) {
+            lastRootObservation = result;
         }
-        lastAvailable.remove(scope);
-        return current;
+        return result;
     }
 
-    private OpenCliCapabilitySnapshot observe(OpenCliHelpScope scope, OpenCliProperties configured) {
+    private OpenCliCapabilitySnapshot observe(OpenCliHelpScope scope, OpenCliProperties configured, boolean queryHelp) {
         OpenCliCapabilitySnapshot.OpenCliCapabilitySnapshotBuilder snapshot =
             OpenCliCapabilitySnapshot.builder().helpScope(scope).observedAt(Instant.now());
         if (configured.getExecutionTarget() != OpenCliExecutionTarget.LOCAL_PROCESS) {
@@ -224,6 +246,9 @@ public final class OpenCliCapabilityDiscovery {
                 }
                 String version = versionOutput.group(1);
                 snapshot.observedVersion(version);
+                if (!queryHelp) {
+                    return snapshot.status(Status.AVAILABLE).build();
+                }
                 if (scope != OpenCliHelpScope.ROOT_HELP && !VERIFIED_HELP_VERSION.equals(version)) {
                     return snapshot.status(Status.UNSUPPORTED).reason("UNVERIFIED_HELP_VERSION").build();
                 }
