@@ -61,3 +61,9 @@ JDK 17 基线 `0cbb3ee750062675813f1d3389c5f7f14b50345c` 的定向用例在 3 �
 OC-PRIV-001/004。OpenCliProcessPrivacyTest 的新用例在 Java 17 基线复现缺少 correlationId，退出 1。现在本地进程失败时由 SDK 生成随机 UUID，在 DEBUG 日志及返回的异常消息中使用同一值。日志只记录终止原因、退出码和捕获字节数。测试扫描捕获的日志和完整异常栈，同时通过 partialResult 校验 stderr 原值。C03 的 OpenCliErrorEnvelopeTest 覆盖含敏感标记的畸形 YAML，并确认解析器原文不进入默认诊断。
 
 Java 8、17、21 分别用各自 Wrapper 运行 OpenCliProcessPrivacyTest、OpenCliErrorEnvelopeTest 和 OpenCliProcessContractTest，每条线执行 31 项，零失败、零错误、零跳过。报告位于 target/surefire-reports。Java 21 的先前运行曾出现继承管道用例的 JUnit 临时目录清理竞态，本次重跑通过。该竞态需要独立处理。
+
+## SDK 配置对象的默认诊断
+
+OC-PRIV-001/004。Java 17 基线 `58f675a` 的两项回归均失败。输出 `OpenCliProperties` 或 `OpenCliWsAgentConnectionProperties` 时，Lombok 的默认字符串表示包含测试标记。改为显式允许表后，默认字符串只包含受控枚举、开关、字节预算和超时、并发等数值。CDP 地址、本地路径、启动参数、环境变量、WebSocket 地址和节点标签仍可通过各自的配置 API 读取和使用。
+
+实现分别基于 Java 8 `afc6b33`、Java 17 `58f675a`、Java 21 `5cfa937`。三线使用各自 Wrapper 执行 `./mvnw -B -ntp -o clean verify`，分别通过 2,242、2,243、2,242 项。失败、错误、跳过均为 0。两项新增测试记录在 `OpenCliPropertiesTest` 和 `OpenCliWsReverseAgentClientTest` 的 Surefire 报告中。随后同步的 Agent TLS 证据提交只触及 OpenSpec 材料。

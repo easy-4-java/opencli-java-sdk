@@ -15,38 +15,47 @@ import lombok.ToString;
  * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  */
+@ToString(onlyExplicitlyIncluded = true)
 @Data
 public class OpenCliProperties {
+    @ToString.Include
     private OpenCliExecutionTarget executionTarget = OpenCliExecutionTarget.LOCAL_PROCESS;
     /** Root URL of an opencli-admin compatible Agent. */
-    @ToString.Exclude
     private String remoteAgentBaseUrl;
     /** Explicit credential header for the configured HTTPS Agent. */
-    @ToString.Exclude
     private OpenCliRemoteAuthentication remoteAuthentication;
     private String remoteCollectMode = "cdp";
     private String remoteOutputFormat = "json";
     private String remoteCdpEndpoint = "";
     /** Raw HTTP capture is explicitly opt-in and may contain sensitive business data. */
+    @ToString.Include
     private boolean remoteCaptureRawHttpResponse = false;
     /** Maximum decoded HTTP response body bytes accepted from a remote Agent. */
+    @ToString.Include
     private int maxRemoteResponseBytes = 10 * 1024 * 1024;
     private String executable = "opencli";
     /** Defaults applied when dispatching a schema-validated local command. */
     private OpenCliInvocationContext invocationDefaults;
     private String workingDirectory;
     /** Total local queue and execution budget, or the remote HTTP transport budget. */
+    @ToString.Include
     private long commandTimeoutMillis = 300_000L;
     /** Legacy per-stream ceiling; nonpositive values keep the finite stdout/stderr budgets. */
+    @ToString.Include
     private long maxOutputBytes = 10L * 1024 * 1024;
     /** Positive per-client capacity, zero for max(2, cores); negative is invalid. Captured at construction. */
+    @ToString.Include
     private int maxConcurrentExecutions = 0;
     /** Maximum bytes retained from stdout for one local invocation. */
+    @ToString.Include
     private int maxStdoutBytes = 8 * 1024 * 1024;
     /** Maximum bytes retained from stderr for one local invocation. */
+    @ToString.Include
     private int maxStderrBytes = 2 * 1024 * 1024;
     /** Independent bounded cleanup grace, in milliseconds. */
+    @ToString.Include
     private long cleanupGraceMillis = 5_000L;
+    @ToString.Include
     private long startupProbeTimeoutMillis = 30_000L;
     /** Literal prefix arguments placed before the command identifier. */
     private List<String> leadingArguments = new ArrayList<>();
