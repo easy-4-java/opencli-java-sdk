@@ -816,6 +816,8 @@ class OpenCliRemoteAgentHttpClientTest {
     @ValueSource(strings = {
         "browser|session-a|state", "list|-f|json", "external|list", "unverified-tool|version",
         "npm|search|--tag|one|--tag=two", "npm|search|--|react", "npm|search|--limit|-1",
+        "npm|search|react|--limit", "npm|search|react|--limit|--bogus",
+        "npm|search|react|--verbose",
         "npm|search|--limit=-1", "npm|search|", "npm|search|--query=", "npm|search|--query| padded ",
         "npm|search|-f|json|--format=yaml", "npm|search|--format|--verbose",
         "npm|search|-v", "npm|search|--limit|5|react", " npm|search"
