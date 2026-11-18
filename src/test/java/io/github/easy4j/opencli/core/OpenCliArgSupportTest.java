@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 class OpenCliArgSupportTest {
@@ -15,9 +16,15 @@ class OpenCliArgSupportTest {
     }
 
     @Test
-    void shouldFilterNullAndBlankWhenMerging() {
-        List<String> result = OpenCliArgSupport.merge(Arrays.asList("a", null, "", "  ", "b"), Arrays.asList("c"));
-        assertEquals(Arrays.asList("a", "b", "c"), result);
+    void shouldRejectNullElementWhenMerging() {
+        assertThrows(IllegalArgumentException.class,
+            () -> OpenCliArgSupport.merge(Arrays.asList("a", null, "", "  ", "b"), Arrays.asList("c")));
+    }
+
+    @Test
+    void shouldPreserveEmptyAndBlankWhenMerging() {
+        assertEquals(Arrays.asList("a", "", "  ", "b", "c"),
+            OpenCliArgSupport.merge(Arrays.asList("a", "", "  ", "b"), Arrays.asList("c")));
     }
 
     @Test
@@ -56,7 +63,12 @@ class OpenCliArgSupportTest {
     @Test
     void shouldThrowWhenNameDoesNotStartWithDash() {
         List<String> target = new ArrayList<>();
-        assertThrows(IllegalArgumentException.class, () -> OpenCliArgSupport.addOptionEquals(target, "key", "value"));
+        String optionCanary = "private-option-" + UUID.randomUUID();
+        IllegalArgumentException failure = assertThrows(IllegalArgumentException.class,
+            () -> OpenCliArgSupport.addOptionEquals(target, optionCanary, "value"));
+        assertTrue(failure.getMessage().contains("must start with '--'"));
+        assertFalse(failure.toString().contains(optionCanary));
+        assertTrue(target.isEmpty());
     }
 
     @Test
@@ -77,6 +89,21 @@ class OpenCliArgSupportTest {
     void shouldNotAddOptionPairIfPresentWhenValueNull() {
         List<String> target = new ArrayList<>();
         OpenCliArgSupport.addOptionPairIfPresent(target, "--flag", null);
+        assertTrue(target.isEmpty());
+    }
+
+    @Test
+    void shouldRejectNonNullValueWhoseStringFormIsNull() {
+        List<String> target = new ArrayList<>();
+        Object value = new Object() {
+            @Override
+            public String toString() {
+                return null;
+            }
+        };
+
+        assertThrows(IllegalArgumentException.class,
+            () -> OpenCliArgSupport.addOptionPairIfPresent(target, "--flag", value));
         assertTrue(target.isEmpty());
     }
 
