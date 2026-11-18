@@ -128,6 +128,7 @@ public final class OpenCliHelpParser {
             .type(text(node.path("type")))
             .takesValue(text(node.path("takes_value")))
             .required(bool(node.path("required")))
+            .valueRequired(bool(node.path("valueRequired")))
             .negate(bool(node.path("negate")))
             .variadic(bool(node.path("variadic")))
             .choices(array(node.path("choices"), OpenCliHelpParser::requiredText))

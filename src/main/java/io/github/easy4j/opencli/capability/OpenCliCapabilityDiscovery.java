@@ -23,6 +23,7 @@ import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
@@ -31,6 +32,7 @@ import java.util.regex.Pattern;
 
 /** Fixed, bounded metadata probes through the existing local subprocess runtime. */
 public final class OpenCliCapabilityDiscovery {
+    private static final String VERIFIED_HELP_VERSION = "1.8.8";
     private static final int MAX_PROBE_OUTPUT_BYTES = 1024 * 1024;
     private static final long MAX_PROBE_MILLIS = 10_000;
     private static final long MAX_CLEANUP_MILLIS = 1_000;
@@ -73,12 +75,43 @@ public final class OpenCliCapabilityDiscovery {
      * @return current scoped observation or the explicit stale or failure status
      */
     public OpenCliCapabilitySnapshot refresh(OpenCliHelpScope scope) {
+        return refresh(scope, executor.getProperties());
+    }
+
+    /**
+     * Executes a leaf after querying and validating it against the same local configuration.
+     * @param scope verified query containing the leaf
+     * @param command exact leaf display path
+     * @param session explicit browser session, or null
+     * @param positionals literal arguments in schema order, or null
+     * @param options declared flag spellings and values, or null
+     * @return local execution result
+     */
+    public OpenCliResult invoke(OpenCliHelpScope scope, String command, String session,
+        List<String> positionals, Map<String, String> options) {
+        OpenCliProperties configured = executor.getProperties();
+        if (configured.getExecutionTarget() != OpenCliExecutionTarget.LOCAL_PROCESS) {
+            throw new UnsupportedOperationException("Discovered command execution requires a local process");
+        }
+        OpenCliProperties local = configured.copyForLocalCliExecution();
+        OpenCliCapabilitySnapshot snapshot = refresh(scope, local);
+        if (snapshot.getStatus() == Status.AVAILABLE && !VERIFIED_HELP_VERSION.equals(snapshot.getObservedVersion())) {
+            throw new UnsupportedOperationException("Discovered command execution requires the verified help version");
+        }
+        List<String> argv = OpenCliCapabilityCommand.bind(snapshot, command, session, positionals, options);
+        local.setExecutable(snapshot.getExecutable());
+        try (OpenCliExecutor invocation = new OpenCliExecutor(local, executor.getProcessRuntime())) {
+            return invocation.invokeLocalOnly(argv);
+        }
+    }
+
+    private OpenCliCapabilitySnapshot refresh(OpenCliHelpScope scope, OpenCliProperties configured) {
         Objects.requireNonNull(scope, "scope");
         long attempt;
         synchronized (this) {
             attempt = ++nextAttempt;
         }
-        return publish(attempt, observe(scope));
+        return publish(attempt, observe(scope, configured));
     }
 
     private synchronized OpenCliCapabilitySnapshot publish(long attempt, OpenCliCapabilitySnapshot current) {
@@ -104,8 +137,7 @@ public final class OpenCliCapabilityDiscovery {
         return current;
     }
 
-    private OpenCliCapabilitySnapshot observe(OpenCliHelpScope scope) {
-        OpenCliProperties configured = executor.getProperties();
+    private OpenCliCapabilitySnapshot observe(OpenCliHelpScope scope, OpenCliProperties configured) {
         OpenCliCapabilitySnapshot.OpenCliCapabilitySnapshotBuilder snapshot =
             OpenCliCapabilitySnapshot.builder().helpScope(scope).observedAt(Instant.now());
         if (configured.getExecutionTarget() != OpenCliExecutionTarget.LOCAL_PROCESS) {
@@ -147,7 +179,7 @@ public final class OpenCliCapabilityDiscovery {
                 }
                 String version = versionOutput.group(1);
                 snapshot.observedVersion(version);
-                if (scope != OpenCliHelpScope.ROOT_HELP && !"1.8.8".equals(version)) {
+                if (scope != OpenCliHelpScope.ROOT_HELP && !VERIFIED_HELP_VERSION.equals(version)) {
                     return snapshot.status(Status.UNSUPPORTED).reason("UNVERIFIED_HELP_VERSION").build();
                 }
                 phase = "HELP";

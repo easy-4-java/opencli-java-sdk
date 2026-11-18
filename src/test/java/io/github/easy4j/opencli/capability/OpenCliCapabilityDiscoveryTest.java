@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
@@ -255,6 +256,15 @@ class OpenCliCapabilityDiscoveryTest {
         }
     }
 
+    @Test
+    void invokesBoundBrowserLeafThroughLocalExecutor() {
+        try (OpenCliClient client = new OpenCliClient(properties("structured"))) {
+            assertEquals("bound session-a", client.invokeDiscovered(OpenCliHelpScope.BROWSER_STATE,
+                "opencli browser <session> state", "session-a", Collections.emptyList(),
+                Collections.singletonMap("--source", "dom")).getStdout());
+        }
+    }
+
     private static OpenCliProperties controlledProperties(Path control) {
         OpenCliProperties props = properties("unused");
         props.getEnvironment().put("OPENCLI_TEST_HELP_CONTROL", control.toString());
@@ -289,6 +299,10 @@ class OpenCliCapabilityDiscoveryTest {
                     return;
                 }
                 System.out.println("new-version-error".equals(mode) ? "1.8.9" : "1.8.8");
+                return;
+            }
+            if (Arrays.equals(args, new String[]{"browser", "session-a", "state", "--source", "dom"})) {
+                System.out.print("bound session-a");
                 return;
             }
             if (Arrays.equals(args, new String[]{"npm", "search"})) {

@@ -49,3 +49,9 @@
 `discoverCapabilities(OpenCliHelpScope)` 提供根目录、浏览器、浏览器 tab/get/state、auth、list 及 npm 站点和 search 的九个固定查询。细粒度参数只在已验证的 OpenCLI 1.8.8 启用。浏览器查询使用固定的帮助会话占位，不接受调用者提供的命令路径，也不执行帮助描述中的内容。结构化结果需匹配请求范围；纯文本和混合输出维持原有失败原因。
 
 每个范围只保存其最近成功的观察，且配置或已观测版本变化使其他不匹配的范围一并失效。OpenCLI 能力仍按请求观察，并保留来源未知标记。增加 `OpenCliCapabilityDiscoveryTest` 的进程验收后，缺少范围 API 时失败，加入实现后定向测试通过。类型化会话绑定及执行前参数校验仍待验收。
+
+## OC-CAP-002/003 类型化本地调用
+
+`OpenCliClient.invokeDiscovered` 对本地配置取快照，刷新指定范围，选择显式给定的叶子路径，校验后通过同一执行器运行时提交字面参数。需要提供浏览器会话时，必须填入合法会话标识。校验覆盖必选项和值、声明 choices、可选值 flag、显式 false、否定拼写和可变位置参数；用字面分隔符隔离可能像选项的位置参数。不可用或过期的帮助无法进入类型化执行。原有本地 raw 入口独立可用。
+
+`OpenCliCapabilityCommandTest` 和 `OpenCliCapabilityDiscoveryTest` 以失败→通过验证新 API、字段级错误和真实 JVM 子进程收到的 argv。当前仅对已验证的 OpenCLI 1.8.8 执行发现绑定；测试不依赖浏览器账户。

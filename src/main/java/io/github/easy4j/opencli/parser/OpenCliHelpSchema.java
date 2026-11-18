@@ -35,6 +35,7 @@ public final class OpenCliHelpSchema {
         private final String type;
         private final String takesValue;
         private final Boolean required;
+        private final Boolean valueRequired;
         private final Boolean negate;
         private final Boolean variadic;
         private final List<String> choices;
