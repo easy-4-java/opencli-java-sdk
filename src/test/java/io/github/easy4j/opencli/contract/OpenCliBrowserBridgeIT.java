@@ -3,6 +3,7 @@ package io.github.easy4j.opencli.contract;
 import io.github.easy4j.opencli.OpenCliClient;
 import io.github.easy4j.opencli.OpenCliProperties;
 import io.github.easy4j.opencli.browser.OpenCliBrowserSession;
+import io.github.easy4j.opencli.browser.OpenCliBrowserSession.OpenCliBrowserNetworkOptions;
 import io.github.easy4j.opencli.browser.result.OpenCliBrowserAnalysisResult;
 import io.github.easy4j.opencli.browser.result.OpenCliBrowserConsoleResult;
 import io.github.easy4j.opencli.browser.result.OpenCliBrowserFindResult;
@@ -15,12 +16,18 @@ import io.github.easy4j.opencli.browser.result.OpenCliBrowserSourceComparison;
 import io.github.easy4j.opencli.browser.result.OpenCliBrowserTab;
 import io.github.easy4j.opencli.browser.support.OpenCliBrowserFindOptions;
 import io.github.easy4j.opencli.browser.support.OpenCliBrowserTabOptions;
+import io.github.easy4j.opencli.core.OpenCliExecutionDetails;
+import io.github.easy4j.opencli.core.OpenCliExecutionDetails.CleanupState;
+import io.github.easy4j.opencli.core.OpenCliExecutionDetails.TerminationReason;
+import io.github.easy4j.opencli.core.OpenCliResult;
+import io.github.easy4j.opencli.exception.OpenCliException;
 import io.github.easy4j.opencli.exception.OpenCliNonZeroExitException;
 import io.github.easy4j.opencli.browser.support.OpenCliBrowserSnapshotSource;
 import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -116,6 +123,39 @@ class OpenCliBrowserBridgeIT {
         return parsed(session.tabListTyped()).stream()
             .filter(tab -> url.equals(tab.getUrl())).findFirst()
             .orElseThrow(() -> new AssertionError("The original bound tab must remain open"));
+    }
+
+    @Test
+    void boundedNetworkFollowLeavesTheRealBridgeAndPageAvailable() {
+        String fixtureId = UUID.randomUUID().toString();
+        String url = URI.create(fixtureUrl()).resolve("/fixture.html?capture=" + fixtureId).toString();
+        OpenCliProperties properties = properties();
+        try (OpenCliClient client = new OpenCliClient(properties)) {
+            OpenCliBrowserSession session = new OpenCliBrowserSession(
+                client.getExecutor(), "sdk-follow-" + fixtureId, "background");
+            String page = parsed(session.openTyped(url, null)).getPageId();
+            assertFollowLimit(session, properties, 4_500L, 65_536, TerminationReason.EXECUTION_TIMEOUT);
+            assertFollowLimit(session, properties, 12_000L, 2_048, TerminationReason.OUTPUT_LIMIT);
+            properties.setCommandTimeoutMillis(30_000L);
+            properties.setMaxStdoutBytes(65_536);
+            assertEquals(page, boundPage(session, url).getPageId());
+        }
+    }
+
+    private static void assertFollowLimit(OpenCliBrowserSession session, OpenCliProperties properties,
+        long timeoutMillis, int stdoutBytes, TerminationReason expected) {
+        properties.setCommandTimeoutMillis(timeoutMillis);
+        properties.setMaxStdoutBytes(stdoutBytes);
+        OpenCliBrowserNetworkOptions options = OpenCliBrowserNetworkOptions.builder().follow(true).all(true).build();
+        OpenCliException failure = assertThrows(OpenCliException.class, () -> session.network(options, null));
+        OpenCliResult partial = failure.getPartialResult();
+        assertNotNull(partial);
+        OpenCliExecutionDetails execution = partial.getExecutionDetails();
+        assertEquals(expected, execution.getTerminationReason());
+        assertEquals(CleanupState.ROOT_EXIT_CONFIRMED, execution.getCleanupState());
+        assertTrue(execution.getStdoutCapturedBytes() <= stdoutBytes);
+        assertTrue(partial.getStdout().contains("/api/items"));
+        assertEquals(expected == TerminationReason.OUTPUT_LIMIT, execution.isStdoutTruncated());
     }
 
     private static OpenCliProperties properties() {
