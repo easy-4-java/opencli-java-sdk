@@ -390,13 +390,18 @@ public final class SubprocessExecutionSupport {
     // The Windows JDK legacy serializer treats a surrounding quote pair as already encoded.
     @SuppressWarnings("removal")
     private static List<String> processArguments(List<String> argv) {
-        String executable = argv.get(0).toLowerCase(Locale.ROOT);
-        if (!System.getProperty("os.name").startsWith("Windows") || !executable.endsWith(".exe")
-            || executable.endsWith("cmd.exe")) {
+        if (!System.getProperty("os.name").startsWith("Windows")) {
             return argv;
         }
+        String executable = argv.get(0).toLowerCase(Locale.ROOT);
+        int separator = Math.max(executable.lastIndexOf('/'), executable.lastIndexOf('\\'));
+        String name = executable.substring(separator + 1);
         boolean strict = Objects.nonNull(System.getSecurityManager())
             || "false".equalsIgnoreCase(System.getProperty("jdk.lang.Process.allowAmbiguousCommands"));
+        boolean nativeLaunch = name.endsWith(".exe") || strict && name.indexOf('.') < 0;
+        if (!nativeLaunch || "cmd.exe".equals(name)) {
+            return argv;
+        }
         List<String> arguments = new ArrayList<>(argv);
         for (int i = 1; i < arguments.size(); i++) {
             String argument = arguments.get(i);
