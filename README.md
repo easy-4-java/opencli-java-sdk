@@ -224,6 +224,12 @@ agent.close();
 
 Protocol: edge sends `register`; center replies `registered`; center sends `collect` (request_id, site, command, args, positional_args, format, mode); the SDK executes `opencli` locally (via `copyForLocalCliExecution()` to avoid loops) and replies `result`; plus `ping` / `pong`.
 
+### Diagnostic export
+
+Call `OpenCliDiagnosticExport.export(result, 512)` explicitly with an `OpenCliResult` or an exception's partial result. The byte budget applies to UTF-8 text. Output contains only status and field lengths, with a `truncated=true` marker when fields do not fit. Field lengths can disclose how much data was present.
+
+The SDK returns the text in memory. Your application controls the destination and retention. SDK diagnostics omit argv values, raw content, URLs and filesystem paths. Applications that use or log raw results should protect that data. `remoteCaptureRawHttpResponse` is still opt-in.
+
 <a id="9-testing--build"></a>
 ## 9. Testing & Build
 
