@@ -33,7 +33,7 @@ class OpenCliCapabilityOverrideIT {
         Path marker = home.resolve("business-handler-ran");
         OpenCliProperties properties = new OpenCliProperties();
         properties.setExecutable(requireFixture("OPENCLI_INSTALLED_NODE").toString());
-        properties.setLeadingArguments(Arrays.asList("--import", preload.toString(), entry.toString()));
+        properties.setLeadingArguments(Arrays.asList("--import", preload.toUri().toASCIIString(), entry.toString()));
         properties.getEnvironment().put("OPENCLI_FIXTURE_HOME", home.toString());
         properties.getEnvironment().put("OPENCLI_CONFIG_DIR", home.resolve("config").toString());
         properties.getEnvironment().put("OPENCLI_CACHE_DIR", home.resolve("cache").toString());
