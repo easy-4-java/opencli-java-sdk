@@ -181,7 +181,7 @@ Configuration is object-based via `OpenCliProperties`:
 | `maxConcurrentExecutions` | `0` | Max concurrent subprocesses (0 = unlimited) |
 | `startupProbeTimeoutMillis` | `30000` | Availability-probe timeout |
 | `environment` | `{}` | Extra environment variables (e.g. `OPENCLI_CDP_ENDPOINT`) |
-| `remoteAgentBaseUrl` | — | Remote agent base URL |
+| `remoteAgentBaseUrl` | — | Remote Agent HTTP(S) base URL. Keep any deployment path prefix and omit user info, queries and fragments. |
 | `remoteCollectMode` | `cdp` | `bridge` or `cdp` (must match the agent side) |
 | `remoteOutputFormat` | `json` | Output format requested from the agent |
 | `remoteCdpEndpoint` | — | Optional CDP endpoint overriding the agent default |

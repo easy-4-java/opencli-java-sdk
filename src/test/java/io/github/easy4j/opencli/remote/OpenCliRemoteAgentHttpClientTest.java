@@ -373,7 +373,7 @@ class OpenCliRemoteAgentHttpClientTest {
         AtomicReference<String> receivedUri = new AtomicReference<>();
         OpenCliTlsFixture tls = OpenCliTlsFixture.create(temporary);
         SSLContext previous = SSLContext.getDefault();
-        try (JsonCollectStub stub = JsonCollectStub.start(tls.getServer(), exchange -> {
+        try (JsonCollectStub stub = JsonCollectStub.start(tls.getServer(), "/agent/collect", exchange -> {
             receivedCredential.set(exchange.getRequestHeaders().getFirst(header));
             receivedUri.set(exchange.getRequestURI().toASCIIString());
             // The synthetic fixture supports only this explicit header.
@@ -389,7 +389,7 @@ class OpenCliRemoteAgentHttpClientTest {
             }
         })) {
             OpenCliProperties props = baseProps(stub.port());
-            props.setRemoteAgentBaseUrl("https://127.0.0.1:" + stub.port());
+            props.setRemoteAgentBaseUrl("https://127.0.0.1:" + stub.port() + "/agent///");
             props.setRemoteAuthentication(new OpenCliRemoteAuthentication(header, credential));
             Assertions.assertFalse(props.toString().contains(credential));
             Assertions.assertNull(props.copyForLocalCliExecution().getRemoteAuthentication());
@@ -405,7 +405,7 @@ class OpenCliRemoteAgentHttpClientTest {
             try (OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(props)) {
                 Assertions.assertTrue(client.collect(request).isSuccess());
                 Assertions.assertEquals(credential, receivedCredential.get());
-                Assertions.assertEquals("/collect", receivedUri.get());
+                Assertions.assertEquals("/agent/collect", receivedUri.get());
                 Assertions.assertFalse(stub.requestBody.contains(credential));
                 props.setRemoteAuthentication(new OpenCliRemoteAuthentication(header, "rejected-" + credential));
                 ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
@@ -719,6 +719,10 @@ class OpenCliRemoteAgentHttpClientTest {
         }
 
         static JsonCollectStub start(SSLContext tls, HttpHandler response) throws IOException {
+            return start(tls, "/collect", response);
+        }
+
+        static JsonCollectStub start(SSLContext tls, String path, HttpHandler response) throws IOException {
             InetSocketAddress address = new InetSocketAddress("127.0.0.1", 0);
             HttpServer server;
             if (Objects.isNull(tls)) {
@@ -730,7 +734,7 @@ class OpenCliRemoteAgentHttpClientTest {
             }
             JsonCollectStub stub = new JsonCollectStub(server, server.getAddress().getPort());
             server.createContext(
-                "/collect",
+                path,
                 new HttpHandler() {
                     @Override
                     public void handle(HttpExchange exchange) throws IOException {
