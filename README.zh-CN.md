@@ -241,6 +241,8 @@ agent.close();
 
 反向 Agent 默认最多同时执行 4 个 collect 任务，另有 32 个等待名额。构建 Agent 前，可在连接配置中设置 `maxConcurrentCollects` 和 `maxPendingCollects`。等待容量为零时直接拒绝超额请求。容量用尽时返回失败的 `result`，错误为 `worker is busy`。
 
+当前连接收到合法注册确认后，反向 Agent 才开始收单。入站 WebSocket 消息默认上限为 1 MiB，分片按聚合后的字节数计量。需要调整上限时，在创建 Agent 前设置有限的 `maxInboundMessageBytes`。超限消息会关闭对应连接，不会提交命令。
+
 collect 请求 ID 必须为非空白字符串，长度上限 128 个 UTF-8 字节。相同的在途请求只执行一次，同一个 ID 对应不同载荷时会明确拒绝。显式重试已完成的请求有可能收到标记为 `cached: true` 的结果。内存缓存最多保留 1,024 条完成结果，每条最长 10 分钟。跨连接重放要求使用同一个经过 TLS 校验的端点，明文 WebSocket 的去重范围为当前连接。创建新 Agent 实例时从空缓存开始。
 
 `stop()` 停止接单并丢弃等待任务，为已在途任务保留最多 5 秒的收尾时间，随后请求取消。连接线程退出后，同一实例可再次调用 `start()` 重连。`close()` 立即请求取消，并永久关闭该实例。

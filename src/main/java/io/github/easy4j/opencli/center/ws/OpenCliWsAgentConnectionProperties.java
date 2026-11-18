@@ -65,6 +65,9 @@ public class OpenCliWsAgentConnectionProperties {
     /** 排队的 collect 任务上限，零表示没有等待队列。 */
     private int maxPendingCollects = 32;
 
+    /** 单条入站 WebSocket 消息的 UTF-8 字节上限，包括分片聚合。 */
+    private int maxInboundMessageBytes = 1024 * 1024;
+
     /**
      * 首次 {@code registered} 应答等待上限（毫秒）。
      */
