@@ -223,6 +223,12 @@ agent.close();
 
 协议摘要：边缘发送 `register`；中心回执 `registered`；中心下发 `collect`（request_id、site、command、args、positional_args、format、mode）；SDK 在本机执行 `opencli`（通过 `copyForLocalCliExecution()` 强制本地子进程，避免回路）并回执 `result`；另有 `ping` / `pong`。
 
+### 诊断导出
+
+如需导出诊断，请调用 `OpenCliDiagnosticExport.export(result, 512)`，传入 `OpenCliResult` 或异常中的部分结果。上限按 UTF-8 字节计算。输出只包含状态和字段长度，字段放不下时会标明 `truncated=true`。字段长度仍可能反映数据规模。
+
+SDK 在内存中返回文本，由应用决定目的地和保留时间。SDK 诊断会排除命令参数、原始内容、URL 和文件路径。应用读取或记录原始结果时应自行保护这些数据。`remoteCaptureRawHttpResponse` 仍需显式开启。
+
 <a id="9-testing--build"></a>
 ## 9. 测试与构建
 
