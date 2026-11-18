@@ -73,7 +73,14 @@ public final class OpenCliHelpParser {
             return false;
         }
         boolean directory = root.path("commands").isArray();
-        if (directory && "opencli".equals(text(root.path("name"))) && root.path("site_adapters").isObject()) {
+        if (directory && "opencli".equals(text(root.path("name"))) && root.has("site_adapters")) {
+            JsonNode sites = root.path("site_adapters").path("sites");
+            if (!sites.isArray()) {
+                return false;
+            }
+            for (JsonNode site : sites) {
+                requiredName(site);
+            }
             return true;
         }
         if (directory && OpenCliStrings.isNotBlank(text(root.path("site")))) {
@@ -99,7 +106,7 @@ public final class OpenCliHelpParser {
             .command(command)
             .namespace(text(node.path("namespace")))
             .site(site)
-            .aliases(array(node.path("aliases"), OpenCliHelpParser::requiredText))
+            .aliases(array(node.path("aliases"), OpenCliHelpParser::requiredName))
             .commands(array(node.path("commands"), OpenCliHelpParser::schema))
             .positionals(array(node.path("positionals"), OpenCliHelpParser::argument))
             .commandOptions(array(node.path("command_options"), OpenCliHelpParser::argument))
@@ -116,7 +123,7 @@ public final class OpenCliHelpParser {
         }
         JsonNode defaultValue = node.path("default");
         return OpenCliHelpSchema.Argument.builder()
-            .name(requiredText(node.path("name")))
+            .name(requiredName(node.path("name")))
             .flags(text(node.path("flags")))
             .type(text(node.path("type")))
             .takesValue(text(node.path("takes_value")))
@@ -156,6 +163,14 @@ public final class OpenCliHelpParser {
     private static String requiredText(JsonNode node) {
         String value = text(node);
         if (Objects.isNull(value)) {
+            throw invalidSchema();
+        }
+        return value;
+    }
+
+    private static String requiredName(JsonNode node) {
+        String value = text(node);
+        if (OpenCliStrings.isBlank(value)) {
             throw invalidSchema();
         }
         return value;
