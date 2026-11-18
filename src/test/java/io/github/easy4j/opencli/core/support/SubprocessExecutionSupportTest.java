@@ -1,6 +1,8 @@
 package io.github.easy4j.opencli.core.support;
 
 import io.github.easy4j.opencli.core.OpenCliExecutionDetails.TerminationReason;
+import io.github.easy4j.opencli.contract.LifecycleProbe;
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
@@ -14,8 +16,12 @@ class SubprocessExecutionSupportTest {
 
     @Test
     void legacyOutputStreamsAllowBoundedWritesWithoutChangingExecutionDetails() throws Exception {
-        CommandLine command = new CommandLine("/usr/bin/printf");
-        command.addArgument("abc");
+        String executable = System.getProperty("os.name").startsWith("Windows") ? "java.exe" : "java";
+        File java = new File(new File(System.getProperty("java.home"), "bin"), executable);
+        CommandLine command = new CommandLine(java);
+        command.addArguments(new String[] {"-cp",
+            System.getProperty("surefire.test.class.path", System.getProperty("java.class.path")),
+            LifecycleProbe.class.getName(), "stdout", "3"}, false);
         SubprocessExecutionSupport.RunSession session = SubprocessExecutionSupport.execute(
             new SubprocessExecutionSupport.ExecutionRequest(command, null, null, 10_000L, 5L));
 
@@ -25,7 +31,7 @@ class SubprocessExecutionSupportTest {
         stdout.write(new byte[]{'x', 'e', 'f'}, 1, 2);
         stderr.write(new byte[]{'!'}, 0, 1);
 
-        assertArrayEquals("abcde".getBytes(StandardCharsets.UTF_8), stdout.toByteArray());
+        assertArrayEquals("xxxde".getBytes(StandardCharsets.UTF_8), stdout.toByteArray());
         assertTrue(stdout.isOverflowed());
         assertArrayEquals(new byte[]{'!'}, stderr.toByteArray());
         assertFalse(session.getExecutionDetails().isStdoutTruncated());
