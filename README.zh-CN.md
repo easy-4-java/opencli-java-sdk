@@ -180,7 +180,7 @@ cli.gemini().deepResearch("topic",
 | `maxConcurrentExecutions` | `0` | 最大并发子进程数（0 = 不限） |
 | `startupProbeTimeoutMillis` | `30000` | 可用性探测超时 |
 | `environment` | `{}` | 额外环境变量（如 `OPENCLI_CDP_ENDPOINT`） |
-| `remoteAgentBaseUrl` | — | 远程 Agent 根地址 |
+| `remoteAgentBaseUrl` | — | 远程 Agent 的 HTTP(S) 基址，可以保留部署路径前缀。省略用户信息、查询参数和片段。 |
 | `remoteCollectMode` | `cdp` | `bridge` 或 `cdp`（须与 Agent 侧一致） |
 | `remoteOutputFormat` | `json` | 向 Agent 请求的输出格式 |
 | `remoteCdpEndpoint` | — | 可选，覆盖 Agent 默认 CDP 端点 |
