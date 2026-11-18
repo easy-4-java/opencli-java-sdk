@@ -88,3 +88,43 @@ jobs:
             platform-evidence
             target/surefire-reports
           if-no-files-found: error
+
+
+  browser-bridge:
+    name: Real Browser Bridge (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.18.0'
+      - name: Install the published OpenCLI in the runner's temporary directory
+        run: npm install --prefix "$RUNNER_TEMP/opencli-browser-cli" --ignore-scripts --no-audit --no-fund @jackwener/opencli@1.8.8
+      - name: Exercise the real Chrome extension against the loopback daemon
+        run: |
+          python scripts/run_browser_bridge_contracts.py \
+            --cli-entry "$RUNNER_TEMP/opencli-browser-cli/node_modules/@jackwener/opencli/dist/src/main.js" \
+            --evidence browser-bridge-evidence -- "$(command -v bash)" ./mvnw
+      - name: Upload real Bridge evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-bridge-${{ matrix.os }}-${{ github.sha }}
+          path: browser-bridge-evidence
+          if-no-files-found: error
