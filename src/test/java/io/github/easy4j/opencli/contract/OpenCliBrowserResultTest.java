@@ -7,6 +7,10 @@ import io.github.easy4j.opencli.browser.result.OpenCliBrowserOpenResult;
 import io.github.easy4j.opencli.browser.result.OpenCliBrowserResult;
 import io.github.easy4j.opencli.browser.result.OpenCliBrowserResult.Status;
 import io.github.easy4j.opencli.browser.result.OpenCliBrowserTab;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserSnapshot;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserSourceComparison;
+import io.github.easy4j.opencli.browser.support.OpenCliBrowserSnapshotSource;
+import io.github.easy4j.opencli.browser.support.OpenCliBrowserStateOptions;
 import io.github.easy4j.opencli.core.OpenCliExecutionDetails;
 import io.github.easy4j.opencli.core.OpenCliExecutor;
 import io.github.easy4j.opencli.core.OpenCliResult;
@@ -100,9 +104,79 @@ class OpenCliBrowserResultTest {
         assertSame(closeResult, session.close());
     }
 
+    @Test
+    void decodesDomAndAxTextAndPreservesSnapshotBody() {
+        for (String source : Arrays.asList("dom", "ax")) {
+            OpenCliResult raw = raw(fixture("state-" + source, ".stdout"));
+            OpenCliBrowserResult<OpenCliBrowserSnapshot> snapshot = OpenCliBrowserDecoder.snapshot(raw);
+            assertEquals(Status.PARSED, snapshot.getStatus());
+            assertSame(raw, snapshot.getRaw());
+            assertEquals("http://127.0.0.1:18765/basic.html", snapshot.getValue().getUrl());
+            assertTrue(snapshot.getValue().getText().contains("Continue"));
+            assertEquals(raw.getStdout().substring(raw.getStdout().indexOf("\n\n") + 2),
+                snapshot.getValue().getText());
+        }
+        assertEquals(Status.INVALID_SHAPE, OpenCliBrowserDecoder.snapshot(raw("URL: fixture\n\n")).getStatus());
+        assertEquals(Status.INVALID_SHAPE, OpenCliBrowserDecoder.snapshot(raw(fixture("state-compare"))).getStatus());
+    }
+
+    @Test
+    void comparisonDistinguishesSourceFailureFromProcessFailure() {
+        OpenCliBrowserResult<OpenCliBrowserSourceComparison> result =
+            OpenCliBrowserDecoder.compareSources(raw(fixture("state-compare")));
+        assertEquals(Status.PARSED, result.getStatus());
+        assertEquals(77L, result.getValue().getDom().getBytes());
+        assertEquals(1L, result.getValue().getAx().getInteractive());
+        assertTrue(result.getValue().getAx().isOk());
+        assertNull(result.getValue().getDom().getInteractive());
+
+        OpenCliResult failedAx = raw(fixture("state-compare-ax-failure"));
+        OpenCliBrowserResult<OpenCliBrowserSourceComparison> partial = OpenCliBrowserDecoder.compareSources(failedAx);
+        assertEquals(Status.PARSED, partial.getStatus());
+        assertTrue(partial.getValue().getDom().isOk());
+        assertFalse(partial.getValue().getAx().isOk());
+        assertEquals("BROWSER_AX_UNAVAILABLE", partial.getValue().getAx().getErrorCode());
+        assertNull(partial.getValue().getAx().getBytes());
+        assertSame(failedAx, partial.getRaw());
+
+        assertEquals(Status.INVALID_SHAPE, OpenCliBrowserDecoder.compareSources(
+            raw("{\"url\":\"\",\"sources\":{\"dom\":{\"ok\":true},\"ax\":{\"ok\":true}}}")).getStatus());
+    }
+
+    @Test
+    void typedSnapshotRejectsMissingSourceAndRawPreservesFutureSource() {
+        OpenCliExecutor executor = new OpenCliExecutor(new OpenCliProperties()) {
+            @Override
+            public OpenCliResult invoke(List<String> argv) {
+                if (argv.contains("--compare-sources")) {
+                    assertEquals(Arrays.asList("browser", "fixture", "state", "--compare-sources"), argv);
+                    return raw(fixture("state-compare"));
+                }
+                assertEquals("state", argv.get(2));
+                assertEquals("--source", argv.get(3));
+                assertEquals(5, argv.size());
+                if ("ax".equals(argv.get(4))) {
+                    return raw(fixture("state-ax", ".stdout"));
+                }
+                assertEquals("future", argv.get(4));
+                return raw("future fixture");
+            }
+        };
+        OpenCliBrowserSession session = new OpenCliBrowserSession(executor, "fixture", null);
+        assertThrows(NullPointerException.class, () -> session.snapshotTyped(null, null));
+        assertEquals(Status.PARSED, session.snapshotTyped(null, OpenCliBrowserSnapshotSource.AX).getStatus());
+        assertEquals(Status.PARSED, session.compareStateSourcesTyped(null).getStatus());
+        assertEquals("future fixture", session.state(null,
+            OpenCliBrowserStateOptions.builder().source("future").build()).getStdout());
+    }
+
     static String fixture(String name) {
+        return fixture(name, ".json");
+    }
+
+    private static String fixture(String name, String extension) {
         try (InputStream stream = OpenCliBrowserResultTest.class.getResourceAsStream(
-                "/opencli-contracts/v1/browser-output-1.8.8/" + name + ".json");
+                "/opencli-contracts/v1/browser-output-1.8.8/" + name + extension);
              Scanner scanner = new Scanner(stream, StandardCharsets.UTF_8.name()).useDelimiter("\\A")) {
             return scanner.next();
         } catch (IOException ex) {

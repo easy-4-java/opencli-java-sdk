@@ -3,6 +3,8 @@ package io.github.easy4j.opencli.browser;
 import io.github.easy4j.opencli.browser.result.OpenCliBrowserDecoder;
 import io.github.easy4j.opencli.browser.result.OpenCliBrowserOpenResult;
 import io.github.easy4j.opencli.browser.result.OpenCliBrowserResult;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserSnapshot;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserSourceComparison;
 import io.github.easy4j.opencli.browser.result.OpenCliBrowserTab;
 import io.github.easy4j.opencli.browser.support.OpenCliBrowserConsoleOptions;
 import io.github.easy4j.opencli.browser.support.OpenCliBrowserDragLocator;
@@ -11,6 +13,7 @@ import io.github.easy4j.opencli.browser.support.OpenCliBrowserFindOptions;
 import io.github.easy4j.opencli.browser.support.OpenCliBrowserGetHtmlOptions;
 import io.github.easy4j.opencli.browser.support.OpenCliBrowserScreenshotOptions;
 import io.github.easy4j.opencli.browser.support.OpenCliBrowserSemanticLocator;
+import io.github.easy4j.opencli.browser.support.OpenCliBrowserSnapshotSource;
 import io.github.easy4j.opencli.browser.support.OpenCliBrowserStateOptions;
 import io.github.easy4j.opencli.browser.support.OpenCliBrowserTabOptions;
 import io.github.easy4j.opencli.core.OpenCliArgSupport;
@@ -219,6 +222,27 @@ public final class OpenCliBrowserSession {
             options = OpenCliBrowserStateOptions.builder().source("dom").build();
         }
         return state(tab, options);
+    }
+
+    /**
+     * @param tab optional target tab
+     * @param source explicit DOM or AX source
+     * @return strict URL and snapshot text from the selected source
+     */
+    public OpenCliBrowserResult<OpenCliBrowserSnapshot> snapshotTyped(OpenCliBrowserTabOptions tab,
+        OpenCliBrowserSnapshotSource source) {
+        OpenCliBrowserStateOptions options = OpenCliBrowserStateOptions.builder()
+            .source(Objects.requireNonNull(source, "source").getOptionValue()).build();
+        return OpenCliBrowserDecoder.snapshot(state(tab, options));
+    }
+
+    /**
+     * @param tab optional target tab
+     * @return strict comparison with each source's independent outcome
+     */
+    public OpenCliBrowserResult<OpenCliBrowserSourceComparison> compareStateSourcesTyped(OpenCliBrowserTabOptions tab) {
+        return OpenCliBrowserDecoder.compareSources(
+            state(tab, OpenCliBrowserStateOptions.builder().compareSources(true).build()));
     }
 
     /** {@code browser frames} */
