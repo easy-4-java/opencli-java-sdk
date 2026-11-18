@@ -190,6 +190,7 @@ Configuration is object-based via `OpenCliProperties`:
 Notes:
 
 - In remote mode the `stdout` is the JSON `items` the agent returned (parsed into line items per `format`), which may differ from local raw subprocess text; `leadingArguments` are local-only and are not injected on the remote path.
+- A legacy HTTP `/collect` reply must contain a JSON boolean `success`. Invalid envelopes raise `OpenCliRemoteProtocolException`, which extends `OpenCliExecutableFailureException`. A valid reply with `success: true` and omitted or null `items` still returns `[]`.
 - `execution-target=REMOTE_AGENT_HTTP` makes the availability probe report `SKIPPED_REMOTE_MODE` (treated as startable).
 
 <a id="8-core-usage"></a>

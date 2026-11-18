@@ -8,6 +8,7 @@ import io.github.easy4j.opencli.OpenCliProperties;
 import io.github.easy4j.opencli.core.OpenCliResult;
 import io.github.easy4j.opencli.exception.OpenCliExecutableFailureException;
 import io.github.easy4j.opencli.exception.OpenCliNonZeroExitException;
+import io.github.easy4j.opencli.exception.OpenCliRemoteProtocolException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +23,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * 使用 JDK {@link HttpServer} 模拟 Agent {@code POST /collect}，校验 HTTP 客户端与原始报文保留选项。
@@ -151,6 +154,42 @@ class OpenCliRemoteAgentHttpClientTest {
             OpenCliCollectRequest request = OpenCliCollectRequest.builder().site("x").command("y").build();
             OpenCliExecutableFailureException failure = Assertions.assertThrows(
                 OpenCliExecutableFailureException.class, () -> client.collect(request));
+            Assertions.assertTrue(failure.getMessage().contains("response envelope"));
+            Assertions.assertTrue(failure.getMessage().contains("correlationId="));
+            Assertions.assertNull(failure.getCause());
+        }
+    }
+
+    @Test
+    void explicitSuccessfulReplyCanOmitItems() throws IOException {
+        try (JsonCollectStub stub = JsonCollectStub.start("{\"success\":true,\"extension\":42}");
+             OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(baseProps(stub.port()))) {
+            OpenCliCollectRequest request = OpenCliCollectRequest.builder().site("x").command("y").build();
+            OpenCliResult result = client.collect(request);
+            Assertions.assertTrue(result.isSuccess());
+            Assertions.assertEquals("[]", result.getStdout());
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "",
+        "null",
+        "[]",
+        "{\"items\":[]}",
+        "{\"success\":null}",
+        "{\"success\":\"true\"}",
+        "{\"success\":1}",
+        "{\"success\":true,\"error\":42}",
+        "{\"success\":false,\"success\":true}",
+        "{\"success\":true} {\"success\":false}"
+    })
+    void invalidLegacyEnvelopeIsAProtocolFailure(String body) throws IOException {
+        try (JsonCollectStub stub = JsonCollectStub.start(body);
+             OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(baseProps(stub.port()))) {
+            OpenCliCollectRequest request = OpenCliCollectRequest.builder().site("x").command("y").build();
+            OpenCliRemoteProtocolException failure = Assertions.assertThrows(
+                OpenCliRemoteProtocolException.class, () -> client.collect(request));
             Assertions.assertTrue(failure.getMessage().contains("response envelope"));
             Assertions.assertTrue(failure.getMessage().contains("correlationId="));
             Assertions.assertNull(failure.getCause());
