@@ -329,10 +329,7 @@ class OpenCliProcessContractTest {
     void queuedInvocationUsesItsArgvSnapshotAfterCallerMutation() throws Exception {
         OpenCliProcessRuntime runtime = new OpenCliProcessRuntime(1);
         OpenCliExecutor blocker = new OpenCliExecutor(properties(1), runtime);
-        OpenCliProperties echoProperties = properties(1);
-        List<String> leading = echoProperties.getLeadingArguments();
-        leading.set(leading.size() - 1, ContractProbe.class.getName());
-        OpenCliExecutor echo = new OpenCliExecutor(echoProperties, runtime);
+        OpenCliExecutor echo = new OpenCliExecutor(OpenCliArgvContractTest.properties(), runtime);
         List<String> expected = Arrays.asList("demo", "echo", "", "  原始值  ");
         CountDownLatch copied = new CountDownLatch(1);
         List<String> input = new ArrayList<String>(expected) {
