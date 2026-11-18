@@ -102,3 +102,7 @@ argv 入口继续限制为 SDK 已登记适配器和可保真转换的参数。�
 实际 Agent 与 OpenCLI 1.8.8 的三线回环验收及默认端口兼容性差异见 [联调记录](evidence/2026-11-19-live-agent.md)。
 
 同一实际 Agent 的三线 HTTPS、Authorization 及证书名称负例，也已写入 [联调记录](evidence/2026-11-19-live-agent.md#https-和显式-authorization)。
+
+### OC-REMOTE-002 旧版 Agent 的无值选项
+
+锁定的旧版 Agent 为每个 DTO 选项生成两个 argv 元素。原转换把尾部的 `--limit`、后接其他选项的 `--limit` 以及裸开关 `--verbose` 猜为布尔 true。JDK 17 回归中，该三项均错误进入 HTTP。转换现在要求明确的字符串值，拒绝向旧版协议派发裸选项。值明确的 `--limit 5`、`--limit=5` 和已联调的 `--help=true` 路径仍能转换。

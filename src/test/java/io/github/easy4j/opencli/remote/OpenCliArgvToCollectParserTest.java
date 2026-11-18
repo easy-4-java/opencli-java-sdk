@@ -63,10 +63,9 @@ class OpenCliArgvToCollectParserTest {
     }
 
     @Test
-    void shouldParseBooleanFlags() {
-        OpenCliCollectRequest req = OpenCliArgvToCollectParser.parse(
-            Arrays.asList("npm", "search", "react", "--verbose"), "json", "cdp", "");
-        assertEquals(Boolean.TRUE, req.getArgs().get("verbose"));
+    void shouldRejectBareFlags() {
+        assertThrows(IllegalArgumentException.class, () -> OpenCliArgvToCollectParser.parse(
+            Arrays.asList("npm", "search", "react", "--verbose"), "json", "cdp", ""));
     }
 
     @Test
