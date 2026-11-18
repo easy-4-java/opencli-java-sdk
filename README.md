@@ -192,7 +192,7 @@ Configuration is object-based via `OpenCliProperties`:
 
 Notes:
 
-- Local `browser console --follow` uses synchronous capture and the same finite timeout and byte limits. It returns collected output after completion or a terminal condition. It provides no live output stream.
+- Local `browser console --follow` and `browser network --follow` use synchronous capture with a finite execution timeout and stdout/stderr byte limits. A successful CLI exit returns the collected output. Timeout, cancellation, excess output, and nonzero exit expose the termination reason and available partial output through the execution exception. A disabled command timeout is rejected before launch. Live streaming is unsupported.
 - In remote mode the `stdout` is the JSON `items` the agent returned (parsed into line items per `format`), which may differ from local raw subprocess text; `leadingArguments` are local-only and are not injected on the remote path.
 - `execution-target=REMOTE_AGENT_HTTP` makes the availability probe report `SKIPPED_REMOTE_MODE` (treated as startable).
 

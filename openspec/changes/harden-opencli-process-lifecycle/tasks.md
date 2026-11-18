@@ -39,3 +39,9 @@ OC-PROC-001/002 使用实际子进程验证独立及共享许可、排队超时�
 
 
 中英文 README 已对齐当前本地执行器的配置默认值、非法值、排队与执行共用预算、独立清理等待，以及同步 `--follow` 的限制。配置边界由 `OpenCliProcessBoundaryTest` 和 `OpenCliProcessContractTest` 验证。连续输出策略完整验收仍跟踪 OC-PROC-006。
+
+## OC-PROC-006 本地同步采集验证
+
+`OpenCliProcessContractTest` 经 typed `browser network --follow` 入口运行真实 JVM fixture，校验 CLI argv，并覆盖正常退出、CLI 非零退出、输出超限、调用线程中断、执行超时，以及禁用时限时启动前拒绝。超时测试同时启动独立进程，确认该进程仍运行并可自行正常退出。JDK 17 执行 `mvn -B -ntp -o clean verify` 退出 0，全量 2,099 项（其中该类 14 项），0 失败、0 错误、0 跳过。
+
+本记录覆盖当前本地同步入口。平台矩阵、真实 OpenCLI 持续输出、受控 sink 和后代进程所有权仍需独立证据。

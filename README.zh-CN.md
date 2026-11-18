@@ -189,7 +189,7 @@ cli.gemini().deepResearch("topic",
 | `remoteCdpEndpoint` | — | 可选，覆盖 Agent 默认 CDP 端点 |
 | `remoteCaptureRawHttpResponse` | `false` | 在 `OpenCliResult#getRemoteRawHttpBody()` 中保留原始 HTTP 报文（大响应请谨慎开启） |
 
-本地 `browser console --follow` 使用同步采集，仍受超时和输出字节上限约束。命令完成或进入终止状态后返回已采集输出，不提供实时输出流。
+本地 `browser console --follow` 和 `browser network --follow` 使用同步采集，受有限执行时限以及 stdout、stderr 字节上限约束。CLI 正常退出后返回采集结果。超时、中断、输出超限和非零退出时，可从执行异常取得终止原因与已有部分输出。禁用命令时限会在启动前被拒绝。当前接口仅支持同步采集。
 
 注意事项：
 

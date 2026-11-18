@@ -1,9 +1,14 @@
 package io.github.easy4j.opencli.contract;
 
 import io.github.easy4j.opencli.OpenCliProperties;
+import io.github.easy4j.opencli.browser.OpenCliBrowserClient;
+import io.github.easy4j.opencli.browser.OpenCliBrowserSession;
+import io.github.easy4j.opencli.browser.OpenCliBrowserSession.OpenCliBrowserNetworkOptions;
+import io.github.easy4j.opencli.core.OpenCliExecutionDetails.TerminationReason;
 import io.github.easy4j.opencli.core.OpenCliExecutor;
 import io.github.easy4j.opencli.core.OpenCliResult;
 import io.github.easy4j.opencli.exception.OpenCliException;
+import io.github.easy4j.opencli.exception.OpenCliNonZeroExitException;
 import io.github.easy4j.opencli.exception.OpenCliTimeoutException;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -63,6 +68,109 @@ class OpenCliProcessContractTest {
     }
 
     private static Object details(OpenCliResult result) { return getter(result, "getExecutionDetails"); }
+
+    private OpenCliBrowserSession followSession(OpenCliProperties properties, String mode) {
+        properties.getLeadingArguments().addAll(Arrays.asList("network-follow", mode, dir.resolve("follow-ready").toString()));
+        return new OpenCliBrowserClient(new OpenCliExecutor(properties)).session("fixture");
+    }
+
+    private OpenCliResult follow(OpenCliBrowserSession session) {
+        return session.network(OpenCliBrowserNetworkOptions.builder().follow(true).build(), null);
+    }
+
+    @Test
+    void networkFollowReturnsCapturedEventsAfterNormalExit() {
+        OpenCliResult result = follow(followSession(properties(1), "complete"));
+        assertTrue(result.isSuccess());
+        assertEquals("event-one\nevent-two\n", result.getStdout());
+        assertEquals(TerminationReason.PROCESS_EXIT, result.getExecutionDetails().getTerminationReason());
+    }
+
+    @Test
+    void networkFollowStopsAtCaptureLimitWithPartialOutput() {
+        OpenCliProperties properties = properties(1);
+        properties.setMaxStdoutBytes(32);
+        OpenCliBrowserSession session = followSession(properties, "overflow");
+        OpenCliException failure = assertThrows(OpenCliException.class, () -> follow(session));
+        OpenCliResult partial = failure.getPartialResult();
+        assertEquals(TerminationReason.OUTPUT_LIMIT, partial.getExecutionDetails().getTerminationReason());
+        assertEquals(32L, partial.getExecutionDetails().getStdoutCapturedBytes());
+        assertTrue(partial.getStdout().startsWith("event-one\n"));
+        assertFalse(partial.isSuccess());
+    }
+
+    @Test
+    void networkFollowReportsTheCliExitCode() {
+        OpenCliBrowserSession session = followSession(properties(1), "failed");
+        OpenCliNonZeroExitException failure = assertThrows(OpenCliNonZeroExitException.class, () -> follow(session));
+        OpenCliResult partial = failure.getPartialResult();
+        assertEquals(Integer.valueOf(23), partial.getExitCode());
+        assertEquals("fixture failed", partial.getStderr());
+        assertEquals(TerminationReason.PROCESS_EXIT, partial.getExecutionDetails().getTerminationReason());
+    }
+
+    @Test
+    void networkFollowRejectsDisabledDeadlineBeforeSpawning() {
+        OpenCliProperties properties = properties(1);
+        properties.setCommandTimeoutMillis(0L);
+        OpenCliBrowserSession session = followSession(properties, "wait");
+        IllegalStateException failure = assertThrows(IllegalStateException.class, () -> follow(session));
+        assertEquals("opencli.command-timeout-millis must be positive", failure.getMessage());
+        assertFalse(Files.exists(dir.resolve("follow-ready")));
+    }
+
+    @Test
+    void networkFollowTimeoutLeavesAnIndependentProcessRunning() throws Exception {
+        OpenCliExecutor independent = new OpenCliExecutor(properties(1));
+        Path started = dir.resolve("independent-started");
+        Path gate = dir.resolve("independent-release");
+        ExecutorService worker = Executors.newSingleThreadExecutor();
+        try {
+            Future<OpenCliResult> other = worker.submit(() -> independent.invoke("hold", started.toString(), gate.toString()));
+            assertTrue(awaitFile(started, 5000L));
+
+            OpenCliProperties properties = properties(1);
+            properties.setCommandTimeoutMillis(2500L);
+            OpenCliBrowserSession session = followSession(properties, "wait");
+            OpenCliTimeoutException timeout = assertThrows(OpenCliTimeoutException.class, () -> follow(session));
+            OpenCliResult partial = timeout.getPartialResult();
+            assertEquals(TerminationReason.EXECUTION_TIMEOUT, partial.getExecutionDetails().getTerminationReason());
+            assertEquals("event-one\n", partial.getStdout());
+
+            assertFalse(other.isDone(), "timeout must leave independent invocation running");
+            release(gate);
+            assertTrue(other.get(5, TimeUnit.SECONDS).isSuccess());
+        } finally {
+            release(gate);
+            worker.shutdownNow();
+            assertTrue(worker.awaitTermination(5, TimeUnit.SECONDS));
+        }
+    }
+
+    @Test
+    void networkFollowPreservesCancellationAfterAnEvent() throws Exception {
+        OpenCliBrowserSession session = followSession(properties(1), "wait");
+        AtomicReference<OpenCliResult> partial = new AtomicReference<>();
+        Thread caller = new Thread(() -> {
+            try {
+                follow(session);
+            } catch (OpenCliException failure) {
+                partial.set(failure.getPartialResult());
+            }
+        }, "network-follow-caller");
+        try {
+            caller.start();
+            assertTrue(awaitFile(dir.resolve("follow-ready"), 5000L));
+            caller.interrupt();
+            caller.join(5000L);
+            assertFalse(caller.isAlive());
+            assertNotNull(partial.get());
+            assertEquals(TerminationReason.CANCELLED, partial.get().getExecutionDetails().getTerminationReason());
+        } finally {
+            caller.interrupt();
+            caller.join(5000L);
+        }
+    }
 
     @Test
     void anotherClientCannotReplaceAnActiveClientsLimiter() throws Exception {
