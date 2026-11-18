@@ -81,6 +81,22 @@ class OpenCliWsReverseAgentClientTest {
     }
 
     @Test
+    void defaultConnectionDiagnosticExcludesAddressesAndLabel() {
+        OpenCliWsAgentConnectionProperties properties = new OpenCliWsAgentConnectionProperties();
+        properties.setCentralApiBaseUrl("https://center.example/?token=center-canary");
+        properties.setAgentAdvertiseUrl("https://agent-canary.example/");
+        properties.setLabel("label-canary");
+
+        String diagnostic = properties.toString();
+        assertTrue(diagnostic.contains("webSocketPath=NODES_WS"));
+        assertTrue(diagnostic.contains("maxPendingCollects="));
+        assertFalse(diagnostic.contains("center-canary"));
+        assertFalse(diagnostic.contains("agent-canary"));
+        assertFalse(diagnostic.contains("label-canary"));
+        assertEquals("https://agent-canary.example/", properties.getAgentAdvertiseUrl());
+    }
+
+    @Test
     void failedSessionLogDoesNotEchoConfiguredUrlCanary() throws Exception {
         String canary = "wsurlsecret" + UUID.randomUUID().toString().replace("-", "");
         OpenCliWsAgentConnectionProperties conn = new OpenCliWsAgentConnectionProperties();

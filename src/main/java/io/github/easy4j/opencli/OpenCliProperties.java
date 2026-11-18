@@ -19,6 +19,7 @@ import lombok.ToString;
  * {@link OpenCliExecutionTarget#REMOTE_AGENT_HTTP} 模式下为连接池等待、建连和读取响应共享的总预算。
  * </p>
  */
+@ToString(onlyExplicitlyIncluded = true)
 @Data/**
 
  * OpenCLI runtime configuration POJO with no Spring dependency.
@@ -44,17 +45,16 @@ public class OpenCliProperties {
     /**
      * 执行目标：本机进程或与 opencli-admin 兼容的远端 Agent。
      */
+    @ToString.Include
     private OpenCliExecutionTarget executionTarget = OpenCliExecutionTarget.LOCAL_PROCESS;
 
     /**
      * 远端 Agent 根 URL（不含尾斜杠），例如 {@code http://192.168.1.10:19823}。
      * <p>仅当 {@link #executionTarget} 为 {@link OpenCliExecutionTarget#REMOTE_AGENT_HTTP} 时必填。</p>
      */
-    @ToString.Exclude
     private String remoteAgentBaseUrl;
 
     /** Explicit credential header for the configured HTTPS Agent. */
-    @ToString.Exclude
     private OpenCliRemoteAuthentication remoteAuthentication;
 
     /**
@@ -77,8 +77,10 @@ public class OpenCliProperties {
      * {@code remoteRawHttpBody} 字段；
      * 本地模式无效果。大响应时请谨慎开启。
      */
+    @ToString.Include
     private boolean remoteCaptureRawHttpResponse = false;
     /** Maximum decoded HTTP response body bytes accepted from a remote Agent. */
+    @ToString.Include
     private int maxRemoteResponseBytes = 10 * 1024 * 1024;
 
     /**
@@ -96,22 +98,26 @@ public class OpenCliProperties {
     /**
      * 单次调用超时（毫秒）：本地模式用于子进程 Watchdog；远程模式下覆盖 Agent HTTP 传输全过程。
      */
+    @ToString.Include
     private long commandTimeoutMillis = 300_000L;
 
     /**
      * 子进程单流（stdout/stderr 各自计）输出捕获上限（字节）。超过部分丢弃，
      * 并在结果字符串尾部追加截断标记；{@code <= 0} 表示不限制。默认 10 MiB。
      */
+    @ToString.Include
     private long maxOutputBytes = 10L * 1024 * 1024;
 
     /**
      * 本机 CLI 子进程最大并发数；小于等于 0 时使用 CPU 核心数与 2 的较大值。
      */
+    @ToString.Include
     private int maxConcurrentExecutions = 0;
 
     /**
      * 启动探测（{@code opencli list}）专用超时（毫秒）；小于等于 0 时探测使用 30 秒。
      */
+    @ToString.Include
     private long startupProbeTimeoutMillis = 30_000L;
 
     /**
@@ -148,9 +154,12 @@ public class OpenCliProperties {
     }
 
     /** Maximum stdout bytes captured per invocation. */
+    @ToString.Include
     private int maxStdoutBytes = 8 * 1024 * 1024;
     /** Maximum stderr bytes captured per invocation. */
+    @ToString.Include
     private int maxStderrBytes = 2 * 1024 * 1024;
     /** Maximum time to wait for owned resources after execution ends. */
+    @ToString.Include
     private long cleanupGraceMillis = 5_000L;
 }
