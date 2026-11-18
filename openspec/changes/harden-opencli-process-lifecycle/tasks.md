@@ -13,7 +13,7 @@
 
 - [ ] 2.1 引入稳定 limiter 和单调 deadline，将许可等待纳入总预算。
 - [ ] 2.2 实现有限 capture、OUTPUT_LIMIT 和安全 UTF-8 截断策略。
-- [ ] 2.3 实现统一终结路径与有限 cleanup，保护共享 daemon/用户进程。
+- [x] 2.3 实现统一终结路径与有限 cleanup，保护共享 daemon/用户进程。
 
 ## 3. 兼容和证据
 
@@ -82,3 +82,12 @@ JDK 21 使用仓库 Maven Wrapper 执行 `-B -ntp -o clean verify`，2,117 项�
 修复将 native 终止调用交给每次执行最多两个守护工作线程，普通和强制终止各发出一次。watchdog 回调只提交终止请求，既有锁不覆盖 native 终止操作。原始 `CANCELLED` 或 `EXECUTION_TIMEOUT` 保留。终止操作未结束时保留 `UNCONFIRMED`，不伪造退出码，并隔离当前运行时。测试最后释放注入的阻塞线程。该修复范围为 SDK 已持有的根进程，后代所有权仍待验收。
 
 JDK 17 定向 29 项通过。JDK 21 使用仓库 Maven Wrapper 执行 `-B -ntp -o clean verify`，2,119 项通过，0 失败、0 错误、0 跳过。平台契约证据增加 `SubprocessCleanupFaultTest`。
+
+
+## C02 锁定版本与托管进程验证
+
+本分支以 `72c9dd89c04d1fa82457fa906744dd3491e3704e` 为基线，用 JDK 21 执行 `OpenCliBrowserBridgeIT#boundedNetworkFollowLeavesTheRealBridgeAndPageAvailable` 与 `OpenCliProcessContractTest`、`OpenCliProcessBoundaryTest`、`SubprocessCleanupFaultTest`、`SubprocessCompletionRaceTest`，共 35 项实际执行，零失败、零错误、零跳过。报告位于 `target/surefire-reports`。
+
+真实 Browser Bridge 1.0.24、OpenCLI 1.8.8 和临时 Chrome 在回环页面上执行两次同步 `network --follow --all`。配置 4,500 ms 与 64 KiB 上限时，结果为 `EXECUTION_TIMEOUT`。配置 12,000 ms 与 2 KiB 上限时，结果为 `OUTPUT_LIMIT`。两次均保留页面请求证据并确认直属进程退出，页面 ID 保持不变。测试进程还验证同一 daemon PID 和 Chrome 进程仍存活。每次使用新的页面 URL 与会话，避免复用已停止产生测试流量的旧页面。
+
+已核对 JDK 8、17、21 的托管基线报告，共八个平台作业。它们分别实际执行独立进程存活、调用取消、线程中断后的直属进程回收、以及继承管道且身份未确认的后代不被停止这四个用例，均无跳过和失败。JDK 8 托管范围为 Intel macOS 和 Windows。JDK 17、21 加测 Apple Silicon macOS。新工作流要求在报告中出具 `SubprocessCompletionRaceTest` 的执行证据，新增托管门禁仍待本提交运行结果。后代身份未知继续通过清理状态和 `descendantsExitConfirmed` 表达。
