@@ -8,7 +8,7 @@
 
 - [ ] 1.1 记录三个精确HEAD和允许差异矩阵，确定first-implementation分支经评审认可。
 - [x] 1.2 建立共享contractfixture目录、来源lock与测试runner，复用现有coverage而不删除其它测试。
-- [ ] 1.3 定义完整argv/协议/typed/live分层报告，加入0测试和missingreport失败规则。
+- [x] 1.3 定义完整argv/协议/typed/live分层报告，加入0测试和missingreport失败规则。见本文真实安装版和报告反例。
 
 ## 2. 上游与文档
 
@@ -107,3 +107,10 @@ tar -xOf opencli-1.8.8.tgz package/cli-manifest.json > cli-manifest.json
 | [C10](specs/opencli-branch-contract-parity/spec.md) OC-PARITY-001–006 | 上述精确 SHA、分支工具链矩阵、清单校验、分层报告及历史真实执行记录。OpenSpec strict 校验只证明规格有效。最终验收依据第 3 节。 |
 
 Java 17 的独立定向评审以 `c6d544638e44dba3c53ec3e5a6f65f2f20a16340` 的 SDK 源码为准。基线已编译的调用方可链接旧签名、读取并修改有界输出视图。该视图的后续写入不会改变原执行证据。独立探针确认读取异常与子进程退出同时发生时保留 `IO_FAILURE`，以及 HTTP 200/503 遇到无效字符集时分别保留协议失败及 HTTP 失败。Java 17 本次验证提交在该源码之上增加 CI 和规格记录。此次复审只覆盖这些具体修复，最终全量评审和归档仍开放。
+
+
+### OC-PARITY-003/004 真实安装版和报告反例
+
+独立于全量构建，使用已从 npm 取得的 OpenCLI 1.8.8 和 Node 24.18.0，运行 `OpenCliCapabilityOverrideIT` 与 `OpenCliReadOnlyDiagnosticsIT`。Java 8 和 21 使用上表验证提交，Java 17 使用 `c4a6646b9c8592bfae17cc641c74e031f4bcb7f4`，其 SDK 源码与上表一致。三线各自使用 Wrapper，旧 Surefire 报告先移出测试目录。每线真实执行层均为 `PASS`，各执行 2 项，零失败、零错误、零跳过，命令和报告退出 0。范围为隔离的插件发现及只读诊断。
+
+用各线报告的独立副本做两项反例。移除 `OpenCliReadOnlyDiagnosticsIT` 报告时，该套件出现在 `missingSuites`。保留报告文件但将实测用例数置零时，该套件出现在 `unprovenSuites`。六次报告均在另一套件通过且 Maven 退出 0 的输入下返回 `FAIL`，报告命令退出 1。报告以必选套件和执行层分别判定。平台覆盖和最终集成验收继续按第 3 节执行。

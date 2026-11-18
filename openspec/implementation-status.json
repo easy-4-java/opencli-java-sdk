@@ -31,7 +31,7 @@
   "threeBranchIntegrationGate": "OPEN",
   "independentCodeReview": "TARGETED_JDK17_FIXES_REVIEWED; FULL_REVIEW_OPEN",
   "codeGraph": "NOT_RUN",
-  "liveOpenCliVerification": "SCOPED_PRIOR_HEAD_EVIDENCE; LOCAL_FULL_SUITE_NOT_RUN",
+  "liveOpenCliVerification": "INSTALLED_OPENCLI_1_8_8_SCOPED_CHECKS_PASS_ON_ALL_FEATURE_LINES",
   "ledger": "../docs/implementation/c10-c01-execution.md",
   "currentContractEvidence": "changes/enforce-opencli-branch-contract-parity/tasks.md"
 }
