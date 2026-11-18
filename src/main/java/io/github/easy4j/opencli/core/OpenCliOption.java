@@ -66,7 +66,7 @@ public final class OpenCliOption {
 
     /** @return immutable literal tokens; no quoting or trimming is applied */
     public List<String> toTokens() {
-        String flag = negated ? "--no-" + schema.getName().substring(2) : schema.getName();
+        String flag = negated ? schema.negatedName() : schema.getName();
         return value == null ? Collections.singletonList(flag)
             : Collections.unmodifiableList(Arrays.asList(flag, value));
     }

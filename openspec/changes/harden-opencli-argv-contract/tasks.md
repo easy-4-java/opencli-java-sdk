@@ -34,3 +34,11 @@
 - 三条维护线使用同一套已校验 SHA-256 的 `argv.tsv`、`ContractProbe` 和 `OpenCliStructuredArgvContractTest`。JDK 8 使用系统 Maven 执行 `-B -ntp -o clean verify`，2,120 项通过，0 失败、0 错误、0 跳过，退出 0。本地报告为 `target/surefire-reports`。三个版本的 JDK/Jackson/Maven 允许差异见 fixture 的 `sources.lock.json`。远端分支最新 CI 单独记录于 PR。
 
 - 排队回归与原始参数回归共用回显启动配置。首次 JDK 17 Windows CI 使用旧 Java 回显启动器时，子进程把原始中文 token 收成 `???`。改用同套 Windows 原生 Node 回显夹具，继续断言完整 Unicode token，并保留 Java 生命周期进程作为许可占用方。[首次 Windows 结果](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44340768729/job/134929785664)
+
+## 三线 JVM 兼容和迁移复核
+
+以 GitHub 现有目标分支 `feature/1.0.x` 的 `7726b51`、`feature/2.0.x` 的 `196206d`、`feature/3.0.x` 的 `e66f958` 为基线。各线用自己的 Wrapper 和 JDK 编译目标与候选代码，使用 JDK 21 的 `javap -protected -s` 比对已编译的 SDK 类。三个基线各有 151 个可见类型和 1,687 个公开或受保护的已声明成员。候选均保留这些类型声明和成员 JVM 描述符，未出现缩减访问级别的成员。此处核对的是 JVM 声明，参数行为由子进程用例和迁移说明验证。中英文 README 已补齐本地字面值、空参调用、旧 Map 布尔值和结构化否定选项的迁移差异。
+
+独立评审复现了 Windows 严格进程模式下潜在的字面引号降级，以及可否定选项混用否定别名的冲突。Java 17 基线 `75160c6` 的两项定向测试均失败。原生 EXE 的严格模式会在取得子进程前报告无法保真的参数索引，消息不含值，普通参数仍可执行。可否定 schema 同时保留正向名和否定别名，两种排列顺序和旧 Map 均不会发出冲突组合。
+
+修复后 Java 8、17、21 各用自己的 Wrapper 执行 `./mvnw -B -ntp -o clean verify`，分别通过 2,257、2,258、2,257 项，零失败、零错误、零跳过。仍待以新提交的 Windows 托管报告和独立复审作为 3.4 的最终依据。

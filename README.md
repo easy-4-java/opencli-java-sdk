@@ -203,6 +203,13 @@ Notes:
 <a id="8-core-usage"></a>
 ## 8. Core Usage
 
+### Local argv migration
+
+- Local invocation preserves empty strings, padding, Unicode, line breaks, and literal option terminators. If your application relied on trimming or dropping values, normalize its inputs explicitly before calling the SDK.
+- Use the adapter's no-argument invocation or an empty list for a root command. A null varargs array or null token is invalid. An empty string token remains a valid value.
+- In the legacy options map, Boolean `false` still omits the option. Use `OpenCliOption.value` for a schema-supported literal `false`, or `OpenCliOption.negated` for a schema-supported negative flag. A negatable option reserves both its positive and negative names, so duplicate definitions across ordered and legacy options are rejected.
+- On Windows, use the full path to a native executable such as `node.exe`, with the installed OpenCLI JavaScript entry point in `leadingArguments`. The SDK rejects batch launchers. If the JVM is running in strict process mode, a literal double quote in a native executable argument is rejected before spawn with its index and an explanation.
+
 ### 8.1 meta() and browser()
 
 ```java

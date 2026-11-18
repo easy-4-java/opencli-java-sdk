@@ -31,6 +31,7 @@ import org.junit.jupiter.api.TestFactory;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** Shared Java 8-compatible contract tests, with a real child rather than Recording executor. */
+@org.junit.jupiter.api.parallel.Isolated
 class OpenCliArgvContractTest {
     static OpenCliProperties properties() {
         OpenCliProperties p = new OpenCliProperties();
@@ -170,6 +171,34 @@ class OpenCliArgvContractTest {
         assertThrows(IllegalArgumentException.class, () -> executor.invoke(Arrays.asList("", "demo")));
         assertThrows(IllegalArgumentException.class, () -> OpenCliAdapterCommandRequest.builder()
             .subcommand(" ").build().toSubcommandAndArgs());
+    }
+
+    @Test
+    void strictWindowsLauncherRejectsQuotesAndStillAcceptsUnambiguousArguments() throws Exception {
+        String property = "jdk.lang.Process.allowAmbiguousCommands";
+        String previous = System.getProperty(property);
+        String quoted = "\"private-literal-quote\"";
+        try {
+            System.setProperty(property, "false");
+            try (OpenCliExecutor executor = new OpenCliExecutor(properties())) {
+                List<String> ordinary = Arrays.asList("demo", "echo", "literal");
+                assertEquals(ordinary, received(executor.invoke(ordinary)));
+                List<String> withQuote = Arrays.asList("demo", "echo", quoted);
+                if (System.getProperty("os.name").startsWith("Windows")) {
+                    UnsupportedOperationException failure =
+                        assertThrows(UnsupportedOperationException.class, () -> executor.invoke(withQuote));
+                    assertFalse(failure.getMessage().contains("private-literal-quote"));
+                } else {
+                    assertEquals(withQuote, received(executor.invoke(withQuote)));
+                }
+            }
+        } finally {
+            if (previous == null) {
+                System.clearProperty(property);
+            } else {
+                System.setProperty(property, previous);
+            }
+        }
     }
 
     @Test

@@ -116,6 +116,7 @@ public final class SubprocessExecutionSupport {
 
         public RunSession execute(ExecutionRequest request) throws IOException, InterruptedException {
             Objects.requireNonNull(request, "request");
+            List<String> launchArguments = processArguments(request.nativeArgv);
             long budget = nanos(request.timeoutMillis, "timeoutMillis");
             BoundedCapture out = new BoundedCapture(request.stdoutLimitBytes);
             BoundedCapture err = new BoundedCapture(request.stderrLimitBytes);
@@ -164,7 +165,7 @@ public final class SubprocessExecutionSupport {
                     }
                 }
                 if (acquired && reason == null) {
-                    ProcessBuilder builder = new ProcessBuilder(processArguments(request.nativeArgv));
+                    ProcessBuilder builder = new ProcessBuilder(launchArguments);
                     if (request.workingDirectory != null) { builder.directory(request.workingDirectory); }
                     if (request.environment != null) {
                         builder.environment().clear();
@@ -391,14 +392,19 @@ public final class SubprocessExecutionSupport {
     private static List<String> processArguments(List<String> argv) {
         String executable = argv.get(0).toLowerCase(Locale.ROOT);
         if (!System.getProperty("os.name").startsWith("Windows") || !executable.endsWith(".exe")
-            || executable.endsWith("cmd.exe") || Objects.nonNull(System.getSecurityManager())
-            || "false".equalsIgnoreCase(System.getProperty("jdk.lang.Process.allowAmbiguousCommands"))) {
+            || executable.endsWith("cmd.exe")) {
             return argv;
         }
+        boolean strict = Objects.nonNull(System.getSecurityManager())
+            || "false".equalsIgnoreCase(System.getProperty("jdk.lang.Process.allowAmbiguousCommands"));
         List<String> arguments = new ArrayList<>(argv);
         for (int i = 1; i < arguments.size(); i++) {
             String argument = arguments.get(i);
             if (argument.indexOf('"') >= 0) {
+                if (strict) {
+                    throw new UnsupportedOperationException(
+                        "Windows strict process mode cannot preserve a literal double quote in argv[" + i + "]");
+                }
                 arguments.set(i, quoteWindowsExecutableArgument(argument));
             }
         }
