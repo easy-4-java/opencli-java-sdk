@@ -96,6 +96,27 @@ class OpenCliHelpParserTest {
         assertEquals(OpenCliHelpResult.Status.AVAILABLE, OpenCliHelpParser.parse(" \t" + valid + "\r\n").getStatus());
     }
 
+    @Test
+    void distinguishesAnExplicitlyEmptyRootCatalogFromAMalformedRegistry() {
+        String root = "{\"name\":\"opencli\",\"commands\":[],\"site_adapters\":";
+        assertUnknown(root + "{}}", OpenCliHelpResult.Reason.INVALID_SCHEMA);
+        assertUnknown(root + "{\"sites\":{}}}", OpenCliHelpResult.Reason.INVALID_SCHEMA);
+        assertUnknown(root + "{\"sites\":[\u0020null]}}", OpenCliHelpResult.Reason.INVALID_SCHEMA);
+        assertEquals(OpenCliHelpResult.Status.AVAILABLE,
+            OpenCliHelpParser.parse(root + "{\"count\":0,\"sites\":[]}}").getStatus());
+    }
+
+    @Test
+    void requiresArgumentAndAliasNamesWhilePreservingAnEmptyChoice() {
+        String command = "{\"site\":\"npm\",\"name\":\"search\",\"command\":\"opencli npm search\",";
+        assertUnknown(command + "\"positionals\":[{\"name\":\"   \"}]}", OpenCliHelpResult.Reason.INVALID_SCHEMA);
+        assertUnknown(command + "\"positionals\":[],\"aliases\":[\"\"]}", OpenCliHelpResult.Reason.INVALID_SCHEMA);
+        OpenCliHelpResult result = OpenCliHelpParser.parse(command
+            + "\"command_options\":[{\"name\":\"query\",\"choices\":[\"\",\"all\"]}]}");
+        assertEquals(OpenCliHelpResult.Status.AVAILABLE, result.getStatus());
+        assertEquals("", result.getSchema().getCommandOptions().get(0).getChoices().get(0));
+    }
+
     private static void assertUnknown(String raw, OpenCliHelpResult.Reason reason) {
         OpenCliHelpResult result = OpenCliHelpParser.parse(raw);
         assertEquals(OpenCliHelpResult.Status.UNKNOWN, result.getStatus());
