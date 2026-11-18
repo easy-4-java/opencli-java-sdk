@@ -41,6 +41,10 @@ public final class LifecycleProbe {
             writeStream(System.out, Integer.parseInt(args[3]));
             writeStream(System.err, Integer.parseInt(args[4]));
         }
+        if ("heartbeat-log".equals(mode)) {
+            Files.write(Paths.get(args[3]), "started\n".getBytes(StandardCharsets.UTF_8),
+                StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+        }
         Path marker = Paths.get(args[1]);
         if ("count-hold".equals(mode)) {
             Files.write(marker, "started\n".getBytes(StandardCharsets.UTF_8),
@@ -53,7 +57,7 @@ public final class LifecycleProbe {
         long start = System.nanoTime();
         int tick = 0;
         while (!Files.exists(release) && System.nanoTime() - start < 10_000_000_000L) {
-            if ("heartbeat".equals(mode)) {
+            if ("heartbeat".equals(mode) || "heartbeat-log".equals(mode)) {
                 Files.write(marker, Integer.toString(++tick).getBytes(StandardCharsets.UTF_8));
             }
             Thread.sleep(20L);
