@@ -11,8 +11,10 @@ import io.github.easy4j.opencli.exception.OpenCliNonZeroExitException;
 import io.github.easy4j.opencli.exception.OpenCliTimeoutException;
 import io.github.easy4j.opencli.parser.OpenCliErrorEnvelope;
 import io.github.easy4j.opencli.parser.OpenCliErrorDecoder;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -119,6 +122,31 @@ class OpenCliErrorEnvelopeTest {
     }
 
     @Test
+    void malformedYamlRetainsRawStderrWithoutExposingParserDetails(@TempDir Path temp) throws Exception {
+        String canary = "yaml-secret-" + UUID.randomUUID();
+        ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+        PrintStream previousErr = System.err;
+        OpenCliNonZeroExitException failure;
+        try (OpenCliClient client = new OpenCliClient(child(temp.resolve("unused")));
+             PrintStream capture = new PrintStream(diagnostics, true, StandardCharsets.UTF_8.name())) {
+            System.setErr(capture);
+            try {
+                failure = assertThrows(OpenCliNonZeroExitException.class,
+                    () -> client.getExecutor().invoke("malformed-yaml", canary));
+                failure.printStackTrace(capture);
+            } finally {
+                System.setErr(previousErr);
+            }
+        }
+        OpenCliResult partial = failure.getPartialResult();
+        assertEquals(OpenCliErrorEnvelope.Status.INVALID, partial.getErrorEnvelope().getStatus());
+        assertEquals(OpenCliErrorEnvelope.Format.YAML, partial.getErrorEnvelope().getFormat());
+        assertEquals(Integer.valueOf(1), partial.getExitCode());
+        assertTrue(partial.getStderr().contains(canary));
+        assertFalse(diagnostics.toString(StandardCharsets.UTF_8.name()).contains(canary));
+    }
+
+    @Test
     void typedBrowserListPreservesProcessFailureEvenWithAnEmptyArray(@TempDir Path temp) throws Exception {
         Path marker = temp.resolve("browser-commands");
         try (OpenCliClient client = new OpenCliClient(child(marker))) {
@@ -197,6 +225,10 @@ class OpenCliErrorEnvelopeTest {
                     break;
                 case "malformed":
                     System.err.print("{\"ok\":false,\"private-fixture-value\":");
+                    System.exit(1);
+                    break;
+                case "malformed-yaml":
+                    System.err.print("ok: false\nerror: {code: FAIL, " + args[2] + ": [\n");
                     System.exit(1);
                     break;
                 case "timeout":
