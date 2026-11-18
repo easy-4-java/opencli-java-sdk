@@ -13,6 +13,10 @@ public final class LifecycleProbe {
 
     public static void main(String[] args) throws Exception {
         String mode = args[0];
+        if ("privacy".equals(mode)) {
+            exercisePrivacy(args[1], args[2]);
+            return;
+        }
         if ("network-follow".equals(mode)) {
             networkFollow(args);
             return;
@@ -49,6 +53,26 @@ public final class LifecycleProbe {
                 Files.write(marker, Integer.toString(++tick).getBytes(StandardCharsets.UTF_8));
             }
             Thread.sleep(20L);
+        }
+    }
+
+    private static void exercisePrivacy(String outcome, String canary) throws Exception {
+        switch (outcome) {
+            case "nonzero":
+                System.err.print(canary);
+                System.exit(7);
+                return;
+            case "timeout":
+                System.err.print(canary);
+                System.err.flush();
+                Thread.sleep(8000L);
+                return;
+            case "overflow":
+                System.out.print(canary);
+                main(new String[] {"stdout", "4096"});
+                return;
+            default:
+                throw new IllegalArgumentException("unknown privacy fixture outcome");
         }
     }
 
