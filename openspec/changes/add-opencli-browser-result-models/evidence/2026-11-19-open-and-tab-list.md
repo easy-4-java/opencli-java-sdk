@@ -12,9 +12,9 @@
 
 ```bash
 fixture_home=$(mktemp -d)
-env HOME="$fixture_home" CI=1 NO_COLOR=1 node --import "$PWD/capture.mjs" "$OPENCLI_ENTRY" browser fixture tab list > "$fixture_home/tab-list.json"
-env HOME="$fixture_home" CI=1 NO_COLOR=1 OPENCLI_FIXTURE_EMPTY=1 node --import "$PWD/capture.mjs" "$OPENCLI_ENTRY" browser fixture tab list > "$fixture_home/tab-list-empty.json"
-env HOME="$fixture_home" CI=1 NO_COLOR=1 node --import "$PWD/capture.mjs" "$OPENCLI_ENTRY" browser fixture open http://127.0.0.1:18765/basic.html > "$fixture_home/open.json"
+env OPENCLI_FIXTURE_HOME="$fixture_home" CI=1 NO_COLOR=1 node --import "$PWD/capture.mjs" "$OPENCLI_ENTRY" browser fixture tab list > "$fixture_home/tab-list.json"
+env OPENCLI_FIXTURE_HOME="$fixture_home" CI=1 NO_COLOR=1 OPENCLI_FIXTURE_EMPTY=1 node --import "$PWD/capture.mjs" "$OPENCLI_ENTRY" browser fixture tab list > "$fixture_home/tab-list-empty.json"
+env OPENCLI_FIXTURE_HOME="$fixture_home" CI=1 NO_COLOR=1 node --import "$PWD/capture.mjs" "$OPENCLI_ENTRY" browser fixture open http://127.0.0.1:18765/basic.html > "$fixture_home/open.json"
 for specimen in tab-list.json tab-list-empty.json open.json; do
   cmp "$specimen" "$fixture_home/$specimen"
 done
