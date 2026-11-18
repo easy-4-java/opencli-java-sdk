@@ -347,10 +347,17 @@ public final class SubprocessExecutionSupport {
             quoted.append(character);
             backslashes = 0;
         }
+        quoted.append('"');
+        if (backslashes == 0) {
+            return quoted.toString();
+        }
+
+        // JDK 8 treats a final quote after a backslash as escaped. Close the quoted
+        // text first and use an empty quoted segment after the escaped trailing slashes.
         for (int i = 0; i < backslashes * 2; i++) {
             quoted.append('\\');
         }
-        return quoted.append('"').toString();
+        return quoted.append('"').append('"').toString();
     }
 
     private static long elapsedMillis(long start) { return TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start); }
