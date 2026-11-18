@@ -79,6 +79,7 @@
         <maven-resources-plugin.version>3.5.0</maven-resources-plugin.version>
         <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
         <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
+        <argLine></argLine>
     </properties>
     <!-- 依赖版本统一管理（dependencyManagement） -->
     <dependencyManagement>
@@ -315,7 +316,7 @@
                     <configuration>
                         <skip>false</skip>
                         <skipTests>false</skipTests>
-                        <argLine>-Xmx1024m -Dfile.encoding=UTF-8</argLine>
+                        <argLine>@{argLine} -Xmx1024m -Dfile.encoding=UTF-8</argLine>
                         <additionalClasspathElements>
                             <additionalClasspathElement>${basedir}/target/test-classes</additionalClasspathElement>
                         </additionalClasspathElements>
