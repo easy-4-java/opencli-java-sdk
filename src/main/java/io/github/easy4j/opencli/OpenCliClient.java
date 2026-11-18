@@ -18,6 +18,8 @@ import io.github.easy4j.opencli.adapter.publicapi.npm.NpmOpenCliClient;
 import io.github.easy4j.opencli.adapter.publicapi.pypi.PypiOpenCliClient;
 import io.github.easy4j.opencli.adapter.publicapi.wikipedia.WikipediaOpenCliClient;
 import io.github.easy4j.opencli.browser.OpenCliBrowserClient;
+import io.github.easy4j.opencli.capability.OpenCliCapabilityDiscovery;
+import io.github.easy4j.opencli.capability.OpenCliCapabilitySnapshot;
 import io.github.easy4j.opencli.core.OpenCliAdapterChannel;
 import io.github.easy4j.opencli.meta.OpenCliMetaClient;
 import io.github.easy4j.opencli.core.OpenCliExecutor;
@@ -81,6 +83,14 @@ import lombok.Getter;
      */
     public OpenCliAdapterChannel adapter(String adapterId) {
         return new OpenCliAdapterChannel(executor, adapterId);
+    }
+
+    /**
+     * Probes version and root structured help on the configured absolute local executable.
+     * @return a fresh observation with help, provenance and failure status
+     */
+    public OpenCliCapabilitySnapshot discoverCapabilities() {
+        return OpenCliCapabilityDiscovery.discover(executor);
     }
 
     // ----- 参考强类型门面（Desktop） -----
