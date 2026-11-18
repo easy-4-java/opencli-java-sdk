@@ -1,5 +1,8 @@
 package io.github.easy4j.opencli.remote;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.StreamWriteConstraints;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
@@ -614,6 +617,35 @@ class OpenCliRemoteAgentHttpClientTest {
             StringWriter stack = new StringWriter();
             failure.printStackTrace(new PrintWriter(stack));
             Assertions.assertFalse(stack.toString().contains(canary));
+        }
+    }
+
+    @Test
+    void responseItemsMappingFailureKeepsStatusAndProtectsDiagnostic() throws Exception {
+        String body = "{\"success\":true,\"items\":[[\"mapping-private-canary\"]]}";
+        try (JsonCollectStub stub = JsonCollectStub.start(body)) {
+            OpenCliProperties properties = baseProps(stub.port());
+            properties.setRemoteCaptureRawHttpResponse(true);
+            try (OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(properties)) {
+                JsonFactory factory = JsonFactory.builder()
+                    .streamWriteConstraints(StreamWriteConstraints.builder().maxNestingDepth(1).build()).build();
+                Field writer = OpenCliRemoteAgentHttpClient.class.getDeclaredField("responseItemsWriter");
+                writer.setAccessible(true);
+                writer.set(client, JsonMapper.builder(factory).build().writerWithDefaultPrettyPrinter());
+
+                OpenCliRemoteProtocolException failure = Assertions.assertThrows(
+                    OpenCliRemoteProtocolException.class,
+                    () -> client.collect(new OpenCliCollectRequest()));
+                OpenCliResult partial = failure.getPartialResult();
+                Assertions.assertEquals(200, partial.getRemoteExecutionDetails().getHttpStatus());
+                Assertions.assertEquals(Outcome.PROTOCOL_FAILURE, partial.getRemoteExecutionDetails().getOutcome());
+                Assertions.assertNull(partial.getExitCode());
+                Assertions.assertEquals(body, partial.getRemoteRawHttpBody());
+                StringWriter stack = new StringWriter();
+                failure.printStackTrace(new PrintWriter(stack));
+                Assertions.assertFalse(stack.toString().contains("mapping-private-canary"));
+                Assertions.assertEquals(1, stub.requests());
+            }
         }
     }
 

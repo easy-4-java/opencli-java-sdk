@@ -6,13 +6,13 @@
 
 ## 1. 泄露负例
 
-- [ ] 1.1 对Executor、AdapterChannel、HTTP、WS、JSON/YAML parser所有日志/异常点建立canary矩阵。
+- [x] 1.1 对Executor、AdapterChannel、HTTP、WS、JSON/YAML parser所有日志/异常点建立canary矩阵。见本页失败场景与 24 个日志调用点的证据。
 - [x] 1.2 新增完整日志捕获与nested cause测试，先证明当前泄露可被测试检测。
 
 ## 2. 安全投影
 
 - [x] 2.1 将commandLine/args/bodyPreview/remote error输出改成允许表元数据与correlationId。见本文日志调用点核对。
-- [ ] 2.2 实现安全异常摘要和cause处理，避免logger输出provider原始对象。
+- [x] 2.2 实现安全异常摘要和cause处理，避免logger输出provider原始对象。见本页的异常链、HTTP 清理及响应映射、WebSocket 故障注入回归。
 - [ ] 2.3 保留raw业务结果与默认关闭的HTTPdebugcapture，新增显式有限export策略。
 
 ## 3. 验证
@@ -79,3 +79,12 @@ Java 8 `cd1ceac`、Java 17 `0b7091c`、Java 21 `5bee58b` 是本轮修改前基�
 OC-PRIV-002/006。Java 17 基线 `ddfa6c8` 的四个定向用例有两个失败。无效响应的协议异常附带了原始 HTTP 响应关闭异常，公开异常栈包含测试标记。连接池关闭的运行时异常也直接暴露了标记。响应清理现在仅传播固定消息，协议失败保留主要类别和 HTTP 200。单独发生的响应关闭 I/O 故障保留传输失败及已观察到的状态，关闭超时沿用超时分类。连接池关闭失败使用固定日志。请求序列化的独立回归确认测试标记未出现在日志或异常栈，回环服务接收请求数为 0。
 
 三线分别以 Java 8 `d5799ac`、Java 17 `ddfa6c8`、Java 21 `0b4b0c8` 为基线修改，用各自 Wrapper 执行 `./mvnw -B -ntp -o clean verify`。分别通过 2,248、2,249、2,248 项，零失败、零错误、零跳过。响应和连接池的关闭异常使用注入的 Apache HTTP provider 测试，协议解析和序列化回归分别使用 JSON 夹具及回环服务。三份 JaCoCo 均命中 24 个日志调用点中的 21 个。HTTP 外层响应映射失败、WebSocket onError 和 WebSocket 关闭抛异常仍待动态证据。
+
+
+## HTTP 响应映射与 WebSocket provider 异常
+
+OC-PRIV-001/002/003/006。HTTP 夹具返回合法响应并使用 Jackson 的实际写入深度约束触发 items 映射失败。Java 17 在原分类逻辑下抛出没有状态证据的通用异常。修复后保留 HTTP 200、`PROTOCOL_FAILURE`、显式捕获的原响应及空退出码。公开异常栈和 SDK 日志只使用固定诊断和关联 ID。数组和其他有效 `items` 使用同一 Jackson writer，普通协议回归仍通过。
+
+真实回环 WebSocket 连接收到注入的 provider error 回调后，旧连接退出，新连接完成注册与 ping/pong。错误日志保留旧连接关联 ID，隐藏 provider 测试标记。另一用例在无网络连接的 Java-WebSocket 1.6.0 夹具上注入底层 close 异常。SDK 清空接单连接，只调用一次关闭，关闭后拒绝重启，DEBUG 日志保留关联 ID。该用例验证 SDK 的错误处理，实际套接字关闭由其他回环测试验证。
+
+Java 8 `f4c6677`、Java 17 `6894071`、Java 21 `a0ba264` 是修改前基线。三线各使用 Wrapper 执行 `./mvnw -B -ntp -o clean verify`，分别通过 2,251、2,252、2,251 项，零失败、零错误、零跳过。三份报告均执行了新增的三项回归，JaCoCo 显示每线 24 个 SDK 日志调用点均被执行。此前各节保留供应商原文、异常链、日志与应用显式读取原始结果的证据边界。

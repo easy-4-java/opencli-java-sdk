@@ -11,7 +11,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -29,12 +32,16 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import javax.net.ssl.SSLContext;
 import org.java_websocket.WebSocket;
+import org.java_websocket.WebSocketImpl;
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.drafts.Draft_6455;
 import org.java_websocket.enums.Opcode;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
@@ -59,6 +66,105 @@ class OpenCliWsReverseAgentSessionTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final String AGENT_URL = "http://127.0.0.1:19823";
+
+    @Test
+    void providerErrorRetiresConnectionWithoutLoggingItsCause() throws Exception {
+        String canary = "websocket-error-private-" + UUID.randomUUID();
+        ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+        PrintStream previous = System.err;
+        try (LocalCenter center = new LocalCenter();
+             OpenCliWsReverseAgentClient agent = new OpenCliWsReverseAgentClient(
+                 probe(ContractProbe.class.getName()), center.agentProperties());
+             PrintStream capture = new PrintStream(diagnostics, true, StandardCharsets.UTF_8.name())) {
+            System.setErr(capture);
+            try {
+                agent.start();
+                WebSocket first = center.receive("register").socket;
+                first.send("{\"type\":\"registered\"}");
+                first.send("{\"type\":\"ping\"}");
+                center.receive("pong");
+                WebSocketClient provider = activeSession(agent).get();
+                assertNotNull(provider);
+                provider.onWebsocketError(provider.getConnection(), new IOException(canary));
+
+                WebSocket second = center.receive("register").socket;
+                assertNotSame(first, second);
+                second.send("{\"type\":\"registered\"}");
+                second.send("{\"type\":\"ping\"}");
+                center.receive("pong");
+            } finally {
+                System.setErr(previous);
+            }
+        }
+        String logText = diagnostics.toString(StandardCharsets.UTF_8.name());
+        Matcher connecting = Pattern.compile("opencli ws connecting correlationId=([a-f0-9-]+)").matcher(logText);
+        assertTrue(connecting.find());
+        UUID firstId = UUID.fromString(connecting.group(1));
+        assertTrue(connecting.find());
+        assertFalse(firstId.equals(UUID.fromString(connecting.group(1))));
+        assertTrue(logText.contains("WebSocket error correlationId=" + firstId));
+        assertFalse(logText.contains(canary));
+    }
+
+    @Test
+    void providerCloseFailureClearsAdmissionWithoutLoggingItsCause() throws Exception {
+        String canary = "websocket-close-private-" + UUID.randomUUID();
+        UUID correlationId = UUID.randomUUID();
+        AtomicInteger closes = new AtomicInteger();
+        ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+        PrintStream previous = System.err;
+        try (OpenCliWsReverseAgentClient agent = new OpenCliWsReverseAgentClient(
+                 probe(ContractProbe.class.getName()), new OpenCliWsAgentConnectionProperties());
+             PrintStream capture = new PrintStream(diagnostics, true, StandardCharsets.UTF_8.name())) {
+            WebSocketClient provider = closeFailureProvider(agent, correlationId, canary, closes);
+            activeSession(agent).set(provider);
+            System.setErr(capture);
+            try {
+                agent.close();
+                agent.close();
+                assertNull(activeSession(agent).get());
+                assertEquals(1, closes.get());
+                assertThrows(IllegalStateException.class, agent::start);
+            } finally {
+                System.setErr(previous);
+            }
+        }
+        String logText = diagnostics.toString(StandardCharsets.UTF_8.name());
+        assertTrue(logText.contains("ws session close failed correlationId=" + correlationId));
+        assertFalse(logText.contains(canary));
+    }
+
+    @SuppressWarnings("unchecked")
+    private static AtomicReference<WebSocketClient> activeSession(OpenCliWsReverseAgentClient agent)
+        throws ReflectiveOperationException {
+        Field active = OpenCliWsReverseAgentClient.class.getDeclaredField("activeClient");
+        active.setAccessible(true);
+        return (AtomicReference<WebSocketClient>) active.get(agent);
+    }
+
+    // Fail Java-WebSocket's close hook without replacing the SDK's session lifecycle or opening a socket.
+    private static WebSocketClient closeFailureProvider(OpenCliWsReverseAgentClient agent, UUID correlationId,
+        String canary, AtomicInteger closes) throws ReflectiveOperationException {
+        Class<?> worker = Class.forName(OpenCliWsReverseAgentClient.class.getName() + "$WorkerSession");
+        Constructor<?> constructor = worker.getDeclaredConstructor(
+            OpenCliWsReverseAgentClient.class, URI.class, Object.class, UUID.class);
+        constructor.setAccessible(true);
+        WebSocketClient provider = (WebSocketClient) constructor.newInstance(
+            agent, URI.create("ws://127.0.0.1:1"), new Object(), correlationId);
+        Field engine = WebSocketClient.class.getDeclaredField("engine");
+        engine.setAccessible(true);
+        engine.set(provider, new WebSocketImpl(provider, new Draft_6455()) {
+            @Override
+            public void close(int code) {
+                closes.incrementAndGet();
+                throw new IllegalStateException(canary);
+            }
+        });
+        Field writer = WebSocketClient.class.getDeclaredField("writeThread");
+        writer.setAccessible(true);
+        writer.set(provider, new Thread());
+        return provider;
+    }
 
     @Test
     void stopDuringConnectionSetupDoesNotPublishAnotherGeneration() throws Exception {
