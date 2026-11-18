@@ -98,3 +98,9 @@ JDK 17 定向 29 项通过。JDK 8 使用系统 Maven 执行 `-B -ntp -o clean v
 Java 21 的一次运行中，未知后代仍在更新心跳，JUnit 已开始清理临时目录，产生 DirectoryNotEmptyException。Java 17 回归加入尾部确认后，旧 fixture 实际执行 1 项、失败 1 项，缺少最后一次心跳确认。现在测试发出自己的 release 信号，等待后代在完成所有心跳写入后创建确认文件，再交还临时目录。测试仍在发出 release 之前确认后代存活及取消预算，SDK 的执行和清理逻辑未改动。
 
 各分支使用 Wrapper 分别在 Java 8、17、21 运行 OpenCliProcessContractTest、OpenCliProcessBoundaryTest、SubprocessCompletionRaceTest、OpenCliProcessPrivacyTest，每条线 31 项通过，零失败、零错误、零跳过。报告位于 target/surefire-reports。
+
+## Linux 维度与旧输出流回归
+
+Java 8、21 功能线的平台矩阵加入 Ubuntu，Java 17 保留现有 Ubuntu JVM 作业。三线平台作业均显式选择旧版输出流的有界写入用例。该用例通过本线 JVM 启动现有 LifecycleProbe，检查退出后从旧 API 写入时的字节上限，并验证此前记录的进程截断事实保持准确。
+
+本地 macOS 上用三个分支的 Wrapper 复跑进程契约、结束竞态、读取失败及两个低层用例，每线 24 项通过，零失败、零错误、零跳过。Linux、macOS 和 Windows 的托管证据按精确功能提交核对。

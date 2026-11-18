@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-15-intel, windows-latest]
+        os: [ubuntu-latest, macos-15-intel, windows-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     defaults:
@@ -51,7 +51,7 @@ jobs:
           mvn -version > platform-evidence/maven.txt 2>&1
           result=0
           mvn -B --no-transfer-progress \
-            -Dtest=OpenCliErrorEnvelopeTest,OpenCliBrowserResultTest,OpenCliBrowserEvidenceResultTest,OpenCliDiagnosticsTest,OpenCliInvocationContextTest,OpenCliArgvContractTest,OpenCliStructuredArgvContractTest,OpenCliProcessContractTest,OpenCliProcessBoundaryTest,SubprocessCleanupFaultTest,SubprocessCompletionRaceTest,SubprocessStreamFailureTest,OpenCliWsReverseAgentSessionTest,OpenCliWsCollectRequestsTest,OpenCliRemoteAgentHttpClientTest,OpenCliProcessPrivacyTest,OpenCliArgSupportTest#shouldKeepConversionExceptionAndNestedCausePrivate,SubprocessExecutionSupportTest#shouldKeepNativePathOutOfDefaultHandlerException \
+            -Dtest=OpenCliErrorEnvelopeTest,OpenCliBrowserResultTest,OpenCliBrowserEvidenceResultTest,OpenCliDiagnosticsTest,OpenCliInvocationContextTest,OpenCliArgvContractTest,OpenCliStructuredArgvContractTest,OpenCliProcessContractTest,OpenCliProcessBoundaryTest,SubprocessCleanupFaultTest,SubprocessCompletionRaceTest,SubprocessStreamFailureTest,OpenCliWsReverseAgentSessionTest,OpenCliWsCollectRequestsTest,OpenCliRemoteAgentHttpClientTest,OpenCliProcessPrivacyTest,OpenCliArgSupportTest#shouldKeepConversionExceptionAndNestedCausePrivate,SubprocessExecutionSupportTest#shouldKeepNativePathOutOfDefaultHandlerException+legacyOutputStreamsAllowBoundedWritesWithoutChangingExecutionDetails \
             test > platform-evidence/maven.log 2>&1 || result=$?
           tail -100 platform-evidence/maven.log
           python scripts/contract_report.py \
