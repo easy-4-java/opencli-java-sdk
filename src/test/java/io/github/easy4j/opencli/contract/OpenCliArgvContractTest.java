@@ -55,7 +55,7 @@ class OpenCliArgvContractTest {
         return p;
     }
 
-    private static List<String> received(OpenCliResult result) throws Exception {
+    static List<String> received(OpenCliResult result) throws Exception {
         assertTrue(result.isSuccess());
         List<String> actual = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new StringReader(result.getStdout()))) {
