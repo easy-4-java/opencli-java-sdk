@@ -189,6 +189,7 @@ cli.gemini().deepResearch("topic",
 注意事项：
 
 - 远程模式下 `stdout` 为 Agent 返回的 `items` 的 JSON（已按 `format` 解析为行列表），与本地原始子进程文本可能不同；`leadingArguments` 等仅影响本地进程拼装，**远程路径不注入**。
+- 旧版 HTTP `/collect` 响应须包含 JSON 布尔字段 `success`。无效响应抛出 `OpenCliRemoteProtocolException`，它继承 `OpenCliExecutableFailureException`。当 `success: true` 且 `items` 缺失或为 null 时，仍返回 `[]`。
 - `execution-target=REMOTE_AGENT_HTTP` 时可用性探测报告 `SKIPPED_REMOTE_MODE`（视为可启动）。
 
 <a id="8-core-usage"></a>
