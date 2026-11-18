@@ -6,10 +6,10 @@
 
 面向 OpenCLI 多适配器体系的 Java SDK：browser / desktop / public-api 适配器、远程 Agent 与中心 WebSocket
 
-> **当前分支**：`feature/3.0.x`
+> **维护线**：`feature/3.0.x`
 > **版本**：`3.0.x.20260630-SNAPSHOT`
 > **JDK 基线**：21
-> **项目状态**：稳定（3.0.x 线）。尚未发布 Maven Central；制品通过 Aliyun Maven 仓库与 GitHub Releases 分发。
+> **发布说明**：[3.0.x.20260630](https://github.com/easy-4-java/opencli-java-sdk/releases/tag/v3.0.x.20260630)
 
 ## 目录
 
@@ -69,11 +69,12 @@
 
 | 组件 | 版本 | 说明 |
 |---|---:|---|
-| JDK | 21+ | 1.0.x 线基线 |
-| commons-exec | — | 本地子进程执行 |
-| Unirest Java | — | 远程 Agent HTTP |
-| Java-WebSocket | — | 中心 WebSocket |
-| Jackson databind | 2.17.x | JSON 解析 |
+| JDK | 21+ | 3.0.x 线基线 |
+| Maven | 4.0.0-rc-5 | 仓库 Maven Wrapper 版本 |
+| commons-exec | 1.6.0 | 本地子进程执行 |
+| Unirest Java | 3.14.5 | 远程 Agent HTTP |
+| Java-WebSocket | 1.6.0 | 中心 WebSocket |
+| `tools.jackson.core:jackson-databind` | 3.2.1 | JSON 解析 |
 | SLF4J | 2.0.18 | 日志门面 |
 
 版本线矩阵：
@@ -139,7 +140,7 @@ Maven：
 Gradle：
 
 ```groovy
-implementation 'io.github.easy4j:opencli-java-sdk:3.0.x.x.20260630-SNAPSHOT'
+implementation 'io.github.easy4j:opencli-java-sdk:3.0.x.20260630-SNAPSHOT'
 ```
 
 快照版本需要启用对应快照仓库（`pom.xml` 中 `distributionManagement` 指向 Aliyun Maven 仓库）。
@@ -256,9 +257,9 @@ mvn clean verify
 
 | 分支 | 版本模式 | JDK | 维护策略 |
 |---|---|---|---|
-| `feature/1.0.x`（当前分支） | `1.0.x.*` | 8 | 仅接受兼容性修复与 JDK 8 安全的依赖升级 |
+| `feature/1.0.x` | `1.0.x.*` | 8 | 仅接受兼容性修复与 JDK 8 安全的依赖升级 |
 | `feature/2.0.x` | `2.0.x.*` | 17 | JDK 17 线 |
-| `feature/3.0.x`（当前分支） | `3.0.x.*` | 21 | JDK 21 线 |
+| `feature/3.0.x` | `3.0.x.*` | 21 | JDK 21 线 |
 
 各分支 POM（JDK 与依赖栈随线变化）由 `scripts/render-branch-pom.py` 渲染。
 

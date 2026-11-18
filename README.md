@@ -7,10 +7,10 @@
 Multi-adapter CLI integration SDK for OpenCLI: browser / desktop / public-API adapters, remote agent and center WebSocket
 [简体中文](./README.zh-CN.md)
 
-> **Current branch**: `feature/3.0.x`
+> **Maintenance line**: `feature/3.0.x`
 > **Version**: `3.0.x.20260630-SNAPSHOT`
 > **JDK baseline**: 21
-> **Project status**: stable (3.0.x line). Not yet published to Maven Central; artifacts are distributed via the Aliyun Maven repository and GitHub Releases.
+> **Release notes**: [3.0.x.20260630](https://github.com/easy-4-java/opencli-java-sdk/releases/tag/v3.0.x.20260630)
 
 ## Table of Contents
 
@@ -70,11 +70,12 @@ Multi-adapter CLI integration SDK for OpenCLI: browser / desktop / public-API ad
 
 | Component | Version | Notes |
 |---|---:|---|
-| JDK | 21+ | 1.0.x line baseline |
-| commons-exec | — | Local subprocess execution |
-| Unirest Java | — | Remote agent HTTP |
-| Java-WebSocket | — | Center WebSocket |
-| Jackson databind | 2.17.x | JSON parsing |
+| JDK | 21+ | 3.0.x line baseline |
+| Maven | 4.0.0-rc-5 | Repository Maven Wrapper version |
+| commons-exec | 1.6.0 | Local subprocess execution |
+| Unirest Java | 3.14.5 | Remote agent HTTP |
+| Java-WebSocket | 1.6.0 | Center WebSocket |
+| `tools.jackson.core:jackson-databind` | 3.2.1 | JSON parsing |
 | SLF4J | 2.0.18 | Logging facade |
 
 Version-line matrix:
@@ -140,7 +141,7 @@ Maven:
 Gradle:
 
 ```groovy
-implementation 'io.github.easy4j:opencli-java-sdk:3.0.x.x.20260630-SNAPSHOT'
+implementation 'io.github.easy4j:opencli-java-sdk:3.0.x.20260630-SNAPSHOT'
 ```
 
 Snapshot builds require an enabled snapshot repository (Aliyun Maven snapshot repository per `distributionManagement` in `pom.xml`).
@@ -257,9 +258,9 @@ mvn clean verify
 
 | Branch | Version pattern | JDK | Maintenance policy |
 |---|---|---|---|
-| `feature/1.0.x` (this branch) | `1.0.x.*` | 8 | Compatibility fixes and JDK-8-safe dependency upgrades only |
+| `feature/1.0.x` | `1.0.x.*` | 8 | Compatibility fixes and JDK-8-safe dependency upgrades only |
 | `feature/2.0.x` | `2.0.x.*` | 17 | JDK 17 line |
-| `feature/3.0.x` (this branch) | `3.0.x.*` | 21 | JDK 21 line |
+| `feature/3.0.x` | `3.0.x.*` | 21 | JDK 21 line |
 
 Branch POMs (JDK and dependency stack per line) are rendered by `scripts/render-branch-pom.py`.
 

@@ -9,7 +9,7 @@
     <url>https://github.com/easy-4-java/${project.artifactId}</url>
     <version>3.0.x.20260630-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <description>OpenCLI multi-adapter CLI integration SDK — 2.0.x line (JDK 17; for Boot 3.x starters)</description>
+    <description>OpenCLI multi-adapter CLI integration SDK — 3.0.x line (JDK 21; for Boot 4.x starters)</description>
     
     <licenses>
         <license>
