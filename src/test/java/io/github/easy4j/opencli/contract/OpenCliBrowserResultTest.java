@@ -121,6 +121,25 @@ class OpenCliBrowserResultTest {
     }
 
     @Test
+    void snapshotRequiresAWellFormedHeaderAndSeparator() {
+        OpenCliResult windows = raw("URL: http://127.0.0.1/\r\n\r\n[1] Continue\r\n");
+        OpenCliBrowserResult<OpenCliBrowserSnapshot> snapshot = OpenCliBrowserDecoder.snapshot(windows);
+        assertEquals(Status.PARSED, snapshot.getStatus());
+        assertEquals("http://127.0.0.1/", snapshot.getValue().getUrl());
+        assertEquals("[1] Continue\r\n", snapshot.getValue().getText());
+
+        for (String malformed : Arrays.asList(
+            "URL: http://127.0.0.1/\n\r\r\n[1] Continue\n",
+            "URL: http://127.0.0.1/\rbroken\n\n[1] Continue\n")) {
+            OpenCliResult rawResult = raw(malformed);
+            OpenCliBrowserResult<OpenCliBrowserSnapshot> decoded = OpenCliBrowserDecoder.snapshot(rawResult);
+            assertEquals(Status.INVALID_SHAPE, decoded.getStatus());
+            assertSame(rawResult, decoded.getRaw());
+            assertNull(decoded.getValue());
+        }
+    }
+
+    @Test
     void comparisonDistinguishesSourceFailureFromProcessFailure() {
         OpenCliBrowserResult<OpenCliBrowserSourceComparison> result =
             OpenCliBrowserDecoder.compareSources(raw(fixture("state-compare")));
