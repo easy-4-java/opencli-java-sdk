@@ -44,7 +44,7 @@ jobs:
           mvn -version > platform-evidence/maven.txt 2>&1
           result=0
           mvn -B --no-transfer-progress \
-            -Dtest=OpenCliArgvContractTest,OpenCliStructuredArgvContractTest,OpenCliProcessContractTest,OpenCliProcessBoundaryTest,SubprocessStreamFailureTest,OpenCliWsReverseAgentSessionTest,OpenCliWsCollectRequestsTest \
+            -Dtest=OpenCliArgvContractTest,OpenCliStructuredArgvContractTest,OpenCliProcessContractTest,OpenCliProcessBoundaryTest,SubprocessStreamFailureTest,OpenCliWsReverseAgentSessionTest,OpenCliWsCollectRequestsTest,OpenCliProcessPrivacyTest \
             test > platform-evidence/maven.log 2>&1 || result=$?
           tail -100 platform-evidence/maven.log
           python scripts/contract_report.py \
@@ -61,6 +61,7 @@ jobs:
             --suite process=io.github.easy4j.opencli.core.support.SubprocessStreamFailureTest \
             --suite protocol=io.github.easy4j.opencli.center.ws.OpenCliWsReverseAgentSessionTest \
             --suite protocol=io.github.easy4j.opencli.center.ws.OpenCliWsCollectRequestsTest \
+            --suite process=io.github.easy4j.opencli.core.OpenCliProcessPrivacyTest \
             --output platform-evidence/report.json
           exit "$result"
       - name: Upload platform subprocess evidence
