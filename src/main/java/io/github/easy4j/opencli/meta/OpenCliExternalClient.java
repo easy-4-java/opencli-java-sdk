@@ -87,7 +87,7 @@ public final class OpenCliExternalClient {
         if (passthroughArgs != null) {
             tokens.addAll(passthroughArgs);
         }
-        return executor.invoke(tokens);
+        return executor.invokeLocalOnly(tokens);
     }
 
     /**

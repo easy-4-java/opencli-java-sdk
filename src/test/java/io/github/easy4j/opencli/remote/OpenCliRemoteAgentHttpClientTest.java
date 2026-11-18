@@ -6,19 +6,23 @@ import com.sun.net.httpserver.HttpServer;
 import io.github.easy4j.opencli.OpenCliExecutionTarget;
 import io.github.easy4j.opencli.OpenCliProperties;
 import io.github.easy4j.opencli.core.OpenCliResult;
+import io.github.easy4j.opencli.core.OpenCliExecutor;
 import io.github.easy4j.opencli.exception.OpenCliExecutableFailureException;
 import io.github.easy4j.opencli.exception.OpenCliNonZeroExitException;
 import io.github.easy4j.opencli.exception.OpenCliRemoteProtocolException;
+import io.github.easy4j.opencli.meta.OpenCliExternalClient;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Scanner;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.jupiter.api.Assertions;
@@ -161,6 +165,47 @@ class OpenCliRemoteAgentHttpClientTest {
     }
 
     @Test
+    void losslessAdapterRequestReachesLegacyEndpoint() throws IOException {
+        try (JsonCollectStub stub = JsonCollectStub.start("{\"success\":true}");
+             OpenCliExecutor executor = new OpenCliExecutor(baseProps(stub.port()))) {
+            OpenCliResult result = executor.invoke("npm", "search", "react components", "--limit", "5");
+            Assertions.assertTrue(result.isSuccess());
+            Assertions.assertEquals(1, stub.requests());
+            Assertions.assertTrue(stub.requestBody.contains("\"site\":\"npm\""));
+            Assertions.assertTrue(stub.requestBody.contains("\"command\":\"search\""));
+            Assertions.assertTrue(stub.requestBody.contains("\"positional_args\":[\"react components\"]"));
+            Assertions.assertTrue(stub.requestBody.contains("\"args\":{\"limit\":\"5\"}"));
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "browser|session-a|state", "list|-f|json", "external|list", "unverified-tool|version",
+        "npm|search|--tag|one|--tag=two", "npm|search|--|react", "npm|search|--limit|-1",
+        "npm|search|--limit=-1", "npm|search|", "npm|search|--query=", "npm|search|--query| padded ",
+        "npm|search|-f|json|--format=yaml", "npm|search|--format|--verbose",
+        "npm|search|-v", "npm|search|--limit|5|react", " npm|search"
+    })
+    void unrepresentableArgvIsRejectedBeforeHttp(String input) throws IOException {
+        try (JsonCollectStub stub = JsonCollectStub.start("{\"success\":true}");
+             OpenCliExecutor executor = new OpenCliExecutor(baseProps(stub.port()))) {
+            Assertions.assertThrows(IllegalArgumentException.class, () -> executor.invoke(input.split("\\|", -1)));
+            Assertions.assertEquals(0, stub.requests());
+        }
+    }
+
+    @Test
+    void externalPassthroughCannotBeRoutedAsAnAdapter() throws IOException {
+        try (JsonCollectStub stub = JsonCollectStub.start("{\"success\":true}");
+             OpenCliExecutor executor = new OpenCliExecutor(baseProps(stub.port()))) {
+            OpenCliExternalClient external = new OpenCliExternalClient(executor);
+            Assertions.assertThrows(UnsupportedOperationException.class,
+                () -> external.passthrough("npm", Arrays.asList("search", "react")));
+            Assertions.assertEquals(0, stub.requests());
+        }
+    }
+
+    @Test
     void explicitSuccessfulReplyCanOmitItems() throws IOException {
         try (JsonCollectStub stub = JsonCollectStub.start("{\"success\":true,\"extension\":42}");
              OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(baseProps(stub.port()))) {
@@ -242,6 +287,8 @@ class OpenCliRemoteAgentHttpClientTest {
         private final HttpServer server;
 
         private final int port;
+        private final AtomicInteger requestCount = new AtomicInteger();
+        private volatile String requestBody;
 
         private JsonCollectStub(HttpServer server, int port) {
             this.server = server;
@@ -261,17 +308,22 @@ class OpenCliRemoteAgentHttpClientTest {
         static JsonCollectStub start(String jsonBody, int status) throws IOException {
             byte[] bytes = jsonBody.getBytes(StandardCharsets.UTF_8);
             HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+            JsonCollectStub stub = new JsonCollectStub(server, server.getAddress().getPort());
             server.createContext(
                 "/collect",
                 new HttpHandler() {
                     @Override
                     public void handle(HttpExchange exchange) throws IOException {
+                        stub.requestCount.incrementAndGet();
                         if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
                             exchange.sendResponseHeaders(405, -1);
                             exchange.close();
                             return;
                         }
-                        drain(exchange.getRequestBody());
+                        try (Scanner request = new Scanner(exchange.getRequestBody(), StandardCharsets.UTF_8.name())) {
+                            request.useDelimiter("\\A");
+                            stub.requestBody = request.hasNext() ? request.next() : "";
+                        }
                         exchange
                             .getResponseHeaders()
                             .set("Content-Type", "application/json; charset=utf-8");
@@ -282,32 +334,20 @@ class OpenCliRemoteAgentHttpClientTest {
                     }
                 });
             server.start();
-            int port = server.getAddress().getPort();
-            return new JsonCollectStub(server, port);
+            return stub;
         }
 
         int port() {
             return port;
         }
 
+        int requests() {
+            return requestCount.get();
+        }
+
         @Override
         public void close() {
             server.stop(0);
-        }
-    }
-
-    /** JDK 8 兼容：丢弃请求体。 */
-    private static void drain(InputStream in) throws IOException {
-        if (in == null) {
-            return;
-        }
-        byte[] buf = new byte[8192];
-        try {
-            while (in.read(buf) != -1) {
-                // discard
-            }
-        } finally {
-            in.close();
         }
     }
 

@@ -30,17 +30,15 @@ class OpenCliArgvToCollectParserFullTest {
     }
 
     @Test
-    void shouldSkipNullTokens() {
-        List<String> argv = new ArrayList<>(Arrays.asList("npm", "search", null, "react"));
-        OpenCliCollectRequest req = OpenCliArgvToCollectParser.parse(argv, "json", "cdp", "");
-        assertTrue(req.getPositionalArgs().contains("react"));
+    void shouldRejectNullTokens() {
+        assertThrows(IllegalArgumentException.class, () -> OpenCliArgvToCollectParser.parse(
+            Arrays.asList("npm", "search", null, "react"), "json", "cdp", ""));
     }
 
     @Test
-    void shouldSkipEmptyTokens() {
-        OpenCliCollectRequest req = OpenCliArgvToCollectParser.parse(
-            Arrays.asList("npm", "search", "", "react"), "json", "cdp", "");
-        assertTrue(req.getPositionalArgs().contains("react"));
+    void shouldRejectEmptyTokens() {
+        assertThrows(IllegalArgumentException.class, () -> OpenCliArgvToCollectParser.parse(
+            Arrays.asList("npm", "search", "", "react"), "json", "cdp", ""));
     }
 
     @Test
