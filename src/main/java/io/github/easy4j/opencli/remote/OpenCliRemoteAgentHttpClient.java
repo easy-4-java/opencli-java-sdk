@@ -11,14 +11,22 @@ import io.github.easy4j.opencli.core.OpenCliResult;
 import io.github.easy4j.opencli.exception.OpenCliExecutableFailureException;
 import io.github.easy4j.opencli.exception.OpenCliNonZeroExitException;
 import io.github.easy4j.opencli.exception.OpenCliRemoteProtocolException;
+import io.github.easy4j.opencli.exception.OpenCliRemoteResponseLimitException;
 import io.github.easy4j.opencli.parser.OpenCliParsedFields;
 import io.github.easy4j.opencli.util.OpenCliStrings;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import kong.unirest.HttpResponse;
-import kong.unirest.Unirest;
+import kong.unirest.RawResponse;
+import kong.unirest.UnrecoverableException;
 import kong.unirest.UnirestException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.entity.ContentType;
 
 /**
  * 调用 opencli-admin 边缘 Agent 的 HTTP {@code POST /collect}。
@@ -75,6 +83,10 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
         }
         String url = base.trim().replaceAll("/+$", "") + "/collect";
         int timeout = resolveTimeoutMillis();
+        int maxResponseBytes = properties.getMaxRemoteResponseBytes();
+        if (maxResponseBytes <= 0) {
+            throw new IllegalArgumentException("maxRemoteResponseBytes must be positive");
+        }
         String correlationId = UUID.randomUUID().toString();
         String bodyJson;
         try {
@@ -84,16 +96,21 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
             throw failure("Failed to serialize collect request", correlationId);
         }
         try {
-            HttpResponse<String> response =
+            HttpResponse<Optional<String>> response =
                 transport()
                     .post(url)
                     .connectTimeout(timeout)
                     .socketTimeout(timeout)
                     .header("Content-Type", "application/json; charset=UTF-8")
                     .body(bodyJson)
-                    .asString();
+                    .asObject(raw -> readBoundedBody(raw, maxResponseBytes));
             int status = response.getStatus();
-            String respBody = Objects.isNull(response.getBody()) ? "" : response.getBody();
+            if (response.getParsingError().isPresent()) {
+                log.warn("Agent HTTP body read failed correlationId={} status={}", correlationId, status);
+                throw failure("Agent HTTP I/O error", correlationId);
+            }
+            String respBody = response.getBody().orElseThrow(
+                () -> new OpenCliRemoteResponseLimitException(status, maxResponseBytes, correlationId));
             if (status < 200 || status >= 300) {
                 log.warn("Agent HTTP non-2xx correlationId={} status={} responseChars={}",
                     correlationId, status, respBody.length());
@@ -146,6 +163,34 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
         }
         if (Objects.nonNull(instance)) {
             instance.shutDown();
+        }
+    }
+
+    private static Optional<String> readBoundedBody(RawResponse response, int limit) {
+        try {
+            // Unirest owns the response stream. Closing it here can drain an oversized HTTP entity.
+            InputStream input = response.getContent();
+            byte[] buffer = new byte[Math.min(8192, limit)];
+            ByteArrayOutputStream body = new ByteArrayOutputStream(buffer.length);
+            while (true) {
+                int remaining = limit - body.size();
+                int length = (int) Math.min(buffer.length, (long) remaining + 1);
+                int read = input.read(buffer, 0, length);
+                if (read < 0) {
+                    break;
+                }
+                if (read > remaining) {
+                    return Optional.empty();
+                }
+                body.write(buffer, 0, read);
+            }
+            String contentType = response.getContentType();
+            Charset charset = OpenCliStrings.isBlank(contentType) ? null : ContentType.parse(contentType).getCharset();
+            String encoding = Objects.nonNull(charset) ? charset.name() : response.getConfig().getDefaultResponseEncoding();
+            return Optional.of(body.toString(encoding));
+        } catch (IOException | RuntimeException exception) {
+            // Avoid Unirest's fallback, which otherwise retries by reading the full body for diagnostics.
+            throw new UnrecoverableException(exception);
         }
     }
 

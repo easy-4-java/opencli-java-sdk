@@ -72,6 +72,8 @@ public class OpenCliProperties {
      * 本地模式无效果。大响应时请谨慎开启。
      */
     private boolean remoteCaptureRawHttpResponse = false;
+    /** Maximum decoded HTTP response body bytes accepted from a remote Agent. */
+    private int maxRemoteResponseBytes = 10 * 1024 * 1024;
 
     /**
      * OpenCLI 可执行文件名或绝对路径；默认假定已在 {@code PATH} 中。
