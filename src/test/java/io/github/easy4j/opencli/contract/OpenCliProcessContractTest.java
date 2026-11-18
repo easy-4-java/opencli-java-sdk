@@ -32,6 +32,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import static org.junit.jupiter.api.Assertions.*;
 
 /** C02 tests observe actual fixture processes, not private semaphore counters. */
@@ -431,8 +433,9 @@ class OpenCliProcessContractTest {
         }
     }
 
-    @Test
-    void cancelledParentWithInheritedPipesReturnsWithinCleanupBudget() throws Exception {
+    @ParameterizedTest
+    @ValueSource(strings = {"inherited-pipes", "isolated-pipes"})
+    void cancelledParentPreservesUntrackedDescendantWithinCleanupBudget(String pipeMode) throws Exception {
         Path parent = dir.resolve("parent");
         Path descendant = dir.resolve("descendant");
         Path release = dir.resolve("release");
@@ -444,15 +447,18 @@ class OpenCliProcessContractTest {
         ExecutorService worker = Executors.newSingleThreadExecutor();
         try {
             Future<OpenCliException> failure = worker.submit(() -> assertThrows(OpenCliException.class,
-                () -> executor.invoke(Arrays.asList("inherited-pipes", parent.toString(),
+                () -> executor.invoke(Arrays.asList(pipeMode, parent.toString(),
                     release.toString(), descendant.toString(), stopped.toString()), token)));
-            assertTrue(awaitFile(descendant, 5_000L), "descendant never inherited the pipes");
+            assertTrue(awaitFile(descendant, 5_000L), "descendant never started");
             token.cancel();
             OpenCliExecutionDetails details = failure.get(1_500L, TimeUnit.MILLISECONDS).getPartialResult()
                 .getExecutionDetails();
             assertEquals(TerminationReason.CANCELLED, details.getTerminationReason());
             assertFalse(details.isDescendantsExitConfirmed());
-            if (!details.isStreamsDrained()) {
+            if ("isolated-pipes".equals(pipeMode)) {
+                assertTrue(details.isStreamsDrained());
+                assertEquals(OpenCliExecutionDetails.CleanupState.ROOT_EXIT_CONFIRMED, details.getCleanupState());
+            } else if (!details.isStreamsDrained()) {
                 assertEquals(OpenCliExecutionDetails.CleanupState.UNCONFIRMED, details.getCleanupState());
             }
             byte[] firstHeartbeat = Files.readAllBytes(descendant);
