@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -118,7 +119,7 @@ public final class SubprocessExecutionSupport {
             long budget = nanos(request.timeoutMillis, "timeoutMillis");
             BoundedCapture out = new BoundedCapture(request.stdoutLimitBytes);
             BoundedCapture err = new BoundedCapture(request.stderrLimitBytes);
-            Process process = null;
+            CleanupProcess process = null;
             Reader stdoutReader = null;
             Reader stderrReader = null;
             ExecuteWatchdog watchdog = null;
@@ -130,6 +131,7 @@ public final class SubprocessExecutionSupport {
             long queueWaitMillis = 0L;
             Integer exit = null;
             boolean streamsDrained = true;
+            boolean cleanupFinished = true;
             try {
                 while (!acquired && reason == null) {
                     if (Thread.interrupted()) {
@@ -168,7 +170,7 @@ public final class SubprocessExecutionSupport {
                         builder.environment().clear();
                         builder.environment().putAll(request.environment);
                     }
-                    process = processStarter.start(builder);
+                    process = new CleanupProcess(processStarter.start(builder));
                     process.getOutputStream().close();
                     stdoutReader = new Reader(process.getInputStream(), out, "opencli-stdout");
                     stderrReader = new Reader(process.getErrorStream(), err, "opencli-stderr");
@@ -226,23 +228,17 @@ public final class SubprocessExecutionSupport {
                     long cleanupStart = System.nanoTime();
                     long cleanupBudget = nanos(request.cleanupGraceMillis, "cleanupGraceMillis");
                     if (Objects.nonNull(process)) {
-                        boolean forceSent = false;
                         if (process.isAlive()) {
-                            try {
-                                process.destroy();
-                            } catch (RuntimeException ex) {
-                                cleanupOperationFailed = true;
-                                forceSent = true;
-                                if (!tryForceStop(process)) { cleanupOperationFailed = true; }
-                            }
+                            process.destroy();
                         }
+                        long forceAfter = Math.min(TimeUnit.MILLISECONDS.toNanos(100L), cleanupBudget / 2L);
                         while (remaining(cleanupStart, cleanupBudget) > 0
-                            && (process.isAlive() || alive(stdoutReader) || alive(stderrReader))) {
+                            && (process.isAlive() || alive(stdoutReader) || alive(stderrReader)
+                                || process.hasPendingStop())) {
                             if (Thread.interrupted()) { interrupted = true; }
-                            if (process.isAlive() && !forceSent
-                                && System.nanoTime() - cleanupStart >= Math.min(TimeUnit.MILLISECONDS.toNanos(100L), cleanupBudget / 2)) {
-                                if (!tryForceStop(process)) { cleanupOperationFailed = true; }
-                                forceSent = true;
+                            if (process.isAlive() && (process.graceful.failed
+                                || System.nanoTime() - cleanupStart >= forceAfter)) {
+                                process.destroyForcibly();
                             }
                             try {
                                 TimeUnit.NANOSECONDS.sleep(Math.min(POLL_NANOS,
@@ -251,13 +247,17 @@ public final class SubprocessExecutionSupport {
                                 interrupted = true;
                             }
                         }
-                        if (process.isAlive() && !tryForceStop(process)) { cleanupOperationFailed = true; }
+                        if (process.isAlive()) {
+                            process.destroyForcibly();
+                        }
+                        cleanupFinished = !process.hasPendingStop();
+                        cleanupOperationFailed |= !cleanupFinished || process.graceful.failed || process.forced.failed;
                         if (!process.isAlive()) {
                             exit = process.exitValue();
                         }
                         streamsDrained = !alive(stdoutReader) && !alive(stderrReader);
-                        if (Objects.isNull(exit) || !streamsDrained) {
-                            // A fixed runtime cannot accumulate unlimited uncertain children/readers.
+                        if (Objects.isNull(exit) || !streamsDrained || !cleanupFinished) {
+                            // Quarantine limits the number of unconfirmed children, readers and stop workers.
                             quarantined = true;
                             if (reason == TerminationReason.PROCESS_EXIT) { reason = TerminationReason.CLEANUP_UNCONFIRMED; }
                         }
@@ -283,7 +283,8 @@ public final class SubprocessExecutionSupport {
             OpenCliExecutionDetails details = OpenCliExecutionDetails.builder()
                 .terminationReason(reason)
                 .cleanupState(process == null ? CleanupState.NOT_STARTED
-                    : Objects.isNull(exit) || !streamsDrained ? CleanupState.UNCONFIRMED : CleanupState.ROOT_EXIT_CONFIRMED)
+                    : Objects.isNull(exit) || !streamsDrained || !cleanupFinished
+                        ? CleanupState.UNCONFIRMED : CleanupState.ROOT_EXIT_CONFIRMED)
                 .processStarted(process != null).streamsDrained(streamsDrained)
                 .cleanupOperationFailed(cleanupOperationFailed)
                 .stdoutCapturedBytes(out.size()).stdoutObservedBytes(out.observed()).stdoutTruncated(out.isTruncated())
@@ -303,14 +304,81 @@ public final class SubprocessExecutionSupport {
     }
 
     private static boolean alive(Thread thread) { return thread != null && thread.isAlive(); }
-    private static boolean tryForceStop(Process process) {
-        try {
-            process.destroyForcibly();
-            return true;
-        } catch (RuntimeException ex) {
-            return false;
+    /**
+     * The watchdog holds its monitor when invoking destroy. Keep native stop calls
+     * outside that monitor and the caller, as closing process pipes can block.
+     */
+    private static final class CleanupProcess extends Process {
+        private final Process delegate;
+        private final StopRequest graceful = new StopRequest();
+        private final StopRequest forced = new StopRequest();
+
+        CleanupProcess(Process delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public OutputStream getOutputStream() { return delegate.getOutputStream(); }
+
+        @Override
+        public InputStream getInputStream() { return delegate.getInputStream(); }
+
+        @Override
+        public InputStream getErrorStream() { return delegate.getErrorStream(); }
+
+        @Override
+        public int waitFor() throws InterruptedException { return delegate.waitFor(); }
+
+        @Override
+        public int exitValue() { return delegate.exitValue(); }
+
+        @Override
+        public boolean isAlive() { return delegate.isAlive(); }
+
+        @Override
+        public void destroy() {
+            graceful.start("opencli-stop", delegate::destroy);
+        }
+
+        @Override
+        public Process destroyForcibly() {
+            forced.start("opencli-force-stop", delegate::destroyForcibly);
+            return this;
+        }
+
+        boolean hasPendingStop() {
+            return graceful.isPending() || forced.isPending();
         }
     }
+
+    private static final class StopRequest {
+        private Thread worker;
+        private volatile boolean failed;
+
+        synchronized void start(String name, Runnable signal) {
+            if (Objects.nonNull(worker) || failed) {
+                return;
+            }
+            try {
+                worker = new Thread(() -> {
+                    try {
+                        signal.run();
+                    } catch (RuntimeException ex) {
+                        failed = true;
+                    }
+                }, name);
+                worker.setDaemon(true);
+                worker.start();
+            } catch (RuntimeException ex) {
+                failed = true;
+            }
+        }
+
+        synchronized boolean isPending() {
+            return alive(worker);
+        }
+    }
+
     private static long remaining(long start, long budget) { return budget - (System.nanoTime() - start); }
     // The Windows JDK legacy serializer treats a surrounding quote pair as already encoded.
     @SuppressWarnings("removal")
