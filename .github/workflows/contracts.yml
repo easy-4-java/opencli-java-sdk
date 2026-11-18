@@ -215,7 +215,7 @@ jobs:
           OPENCLI_INSTALLED_REGISTRY="$(cygpath -w "$registry")"
           OPENCLI_INSTALLED_BATCH_SHIM="$(cygpath -w "$install_dir/node_modules/.bin/opencli.cmd")"
           export OPENCLI_INSTALLED_NODE OPENCLI_INSTALLED_ENTRY OPENCLI_INSTALLED_REGISTRY OPENCLI_INSTALLED_BATCH_SHIM
-          mvn -B --no-transfer-progress -Dtest=OpenCliInstalledLauncherIT test
+          mvn -B --no-transfer-progress -Dtest=OpenCliInstalledLauncherIT,OpenCliCapabilityOverrideIT test
       - name: Upload platform subprocess evidence
         if: always()
         uses: actions/upload-artifact@v7

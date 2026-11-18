@@ -7,17 +7,17 @@
 ## 1. schema基线
 
 - [x] 1.1 从锁定 OpenCLI 采集 root、browser、meta 和 site 帮助，保存原文与 SHA-256。不能读取为单一 JSON 文档的输出单列为负例。见 [1.8.8 采集证据](evidence/2026-11-19-structured-help.md)。
-- [ ] 1.2 为scope、optionalvalue、negate、false、aliases、session占位和旧格式编写失败测试。
+- [x] 1.2 为scope、optionalvalue、negate、false、aliases、session占位和旧格式编写失败测试。
 
 ## 2. 服务实现
 
-- [ ] 2.1 新增Java8可表达schema与快照模型，保留unknown字段和raw；复用已有adapter入口。
-- [ ] 2.2 实现有限version/help探测与可信executable校验，禁止自动业务操作。
-- [ ] 2.3 实现cache key、内容hash、失效与UNKNOWN/STALE/UNSUPPORTED原因。
+- [x] 2.1 新增Java8可表达schema与快照模型，保留unknown字段和raw；复用已有adapter入口。
+- [x] 2.2 实现有限version/help探测与可信executable校验，禁止自动业务操作。
+- [x] 2.3 实现cache key、内容hash、失效与UNKNOWN/STALE/UNSUPPORTED原因。
 
 ## 3. 边界验证
 
-- [ ] 3.1 测试本地override/插件来源未知时不伪造来源和全量覆盖率。
+- [x] 3.1 测试本地override/插件来源未知时不伪造来源和全量覆盖率。
 - [x] 3.2 验证发现失败后仍可调用本地 raw 入口，远程拒绝范围继续由 C04 测试验收。
 - [x] 3.3 三线同一schema fixture结果一致；报告未运行的真实上游采集项。见下方三线验证。
 
@@ -75,3 +75,10 @@ OC-CAP-005 根目录形态与本地回退：JDK 17 基线 `b22796f3` 上，空�
 基于 Java 8 的 `3b97f2c`、Java 17 的 `441122f1` 和 Java 21 的 `f579865`，分别用对应 JDK 执行 `./mvnw -B -ntp clean verify`。三个构建均退出 0，全量分别通过 2203、2204、2203 项测试，零失败、零错误、零跳过。Java 8 和 21 的测试检出树与所列远端提交仅在本任务说明文档上有差异。
 
 按 `SHA256SUMS` 核实三条线的 9 份 OpenCLI 1.8.8 帮助样本。逐条比对 `target/surefire-reports`，四组用例名称和通过结果一致，分别为真实样本形态 3 项、帮助解析 7 项、参数绑定 2 项、本地发现 13 项。实际 JVM 子进程验证浏览器会话占位替换和字面 argv。真实上游采集范围以 [1.8.8 采集证据](evidence/2026-11-19-structured-help.md) 为准，运行时插件、本地 override、远端 Agent 和样本之外的站点未进行真实上游采集。
+
+
+## OC-CAP-004/006 运行时覆盖验收
+
+`OpenCliCapabilityOverrideIT` 使用 Node 24.18.0 和 npm 发布的 OpenCLI 1.8.8。测试以独立临时用户目录运行，每次刷新均查询 npm search 的同一叶子。依次观察内置定义、本地 adapter 覆盖、插件覆盖、移除插件后恢复本地定义。每次均返回 `AVAILABLE`，保留观测版本 1.8.8、原文、`SITE_NPM_SEARCH` 范围和 `UNKNOWN` 来源。配置指纹相同，内容摘要随有效覆盖变化。覆盖 handler 仅在业务执行时写入标记，帮助探测后标记始终不存在。
+
+在配置 `OPENCLI_INSTALLED_NODE` 和 `OPENCLI_INSTALLED_ENTRY` 后执行 `./mvnw -B -ntp -Dtest=OpenCliCapabilityOverrideIT test`。报告为 `target/surefire-reports/TEST-io.github.easy4j.opencli.contract.OpenCliCapabilityOverrideIT.xml`。本测试仅覆盖受控目录下的两个覆盖定义。真实 Browser Bridge 会话与外部插件生态仍未验收。
