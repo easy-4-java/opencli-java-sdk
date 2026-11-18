@@ -7,17 +7,17 @@
 ## 1. schema基线
 
 - [x] 1.1 从锁定 OpenCLI 采集 root、browser、meta 和 site 帮助，保存原文与 SHA-256。不能读取为单一 JSON 文档的输出单列为负例。见 [1.8.8 采集证据](evidence/2026-11-19-structured-help.md)。
-- [ ] 1.2 为scope、optionalvalue、negate、false、aliases、session占位和旧格式编写失败测试。
+- [x] 1.2 为scope、optionalvalue、negate、false、aliases、session占位和旧格式编写失败测试。
 
 ## 2. 服务实现
 
-- [ ] 2.1 新增Java8可表达schema与快照模型，保留unknown字段和raw；复用已有adapter入口。
-- [ ] 2.2 实现有限version/help探测与可信executable校验，禁止自动业务操作。
-- [ ] 2.3 实现cache key、内容hash、失效与UNKNOWN/STALE/UNSUPPORTED原因。
+- [x] 2.1 新增Java8可表达schema与快照模型，保留unknown字段和raw；复用已有adapter入口。
+- [x] 2.2 实现有限version/help探测与可信executable校验，禁止自动业务操作。
+- [x] 2.3 实现cache key、内容hash、失效与UNKNOWN/STALE/UNSUPPORTED原因。
 
 ## 3. 边界验证
 
-- [ ] 3.1 测试本地override/插件来源未知时不伪造来源和全量覆盖率。
+- [x] 3.1 测试本地override/插件来源未知时不伪造来源和全量覆盖率。
 - [ ] 3.2 测试原有raw入口不会因为发现故障被无声禁用，remote拒绝范围仍受C04控制。
 - [ ] 3.3 三线同一schema fixture结果一致；报告未运行的真实上游采集项。
 
@@ -55,3 +55,9 @@
 `OpenCliClient.invokeDiscovered` 对本地配置取快照，刷新指定范围，选择显式给定的叶子路径，校验后通过同一执行器运行时提交字面参数。需要提供浏览器会话时，必须填入合法会话标识。校验覆盖必选项和值、声明 choices、可选值 flag、显式 false、否定拼写和可变位置参数；用字面分隔符隔离可能像选项的位置参数。不可用或过期的帮助无法进入类型化执行。原有本地 raw 入口独立可用。
 
 `OpenCliCapabilityCommandTest` 和 `OpenCliCapabilityDiscoveryTest` 以失败→通过验证新 API、字段级错误和真实 JVM 子进程收到的 argv。当前仅对已验证的 OpenCLI 1.8.8 执行发现绑定；测试不依赖浏览器账户。
+
+## OC-CAP-004/006 运行时覆盖验收
+
+`OpenCliCapabilityOverrideIT` 使用 Node 24.18.0 和 npm 发布的 OpenCLI 1.8.8。测试以独立临时用户目录运行，每次刷新均查询 npm search 的同一叶子。依次观察内置定义、本地 adapter 覆盖、插件覆盖、移除插件后恢复本地定义。每次均返回 `AVAILABLE`，保留观测版本 1.8.8、原文、`SITE_NPM_SEARCH` 范围和 `UNKNOWN` 来源。配置指纹相同，内容摘要随有效覆盖变化。覆盖 handler 仅在业务执行时写入标记，帮助探测后标记始终不存在。
+
+在配置 `OPENCLI_INSTALLED_NODE` 和 `OPENCLI_INSTALLED_ENTRY` 后执行 `./mvnw -B -ntp -Dtest=OpenCliCapabilityOverrideIT test`。报告为 `target/surefire-reports/TEST-io.github.easy4j.opencli.contract.OpenCliCapabilityOverrideIT.xml`。本测试仅覆盖受控目录下的两个覆盖定义。真实 Browser Bridge 会话与外部插件生态仍未验收。
