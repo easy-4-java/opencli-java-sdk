@@ -56,7 +56,7 @@ public class OpenCliExecutor implements AutoCloseable {
 
     /** @param adapterAndRest command and literal values @return execution result */
     public OpenCliResult invoke(List<String> adapterAndRest) {
-        return invokeInternal(adapterAndRest, new OpenCliCancellationToken(), false, false);
+        return invokeInternal(adapterAndRest, new OpenCliCancellationToken(), false);
     }
 
     /**
@@ -68,7 +68,7 @@ public class OpenCliExecutor implements AutoCloseable {
      * @return execution result
      */
     public OpenCliResult invoke(List<String> adapterAndRest, OpenCliCancellationToken cancellationToken) {
-        return invokeInternal(adapterAndRest, Objects.requireNonNull(cancellationToken, "cancellationToken"), true, false);
+        return invokeInternal(adapterAndRest, Objects.requireNonNull(cancellationToken, "cancellationToken"), true);
     }
 
     /**
@@ -79,11 +79,14 @@ public class OpenCliExecutor implements AutoCloseable {
      * @throws UnsupportedOperationException when configured for legacy HTTP collect
      */
     public OpenCliResult invokeLocalOnly(List<String> argv) {
-        return invokeInternal(argv, new OpenCliCancellationToken(), false, true);
+        if (properties.getExecutionTarget() == OpenCliExecutionTarget.REMOTE_AGENT_HTTP) {
+            throw new UnsupportedOperationException("This command requires local process execution");
+        }
+        return invoke(argv);
     }
 
     private OpenCliResult invokeInternal(List<String> adapterAndRest,
-        OpenCliCancellationToken cancellationToken, boolean explicitCancellation, boolean localOnly) {
+        OpenCliCancellationToken cancellationToken, boolean explicitCancellation) {
         long submittedAtNanos = System.nanoTime();
         long timeoutMillis = properties.getCommandTimeoutMillis();
         List<String> tokens = OpenCliArgSupport.snapshotValues(adapterAndRest, "adapterAndRest");
@@ -94,9 +97,6 @@ public class OpenCliExecutor implements AutoCloseable {
             throw new IllegalArgumentException("adapterAndRest[0] command identifier must not be blank");
         }
         if (properties.getExecutionTarget() == OpenCliExecutionTarget.REMOTE_AGENT_HTTP) {
-            if (localOnly) {
-                throw new UnsupportedOperationException("This command requires local process execution");
-            }
             if (explicitCancellation) {
                 throw new UnsupportedOperationException("Explicit process cancellation is local-only for legacy collect");
             }
