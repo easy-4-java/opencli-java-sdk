@@ -92,3 +92,9 @@ JDK 17 基线的两项新测试均失败。Agent 接收请求后断开以及发�
 argv 入口继续限制为 SDK 已登记适配器和可保真转换的参数。测试同时检查正常映射和被拒绝的零请求路径。已验证范围为回环 legacy Agent DTO、显式请求头与 HTTP/TLS 传输。生产部署特有扩展与未经证实的认证协议保持 unsupported。
 
 本分支以 `807801e785d5fa5ffd9607165f44ae0e1faa6e07` 为基线，使用 JDK 17 执行 `./mvnw -B -ntp -o -Dtest=OpenCliRemoteAgentHttpClientTest,OpenCliArgvToCollectParserTest,OpenCliArgvToCollectParserFullTest,OpenCliDiagnosticExportTest test`，退出码为 0。81 项实际执行，其中 56 项为 HTTP 客户端测试，零失败、零错误、零跳过。报告位于 `target/surefire-reports`。
+
+## 平台 HTTP 回归门禁
+
+三线 macOS、Windows 平台工作流同时在 Maven 选择器和协议层报告中登记 OpenCliRemoteAgentHttpClientTest。将该套件从现有报告副本移除后，协议层和整体结果均为 FAIL，即使 Maven 退出码为 0。
+
+本地 macOS 按平台步骤分别运行 Java 8、17、21，三线各执行 202 项，协议层各记录 93 项，其中 HTTP 套件 58 项。两个非法响应字符集用例均实际执行，覆盖收到 HTTP 200 和 503 时保留状态。三线零失败、零错误、零跳过。GitHub 平台结果按对应功能提交核验。
