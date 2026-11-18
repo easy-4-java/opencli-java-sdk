@@ -37,6 +37,9 @@ def build_report(reports_dir, *, head, branch, java_version, maven_version, exit
         problems.append('verification command exited nonzero')
     if not required_suites or any(layer not in LAYERS or not names for layer, names in required_suites.items()):
         problems.append('non-empty required suites must use recognized layers')
+    attributed = [name for names in required_suites.values() for name in names]
+    if len(attributed) != len(set(attributed)):
+        problems.append('suite attribution must be unique across layers')
     suites = {}
     for path in sorted(pathlib.Path(reports_dir).glob('TEST-*.xml')):
         try:
@@ -59,11 +62,14 @@ def build_report(reports_dir, *, head, branch, java_version, maven_version, exit
         for name in names:
             for key in counts:
                 counts[key] += suites.get(name, {}).get(key, 0)
-        state = 'NOT_RUN'
-        if names:
-            state = 'PASS' if (not missing and counts['executed'] > 0 and
-                               not any(counts[key] for key in ('skipped', 'failures', 'errors'))) else 'FAIL'
-        layers[layer] = dict(counts, status=state, requiredSuites=names, missingSuites=missing)
+        unproven = [
+            name for name in names
+            if name not in suites or suites[name]['executed'] == 0
+            or any(suites[name][key] for key in ('skipped', 'failures', 'errors'))
+        ]
+        state = 'NOT_RUN' if not names else ('FAIL' if unproven else 'PASS')
+        layers[layer] = dict(counts, status=state, requiredSuites=names, missingSuites=missing,
+                             unprovenSuites=unproven)
         if state == 'FAIL':
             problems.append('required layer lacks passing, non-skipped execution: ' + layer)
     return {'schemaVersion': 1, 'status': 'FAIL' if problems else 'PASS',
@@ -85,13 +91,15 @@ def main(argv=None):
     parser.add_argument('--output', type=pathlib.Path, required=True)
     args = parser.parse_args(argv)
     required = {}
+    attributed = set()
     for item in args.suite:
         layer, separator, name = item.partition('=')
         if not separator or layer not in LAYERS or not name:
             parser.error('--suite must be recognized-layer=fully.qualified.TestClass')
-        if name in required.setdefault(layer, []):
-            parser.error('duplicate --suite')
-        required[layer].append(name)
+        if name in attributed:
+            parser.error('--suite must be unique across layers')
+        attributed.add(name)
+        required.setdefault(layer, []).append(name)
     try:
         report = build_report(args.reports, head=args.head, branch=args.branch,
                               java_version=args.java_version_file.read_text(encoding='utf-8'),
