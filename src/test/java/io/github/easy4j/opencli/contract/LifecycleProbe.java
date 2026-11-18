@@ -1,5 +1,6 @@
 package io.github.easy4j.opencli.contract;
 
+import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,16 +27,13 @@ public final class LifecycleProbe {
             return;
         }
         if ("stdout".equals(mode) || "stderr".equals(mode)) {
-            byte[] block = new byte[8192];
-            Arrays.fill(block, (byte) 'x');
-            int remaining = Integer.parseInt(args[1]);
-            while (remaining > 0) {
-                int size = Math.min(block.length, remaining);
-                if ("stdout".equals(mode)) { System.out.write(block, 0, size); }
-                else { System.err.write(block, 0, size); }
-                remaining -= size;
-            }
+            PrintStream stream = "stdout".equals(mode) ? System.out : System.err;
+            writeStream(stream, Integer.parseInt(args[1]));
             return;
+        }
+        if ("capture-hold".equals(mode)) {
+            writeStream(System.out, Integer.parseInt(args[3]));
+            writeStream(System.err, Integer.parseInt(args[4]));
         }
         Path marker = Paths.get(args[1]);
         if ("count-hold".equals(mode)) {
@@ -54,6 +52,18 @@ public final class LifecycleProbe {
             }
             Thread.sleep(20L);
         }
+    }
+
+    private static void writeStream(PrintStream stream, int bytes) {
+        byte[] block = new byte[8192];
+        Arrays.fill(block, (byte) 'x');
+        int remaining = bytes;
+        while (remaining > 0) {
+            int size = Math.min(block.length, remaining);
+            stream.write(block, 0, size);
+            remaining -= size;
+        }
+        stream.flush();
     }
 
     private static void exercisePrivacy(String outcome, String canary) throws Exception {

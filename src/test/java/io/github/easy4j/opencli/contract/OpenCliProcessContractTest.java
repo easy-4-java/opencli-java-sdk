@@ -4,8 +4,10 @@ import io.github.easy4j.opencli.OpenCliProperties;
 import io.github.easy4j.opencli.browser.OpenCliBrowserClient;
 import io.github.easy4j.opencli.browser.OpenCliBrowserSession;
 import io.github.easy4j.opencli.browser.OpenCliBrowserSession.OpenCliBrowserNetworkOptions;
+import io.github.easy4j.opencli.core.OpenCliExecutionDetails;
 import io.github.easy4j.opencli.core.OpenCliExecutionDetails.TerminationReason;
 import io.github.easy4j.opencli.core.OpenCliExecutor;
+import io.github.easy4j.opencli.core.OpenCliProcessRuntime;
 import io.github.easy4j.opencli.core.OpenCliResult;
 import io.github.easy4j.opencli.exception.OpenCliException;
 import io.github.easy4j.opencli.exception.OpenCliNonZeroExitException;
@@ -314,6 +316,71 @@ class OpenCliProcessContractTest {
             release(gate);
             assertTrue(one.get(5, TimeUnit.SECONDS).isSuccess());
             assertTrue(two.get(5, TimeUnit.SECONDS).isSuccess());
+        } finally {
+            release(gate);
+            workers.shutdownNow();
+            assertTrue(workers.awaitTermination(5, TimeUnit.SECONDS));
+        }
+    }
+
+    @Test
+    void sharedRuntimeBoundsConcurrentChildrenAndCombinedCapture() throws Exception {
+        int stdoutLimit = 131_073;
+        int stderrLimit = 65_539;
+        OpenCliProcessRuntime runtime = new OpenCliProcessRuntime(2);
+        OpenCliProperties capture = properties(6);
+        capture.setMaxStdoutBytes(stdoutLimit);
+        capture.setMaxStderrBytes(stderrLimit);
+        OpenCliProperties queued = properties(6);
+        queued.setCommandTimeoutMillis(750L);
+        OpenCliExecutor first = new OpenCliExecutor(capture, runtime);
+        OpenCliExecutor second = new OpenCliExecutor(capture, runtime);
+        OpenCliExecutor waiting = new OpenCliExecutor(queued, runtime);
+        Path gate = dir.resolve("capture-release");
+        List<Path> markers = Arrays.asList(dir.resolve("capture-first"), dir.resolve("capture-second"));
+        ExecutorService workers = Executors.newFixedThreadPool(6);
+        try {
+            Future<OpenCliResult> one = workers.submit(() -> first.invoke("capture-hold",
+                markers.get(0).toString(), gate.toString(), Integer.toString(stdoutLimit),
+                Integer.toString(stderrLimit)));
+            Future<OpenCliResult> two = workers.submit(() -> second.invoke("capture-hold",
+                markers.get(1).toString(), gate.toString(), Integer.toString(stdoutLimit),
+                Integer.toString(stderrLimit)));
+            assertTrue(awaitFile(markers.get(0), 5_000L));
+            assertTrue(awaitFile(markers.get(1), 5_000L));
+
+            List<Future<?>> contenders = new ArrayList<>();
+            for (int index = 0; index < 4; index++) {
+                Path marker = dir.resolve("queued-" + index);
+                contenders.add(workers.submit(() -> {
+                    OpenCliTimeoutException timeout = assertThrows(OpenCliTimeoutException.class,
+                        () -> waiting.invoke("write", marker.toString()));
+                    OpenCliExecutionDetails evidence = timeout.getPartialResult().getExecutionDetails();
+                    assertEquals(TerminationReason.QUEUE_TIMEOUT, evidence.getTerminationReason());
+                    assertFalse(evidence.isProcessStarted());
+                    assertFalse(Files.exists(marker), "a queued invocation spawned a child");
+                }));
+            }
+            for (Future<?> contender : contenders) {
+                contender.get(4, TimeUnit.SECONDS);
+            }
+            assertFalse(one.isDone());
+            assertFalse(two.isDone());
+
+            release(gate);
+            long aggregateBytes = 0;
+            for (Future<OpenCliResult> active : Arrays.asList(one, two)) {
+                OpenCliResult result = active.get(5, TimeUnit.SECONDS);
+                assertTrue(result.isSuccess());
+                OpenCliExecutionDetails evidence = result.getExecutionDetails();
+                assertEquals(stdoutLimit, evidence.getStdoutCapturedBytes());
+                assertEquals(stderrLimit, evidence.getStderrCapturedBytes());
+                assertFalse(evidence.isStdoutTruncated());
+                assertFalse(evidence.isStderrTruncated());
+                assertEquals(OpenCliExecutionDetails.CleanupState.ROOT_EXIT_CONFIRMED, evidence.getCleanupState());
+                aggregateBytes += evidence.getStdoutCapturedBytes() + evidence.getStderrCapturedBytes();
+            }
+            assertEquals(393_224L, aggregateBytes);
         } finally {
             release(gate);
             workers.shutdownNow();
