@@ -185,7 +185,7 @@ Configuration is object-based via `OpenCliProperties`:
 | `cleanupGraceMillis` | `5000` | Positive, separate local cleanup grace in milliseconds. Timeout values must fit the monotonic nanosecond budget. |
 | `startupProbeTimeoutMillis` | `30000` | Availability-probe timeout |
 | `environment` | `{}` | Extra environment variables (e.g. `OPENCLI_CDP_ENDPOINT`) |
-| `remoteAgentBaseUrl` | — | Remote agent base URL |
+| `remoteAgentBaseUrl` | — | Remote Agent HTTP(S) base URL. Keep any deployment path prefix and omit user info, queries and fragments. |
 | `remoteCollectMode` | `cdp` | `bridge` or `cdp` (must match the agent side) |
 | `remoteOutputFormat` | `json` | Output format requested from the agent |
 | `remoteCdpEndpoint` | — | Optional CDP endpoint overriding the agent default |
