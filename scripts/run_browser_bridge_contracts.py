@@ -14,6 +14,7 @@ import time
 from urllib.error import URLError
 from urllib.parse import quote
 from urllib.request import Request, urlopen
+from xml.etree import ElementTree
 from zipfile import ZipFile
 
 import contract_report
@@ -25,6 +26,12 @@ EXTENSION_SHA = 'bad9163f32a66224404e302f52f35391672341d2bd0bf30c8bbaae3c6e6e246
 CHROME_VERSION = '158.0.8127.18'
 DAEMON_STATUS = 'http://127.0.0.1:19825/status'
 SUITE = 'io.github.easy4j.opencli.contract.OpenCliBrowserBridgeIT'
+REQUIRED_CASES = {
+    'boundTabSurvivesTypedSuccessFailureAndClientShutdown',
+    'boundedNetworkFollowLeavesTheRealBridgeAndPageAvailable',
+    'queryAndCaptureUseTheRealBridgeResponses',
+    'typedResultsFromAnIsolatedChromePage',
+}
 PAGE = b"""<!doctype html><title>Bridge fixture</title><main><button id="go">Continue</button></main>
 <script>
 const capture = setInterval(() => fetch('/api/items'), 250);
@@ -127,6 +134,18 @@ def stop(process):
         process.wait()
 
 
+def require_bridge_cases(report, xml):
+    layer = report['layers']['real-execution']
+    if layer['status'] != 'PASS':
+        return
+    cases = ElementTree.parse(xml).getroot().findall('testcase')
+    missing = sorted(REQUIRED_CASES - {case.get('name') for case in cases})
+    layer['missingCases'] = missing
+    if missing:
+        layer['status'] = report['status'] = 'FAIL'
+        report['problems'].append('Required Browser Bridge cases are missing: ' + ', '.join(missing))
+
+
 def execute(args, root, evidence):
     extension = root / 'extension'
     download_zip(f'https://github.com/jackwener/OpenCLI/releases/download/v{OPENCLI_VERSION}/'
@@ -210,6 +229,7 @@ def execute(args, root, evidence):
         java_version=(java.stdout + java.stderr).strip(), maven_version=(maven.stdout + maven.stderr).strip(),
         exit_code=result.returncode, required_suites={'real-execution': [SUITE]},
     )
+    require_bridge_cases(report, evidence / xml.name)
     (evidence / 'report.json').write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
     print(json.dumps(report['layers']['real-execution']))
     return 0 if report['status'] == 'PASS' else 1
