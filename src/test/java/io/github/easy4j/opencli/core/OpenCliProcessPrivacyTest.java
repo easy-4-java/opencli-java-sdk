@@ -49,6 +49,36 @@ class OpenCliProcessPrivacyTest {
     }
 
     @Test
+    void correlatesLocalFailureLogAndStackWithoutPayload() throws Exception {
+        String canary = "private-stderr-" + UUID.randomUUID();
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        PrintStream original = System.err;
+        OpenCliNonZeroExitException failure;
+        try (OpenCliExecutor executor = new OpenCliExecutor(childProperties());
+             PrintStream capture = new PrintStream(output, true, StandardCharsets.UTF_8.name())) {
+            System.setErr(capture);
+            try {
+                failure = assertThrows(OpenCliNonZeroExitException.class,
+                    () -> executor.invoke("privacy", "nonzero", canary));
+                failure.printStackTrace(capture);
+            } finally {
+                System.setErr(original);
+            }
+        }
+
+        String message = failure.getMessage();
+        String marker = "correlationId=";
+        int markerStart = message.indexOf(marker);
+        assertTrue(markerStart >= 0, message);
+        UUID id = UUID.fromString(message.substring(markerStart + marker.length()));
+        String diagnostics = output.toString(StandardCharsets.UTF_8.name());
+        assertTrue(diagnostics.contains("OpenCLI process failed " + marker + id
+            + " reason=PROCESS_EXIT exitCode=7 stdoutBytes=0 stderrBytes=" + canary.length()));
+        assertFalse(diagnostics.contains(canary));
+        assertEquals(canary, failure.getPartialResult().getStderr());
+    }
+
+    @Test
     void adapterDebugLogsOnlyArgumentCount() throws Exception {
         String canary = "adapter-value-" + UUID.randomUUID();
         ByteArrayOutputStream output = new ByteArrayOutputStream();

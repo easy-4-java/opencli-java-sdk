@@ -23,7 +23,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.exec.CommandLine;
 
 /**
@@ -35,6 +37,7 @@ import org.apache.commons.exec.CommandLine;
  * @since 3.0.0
  */
 @Getter
+@Slf4j
 public class OpenCliExecutor implements AutoCloseable {
     private final OpenCliProperties properties;
     private final OpenCliProcessRuntime processRuntime;
@@ -198,8 +201,10 @@ public class OpenCliExecutor implements AutoCloseable {
     }
 
     private OpenCliResult complete(SubprocessExecutionSupport.RunSession session) {
-        String stdout = new String(session.getStdout().toByteArray(), StandardCharsets.UTF_8);
-        String stderr = new String(session.getStderr().toByteArray(), StandardCharsets.UTF_8);
+        byte[] stdoutBytes = session.getStdout().toByteArray();
+        byte[] stderrBytes = session.getStderr().toByteArray();
+        String stdout = new String(stdoutBytes, StandardCharsets.UTF_8);
+        String stderr = new String(stderrBytes, StandardCharsets.UTF_8);
         OpenCliExecutionDetails details = session.getExecutionDetails();
         TerminationReason reason = details.getTerminationReason();
         Integer exit = session.getObservedExitCode();
@@ -211,18 +216,24 @@ public class OpenCliExecutor implements AutoCloseable {
             .errorEnvelope(success ? null : OpenCliErrorDecoder.decode(stderr, exit,
                 reason != TerminationReason.PROCESS_EXIT || !details.isStreamsDrained() || details.isStderrTruncated()))
             .build();
-        if (success) { return result; }
+        if (success) {
+            return result;
+        }
+        String correlationId = UUID.randomUUID().toString();
+        String diagnosticSuffix = " correlationId=" + correlationId;
+        log.debug("OpenCLI process failed correlationId={} reason={} exitCode={} stdoutBytes={} stderrBytes={}",
+            correlationId, reason, exit, stdoutBytes.length, stderrBytes.length);
         if (reason == TerminationReason.QUEUE_TIMEOUT || reason == TerminationReason.EXECUTION_TIMEOUT) {
-            throw new OpenCliTimeoutException("OpenCLI deadline exceeded: " + reason, result);
+            throw new OpenCliTimeoutException("OpenCLI deadline exceeded: " + reason + diagnosticSuffix, result);
         }
         if (reason == TerminationReason.SPAWN_FAILED) {
-            throw new OpenCliExecutableFailureException("OpenCLI process could not be started", null, result);
+            throw new OpenCliExecutableFailureException("OpenCLI process could not be started" + diagnosticSuffix, null, result);
         }
         if (reason == TerminationReason.PROCESS_EXIT && exit != null && exit != 0) {
-            throw new OpenCliNonZeroExitException("OpenCLI returned nonzero exitCode=" + exit, result);
+            throw new OpenCliNonZeroExitException("OpenCLI returned nonzero exitCode=" + exit + diagnosticSuffix, result);
         }
         // Native I/O errors may include executable paths or other invocation data.
-        throw new OpenCliException("OpenCLI execution ended: " + reason, result);
+        throw new OpenCliException("OpenCLI execution ended: " + reason + diagnosticSuffix, result);
     }
 
     private File resolveWorkingDirectory() {
