@@ -14,6 +14,18 @@
 
 独立复审核对 59 项 ID 与 Java 17 固定源码链接，复核缺值选项的零派发证据并技术认可 Java 17 先实现、再移植到另外两线。D1 的正式确认及归档按既有流程处理。
 
+### 当前候选托管报告
+
+上表三个候选的 GitHub workflow 都已完成且结论为 success。逐份核对 10 份平台报告、6 份真实 Bridge 报告和 Java 17 全量 JVM 报告。每份均记录对应候选的精确 SHA 和退出 0，必选套件零失败、零错误、零跳过。
+
+| 报告 | 份数 | 枚举 | argv | 进程 | 协议 | 类型结果 | 真实执行 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Windows、Ubuntu、macOS 平台契约 | 10 | 15 | 53 | 48 | 103 | 16 | 未执行 |
+| Windows、Ubuntu 的 Browser Bridge | 6 | 未执行 | 未执行 | 未执行 | 未执行 | 未执行 | 4 |
+| Java 17 Ubuntu 全量 JVM 契约 | 1 | 25 | 52 | 46 | 103 | 16 | 未执行 |
+
+计数是每份报告的实际执行数量。Browser Bridge 的 `missingCases` 均为空。Java 17 的 [常规全量 CI](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44415827590) 也通过。上表的三项候选已分别快进到现有 `test/20261119-1.0.x`、`test/20261119-2.0.x`、`test/20261119-3.0.x`，GitHub refs 已核对。
+
 ## C01 ARGV
 
 | Requirement | 实现或验证提交 | 测试与验收范围 |
