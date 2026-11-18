@@ -294,6 +294,12 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
             return;
         }
         if ("collect".equals(type)) {
+            if (shutdownRequested || !ws.isOpen() || registered.getCount() > 0
+                || Objects.nonNull(handshakeFailure.get())) {
+                sendResult(ws, root.path("request_id").asText(""), false, Collections.emptyList(),
+                    "worker is not registered");
+                return;
+            }
             final JsonNode msg = root;
             collectPool.submit(() -> runCollectSafe(ws, msg));
         }

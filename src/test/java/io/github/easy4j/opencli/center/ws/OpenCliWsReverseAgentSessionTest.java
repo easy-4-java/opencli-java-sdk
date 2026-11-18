@@ -4,10 +4,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.easy4j.opencli.OpenCliProperties;
 import io.github.easy4j.opencli.contract.ContractProbe;
+import io.github.easy4j.opencli.contract.LifecycleProbe;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -22,6 +25,7 @@ import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -86,6 +90,25 @@ class OpenCliWsReverseAgentSessionTest {
                 assertNotSame(registration.socket, retry.socket);
                 assertEquals(registration.body, retry.body);
             }
+        }
+    }
+
+    @Test
+    void collectBeforeRegistrationAcknowledgementDoesNotStartChild(@TempDir Path temporary) throws Exception {
+        Path marker = temporary.resolve("child-started");
+        try (LocalCenter center = new LocalCenter();
+             OpenCliWsReverseAgentClient agent = new OpenCliWsReverseAgentClient(
+                 probe(LifecycleProbe.class.getName()), center.agentProperties())) {
+            agent.start();
+            WireMessage registration = center.receive("register");
+            registration.socket.send(MAPPER.createObjectNode()
+                .put("type", "collect").put("request_id", "early").put("site", "write")
+                .put("command", marker.toString()).toString());
+            JsonNode rejected = center.receive("result").body;
+            assertEquals("early", rejected.path("request_id").asText());
+            assertFalse(Files.exists(marker), "an unregistered collect started a child");
+            assertFalse(rejected.path("success").asBoolean());
+            assertEquals("worker is not registered", rejected.path("error").asText());
         }
     }
 
