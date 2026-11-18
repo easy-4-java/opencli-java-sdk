@@ -5,9 +5,19 @@ import io.github.easy4j.opencli.OpenCliExecutionTarget;
 import io.github.easy4j.opencli.OpenCliProperties;
 import java.io.File;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -95,6 +105,107 @@ class OpenCliCapabilityDiscoveryTest {
         }
     }
 
+    @Test
+    void staleFallbackRetainsObservationAndRefreshEvidence(@TempDir Path directory) throws Exception {
+        Path control = directory.resolve("mode");
+        writeMode(control, "first");
+        OpenCliProperties props = controlledProperties(control);
+        try (OpenCliClient client = new OpenCliClient(props)) {
+            OpenCliCapabilitySnapshot first = client.discoverCapabilities();
+            assertEquals(OpenCliCapabilitySnapshot.Status.AVAILABLE, first.getStatus());
+
+            writeMode(control, "plain");
+            OpenCliCapabilitySnapshot stale = client.discoverCapabilities();
+            assertEquals("STALE", stale.getStatus().name());
+            assertEquals("UNSUPPORTED_FORMAT", stale.getReason());
+            assertEquals(first.getObservedAt(), stale.getObservedAt());
+            assertEquals(first.getHelpSha256(), stale.getHelpSha256());
+            assertEquals(first.getHelp().getRawHelp(), stale.getHelp().getRawHelp());
+            assertEquals("Usage: opencli\n", stale.getFailedRefresh().getHelp().getRawHelp());
+            assertEquals(OpenCliCapabilitySnapshot.Status.UNKNOWN, stale.getFailedRefresh().getStatus());
+            assertFalse(stale.getFailedRefresh().getObservedAt().isBefore(first.getObservedAt()));
+
+            writeMode(control, "second");
+            OpenCliCapabilitySnapshot current = client.discoverCapabilities();
+            assertEquals(OpenCliCapabilitySnapshot.Status.AVAILABLE, current.getStatus());
+            assertEquals(first.getConfigurationSha256(), current.getConfigurationSha256());
+            assertNotEquals(first.getHelpSha256(), current.getHelpSha256());
+
+            writeMode(control, "error");
+            OpenCliCapabilitySnapshot staleAfterChange = client.discoverCapabilities();
+            assertEquals("STALE", staleAfterChange.getStatus().name());
+            assertEquals(current.getHelpSha256(), staleAfterChange.getHelpSha256());
+        }
+    }
+
+    @Test
+    void configAndVersionChangesInvalidateCachedHelp(@TempDir Path directory) throws Exception {
+        Path control = directory.resolve("mode");
+        writeMode(control, "baseline");
+        OpenCliProperties props = controlledProperties(control);
+        try (OpenCliClient client = new OpenCliClient(props)) {
+            assertEquals(OpenCliCapabilitySnapshot.Status.AVAILABLE, client.discoverCapabilities().getStatus());
+            writeMode(control, "new-version-error");
+            OpenCliCapabilitySnapshot upgraded = client.discoverCapabilities();
+            assertEquals(OpenCliCapabilitySnapshot.Status.UNKNOWN, upgraded.getStatus());
+            assertEquals("1.8.9", upgraded.getObservedVersion());
+            assertNull(upgraded.getHelp());
+
+            writeMode(control, "error");
+            assertEquals(OpenCliCapabilitySnapshot.Status.UNKNOWN, client.discoverCapabilities().getStatus());
+            writeMode(control, "baseline");
+            assertEquals(OpenCliCapabilitySnapshot.Status.AVAILABLE, client.discoverCapabilities().getStatus());
+            writeMode(control, "error");
+            props.getEnvironment().put("OPENCLI_TEST_CHANGED_CONFIG", "true");
+            assertEquals(OpenCliCapabilitySnapshot.Status.UNKNOWN, client.discoverCapabilities().getStatus());
+            props.getEnvironment().remove("OPENCLI_TEST_CHANGED_CONFIG");
+            assertEquals(OpenCliCapabilitySnapshot.Status.UNKNOWN, client.discoverCapabilities().getStatus());
+        }
+    }
+
+    @Test
+    void lateRefreshCannotOverwriteNewerSnapshot(@TempDir Path directory) throws Exception {
+        Path control = directory.resolve("mode");
+        Path entered = directory.resolve("entered");
+        Path release = directory.resolve("release");
+        writeMode(control, "hold-old");
+        OpenCliProperties props = controlledProperties(control);
+        props.setMaxConcurrentExecutions(2);
+        ExecutorService callers = Executors.newSingleThreadExecutor();
+        try (OpenCliClient client = new OpenCliClient(props)) {
+            Future<OpenCliCapabilitySnapshot> older = callers.submit(client::discoverCapabilities);
+            long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+            while (!Files.exists(entered) && System.nanoTime() < deadline) {
+                Thread.sleep(10);
+            }
+            assertTrue(Files.exists(entered), "older probe must be held after it reads the old help mode");
+            writeMode(control, "newer");
+            OpenCliCapabilitySnapshot newest = client.discoverCapabilities();
+            assertEquals(OpenCliCapabilitySnapshot.Status.AVAILABLE, newest.getStatus());
+
+            Files.createFile(release);
+            OpenCliCapabilitySnapshot olderObservation = older.get(5, TimeUnit.SECONDS);
+            assertEquals(OpenCliCapabilitySnapshot.Status.AVAILABLE, olderObservation.getStatus());
+            assertNotEquals(newest.getHelpSha256(), olderObservation.getHelpSha256());
+            writeMode(control, "error");
+            OpenCliCapabilitySnapshot stale = client.discoverCapabilities();
+            assertEquals(OpenCliCapabilitySnapshot.Status.STALE, stale.getStatus());
+            assertEquals(newest.getHelpSha256(), stale.getHelpSha256());
+        } finally {
+            callers.shutdownNow();
+        }
+    }
+
+    private static OpenCliProperties controlledProperties(Path control) {
+        OpenCliProperties props = properties("unused");
+        props.getEnvironment().put("OPENCLI_TEST_HELP_CONTROL", control.toString());
+        return props;
+    }
+
+    private static void writeMode(Path control, String mode) throws Exception {
+        Files.write(control, mode.getBytes(StandardCharsets.UTF_8));
+    }
+
     private static OpenCliProperties properties(String mode) {
         OpenCliProperties props = new OpenCliProperties();
         String binary = System.getProperty("os.name").startsWith("Windows") ? "java.exe" : "java";
@@ -108,8 +219,13 @@ class OpenCliCapabilityDiscoveryTest {
 
     public static class DiscoveryFixture {
         public static void main(String[] args) throws Exception {
+            String mode = System.getenv("OPENCLI_TEST_HELP_MODE");
+            String control = System.getenv("OPENCLI_TEST_HELP_CONTROL");
+            if (Objects.nonNull(control)) {
+                mode = new String(Files.readAllBytes(Paths.get(control)), StandardCharsets.UTF_8);
+            }
             if (Arrays.equals(args, new String[]{"--version"})) {
-                System.out.println("1.8.8");
+                System.out.println("new-version-error".equals(mode) ? "1.8.9" : "1.8.8");
                 return;
             }
             if (Arrays.equals(args, new String[]{"npm", "search"})) {
@@ -119,8 +235,14 @@ class OpenCliCapabilityDiscoveryTest {
             if (!Arrays.equals(args, new String[]{"--help", "-f", "json"})) {
                 System.exit(2);
             }
-            String mode = System.getenv("OPENCLI_TEST_HELP_MODE");
-            if ("error".equals(mode)) {
+            if ("hold-old".equals(mode)) {
+                Path path = Paths.get(control).getParent();
+                Files.createFile(path.resolve("entered"));
+                while (!Files.exists(path.resolve("release"))) {
+                    Thread.sleep(10);
+                }
+            }
+            if ("error".equals(mode) || "new-version-error".equals(mode)) {
                 System.exit(3);
             }
             if ("slow".equals(mode)) {

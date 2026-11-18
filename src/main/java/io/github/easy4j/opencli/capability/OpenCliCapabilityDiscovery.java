@@ -36,7 +36,14 @@ public final class OpenCliCapabilityDiscovery {
     private static final Pattern VERSION = Pattern.compile(
         "[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?");
 
-    private OpenCliCapabilityDiscovery() {
+    private final OpenCliExecutor executor;
+    private long nextAttempt;
+    private long lastPublishedAttempt;
+    private OpenCliCapabilitySnapshot lastAvailable;
+
+    /** @param executor client executor whose local process capacity is shared */
+    public OpenCliCapabilityDiscovery(OpenCliExecutor executor) {
+        this.executor = Objects.requireNonNull(executor, "executor");
     }
 
     /**
@@ -47,6 +54,43 @@ public final class OpenCliCapabilityDiscovery {
      * @return the root observation or an explicit reason it could not be made
      */
     public static OpenCliCapabilitySnapshot discover(OpenCliExecutor executor) {
+        return new OpenCliCapabilityDiscovery(executor).refresh();
+    }
+
+    /**
+     * Runs a fresh probe and can attach the previous matching observation if it fails.
+     * @return current observation, or a clearly marked stale snapshot or failure
+     */
+    public OpenCliCapabilitySnapshot refresh() {
+        long attempt;
+        synchronized (this) {
+            attempt = ++nextAttempt;
+        }
+        return publish(attempt, observe());
+    }
+
+    private synchronized OpenCliCapabilitySnapshot publish(long attempt, OpenCliCapabilitySnapshot current) {
+        if (attempt < lastPublishedAttempt) {
+            return current;
+        }
+        lastPublishedAttempt = attempt;
+        if (current.getStatus() == Status.AVAILABLE) {
+            lastAvailable = current;
+            return current;
+        }
+        if (current.getStatus() == Status.UNKNOWN
+            && Objects.nonNull(lastAvailable)
+            && lastAvailable.getConfigurationSha256().equals(current.getConfigurationSha256())
+            && (Objects.isNull(current.getObservedVersion())
+                || lastAvailable.getObservedVersion().equals(current.getObservedVersion()))) {
+            return lastAvailable.toBuilder().status(Status.STALE).reason(current.getReason())
+                .failedRefresh(current).build();
+        }
+        lastAvailable = null;
+        return current;
+    }
+
+    private OpenCliCapabilitySnapshot observe() {
         OpenCliProperties configured = executor.getProperties();
         OpenCliCapabilitySnapshot.OpenCliCapabilitySnapshotBuilder snapshot =
             OpenCliCapabilitySnapshot.builder().observedAt(Instant.now());
