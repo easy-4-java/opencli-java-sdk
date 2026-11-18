@@ -47,6 +47,17 @@ class OpenCliCapabilityDiscoveryTest {
     }
 
     @Test
+    void malformedRootRegistryLeavesLocalInvocationAvailable() {
+        try (OpenCliClient client = new OpenCliClient(properties("malformed-root"))) {
+            OpenCliCapabilitySnapshot result = client.discoverCapabilities();
+            assertEquals(OpenCliCapabilitySnapshot.Status.UNKNOWN, result.getStatus());
+            assertEquals("INVALID_SCHEMA", result.getReason());
+            assertEquals("1.8.8", result.getObservedVersion());
+            assertEquals("raw available", client.getExecutor().invoke("npm", "search").getStdout());
+        }
+    }
+
+    @Test
     void pathLookupAndRemoteModeAreUnsupported() {
         try (OpenCliClient client = new OpenCliClient()) {
             assertEquals("ABSOLUTE_EXECUTABLE_REQUIRED", client.discoverCapabilities().getReason());
@@ -117,6 +128,10 @@ class OpenCliCapabilityDiscoveryTest {
             }
             if ("plain".equals(mode)) {
                 System.out.print("Usage: opencli\n");
+                return;
+            }
+            if ("malformed-root".equals(mode)) {
+                System.out.print("{\"name\":\"opencli\",\"commands\":[],\"site_adapters\":{}}");
                 return;
             }
             try (InputStream input = DiscoveryFixture.class.getResourceAsStream(
