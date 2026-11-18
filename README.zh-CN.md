@@ -260,6 +260,8 @@ collect 请求 ID 必须为非空白字符串，长度上限 128 个 UTF-8 字�
 
 SDK 在内存中返回文本，由应用决定目的地和保留时间。SDK 诊断会排除命令参数、原始内容、URL 和文件路径。应用读取或记录原始结果时应自行保护这些数据。`remoteCaptureRawHttpResponse` 仍需显式开启。
 
+`OpenCliAvailabilityReport.toDiagnosticMessage()` 可用于启动日志，只输出就绪状态和状态码。需要查看可执行文件路径或原始探测消息时，调用对应的 getter。
+
 低层进程接口的 `RunSession.getHandler().getException()` 返回安全的 I/O 摘要。`RunSession.getIoFailure()` 是显式读取原始诊断的入口，异常可能包含本地路径，应按敏感数据处理。
 
 <a id="9-testing--build"></a>

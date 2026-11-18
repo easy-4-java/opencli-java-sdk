@@ -45,5 +45,12 @@ JDK 17 两项定向红灯实际退出 1。选项对象的 `toString()` 抛出带
 | HTTP 503、凭据 URL、畸形 JSON、原文捕获开关 | `OpenCliRemoteAgentHttpClientTest` |
 | WebSocket 断线和投递异常、配置 URL、日志测试密钥 | `OpenCliWsReverseAgentSessionTest`、`OpenCliWsReverseAgentClientTest` |
 | JSON 解析 DEBUG、默认不写入的有界导出 | `OpenCliStdoutJsonTest`、`OpenCliDiagnosticExportTest` |
+| 启动日志的可用性摘要，配置和探测原始值的显式读取 | `OpenCliAvailabilityReportTest` |
 
 JDK 17 使用系统 Maven 执行 `-B -ntp -o clean verify`，2,134 项通过，0 失败、0 错误、0 跳过。中英文 README 记录应用显式访问原始低层诊断的责任。C03 的 YAML 解码器仍待实施，对其解析日志的验证保留在后续矩阵中。
+
+## 启动诊断摘要验证
+
+JDK 17 基线 `0cbb3ee750062675813f1d3389c5f7f14b50345c` 的定向用例在 3 项中失败 1 项。面向日志的 `toDiagnosticMessage()` 输出了配置值、解析后的可执行文件路径和原始探测消息。修改后，该方法只输出就绪状态和状态码。用例继续断言 `getConfiguredExecutable()`、`getResolvedExecutablePath()` 和 `getMessage()` 保留原始值。
+
+三条线使用其 Maven Wrapper 运行 `./mvnw -B -ntp clean verify`，报告位于各自的 `target/surefire-reports`。Java 8 提交 `49250f97cb6618502b40e5989b8521fc733d7fab`、Java 17 本提交和 Java 21 提交 `7001ed85439408f9d2724e7edee92d3cfc7853e9` 分别通过 2178、2179、2178 项，均为零失败、零错误、零跳过。
