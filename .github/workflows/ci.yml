@@ -34,6 +34,10 @@ jobs:
           java-version: '8'
           cache: maven
 
+      - name: Verify shared contract fixtures and source lock
+        working-directory: src/test/resources/opencli-contracts/v1
+        run: sha256sum --strict -c SHA256SUMS
+
       - name: Verify pinned structured help samples
         working-directory: src/test/resources/opencli-contracts/v1/structured-help-1.8.8
         run: sha256sum --strict -c SHA256SUMS
