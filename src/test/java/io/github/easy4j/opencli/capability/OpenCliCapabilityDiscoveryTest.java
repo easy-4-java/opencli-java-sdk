@@ -68,6 +68,21 @@ class OpenCliCapabilityDiscoveryTest {
     }
 
     @Test
+    void invalidVersionOutputPreventsTheHelpProbe(@TempDir Path directory) {
+        Path marker = directory.resolve("help-started");
+        OpenCliProperties props = properties("invalid-version");
+        props.getEnvironment().put("OPENCLI_TEST_DISCOVERY_HELP_MARKER", marker.toString());
+        try (OpenCliClient client = new OpenCliClient(props)) {
+            OpenCliCapabilitySnapshot result = client.discoverCapabilities();
+            assertFalse(Files.exists(marker), "help was started after malformed version output");
+            assertEquals(OpenCliCapabilitySnapshot.Status.UNKNOWN, result.getStatus());
+            assertEquals("INVALID_VERSION_OUTPUT", result.getReason());
+            assertNull(result.getObservedVersion());
+            assertNull(result.getHelp());
+        }
+    }
+
+    @Test
     void pathLookupAndRemoteModeAreUnsupported() {
         try (OpenCliClient client = new OpenCliClient()) {
             assertEquals("ABSOLUTE_EXECUTABLE_REQUIRED", client.discoverCapabilities().getReason());
@@ -269,6 +284,10 @@ class OpenCliCapabilityDiscoveryTest {
                 mode = new String(Files.readAllBytes(Paths.get(control)), StandardCharsets.UTF_8);
             }
             if (Arrays.equals(args, new String[]{"--version"})) {
+                if ("invalid-version".equals(mode)) {
+                    System.out.println("1.8.8" + (char) 0);
+                    return;
+                }
                 System.out.println("new-version-error".equals(mode) ? "1.8.9" : "1.8.8");
                 return;
             }
@@ -299,6 +318,10 @@ class OpenCliCapabilityDiscoveryTest {
             }
             if (!Arrays.equals(args, new String[]{"--help", "-f", "json"})) {
                 System.exit(2);
+            }
+            String marker = System.getenv("OPENCLI_TEST_DISCOVERY_HELP_MARKER");
+            if (Objects.nonNull(marker)) {
+                Files.createFile(Paths.get(marker));
             }
             if ("hold-old".equals(mode)) {
                 Path path = Paths.get(control).getParent();

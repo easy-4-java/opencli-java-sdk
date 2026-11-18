@@ -26,6 +26,7 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /** Fixed, bounded metadata probes through the existing local subprocess runtime. */
@@ -34,7 +35,7 @@ public final class OpenCliCapabilityDiscovery {
     private static final long MAX_PROBE_MILLIS = 10_000;
     private static final long MAX_CLEANUP_MILLIS = 1_000;
     private static final Pattern VERSION = Pattern.compile(
-        "[0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?");
+        "[ \t\r\n]*([0-9]+\\.[0-9]+\\.[0-9]+(?:-[0-9A-Za-z.-]+)?(?:\\+[0-9A-Za-z.-]+)?)[ \t\r\n]*");
 
     private final OpenCliExecutor executor;
     private long nextAttempt;
@@ -140,10 +141,11 @@ public final class OpenCliCapabilityDiscovery {
             String phase = "VERSION";
             try {
                 OpenCliResult versionResult = local.invokeLocalOnly(Collections.singletonList("--version"));
-                String version = versionResult.getStdout().trim();
-                if (versionResult.getExecutionDetails().isStdoutTruncated() || !VERSION.matcher(version).matches()) {
+                Matcher versionOutput = VERSION.matcher(versionResult.getStdout());
+                if (versionResult.getExecutionDetails().isStdoutTruncated() || !versionOutput.matches()) {
                     return snapshot.status(Status.UNKNOWN).reason("INVALID_VERSION_OUTPUT").build();
                 }
+                String version = versionOutput.group(1);
                 snapshot.observedVersion(version);
                 if (scope != OpenCliHelpScope.ROOT_HELP && !"1.8.8".equals(version)) {
                     return snapshot.status(Status.UNSUPPORTED).reason("UNVERIFIED_HELP_VERSION").build();
