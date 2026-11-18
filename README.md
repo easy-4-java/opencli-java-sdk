@@ -238,6 +238,8 @@ Call `OpenCliDiagnosticExport.export(result, 512)` explicitly with an `OpenCliRe
 
 The SDK returns the text in memory. Your application controls the destination and retention. SDK diagnostics omit argv values, raw content, URLs and filesystem paths. Applications that use or log raw results should protect that data. `remoteCaptureRawHttpResponse` is still opt-in.
 
+At the low-level process boundary, `RunSession.getHandler().getException()` returns a safe I/O summary. `RunSession.getIoFailure()` is the explicit raw diagnostic accessor. Handle that exception as sensitive data because it can include local paths.
+
 <a id="9-testing--build"></a>
 ## 9. Testing & Build
 

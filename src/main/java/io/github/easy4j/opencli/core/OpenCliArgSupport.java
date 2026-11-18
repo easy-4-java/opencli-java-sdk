@@ -97,7 +97,12 @@ public final class OpenCliArgSupport {
     }
 
     static String stringValue(Object value, String field) {
-        String text = String.valueOf(value);
+        String text;
+        try {
+            text = String.valueOf(value);
+        } catch (RuntimeException ex) {
+            throw new IllegalArgumentException(field + " cannot be converted to a string");
+        }
         if (Objects.isNull(text)) {
             throw new IllegalArgumentException(field + " string form must not be null");
         }

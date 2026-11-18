@@ -1,5 +1,6 @@
 package io.github.easy4j.opencli.core;
 
+import org.junit.jupiter.api.parallel.Isolated;
 import io.github.easy4j.opencli.OpenCliProperties;
 import io.github.easy4j.opencli.contract.LifecycleProbe;
 import io.github.easy4j.opencli.exception.OpenCliException;
@@ -22,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@Isolated
 class OpenCliProcessPrivacyTest {
 
     @Test
@@ -44,6 +46,29 @@ class OpenCliProcessPrivacyTest {
             assertEquals(canary, failure.getPartialResult().getStderr());
             assertEquals(Integer.valueOf(7), failure.getPartialResult().getExitCode());
         }
+    }
+
+    @Test
+    void adapterDebugLogsOnlyArgumentCount() throws Exception {
+        String canary = "adapter-value-" + UUID.randomUUID();
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        PrintStream original = System.err;
+        try (OpenCliExecutor executor = new OpenCliExecutor(childProperties());
+             PrintStream capture = new PrintStream(output, true, StandardCharsets.UTF_8.name())) {
+            System.setErr(capture);
+            try {
+                OpenCliAdapterChannel adapter = new OpenCliAdapterChannel(executor, "privacy");
+                OpenCliNonZeroExitException failure = assertThrows(OpenCliNonZeroExitException.class,
+                    () -> adapter.invoke("nonzero", canary));
+                failure.printStackTrace(capture);
+                assertEquals(canary, failure.getPartialResult().getStderr());
+            } finally {
+                System.setErr(original);
+            }
+        }
+        String diagnostics = output.toString(StandardCharsets.UTF_8.name());
+        assertTrue(diagnostics.contains("OpenCLI adapter invoke argvSize=3"));
+        assertFalse(diagnostics.contains(canary));
     }
 
     @Test

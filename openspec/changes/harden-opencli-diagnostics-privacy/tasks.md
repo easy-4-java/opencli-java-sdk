@@ -7,7 +7,7 @@
 ## 1. 泄露负例
 
 - [ ] 1.1 对Executor、AdapterChannel、HTTP、WS、JSON/YAML parser所有日志/异常点建立canary矩阵。
-- [ ] 1.2 新增完整日志捕获与nested cause测试，先证明当前泄露可被测试检测。
+- [x] 1.2 新增完整日志捕获与nested cause测试，先证明当前泄露可被测试检测。
 
 ## 2. 安全投影
 
@@ -17,10 +17,24 @@
 
 ## 3. 验证
 
-- [ ] 3.1 覆盖DEBUG、timeout、malformedresponse、断线和超限路径，任何canary出现均失败。
+- [x] 3.1 覆盖DEBUG、timeout、malformedresponse、断线和超限路径，任何canary出现均失败。
 - [ ] 3.2 验证raw结果内容未被脱敏逻辑无声修改。
-- [ ] 3.3 三线执行相同隐私矩阵并记录证据；文档标明SDK与应用日志责任边界。
+- [x] 3.3 三线执行相同隐私矩阵并记录证据；文档标明SDK与应用日志责任边界。
 
 ## 证据交付模板（实施时填写）
 
 每项任务的完成记录包含：Requirement/Scenario、分支HEAD、测试命令、失败→通过证据、测试数/跳过数、退出码、报告位置。没有记录的任务保持未完成。
+
+## 2026-11-19 C09 默认异常链与三线隐私矩阵
+
+JDK 17 两项定向红灯实际退出 1。选项对象的 `toString()` 抛出带嵌套 cause 和 suppressed 项的异常，栈文本泄露测试密钥。真实缺失可执行文件的低层 result handler 异常链泄露路径。修复后，值转换报告固定字段诊断，result handler 保留安全摘要。显式 `RunSession.getIoFailure()` 仍返回原始低层诊断。两项回归都扫描完整栈文本，保留原始数据的测试同时验证权限边界。
+
+| 场景 | 现有三线回归 |
+| --- | --- |
+| Adapter DEBUG、本地非零退出、超时、超限、原始 stdout/stderr | `OpenCliProcessPrivacyTest` |
+| 参数对象的嵌套 cause/suppressed、底层原生路径 | `OpenCliArgSupportTest`、`SubprocessExecutionSupportTest` |
+| HTTP 503、凭据 URL、畸形 JSON、原文捕获开关 | `OpenCliRemoteAgentHttpClientTest` |
+| WebSocket 断线和投递异常、配置 URL、日志测试密钥 | `OpenCliWsReverseAgentSessionTest`、`OpenCliWsReverseAgentClientTest` |
+| JSON 解析 DEBUG、默认不写入的有界导出 | `OpenCliStdoutJsonTest`、`OpenCliDiagnosticExportTest` |
+
+JDK 21 使用仓库 Maven Wrapper 执行 `-B -ntp -o clean verify`，2,133 项通过，0 失败、0 错误、0 跳过。中英文 README 记录应用显式访问原始低层诊断的责任。C03 的 YAML 解码器仍待实施，对其解析日志的验证保留在后续矩阵中。

@@ -1,5 +1,11 @@
 package io.github.easy4j.opencli.core.support;
 
+import io.github.easy4j.opencli.core.OpenCliExecutionDetails.TerminationReason;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.file.Path;
+import org.apache.commons.exec.CommandLine;
+import org.junit.jupiter.api.io.TempDir;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
@@ -32,6 +38,24 @@ class SubprocessExecutionSupportTest {
         assertEquals(99, capture.toByteArray()[limit - 1]);
         assertEquals(limit + 1L, capture.observed());
         assertTrue(capture.isTruncated());
+    }
+
+    @Test
+    void shouldKeepNativePathOutOfDefaultHandlerException(@TempDir Path temporary) throws Exception {
+        String canary = "private-native-path";
+        CommandLine command = new CommandLine(temporary.resolve(canary + ".exe").toString());
+        SubprocessExecutionSupport.ExecutionRequest request = new SubprocessExecutionSupport.ExecutionRequest(
+            command, null, null, 5_000L);
+
+        SubprocessExecutionSupport.RunSession session = SubprocessExecutionSupport.execute(request);
+
+        assertEquals(TerminationReason.SPAWN_FAILED, session.getExecutionDetails().getTerminationReason());
+        assertNotNull(session.getIoFailure());
+        assertTrue(session.getIoFailure().getMessage().contains(canary));
+        assertNotNull(session.getHandler().getException());
+        StringWriter diagnostics = new StringWriter();
+        session.getHandler().getException().printStackTrace(new PrintWriter(diagnostics));
+        assertFalse(diagnostics.toString().contains(canary));
     }
 
     @Test
