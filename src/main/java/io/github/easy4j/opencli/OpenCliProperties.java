@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
+import lombok.ToString;
 
 /**
  * OpenCLI runtime configuration without Spring dependencies.
@@ -18,7 +19,11 @@ import lombok.Data;
 public class OpenCliProperties {
     private OpenCliExecutionTarget executionTarget = OpenCliExecutionTarget.LOCAL_PROCESS;
     /** Root URL of an opencli-admin compatible Agent. */
+    @ToString.Exclude
     private String remoteAgentBaseUrl;
+    /** Explicit credential header for the configured HTTPS Agent. */
+    @ToString.Exclude
+    private OpenCliRemoteAuthentication remoteAuthentication;
     private String remoteCollectMode = "cdp";
     private String remoteOutputFormat = "json";
     private String remoteCdpEndpoint = "";

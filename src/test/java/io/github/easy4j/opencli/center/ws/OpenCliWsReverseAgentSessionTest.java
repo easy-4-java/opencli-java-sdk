@@ -1,5 +1,6 @@
 package io.github.easy4j.opencli.center.ws;
 
+import io.github.easy4j.opencli.testsupport.OpenCliTlsFixture;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -9,15 +10,12 @@ import io.github.easy4j.opencli.contract.LifecycleProbe;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.KeyStore;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashSet;
@@ -31,9 +29,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManagerFactory;
 import org.java_websocket.WebSocket;
 import org.java_websocket.enums.Opcode;
 import org.java_websocket.handshake.ClientHandshake;
@@ -559,40 +555,14 @@ class OpenCliWsReverseAgentSessionTest {
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     void verifiedTlsReconnectReplaysOnlyAfterAnExplicitRetry(boolean failDelivery, @TempDir Path temporary) throws Exception {
-        Path storePath = temporary.resolve("center.p12");
-        String keytool = System.getProperty("os.name").startsWith("Windows") ? "keytool.exe" : "keytool";
-        Path tool = Paths.get(System.getProperty("java.home"), "bin", keytool);
-        Process keygen = new ProcessBuilder(tool.toString(), "-genkeypair", "-alias", "center", "-keyalg", "RSA",
-            "-keysize", "2048", "-dname", "CN=localhost", "-ext", "SAN=IP:127.0.0.1", "-validity", "1",
-            "-storetype", "PKCS12", "-keystore", storePath.toString(), "-storepass", "test-password")
-            .redirectErrorStream(true).redirectOutput(temporary.resolve("keytool.log").toFile()).start();
-        try {
-            assertTrue(keygen.waitFor(10, TimeUnit.SECONDS));
-            assertEquals(0, keygen.exitValue());
-        } finally {
-            if (keygen.isAlive()) {
-                keygen.destroyForcibly();
-            }
-        }
-        KeyStore store = KeyStore.getInstance("PKCS12");
-        try (InputStream input = Files.newInputStream(storePath)) {
-            store.load(input, "test-password".toCharArray());
-        }
-        KeyManagerFactory keys = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-        keys.init(store, "test-password".toCharArray());
-        SSLContext server = SSLContext.getInstance("TLS");
-        server.init(keys.getKeyManagers(), null, null);
-        TrustManagerFactory trust = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        trust.init(store);
-        SSLContext trustedClient = SSLContext.getInstance("TLS");
-        trustedClient.init(null, trust.getTrustManagers(), null);
+        OpenCliTlsFixture tls = OpenCliTlsFixture.create(temporary);
         SSLContext previous = SSLContext.getDefault();
         try {
-            SSLContext.setDefault(trustedClient);
+            SSLContext.setDefault(tls.getTrustedClient());
             if (failDelivery) {
-                verifyFailedDeliveryReplay(temporary, server);
+                verifyFailedDeliveryReplay(temporary, tls.getServer());
             } else {
-                verifyReconnectReplay(temporary, server, true);
+                verifyReconnectReplay(temporary, tls.getServer(), true);
             }
         } finally {
             SSLContext.setDefault(previous);

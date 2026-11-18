@@ -3,8 +3,11 @@ package io.github.easy4j.opencli.remote;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
+import com.sun.net.httpserver.HttpsConfigurator;
+import com.sun.net.httpserver.HttpsServer;
 import io.github.easy4j.opencli.OpenCliExecutionTarget;
 import io.github.easy4j.opencli.OpenCliProperties;
+import io.github.easy4j.opencli.OpenCliRemoteAuthentication;
 import io.github.easy4j.opencli.core.OpenCliDiagnosticExport;
 import io.github.easy4j.opencli.core.OpenCliRemoteExecutionDetails;
 import io.github.easy4j.opencli.core.OpenCliRemoteExecutionDetails.ExitCodeSource;
@@ -18,6 +21,7 @@ import io.github.easy4j.opencli.exception.OpenCliRemoteProtocolException;
 import io.github.easy4j.opencli.exception.OpenCliRemoteResponseLimitException;
 import io.github.easy4j.opencli.exception.OpenCliRemoteTimeoutException;
 import io.github.easy4j.opencli.meta.OpenCliExternalClient;
+import io.github.easy4j.opencli.testsupport.OpenCliTlsFixture;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -26,18 +30,23 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPOutputStream;
+import javax.net.ssl.SSLContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -357,13 +366,133 @@ class OpenCliRemoteAgentHttpClientTest {
     }
 
     @Test
+    void authenticationHeaderIsSentOnlyOverVerifiedTls(@TempDir Path temporary) throws Exception {
+        String credential = "sdk-credential-" + UUID.randomUUID();
+        String header = "X-OpenCLI-Test-Key";
+        AtomicReference<String> receivedCredential = new AtomicReference<>();
+        AtomicReference<String> receivedUri = new AtomicReference<>();
+        OpenCliTlsFixture tls = OpenCliTlsFixture.create(temporary);
+        SSLContext previous = SSLContext.getDefault();
+        try (JsonCollectStub stub = JsonCollectStub.start(tls.getServer(), exchange -> {
+            receivedCredential.set(exchange.getRequestHeaders().getFirst(header));
+            receivedUri.set(exchange.getRequestURI().toASCIIString());
+            // The synthetic fixture supports only this explicit header.
+            boolean accepted = credential.equals(receivedCredential.get());
+            byte[] response = (accepted ? "{\"success\":true}" : "credential required " + receivedCredential.get())
+                .getBytes(StandardCharsets.UTF_8);
+            if (!accepted) {
+                exchange.getResponseHeaders().set("WWW-Authenticate", "Basic realm=fixture");
+            }
+            exchange.sendResponseHeaders(accepted ? 200 : 401, response.length);
+            try (OutputStream output = exchange.getResponseBody()) {
+                output.write(response);
+            }
+        })) {
+            OpenCliProperties props = baseProps(stub.port());
+            props.setRemoteAgentBaseUrl("https://127.0.0.1:" + stub.port());
+            props.setRemoteAuthentication(new OpenCliRemoteAuthentication(header, credential));
+            Assertions.assertFalse(props.toString().contains(credential));
+            Assertions.assertNull(props.copyForLocalCliExecution().getRemoteAuthentication());
+            OpenCliCollectRequest request = OpenCliCollectRequest.builder().site("npm").command("search").build();
+            try (OpenCliRemoteAgentHttpClient untrusted = new OpenCliRemoteAgentHttpClient(props)) {
+                OpenCliExecutableFailureException failure = Assertions.assertThrows(
+                    OpenCliExecutableFailureException.class, () -> untrusted.collect(request));
+                Assertions.assertFalse(failure.toString().contains(credential));
+                Assertions.assertEquals(0, stub.requests());
+            }
+
+            SSLContext.setDefault(tls.getTrustedClient());
+            try (OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(props)) {
+                Assertions.assertTrue(client.collect(request).isSuccess());
+                Assertions.assertEquals(credential, receivedCredential.get());
+                Assertions.assertEquals("/collect", receivedUri.get());
+                Assertions.assertFalse(stub.requestBody.contains(credential));
+                props.setRemoteAuthentication(new OpenCliRemoteAuthentication(header, "rejected-" + credential));
+                ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+                PrintStream originalError = System.err;
+                try (PrintStream capture = new PrintStream(diagnostics, true, StandardCharsets.UTF_8.name())) {
+                    System.setErr(capture);
+                    OpenCliExecutableFailureException denied = Assertions.assertThrows(
+                        OpenCliExecutableFailureException.class, () -> client.collect(request));
+                    StringWriter stack = new StringWriter();
+                    denied.printStackTrace(new PrintWriter(stack));
+                    Assertions.assertFalse(stack.toString().contains(credential));
+                    Assertions.assertNull(denied.getPartialResult().getRemoteRawHttpBody());
+                } finally {
+                    System.setErr(originalError);
+                }
+                String log = diagnostics.toString(StandardCharsets.UTF_8.name());
+                Assertions.assertTrue(log.contains("status=401"));
+                Assertions.assertFalse(log.contains(credential));
+                Assertions.assertEquals(2, stub.requests());
+
+                props.setRemoteAuthentication(null);
+                OpenCliExecutableFailureException failure = Assertions.assertThrows(
+                    OpenCliExecutableFailureException.class, () -> client.collect(request));
+                Assertions.assertEquals(401, failure.getPartialResult().getRemoteExecutionDetails().getHttpStatus());
+                Assertions.assertNull(receivedCredential.get());
+                Assertions.assertEquals(3, stub.requests());
+            }
+        } finally {
+            SSLContext.setDefault(previous);
+        }
+    }
+
+    @Test
+    void rejectsConfiguredAuthenticationOnPlainHttpBeforeDispatch() throws IOException {
+        String credential = "private-token";
+        try (JsonCollectStub stub = JsonCollectStub.start("{\"success\":true}")) {
+            OpenCliProperties props = baseProps(stub.port());
+            props.setRemoteAuthentication(new OpenCliRemoteAuthentication("Authorization", "Bearer " + credential));
+            try (OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(props)) {
+                OpenCliCollectRequest request = OpenCliCollectRequest.builder().site("npm").command("search").build();
+                OpenCliExecutableFailureException failure = Assertions.assertThrows(
+                    OpenCliExecutableFailureException.class, () -> client.collect(request));
+                Assertions.assertFalse(failure.toString().contains(credential));
+                Assertions.assertEquals(0, stub.requests());
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"user-info", "query", "fragment"})
+    void rejectsSecretsInAnAgentBaseUrlBeforeDispatch(String input) throws IOException {
+        String credential = "url-secret-" + UUID.randomUUID();
+        try (JsonCollectStub stub = JsonCollectStub.start("{\"success\":true}")) {
+            OpenCliProperties props = baseProps(stub.port());
+            String authority = "127.0.0.1:" + stub.port();
+            if ("user-info".equals(input)) {
+                props.setRemoteAgentBaseUrl("http://operator:" + credential + "@" + authority);
+            } else {
+                props.setRemoteAgentBaseUrl("http://" + authority + "/collect"
+                    + ("query".equals(input) ? "?key=" : "#") + credential);
+            }
+            try (OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(props)) {
+                OpenCliCollectRequest request = OpenCliCollectRequest.builder().site("npm").command("search").build();
+                OpenCliExecutableFailureException failure = Assertions.assertThrows(
+                    OpenCliExecutableFailureException.class, () -> client.collect(request));
+                Assertions.assertFalse(failure.toString().contains(credential));
+                Assertions.assertNull(failure.getCause());
+                Assertions.assertEquals(0, stub.requests());
+            }
+        }
+    }
+
+    @Test
+    void rejectsMalformedAuthenticationHeaderWithoutRevealingItsValue() {
+        String secret = "fixture-injection-canary";
+        IllegalArgumentException failure = Assertions.assertThrows(IllegalArgumentException.class,
+            () -> new OpenCliRemoteAuthentication("Authorization", "Bearer " + secret + "\r\nX-Injected: yes"));
+        Assertions.assertFalse(failure.toString().contains(secret));
+        Assertions.assertThrows(IllegalArgumentException.class,
+            () -> new OpenCliRemoteAuthentication("Host", secret));
+    }
+
+    @Test
     void nonSuccessHttpResponseDoesNotExposeBodyCanaryInException() throws IOException {
         String canary = "body-secret-" + UUID.randomUUID();
-        String urlCanary = "url-secret-" + UUID.randomUUID();
         try (JsonCollectStub stub = JsonCollectStub.start(canary, 503)) {
             OpenCliProperties props = baseProps(stub.port());
-            props.setRemoteAgentBaseUrl("http://127.0.0.1:" + stub.port()
-                + "/collect?token=" + urlCanary);
             OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(props);
             ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
             PrintStream previousErr = System.err;
@@ -379,7 +508,6 @@ class OpenCliRemoteAgentHttpClientTest {
             }
             Assertions.assertTrue(ex.getMessage().contains("503"));
             Assertions.assertFalse(ex.toString().contains(canary));
-            Assertions.assertFalse(ex.toString().contains(urlCanary));
             String logText = diagnostics.toString(StandardCharsets.UTF_8.name());
             Assertions.assertTrue(logText.contains("Agent HTTP non-2xx"));
             Matcher correlation = Pattern.compile("correlationId=([0-9a-f-]{36})")
@@ -388,10 +516,8 @@ class OpenCliRemoteAgentHttpClientTest {
             Assertions.assertDoesNotThrow(() -> UUID.fromString(correlation.group(1)));
             Assertions.assertTrue(logText.contains(correlation.group(0)));
             Assertions.assertFalse(logText.contains(canary));
-            Assertions.assertFalse(logText.contains(urlCanary));
             for (Throwable cause = ex.getCause(); cause != null; cause = cause.getCause()) {
                 Assertions.assertFalse(cause.toString().contains(canary));
-                Assertions.assertFalse(cause.toString().contains(urlCanary));
             }
         }
     }
@@ -589,7 +715,19 @@ class OpenCliRemoteAgentHttpClientTest {
         }
 
         static JsonCollectStub start(HttpHandler response) throws IOException {
-            HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
+            return start(null, response);
+        }
+
+        static JsonCollectStub start(SSLContext tls, HttpHandler response) throws IOException {
+            InetSocketAddress address = new InetSocketAddress("127.0.0.1", 0);
+            HttpServer server;
+            if (Objects.isNull(tls)) {
+                server = HttpServer.create(address, 0);
+            } else {
+                HttpsServer https = HttpsServer.create(address, 0);
+                https.setHttpsConfigurator(new HttpsConfigurator(tls));
+                server = https;
+            }
             JsonCollectStub stub = new JsonCollectStub(server, server.getAddress().getPort());
             server.createContext(
                 "/collect",
