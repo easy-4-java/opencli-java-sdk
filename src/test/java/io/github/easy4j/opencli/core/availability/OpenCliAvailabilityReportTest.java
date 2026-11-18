@@ -23,18 +23,21 @@ class OpenCliAvailabilityReportTest {
     }
 
     @Test
-    void shouldGenerateDiagnosticMessage() {
+    void shouldKeepPathsAndProviderDetailsOutOfDiagnosticMessage() {
         OpenCliAvailabilityReport report = OpenCliAvailabilityReport.builder()
             .status(OpenCliAvailabilityStatus.EXECUTABLE_NOT_FOUND)
             .available(false)
-            .configuredExecutable("opencli")
-            .message("not found on PATH")
+            .configuredExecutable("private-configured-executable")
+            .resolvedExecutablePath("/private/resolved-executable")
+            .message("private-probe-detail")
             .build();
         String diag = report.toDiagnosticMessage();
         assertTrue(diag.contains("unavailable"));
         assertTrue(diag.contains("EXECUTABLE_NOT_FOUND"));
-        assertTrue(diag.contains("opencli"));
-        assertTrue(diag.contains("not found on PATH"));
+        assertFalse(diag.contains("private"));
+        assertEquals("private-configured-executable", report.getConfiguredExecutable());
+        assertEquals("/private/resolved-executable", report.getResolvedExecutablePath());
+        assertEquals("private-probe-detail", report.getMessage());
     }
 
     @Test
