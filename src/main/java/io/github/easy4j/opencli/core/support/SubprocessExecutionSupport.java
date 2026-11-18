@@ -30,6 +30,16 @@ import java.time.Duration;
  * compatibility with the earlier low-level RunSession API.
  */
 public final class SubprocessExecutionSupport {
+    @FunctionalInterface
+    interface ProcessStarter {
+        Process start(ProcessBuilder builder) throws IOException;
+    }
+
+    @FunctionalInterface
+    interface WatchdogFactory {
+        ExecuteWatchdog create(long timeoutMillis);
+    }
+
     public static final long WAIT_GRACE_MILLIS = 5_000L;
     public static final int DEFAULT_STDOUT_LIMIT = 8 * 1024 * 1024;
     public static final int DEFAULT_STDERR_LIMIT = 2 * 1024 * 1024;
@@ -80,14 +90,23 @@ public final class SubprocessExecutionSupport {
     public static final class Runtime {
         private final int maxConcurrentExecutions;
         private final Semaphore permits;
+        private final ProcessStarter processStarter;
+        private final WatchdogFactory watchdogFactory;
         private volatile boolean quarantined;
 
         public Runtime(int maxConcurrent) {
+            this(maxConcurrent, ProcessBuilder::start, timeoutMillis -> ExecuteWatchdog.builder()
+                .setTimeout(Duration.ofMillis(timeoutMillis)).get());
+        }
+
+        Runtime(int maxConcurrent, ProcessStarter processStarter, WatchdogFactory watchdogFactory) {
             if (maxConcurrent < 0) {
                 throw new IllegalArgumentException("maxConcurrentExecutions must not be negative");
             }
             maxConcurrentExecutions = maxConcurrent == 0 ? DEFAULT_MAX_CONCURRENT : maxConcurrent;
             permits = new Semaphore(maxConcurrentExecutions, true);
+            this.processStarter = Objects.requireNonNull(processStarter, "processStarter");
+            this.watchdogFactory = Objects.requireNonNull(watchdogFactory, "watchdogFactory");
         }
 
         public int getMaxConcurrentExecutions() { return maxConcurrentExecutions; }
@@ -101,12 +120,12 @@ public final class SubprocessExecutionSupport {
             Process process = null;
             Reader stdoutReader = null;
             Reader stderrReader = null;
-            ExecuteWatchdog watchdog = ExecuteWatchdog.builder()
-                .setTimeout(Duration.ofMillis(request.timeoutMillis)).get();
+            ExecuteWatchdog watchdog = watchdogFactory.create(request.timeoutMillis);
             TerminationReason reason = null;
             IOException ioFailure = null;
             boolean acquired = false;
             boolean interrupted = false;
+            boolean cleanupOperationFailed = false;
             long queueWaitMillis = 0L;
             try {
                 while (!acquired && reason == null) {
@@ -146,15 +165,15 @@ public final class SubprocessExecutionSupport {
                         builder.environment().clear();
                         builder.environment().putAll(request.environment);
                     }
-                    process = builder.start();
+                    process = processStarter.start(builder);
                     process.getOutputStream().close();
                     stdoutReader = new Reader(process.getInputStream(), out, "opencli-stdout");
                     stderrReader = new Reader(process.getErrorStream(), err, "opencli-stderr");
                     stdoutReader.start();
                     stderrReader.start();
                     long remaining = remaining(request.submittedAtNanos, budget);
-                    watchdog = ExecuteWatchdog.builder().setTimeout(Duration.ofMillis(
-                        Math.max(1L, TimeUnit.NANOSECONDS.toMillis(Math.max(0L, remaining))))).get();
+                    watchdog = watchdogFactory.create(
+                        Math.max(1L, TimeUnit.NANOSECONDS.toMillis(Math.max(0L, remaining))));
                     watchdog.start(process);
                     while (reason == null) {
                         if (out.isTruncated() || err.isTruncated()) {
@@ -183,38 +202,53 @@ public final class SubprocessExecutionSupport {
                 ioFailure = ex;
                 reason = process == null ? TerminationReason.SPAWN_FAILED : TerminationReason.IO_FAILURE;
             } finally {
-                watchdog.stop();
-                long cleanupStart = System.nanoTime();
-                long cleanupBudget = nanos(request.cleanupGraceMillis, "cleanupGraceMillis");
-                if (process != null) {
-                    if (process.isAlive()) { process.destroy(); }
-                    boolean forceSent = false;
-                    while (remaining(cleanupStart, cleanupBudget) > 0
-                        && (process.isAlive() || alive(stdoutReader) || alive(stderrReader))) {
-                        if (Thread.interrupted()) { interrupted = true; }
-                        if (process.isAlive() && !forceSent
-                            && System.nanoTime() - cleanupStart >= Math.min(TimeUnit.MILLISECONDS.toNanos(100L), cleanupBudget / 2)) {
-                            process.destroyForcibly();
-                            forceSent = true;
+                try {
+                    try {
+                        watchdog.stop();
+                    } catch (RuntimeException ex) {
+                        cleanupOperationFailed = true;
+                    }
+                    long cleanupStart = System.nanoTime();
+                    long cleanupBudget = nanos(request.cleanupGraceMillis, "cleanupGraceMillis");
+                    if (Objects.nonNull(process)) {
+                        boolean forceSent = false;
+                        if (process.isAlive()) {
+                            try {
+                                process.destroy();
+                            } catch (RuntimeException ex) {
+                                cleanupOperationFailed = true;
+                                forceSent = true;
+                                if (!tryForceStop(process)) { cleanupOperationFailed = true; }
+                            }
                         }
-                        try {
-                            TimeUnit.NANOSECONDS.sleep(Math.min(POLL_NANOS,
-                                Math.max(1L, remaining(cleanupStart, cleanupBudget))));
-                        } catch (InterruptedException ex) {
-                            interrupted = true;
+                        while (remaining(cleanupStart, cleanupBudget) > 0
+                            && (process.isAlive() || alive(stdoutReader) || alive(stderrReader))) {
+                            if (Thread.interrupted()) { interrupted = true; }
+                            if (process.isAlive() && !forceSent
+                                && System.nanoTime() - cleanupStart >= Math.min(TimeUnit.MILLISECONDS.toNanos(100L), cleanupBudget / 2)) {
+                                if (!tryForceStop(process)) { cleanupOperationFailed = true; }
+                                forceSent = true;
+                            }
+                            try {
+                                TimeUnit.NANOSECONDS.sleep(Math.min(POLL_NANOS,
+                                    Math.max(1L, remaining(cleanupStart, cleanupBudget))));
+                            } catch (InterruptedException ex) {
+                                interrupted = true;
+                            }
+                        }
+                        if (process.isAlive() && !tryForceStop(process)) { cleanupOperationFailed = true; }
+                        if (process.isAlive() || alive(stdoutReader) || alive(stderrReader)) {
+                            // A fixed runtime cannot accumulate unlimited uncertain children/readers.
+                            quarantined = true;
+                            if (reason == TerminationReason.PROCESS_EXIT) { reason = TerminationReason.CLEANUP_UNCONFIRMED; }
                         }
                     }
-                    if (process.isAlive()) { process.destroyForcibly(); }
-                    if (process.isAlive() || alive(stdoutReader) || alive(stderrReader)) {
-                        // A fixed runtime cannot accumulate unlimited uncertain children/readers.
-                        quarantined = true;
-                        if (reason == TerminationReason.PROCESS_EXIT) { reason = TerminationReason.CLEANUP_UNCONFIRMED; }
-                    }
+                } finally {
+                    out.freeze();
+                    err.freeze();
+                    if (acquired) { permits.release(); }
+                    if (interrupted) { Thread.currentThread().interrupt(); }
                 }
-                out.freeze();
-                err.freeze();
-                if (acquired) { permits.release(); }
-                if (interrupted) { Thread.currentThread().interrupt(); }
             }
             if (reason == TerminationReason.PROCESS_EXIT && (out.isTruncated() || err.isTruncated())) {
                 reason = TerminationReason.OUTPUT_LIMIT;
@@ -233,6 +267,7 @@ public final class SubprocessExecutionSupport {
                 .cleanupState(process == null ? CleanupState.NOT_STARTED
                     : process.isAlive() ? CleanupState.UNCONFIRMED : CleanupState.ROOT_EXIT_CONFIRMED)
                 .processStarted(process != null).streamsDrained(!alive(stdoutReader) && !alive(stderrReader))
+                .cleanupOperationFailed(cleanupOperationFailed)
                 .stdoutCapturedBytes(out.size()).stdoutObservedBytes(out.observed()).stdoutTruncated(out.isTruncated())
                 .stderrCapturedBytes(err.size()).stderrObservedBytes(err.observed()).stderrTruncated(err.isTruncated())
                 .elapsedMillis(elapsedMillis(request.submittedAtNanos)).queueWaitMillis(queueWaitMillis)
@@ -244,6 +279,14 @@ public final class SubprocessExecutionSupport {
     }
 
     private static boolean alive(Thread thread) { return thread != null && thread.isAlive(); }
+    private static boolean tryForceStop(Process process) {
+        try {
+            process.destroyForcibly();
+            return true;
+        } catch (RuntimeException ex) {
+            return false;
+        }
+    }
     private static long remaining(long start, long budget) { return budget - (System.nanoTime() - start); }
     private static long elapsedMillis(long start) { return TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - start); }
 

@@ -20,6 +20,8 @@ public final class OpenCliExecutionDetails {
     private final CleanupState cleanupState;
     private final boolean processStarted;
     private final boolean streamsDrained;
+    /** A watchdog or process cleanup operation threw; later cleanup may still confirm root exit. */
+    private final boolean cleanupOperationFailed;
     private final long stdoutCapturedBytes;
     private final long stdoutObservedBytes;
     private final boolean stdoutTruncated;

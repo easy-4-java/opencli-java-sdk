@@ -63,7 +63,7 @@ System.nanoTime 驱动提交到执行的总预算。排队到期不创建子进�
 C01/C02 的 Change 继续 IN_PROGRESS；不能因为上述测试通过就整体勾选或 archive。
 
 - C01：自定义 Object.toString() 返回 null 的输入已补拒绝测试；Windows/macOS 和三版本线实际完整回归尚未完成。
-- C02：底层 stop/destroy 抛 unchecked 异常时的收尾保护需要故障注入验证和补强；未知清理、取消/自然退出竞争及未确认后代的验收仍需继续。
+- C02：底层 stop/destroy 抛 unchecked 异常的收尾保护已有故障注入验证；取消/自然退出竞争、其他清理异常及未确认后代的验收仍需继续。
 - C09：HTTP、WS、诊断和异常 cause 链仍需独立隐私回归；本地参数日志减少不构成全域完成。
 - C03/C04/C05 尚未进入本轮新实现，C06/C07/C08 也尚未进入；不得跳过这些项关闭 C10。
 - 1.x/JDK8、3.x/JDK21、真实 OpenCLI 输出采集、CodeGraph 索引以及独立代码评审未完成。不能用本批 JDK17 证据代替它们。
@@ -83,3 +83,7 @@ C01/C02 的 Change 继续 IN_PROGRESS；不能因为上述测试通过就整体�
 从现行 `feature/2.0.x` 建立 `feature/REQ-20261118-wandl-opencli-contracts-20`，合并旧草稿的 C10/C01/C02 实现，并保留现行基线新增的远端传输关闭和 `maxOutputBytes` 配置入口。输出超限按 C02 规格返回 `OUTPUT_LIMIT` 与有界部分结果；旧版“截断但成功”测试已改为核验该已确定的行为。新增自定义 `Object.toString()` 返回 null 的拒绝回归。
 
 本地 JDK 17 `clean verify` 实际执行 2059 项 Java 测试，0 失败、0 错误、0 跳过；13 项 Python evidence-runner 自测通过；OpenSpec 1.14.1 strict 验证 10/10。修正 Surefire 的 JaCoCo agent 参数后，实际覆盖为 2550/2989 行（85.31%），低于现有 90% 告警目标；门禁配置未降低。当前新分支仍需自身精确提交的远端 CI、覆盖补足、C02 故障注入、跨平台和跨版本验证，因此 Change 保持进行中。
+
+## 9. C02 清理操作异常回归
+
+新增可控进程和 watchdog 故障注入：`destroy()` 抛异常时仍尝试强制终止；`watchdog.stop()` 抛异常时仍清理所拥有的进程；两种已确认退出路径都保留 `cleanupOperationFailed` 证据并释放许可。强制终止也失败时不虚构退出码，结果标记 `UNCONFIRMED`，隔离该 Runtime，拒绝后续启动。目标测试先以 2 项错误复现异常逃出清理路径，修复后扩展为 3 项通过。本地 JDK 17 完整 `clean verify` 执行 2062 项测试，0 失败、0 错误、0 跳过；实际 JaCoCo 2572/3008 行（85.51%），仍低于现有 90% 告警目标。此新增提交的远端 CI 需单独验证。
