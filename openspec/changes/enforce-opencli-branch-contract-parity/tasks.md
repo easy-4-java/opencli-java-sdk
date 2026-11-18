@@ -40,3 +40,7 @@ OC-PARITY-004：维护线原 CI 将 JaCoCo 参数丢在 Surefire JVM 之外，�
 | 21 | 4.0.0-rc-5 | 3.2.1 | `fa7e001da203d31fd5afb2921f90c3f428db2d5b` | 2144 | 3028/3285（92.18%） | [44356116107](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44356116107) |
 
 上述记录覆盖文档事实和分支构建。最终集成门禁仍按第 3 节逐项验收。
+
+### 结构化帮助证据门禁
+
+OC-PARITY-003/004：在 `98f28346e7bc3307608122a0086a8e1072e39536` 的 GitHub 工件中，Surefire 记录了三个通过的 `OpenCliStructuredHelpFixtureTest` 用例，契约报告的枚举层仍显示 `NOT_RUN`。从该工件重放报告命令并声明枚举套件后，枚举层显示 `PASS`、执行三项，真实 CLI 执行层仍为 `NOT_RUN`。移除套件报告时，报告命令返回非零。三条开发线使用同一份 SHA-256 清单检查九个帮助样本，在临时副本的 `root.json` 末尾追加换行会使校验失败。样本提供离线结构证据，实时能力发现和真实执行由对应任务另行验收。

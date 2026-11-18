@@ -31,6 +31,7 @@ jobs:
         run: |
           python3 -m unittest discover -s scripts/tests -v
           (cd src/test/resources/opencli-contracts/v1 && sha256sum -c SHA256SUMS)
+          (cd src/test/resources/opencli-contracts/v1/structured-help-1.8.8 && sha256sum --strict -c SHA256SUMS)
       - name: Install pinned official OpenSpec
         run: npm install --prefix "$RUNNER_TEMP/opencli-openspec" --ignore-scripts --no-audit --no-fund @fission-ai/openspec@1.13.1
       - name: Validate all proposals and each change with strict mode
@@ -120,6 +121,7 @@ jobs:
             --java-version-file contract-evidence/java.txt \
             --maven-version-file contract-evidence/maven.txt \
             --exit-code "$(cat contract-evidence/maven.exit)" \
+            --suite enumeration=io.github.easy4j.opencli.contract.OpenCliStructuredHelpFixtureTest \
             --suite argv=io.github.easy4j.opencli.contract.OpenCliArgvContractTest \
             --suite argv=io.github.easy4j.opencli.contract.OpenCliStructuredArgvContractTest \
             --suite process=io.github.easy4j.opencli.contract.OpenCliProcessContractTest \
