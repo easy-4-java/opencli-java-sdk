@@ -6,6 +6,7 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectReader;
 import tools.jackson.databind.json.JsonMapper;
 import io.github.easy4j.opencli.browser.result.OpenCliBrowserResult.Status;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserSourceComparison.Metrics;
 import io.github.easy4j.opencli.core.OpenCliExecutionDetails;
 import io.github.easy4j.opencli.core.OpenCliResult;
 import java.util.ArrayList;
@@ -34,22 +35,60 @@ public final class OpenCliBrowserDecoder {
         return decode(raw, OpenCliBrowserDecoder::readNavigation);
     }
 
-    private static <T> OpenCliBrowserResult<T> decode(OpenCliResult raw, Function<JsonNode, T> model) {
+    /** @param raw browser state result @return strict text snapshot without interpreting its contents */
+    public static OpenCliBrowserResult<OpenCliBrowserSnapshot> snapshot(OpenCliResult raw) {
+        Status failure = unavailableStatus(raw);
+        if (Objects.nonNull(failure)) {
+            return new OpenCliBrowserResult<>(raw, failure, null);
+        }
+        String output = raw.getStdout();
+        String prefix = "URL: ";
+        int headerEnd = output.indexOf('\n');
+        int blankEnd = output.indexOf('\n', headerEnd + 1);
+        if (!output.startsWith(prefix) || headerEnd < prefix.length() || blankEnd < 0
+            || !output.substring(headerEnd + 1, blankEnd).chars().allMatch(ch -> ch == '\r')) {
+            return new OpenCliBrowserResult<>(raw, Status.INVALID_SHAPE, null);
+        }
+        String url = output.substring(prefix.length(), headerEnd);
+        if (url.endsWith("\r")) {
+            url = url.substring(0, url.length() - 1);
+        }
+        String body = output.substring(blankEnd + 1);
+        if (isBlankOutput(body)) {
+            return new OpenCliBrowserResult<>(raw, Status.INVALID_SHAPE, null);
+        }
+        return new OpenCliBrowserResult<>(raw, Status.PARSED, new OpenCliBrowserSnapshot(url, body));
+    }
+
+    /** @param raw browser state --compare-sources result @return strict DOM and AX comparison */
+    public static OpenCliBrowserResult<OpenCliBrowserSourceComparison> compareSources(OpenCliResult raw) {
+        return decode(raw, OpenCliBrowserDecoder::readComparison);
+    }
+
+    private static Status unavailableStatus(OpenCliResult raw) {
         Objects.requireNonNull(raw, "raw");
         OpenCliExecutionDetails execution = raw.getExecutionDetails();
         if (Objects.nonNull(execution) && execution.isStdoutTruncated()) {
-            return new OpenCliBrowserResult<>(raw, Status.TRUNCATED, null);
+            return Status.TRUNCATED;
         }
         if (!raw.isSuccess()) {
-            return new OpenCliBrowserResult<>(raw, Status.EXECUTION_FAILED, null);
+            return Status.EXECUTION_FAILED;
         }
-        String stdout = raw.getStdout();
-        if (Objects.isNull(stdout) || stdout.chars().allMatch(value -> " \t\r\n".indexOf(value) >= 0)) {
-            return new OpenCliBrowserResult<>(raw, Status.EMPTY, null);
+        return isBlankOutput(raw.getStdout()) ? Status.EMPTY : null;
+    }
+
+    private static boolean isBlankOutput(String output) {
+        return Objects.isNull(output) || output.chars().allMatch(value -> " \t\r\n".indexOf(value) >= 0);
+    }
+
+    private static <T> OpenCliBrowserResult<T> decode(OpenCliResult raw, Function<JsonNode, T> model) {
+        Status failure = unavailableStatus(raw);
+        if (Objects.nonNull(failure)) {
+            return new OpenCliBrowserResult<>(raw, failure, null);
         }
         JsonNode json;
         try {
-            json = JSON.readTree(stdout);
+            json = JSON.readTree(raw.getStdout());
         } catch (JacksonException ex) {
             return new OpenCliBrowserResult<>(raw, Status.INVALID_JSON, null);
         }
@@ -85,6 +124,44 @@ public final class OpenCliBrowserDecoder {
         JsonNode page = json.path("page");
         return new OpenCliBrowserOpenResult(json.path("url").textValue(),
             page.isMissingNode() ? null : pageId(page), json);
+    }
+
+    private static OpenCliBrowserSourceComparison readComparison(JsonNode json) {
+        JsonNode url = json.path("url");
+        JsonNode sources = json.path("sources");
+        if (!url.isTextual() || !sources.isObject()) {
+            throw invalidShape();
+        }
+        return new OpenCliBrowserSourceComparison(url.textValue(), readMetrics(sources.path("dom")),
+            readMetrics(sources.path("ax")), json);
+    }
+
+    private static Metrics readMetrics(JsonNode json) {
+        JsonNode ok = json.path("ok");
+        if (!ok.isBoolean()) {
+            throw invalidShape();
+        }
+        long elapsed = counter(json.path("elapsed_ms"));
+        if (!ok.booleanValue()) {
+            JsonNode error = json.path("error");
+            JsonNode message = error.path("message");
+            if (!message.isTextual()) {
+                throw invalidShape();
+            }
+            return new Metrics(false, elapsed, null, null, null, null, null, null, null,
+                optionalText(error.path("code")), message.textValue());
+        }
+        JsonNode interactive = json.path("interactive");
+        return new Metrics(true, elapsed, counter(json.path("chars")), counter(json.path("bytes")),
+            counter(json.path("lines")), counter(json.path("approx_tokens")), counter(json.path("refs")),
+            counter(json.path("frame_sections")), interactive.isMissingNode() ? null : counter(interactive), null, null);
+    }
+
+    private static long counter(JsonNode node) {
+        if (!node.isIntegralNumber() || !node.canConvertToLong() || node.longValue() < 0) {
+            throw invalidShape();
+        }
+        return node.longValue();
     }
 
     private static String pageId(JsonNode node) {
