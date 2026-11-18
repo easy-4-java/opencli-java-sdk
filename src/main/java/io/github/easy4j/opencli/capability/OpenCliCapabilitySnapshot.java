@@ -7,9 +7,9 @@ import lombok.Getter;
 
 /** Immutable observation of the configured local CLI's root help. */
 @Getter
-@Builder
+@Builder(toBuilder = true)
 public final class OpenCliCapabilitySnapshot {
-    public enum Status { AVAILABLE, UNKNOWN, UNSUPPORTED }
+    public enum Status { AVAILABLE, STALE, UNKNOWN, UNSUPPORTED }
 
     private final Status status;
     private final String reason;
@@ -19,6 +19,8 @@ public final class OpenCliCapabilitySnapshot {
     private final String configurationSha256;
     private final String helpSha256;
     private final OpenCliHelpResult help;
+    /** Latest failed observation when this result serves an earlier snapshot. */
+    private final OpenCliCapabilitySnapshot failedRefresh;
 
     /** @return scope of the metadata probe */
     public String getScope() {
