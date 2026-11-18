@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * 与 opencli-admin Agent {@code POST /collect} 请求体对齐的 DTO。
@@ -18,6 +19,7 @@ import lombok.NoArgsConstructor;
  * </p>
  */
 @Data
+@ToString(onlyExplicitlyIncluded = true)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -59,4 +61,13 @@ public class OpenCliCollectRequest {
      */
     @JsonProperty("cdp_endpoint")
     private String cdpEndpoint;
+
+
+    /** Builder diagnostics exclude arguments and connection details. */
+    public static class OpenCliCollectRequestBuilder {
+        @Override
+        public String toString() {
+            return "OpenCliCollectRequestBuilder";
+        }
+    }
 }

@@ -53,6 +53,11 @@ public final class OpenCliAdapterCommandRequest {
             options = snapshotOptions(source);
             return this;
         }
+
+        @Override
+        public String toString() {
+            return "OpenCliAdapterCommandRequestBuilder";
+        }
     }
 
     /** @return an immutable copy of positional values */

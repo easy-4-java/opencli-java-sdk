@@ -7,6 +7,22 @@ import org.junit.jupiter.api.Test;
 class OpenCliAdapterCommandRequestTest {
 
     @Test
+    void builderDiagnosticExcludesLiteralCommandAndArguments() {
+        OpenCliAdapterCommandRequest.OpenCliAdapterCommandRequestBuilder builder = OpenCliAdapterCommandRequest.builder()
+            .subcommand("command-canary")
+            .positional("positional-canary")
+            .options(Collections.singletonMap("prompt", "option-canary"));
+
+        String diagnostic = builder.toString();
+        for (String value : Arrays.asList("command-canary", "positional-canary", "option-canary")) {
+            assertFalse(diagnostic.contains(value), value);
+        }
+        assertEquals(Arrays.asList("command-canary", "positional-canary", "--prompt", "option-canary"),
+            builder.build().toSubcommandAndArgs());
+    }
+
+
+    @Test
     void shouldRejectLegacyOptionWithNullStringFormBeforeSnapshot() {
         Map<String, Object> opts = new LinkedHashMap<>();
         opts.put("--value", new Object() {
