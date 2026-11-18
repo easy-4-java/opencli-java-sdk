@@ -69,7 +69,12 @@ class SubprocessExecutionSupportTest {
         SubprocessExecutionSupport.ExecutionRequest request = new SubprocessExecutionSupport.ExecutionRequest(
             cmd, null, null, 10_000L, 16L);
         SubprocessExecutionSupport.RunSession session = SubprocessExecutionSupport.execute(request);
-        assertEquals(16, session.getStdout().toByteArray().length);
+        SubprocessExecutionSupport.BoundedOutputStream stdout = session.getStdout();
+        SubprocessExecutionSupport.BoundedOutputStream stderr = session.getStderr();
+        assertEquals(16L, request.getMaxOutputBytes());
+        assertEquals(16, stdout.toByteArray().length);
+        assertTrue(stdout.isOverflowed());
+        assertFalse(stderr.isOverflowed());
         assertTrue(session.isStdoutOverflowed());
     }
 

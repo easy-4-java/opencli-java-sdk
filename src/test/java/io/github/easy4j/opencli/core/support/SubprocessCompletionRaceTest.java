@@ -51,7 +51,7 @@ class SubprocessCompletionRaceTest {
             assertEquals(CleanupState.ROOT_EXIT_CONFIRMED,
                 session.getExecutionDetails().getCleanupState());
             assertEquals(0, session.getObservedExitCode());
-            assertEquals("partial", session.getStdout().toString(StandardCharsets.UTF_8.name()));
+            assertEquals("partial", new String(session.getStdout().toByteArray(), StandardCharsets.UTF_8));
             assertEquals(7, session.getExecutionDetails().getStdoutCapturedBytes());
             assertTrue(session.getExecutionDetails().isStreamsDrained());
             assertFalse(runtime.isQuarantined());
