@@ -12,6 +12,9 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,6 +22,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Map;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DynamicTest;
@@ -35,6 +39,17 @@ class OpenCliArgvContractTest {
         p.setLeadingArguments(new ArrayList<>(Arrays.asList("-cp",
             System.getProperty("surefire.test.class.path", System.getProperty("java.class.path")),
             ContractProbe.class.getName())));
+        String node = System.getenv("OPENCLI_CONTRACT_NODE_EXECUTABLE");
+        if (System.getProperty("os.name").startsWith("Windows") && Objects.nonNull(node)) {
+            URL probe = OpenCliArgvContractTest.class.getResource("/opencli-contracts/argv-probe.cjs");
+            p.setExecutable(node);
+            try {
+                URI location = Objects.requireNonNull(probe, "Windows argv fixture is required").toURI();
+                p.setLeadingArguments(Collections.singletonList(new File(location).getAbsolutePath()));
+            } catch (URISyntaxException e) {
+                throw new AssertionError("Invalid Windows argv fixture location", e);
+            }
+        }
         p.setCommandTimeoutMillis(10000L);
         return p;
     }
@@ -94,6 +109,14 @@ class OpenCliArgvContractTest {
         }
         assertEquals(24, tests.size(), "fixture denominator changed; review sources.lock.json");
         return tests.stream();
+    }
+
+    @Test
+    void literalQuotesAndAdjacentBackslashesReachChildUnchanged() throws Exception {
+        List<String> tokens = Arrays.asList("demo", "echo", "\"quoted\"",
+            "folder\\\"name with spaces\\", "two\\\\\"quotes\"\" and trailing\\\\");
+        OpenCliResult result = new OpenCliExecutor(properties()).invoke(tokens);
+        assertEquals(tokens, received(result));
     }
 
     @Test

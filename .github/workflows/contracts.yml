@@ -158,9 +158,17 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: '3.13'
+      - uses: actions/setup-node@v4
+        if: runner.os == 'Windows'
+        with:
+          node-version: '22'
       - name: Exercise real subprocess contracts
         run: |
           mkdir -p platform-evidence
+          if [[ "$RUNNER_OS" == Windows ]]; then
+            OPENCLI_CONTRACT_NODE_EXECUTABLE="$(node -p 'process.execPath')"
+            export OPENCLI_CONTRACT_NODE_EXECUTABLE
+          fi
           java -version > platform-evidence/java.txt 2>&1
           mvn -version > platform-evidence/maven.txt 2>&1
           result=0
