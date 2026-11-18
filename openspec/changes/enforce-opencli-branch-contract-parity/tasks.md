@@ -48,3 +48,10 @@ tar -xOf opencli-1.8.8.tgz package/cli-manifest.json > cli-manifest.json
 ### OpenCLI 1.8.8 全量样本复跑
 
 [上游来源锁定](../../../src/test/resources/opencli-contracts/v1/upstream-1.8.8.lock.json) 记录 manifest 采集命令及逐项差异，以及帮助和浏览器输出的校验清单与复跑入口。使用 Node 24.18.0 和已安装的 1.8.8 包，在独立临时配置、缓存及用户目录中执行。11 份帮助、12 份浏览器叶子输出均与已归档的 stdout 逐字节相同，全部退出 0，stderr 为空。帮助包含非 JSON 输出。浏览器叶子使用真实 CLI 与隔离页面桩，真实浏览器联调证据单独见 [Browser Bridge 验收](../add-opencli-browser-result-models/evidence/2026-11-19-real-browser-bridge.md)。历史覆盖基线的升级仍须评审。
+
+
+### OC-PARITY-003 能力发现的必选报告
+
+独立评审确认 GitHub 的 JVM 报告漏列 `OpenCliCapabilityDiscoveryTest` 和 `OpenCliCapabilityCommandTest`。用原工作流的四组报告参数逐一重放，任一个能力套件的 XML 缺失、零用例或全跳过时，24 个反例仍返回成功。
+
+三线平台作业现在显式运行两个套件，在枚举层登记 DiscoveryTest，在 argv 层登记 CommandTest。Java 17 的完整 JVM 报告也登记这两个套件。使用现有 Surefire 结果重放更新后的四组参数，完整报告均退出 0，24 个反例均退出 1，准确标识缺失或未执行的套件。各线的报告脚本回归均通过 17 项。
