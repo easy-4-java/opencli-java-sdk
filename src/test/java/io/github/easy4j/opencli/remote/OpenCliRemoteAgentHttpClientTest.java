@@ -335,6 +335,38 @@ class OpenCliRemoteAgentHttpClientTest {
         }
     }
 
+    @ParameterizedTest
+    @ValueSource(ints = {200, 503})
+    void invalidResponseCharsetRetainsTheObservedHttpStatus(int status) throws IOException {
+        String canary = "unexpected-charset-body";
+        try (JsonCollectStub stub = JsonCollectStub.start(exchange -> {
+            byte[] body = canary.getBytes(StandardCharsets.UTF_8);
+            exchange.getResponseHeaders().set("Content-Type", "application/json; charset=no-such-charset");
+            exchange.sendResponseHeaders(status, body.length);
+            try (OutputStream output = exchange.getResponseBody()) {
+                output.write(body);
+            }
+        })) {
+            OpenCliProperties props = baseProps(stub.port());
+            props.setRemoteCaptureRawHttpResponse(true);
+            try (OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(props)) {
+                OpenCliExecutableFailureException failure = Assertions.assertThrows(
+                    OpenCliExecutableFailureException.class,
+                    () -> client.collect(OpenCliCollectRequest.builder().site("x").command("y").build()));
+                Assertions.assertEquals(status == 200 ? OpenCliRemoteProtocolException.class
+                    : OpenCliExecutableFailureException.class, failure.getClass());
+                OpenCliResult partial = failure.getPartialResult();
+                Assertions.assertNotNull(partial);
+                Assertions.assertEquals(status, partial.getRemoteExecutionDetails().getHttpStatus());
+                Assertions.assertEquals(status == 200 ? Outcome.PROTOCOL_FAILURE : Outcome.HTTP_FAILURE,
+                    partial.getRemoteExecutionDetails().getOutcome());
+                Assertions.assertEquals(ExitCodeSource.UNAVAILABLE, partial.getRemoteExecutionDetails().getExitCodeSource());
+                Assertions.assertNull(partial.getRemoteRawHttpBody());
+                Assertions.assertFalse(failure.toString().contains(canary));
+            }
+        }
+    }
+
     @Test
     void httpFailureRetainsItsStatusWithoutCreatingAProcessExit() throws IOException {
         String body = "<html>fixture-proxy-error</html>";
