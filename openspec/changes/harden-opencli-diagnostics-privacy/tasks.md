@@ -51,3 +51,9 @@ Java 8、17、21 分别用各自 Wrapper 运行 OpenCliProcessPrivacyTest、Open
 OC-PRIV-001/004。Java 17 基线 `58f675a` 的两项回归均失败。输出 `OpenCliProperties` 或 `OpenCliWsAgentConnectionProperties` 时，Lombok 的默认字符串表示包含测试标记。改为显式允许表后，默认字符串只包含受控枚举、开关、字节预算和超时、并发等数值。CDP 地址、本地路径、启动参数、环境变量、WebSocket 地址和节点标签仍可通过各自的配置 API 读取和使用。
 
 实现分别基于 Java 8 `afc6b33`、Java 17 `58f675a`、Java 21 `5cfa937`。三线使用各自 Wrapper 执行 `./mvnw -B -ntp -o clean verify`，分别通过 2,242、2,243、2,242 项。失败、错误、跳过均为 0。两项新增测试记录在 `OpenCliPropertiesTest` 和 `OpenCliWsReverseAgentClientTest` 的 Surefire 报告中。随后同步的 Agent TLS 证据提交只触及 OpenSpec 材料。
+
+## 请求和请求构建器的默认诊断
+
+OC-PRIV-001/003/004。Java 17 基线 `c6dc643` 的两项回归均失败。HTTP 收集 DTO 和生成的构建器会将命令、选项、位置参数和 CDP 地址拼进字符串，结构化本地请求构建器也会拼入命令及参数。三个默认字符串只保留类型名称。请求值仍由原访问器和协议序列化读取，结构化命令生成相同的字面 argv。
+
+Java 8 `15ef02a`、Java 17 `c6dc643`、Java 21 `d0f0205` 为回归前基线。三线各自用 Wrapper 执行 `./mvnw -B -ntp -o clean verify`，分别通过 2,244、2,245、2,244 项，零失败、零错误、零跳过。新增用例见 `OpenCliCollectRequestTest` 和 `OpenCliAdapterCommandRequestTest` 的 Surefire XML。全量回归同时覆盖 HTTP 线上字段和本地子进程调用。
