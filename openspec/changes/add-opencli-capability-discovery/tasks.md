@@ -1,12 +1,12 @@
 # C06 Tasks · 结构化能力发现与可追溯快照
 
-> 全部为待执行实现任务。文档/格式检查通过不允许提前勾选。
+> 勾选项有对应的执行证据。
 
 关联规范：[spec](specs/opencli-capability-discovery/spec.md)。
 
 ## 1. schema基线
 
-- [ ] 1.1 从锁定OpenCLI采集root/browser/meta/site结构化help，记录真实来源与hash，清楚标注不能采集的部分。
+- [x] 1.1 从锁定 OpenCLI 采集 root、browser、meta 和 site 帮助，保存原文与 SHA-256。不能读取为单一 JSON 文档的输出单列为负例。见 [1.8.8 采集证据](evidence/2026-11-19-structured-help.md)。
 - [ ] 1.2 为scope、optionalvalue、negate、false、aliases、session占位和旧格式编写失败测试。
 
 ## 2. 服务实现
