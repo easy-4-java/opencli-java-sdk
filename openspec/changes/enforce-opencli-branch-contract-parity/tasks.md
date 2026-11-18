@@ -64,3 +64,14 @@ JVM 和平台报告显式登记错误报文、浏览器 typed 结果、上下文
 Java 21 基线的共享校验清单引用了未被 Git 跟踪的 `sources.lock.json`，`shasum -a 256 -c SHA256SUMS` 返回非零。从 Java 17 基线恢复相同的来源锁定文件后，三条线均校验 28 个文件。临时副本中追加一个换行会使校验退出 1。三条常规 CI 在 Maven 构建前校验共享来源锁定、结构化帮助及浏览器输出三份清单。
 
 使用 OpenSpec 1.14.1 在三条基线逐项运行 `openspec validate <change> --strict --no-interactive` 并执行 `openspec validate --all --strict --no-interactive`，每条线均通过 10 个变更，退出 0。Java 17 基线的 [托管工件](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44382023710) 另记录固定版本 1.13.1 的逐项结果和 `all.log`，同样通过。此处记录规格校验与工件事实。独立评审与归档仍按最终门禁验收。
+
+### 2026-11-19 上游 manifest 采集
+
+OC-PARITY-002：从 npm 发布包提取 `package/cli-manifest.json`。源为 https://registry.npmjs.org/@jackwener/opencli/-/opencli-1.8.8.tgz，包的 SHA-512 完整性与 npm registry 元数据一致。原始 manifest 的 SHA-256 为 `b6f44ab5973dfd46b001f42562ad520b184bf1dd27ec4ae807f849df70b98e6a`。范围为发布包自带的 adapter 命令枚举，共 1,366 条、179 个 site。按 `(site, name)` 逐项对比仓库历史快照，新增 89 条，移除 0 条。任务 2.1 仍待汇总 help 和输出样本并评审快照变更。
+
+在临时目录采集并运行生成器后，报告只记录公开来源、原始字节的 SHA-256、观察日期、获取命令和枚举范围。历史报告仍用于原有 Java 测试。生成器通过 `--manifest` 或 `OPENCLI_MANIFEST` 读取本地输入，移植验证覆盖含空格的临时路径。
+
+```bash
+curl -fsSLo opencli-1.8.8.tgz https://registry.npmjs.org/@jackwener/opencli/-/opencli-1.8.8.tgz
+tar -xOf opencli-1.8.8.tgz package/cli-manifest.json > cli-manifest.json
+```
