@@ -3,6 +3,7 @@ package io.github.easy4j.opencli.remote;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectReader;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.github.easy4j.opencli.OpenCliProperties;
 import io.github.easy4j.opencli.OpenCliRemoteAuthentication;
@@ -64,6 +65,7 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
     }
 
     private final OpenCliProperties properties;
+    private final ObjectWriter responseItemsWriter = MAPPER.writerWithDefaultPrettyPrinter();
 
     private final Object transportLock = new Object();
     private CloseableHttpClient transport;
@@ -171,9 +173,6 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
                 }
                 return mapResponse(status, respBody, correlationId);
             }
-        } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
-            log.warn("Agent response parse failed correlationId={}", correlationId);
-            throw failure("Failed to parse agent response", correlationId);
         } catch (SocketTimeoutException | ConnectTimeoutException e) {
             throw new OpenCliRemoteTimeoutException(timeout, true, correlationId);
         } catch (IOException e) {
@@ -294,8 +293,7 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
         return new OpenCliExecutableFailureException(message + " correlationId=" + correlationId, null);
     }
 
-    private OpenCliResult mapResponse(int status, String respBody, String correlationId)
-            throws com.fasterxml.jackson.core.JsonProcessingException {
+    private OpenCliResult mapResponse(int status, String respBody, String correlationId) {
         String rawCapture = captureRawIfEnabled(respBody);
         JsonNode envelope;
         try {
@@ -328,8 +326,13 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
             stdout = "[]";
             itemsSource = items.isMissingNode() ? ItemsSource.ABSENT_DEFAULT : ItemsSource.NULL_DEFAULT;
         } else {
-            stdout = items.isArray() ? MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(items)
-                : items.toPrettyString();
+            try {
+                stdout = responseItemsWriter.writeValueAsString(items);
+            } catch (com.fasterxml.jackson.core.JsonProcessingException e) {
+                log.warn("Agent response items mapping failed correlationId={} status={}", correlationId, status);
+                throw new OpenCliRemoteProtocolException("Failed to map agent response items", correlationId,
+                    failureSnapshot(status, Outcome.PROTOCOL_FAILURE, respBody));
+            }
             itemsSource = ItemsSource.RESPONSE;
         }
         OpenCliParsedFields parsed = OpenCliOutputParser.parseBestEffort(stdout, err);
