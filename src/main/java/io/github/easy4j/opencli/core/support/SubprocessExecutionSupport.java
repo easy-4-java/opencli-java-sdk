@@ -183,7 +183,9 @@ public final class SubprocessExecutionSupport {
                             reason = TerminationReason.CANCELLED;
                         } else if (request.cancellationToken.isCancelled()) {
                             reason = TerminationReason.CANCELLED;
-                        } else if (stdoutReader.failure != null || stderrReader.failure != null) {
+                        } else if (Objects.nonNull(stdoutReader.failure) || Objects.nonNull(stderrReader.failure)) {
+                            ioFailure = Objects.nonNull(stdoutReader.failure)
+                                ? stdoutReader.failure : stderrReader.failure;
                             reason = TerminationReason.IO_FAILURE;
                         } else if (!process.isAlive() && !stdoutReader.isAlive() && !stderrReader.isAlive()) {
                             reason = watchdog.killedProcess() ? TerminationReason.EXECUTION_TIMEOUT : TerminationReason.PROCESS_EXIT;
