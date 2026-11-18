@@ -114,3 +114,16 @@ OC-PROC-004/005。Java 17 基线 `1946d9f` 的两个故障注入场景均将运�
 Java 8 `1310c54`、Java 17 `1946d9f`、Java 21 `89da70e` 为修改前基线。各线使用 Wrapper 执行 `./mvnw -B -ntp -o clean verify`，分别通过 2,254、2,255、2,254 项，零失败、零错误、零跳过。报告为 `SubprocessStreamFailureTest` 与 `OpenCliProcessContractTest` 的 Surefire XML。此处给出直属进程和管道边界的运行证据。多平台的已声明能力与未追踪后代的限制继续由 3.2 验收。
 
 独立复审发现 Windows 下重定向输出文件的句柄可能在心跳确认后仍被后代持有。夹具改用 ProcessBuilder 的独立默认管道，避免临时输出文件的删除竞态。新增断言区分已观察到的根退出码 0 与 SDK 的 IO_FAILURE。三条线分别重跑两个受影响的测试套件，各通过 7 项，零失败、零错误、零跳过。
+
+
+## OC-PROC-004/005 真实直属进程的平台证据
+
+从以下精确提交的 10 份托管平台工件读取 Surefire XML。每份均执行继承及独立管道两个用例、独立进程存活、调用线程中断、两种运行时读取故障，共 6 项，零失败、零错误、零跳过。
+
+| JDK | 验证提交 | 平台 |
+| --- | --- | --- |
+| 8 | `358afd209f98a9b3146383f3ff7ad2e037490f3e` | [Ubuntu、Intel macOS、Windows](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44410065713) |
+| 17 | `1369aa1cfca1dc2a6b093895c67ee6e1e6698446` | [Intel 与 Apple Silicon macOS、Windows，另有 Ubuntu 全量 JVM 作业](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44410066000) |
+| 21 | `e4022f1c7a3cf9789e347270143ec5f013f58f99` | [Ubuntu、Intel 与 Apple Silicon macOS、Windows](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44410064678) |
+
+清理结果区分直属进程与未知后代。若直属进程退出、读取线程排空，可报告 `ROOT_EXIT_CONFIRMED`，同时将 `descendantsExitConfirmed` 保持为 false。无法确认读取线程排空时返回 `UNCONFIRMED`。真实 Browser Bridge 的共享 daemon 与 Chrome 存活证据来自 macOS 回环联调，Windows/Linux 平台工件使用真实 JVM 子进程夹具。3.2 继续记录跨平台真实 Bridge 验收和未追踪后代的能力边界。
