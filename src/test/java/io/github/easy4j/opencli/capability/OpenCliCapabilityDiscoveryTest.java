@@ -47,6 +47,26 @@ class OpenCliCapabilityDiscoveryTest {
     }
 
     @Test
+    void siteHelpDoesNotAttributeAnOverrideToTheBundledAdapter() {
+        OpenCliProperties properties = properties("structured");
+        try (OpenCliClient client = new OpenCliClient(properties)) {
+            OpenCliCapabilitySnapshot original = client.discoverCapabilities(OpenCliHelpScope.SITE_NPM_SEARCH);
+            properties.getEnvironment().put("OPENCLI_TEST_HELP_MODE", "unverified-override");
+            OpenCliCapabilitySnapshot overridden = client.discoverCapabilities(OpenCliHelpScope.SITE_NPM_SEARCH);
+
+            assertEquals(OpenCliCapabilitySnapshot.Status.AVAILABLE, original.getStatus());
+            assertEquals(OpenCliCapabilitySnapshot.Status.AVAILABLE, overridden.getStatus());
+            assertEquals(original.getObservedVersion(), overridden.getObservedVersion());
+            assertEquals(original.getHelp().getSchema().getCommand(), overridden.getHelp().getSchema().getCommand());
+            assertEquals("UNKNOWN", original.getCommandOrigin());
+            assertEquals("UNKNOWN", overridden.getCommandOrigin());
+            assertEquals("SITE_NPM_SEARCH", overridden.getScope());
+            assertNotEquals(original.getHelpSha256(), overridden.getHelpSha256());
+            assertTrue(overridden.getHelp().getSchema().getSourceJson().contains("override-test-description"));
+        }
+    }
+
+    @Test
     void plainHelpLeavesLocalInvocationAvailable() {
         try (OpenCliClient client = new OpenCliClient(properties("plain"))) {
             OpenCliCapabilitySnapshot result = client.discoverCapabilities();
@@ -327,7 +347,13 @@ class OpenCliCapabilityDiscoveryTest {
                     case "npm search": fixture = "site-npm-search.json"; break;
                     default: throw new IllegalArgumentException("Unapproved fixture command");
                 }
-                System.out.print(readFixture("wrong-help".equals(mode) ? "root.json" : fixture));
+                String help = readFixture("wrong-help".equals(mode) ? "root.json" : fixture);
+                if ("unverified-override".equals(mode) && "npm search".equals(path)) {
+                    String json = help.trim();
+                    help = json.substring(0, json.length() - 1)
+                        + ",\"origin\":\"bundled\",\"complete\":true,\"detail_fixture\":\"override-test-description\"}";
+                }
+                System.out.print(help);
                 return;
             }
             if (!Arrays.equals(args, new String[]{"--help", "-f", "json"})) {

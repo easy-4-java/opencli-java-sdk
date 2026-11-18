@@ -82,3 +82,5 @@ OC-CAP-005 根目录形态与本地回退：JDK 17 基线 `b22796f3` 上，空�
 `OpenCliCapabilityOverrideIT` 使用 Node 24.18.0 和 npm 发布的 OpenCLI 1.8.8。测试以独立临时用户目录运行，每次刷新均查询 npm search 的同一叶子。依次观察内置定义、本地 adapter 覆盖、插件覆盖、移除插件后恢复本地定义。每次均返回 `AVAILABLE`，保留观测版本 1.8.8、原文、`SITE_NPM_SEARCH` 范围和 `UNKNOWN` 来源。配置指纹相同，内容摘要随有效覆盖变化。覆盖 handler 仅在业务执行时写入标记，帮助探测后标记始终不存在。
 
 在配置 `OPENCLI_INSTALLED_NODE` 和 `OPENCLI_INSTALLED_ENTRY` 后执行 `./mvnw -B -ntp -Dtest=OpenCliCapabilityOverrideIT test`。报告为 `target/surefire-reports/TEST-io.github.easy4j.opencli.contract.OpenCliCapabilityOverrideIT.xml`。本测试仅覆盖受控目录下的两个覆盖定义。真实 Browser Bridge 会话与外部插件生态仍未验收。
+
+额外的子进程回归在同名叶子帮助中加入未经验证的 `origin` 和 `complete` 字段。模型保留原文与变更后的摘要，快照仍报告 `UNKNOWN` 来源和 `SITE_NPM_SEARCH` 观察范围。以 `1021ad4`、`b77a6c77`、`9f94dba` 为基线，在 Java 8、17、21 分别执行 `./mvnw -B -ntp -Dtest=OpenCliCapabilityOverrideIT,OpenCliCapabilityDiscoveryTest test`。每条线均通过 14 项发现测试和 1 项真实覆盖测试，零跳过，退出码均为 0。
