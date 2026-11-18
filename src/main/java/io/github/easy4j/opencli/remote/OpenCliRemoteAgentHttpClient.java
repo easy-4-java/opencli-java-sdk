@@ -20,6 +20,7 @@ import io.github.easy4j.opencli.exception.OpenCliRemoteTimeoutException;
 import io.github.easy4j.opencli.parser.OpenCliParsedFields;
 import io.github.easy4j.opencli.util.OpenCliStrings;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketTimeoutException;
@@ -139,35 +140,38 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
 
         ScheduledFuture<?> abort = DEADLINES.schedule(post::abort, deadline - System.nanoTime(), TimeUnit.NANOSECONDS);
         int observedStatus = 0;
-        try (CloseableHttpResponse response = client.execute(post)) {
-            int status = response.getStatusLine().getStatusCode();
-            observedStatus = status;
-            HttpEntity entity = response.getEntity();
-            Optional<byte[]> body = readBoundedBody(entity, maxResponseBytes);
-            if (post.isAborted() || deadline - System.nanoTime() <= 0) {
-                throw new OpenCliRemoteTimeoutException(timeout, true, correlationId);
-            }
-            byte[] responseBytes = body.orElseThrow(
-                () -> new OpenCliRemoteResponseLimitException(status, maxResponseBytes, correlationId));
-            boolean successfulStatus = status >= 200 && status < 300;
-            String respBody;
-            try {
-                respBody = decodeBody(entity, responseBytes);
-            } catch (IllegalArgumentException | ParseException e) {
-                log.warn("Agent content type invalid correlationId={} status={}", correlationId, status);
-                if (successfulStatus) {
-                    throw new OpenCliRemoteProtocolException("Invalid agent response content type", correlationId,
-                        failureSnapshot(status, Outcome.PROTOCOL_FAILURE, null));
+        try {
+            CloseableHttpResponse response = client.execute(post);
+            try (Closeable responseCleanup = () -> closeResponse(response)) {
+                int status = response.getStatusLine().getStatusCode();
+                observedStatus = status;
+                HttpEntity entity = response.getEntity();
+                Optional<byte[]> body = readBoundedBody(entity, maxResponseBytes);
+                if (post.isAborted() || deadline - System.nanoTime() <= 0) {
+                    throw new OpenCliRemoteTimeoutException(timeout, true, correlationId);
                 }
-                respBody = null;
+                byte[] responseBytes = body.orElseThrow(
+                    () -> new OpenCliRemoteResponseLimitException(status, maxResponseBytes, correlationId));
+                boolean successfulStatus = status >= 200 && status < 300;
+                String respBody;
+                try {
+                    respBody = decodeBody(entity, responseBytes);
+                } catch (IllegalArgumentException | ParseException e) {
+                    log.warn("Agent content type invalid correlationId={} status={}", correlationId, status);
+                    if (successfulStatus) {
+                        throw new OpenCliRemoteProtocolException("Invalid agent response content type", correlationId,
+                            failureSnapshot(status, Outcome.PROTOCOL_FAILURE, null));
+                    }
+                    respBody = null;
+                }
+                if (!successfulStatus) {
+                    log.warn("Agent HTTP non-2xx correlationId={} status={} responseBytes={}",
+                        correlationId, status, responseBytes.length);
+                    throw new OpenCliExecutableFailureException("Agent HTTP " + status + " correlationId=" + correlationId,
+                        null, failureSnapshot(status, Outcome.HTTP_FAILURE, respBody));
+                }
+                return mapResponse(status, respBody, correlationId);
             }
-            if (!successfulStatus) {
-                log.warn("Agent HTTP non-2xx correlationId={} status={} responseBytes={}",
-                    correlationId, status, responseBytes.length);
-                throw new OpenCliExecutableFailureException("Agent HTTP " + status + " correlationId=" + correlationId,
-                    null, failureSnapshot(status, Outcome.HTTP_FAILURE, respBody));
-            }
-            return mapResponse(status, respBody, correlationId);
         } catch (JacksonException e) {
             log.warn("Agent response parse failed correlationId={}", correlationId);
             throw failure("Failed to parse agent response", correlationId);
@@ -233,9 +237,20 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
         if (Objects.nonNull(client)) {
             try {
                 client.close();
-            } catch (IOException e) {
+            } catch (IOException | RuntimeException e) {
                 log.warn("Agent HTTP transport close failed");
             }
+        }
+    }
+
+    private static void closeResponse(CloseableHttpResponse response) throws IOException {
+        try {
+            response.close();
+        } catch (SocketTimeoutException | ConnectTimeoutException e) {
+            throw new SocketTimeoutException("Agent HTTP response close timed out");
+        } catch (IOException | RuntimeException e) {
+            // The cleanup exception can be suppressed onto a public protocol failure.
+            throw new IOException("Agent HTTP response close failed");
         }
     }
 

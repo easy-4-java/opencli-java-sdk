@@ -73,3 +73,9 @@ Java 8 `cd1ceac`、Java 17 `0b7091c`、Java 21 `5bee58b` 是本轮修改前基�
 | 反向 WebSocket 客户端 | 9 | 连接 UUID 或重连次数 | `OpenCliWsReverseAgentSessionTest`、`OpenCliWsReverseAgentClientTest`，七个调用点实际执行 |
 
 每线当前 JaCoCo 报告均覆盖 24 个 SDK 日志调用点中的 19 个。仍缺独立驱动 HTTP 请求序列化失败、外层 JSON 映射失败、HTTP transport 关闭失败、WebSocket onError 及 WebSocket 关闭抛异常的动态证据。源码核对确认这些日志也使用固定消息或 SDK 生成的 ID，JaCoCo 缺口由 1.1 和 2.2 继续跟踪。该核对限于 SDK 自身的日志调用与实测异常。
+
+## HTTP 资源关闭异常的隐私回归
+
+OC-PRIV-002/006。Java 17 基线 `ddfa6c8` 的四个定向用例有两个失败。无效响应的协议异常附带了原始 HTTP 响应关闭异常，公开异常栈包含测试标记。连接池关闭的运行时异常也直接暴露了标记。响应清理现在仅传播固定消息，协议失败保留主要类别和 HTTP 200。单独发生的响应关闭 I/O 故障保留传输失败及已观察到的状态，关闭超时沿用超时分类。连接池关闭失败使用固定日志。请求序列化的独立回归确认测试标记未出现在日志或异常栈，回环服务接收请求数为 0。
+
+三线分别以 Java 8 `d5799ac`、Java 17 `ddfa6c8`、Java 21 `0b4b0c8` 为基线修改，用各自 Wrapper 执行 `./mvnw -B -ntp -o clean verify`。分别通过 2,248、2,249、2,248 项，零失败、零错误、零跳过。响应和连接池的关闭异常使用注入的 Apache HTTP provider 测试，协议解析和序列化回归分别使用 JSON 夹具及回环服务。三份 JaCoCo 均命中 24 个日志调用点中的 21 个。HTTP 外层响应映射失败、WebSocket onError 和 WebSocket 关闭抛异常仍待动态证据。
