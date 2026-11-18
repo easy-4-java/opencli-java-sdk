@@ -44,6 +44,7 @@ public final class SubprocessExecutionSupport {
     public static final long WAIT_GRACE_MILLIS = 5_000L;
     public static final int DEFAULT_STDOUT_LIMIT = 8 * 1024 * 1024;
     public static final int DEFAULT_STDERR_LIMIT = 2 * 1024 * 1024;
+    private static final int READ_BUFFER_BYTES = 8192;
     private static final long POLL_NANOS = TimeUnit.MILLISECONDS.toNanos(10L);
     private static final int DEFAULT_MAX_CONCURRENT = Math.max(2, java.lang.Runtime.getRuntime().availableProcessors());
     private static final Object LEGACY_LOCK = new Object();
@@ -376,7 +377,7 @@ public final class SubprocessExecutionSupport {
         private boolean frozen;
 
         BoundedCapture(int limit) {
-            super(Math.min(8192, limit));
+            super(0);
             this.limit = limit;
         }
 
@@ -387,8 +388,8 @@ public final class SubprocessExecutionSupport {
             int retained = Math.min(length, limit - count);
             int required = count + retained;
             if (required > buf.length) {
-                int doubled = (int) Math.min(2L * buf.length, limit);
-                buf = Arrays.copyOf(buf, Math.max(required, doubled));
+                int growth = (int) Math.min(limit, Math.max(READ_BUFFER_BYTES, 2L * buf.length));
+                buf = Arrays.copyOf(buf, Math.max(required, growth));
             }
             super.write(bytes, offset, retained);
             truncated |= retained < length;
@@ -417,7 +418,7 @@ public final class SubprocessExecutionSupport {
         @Override
         public void run() {
             try (InputStream stream = input) {
-                byte[] buffer = new byte[8192];
+                byte[] buffer = new byte[READ_BUFFER_BYTES];
                 int size;
                 while ((size = stream.read(buffer)) != -1) {
                     capture.write(buffer, 0, size);

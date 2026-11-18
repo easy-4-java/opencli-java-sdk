@@ -6,6 +6,19 @@ import org.junit.jupiter.api.Test;
 class SubprocessExecutionSupportTest {
 
     @Test
+    void shouldAllocateOutputStorageOnlyOnFirstNonemptyWrite() {
+        SubprocessExecutionSupport.BoundedCapture capture = new SubprocessExecutionSupport.BoundedCapture(12_000);
+        byte[] empty = new byte[0];
+        capture.write(empty, 0, empty.length);
+
+        assertEquals(0, capture.bufferCapacity());
+        capture.write(99);
+        assertEquals(1, capture.size());
+        assertEquals(99, capture.toByteArray()[0]);
+        assertEquals(8_192, capture.bufferCapacity());
+    }
+
+    @Test
     void shouldBoundBackingBufferGrowthAtTheConfiguredLimit() {
         int limit = 8_193;
         SubprocessExecutionSupport.BoundedCapture capture = new SubprocessExecutionSupport.BoundedCapture(limit);
