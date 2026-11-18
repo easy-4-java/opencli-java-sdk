@@ -207,9 +207,12 @@ public final class OpenCliBrowserDecoder {
     private static OpenCliBrowserConsoleResult readConsole(JsonNode json) {
         JsonNode reported = json.path("messages");
         validateCount(json, reported);
-        List<OpenCliBrowserConsoleResult.Message> messages = entries(reported, item ->
-            new OpenCliBrowserConsoleResult.Message(optionalText(item.path("type")), optionalText(item.path("text")),
-                text(item.path("timestamp")), item));
+        List<OpenCliBrowserConsoleResult.Message> messages = entries(reported, item -> {
+            String type = optionalText(item.path("type"));
+            String level = Objects.nonNull(type) ? type : optionalText(item.path("level"));
+            return new OpenCliBrowserConsoleResult.Message(level, optionalText(item.path("text")),
+                text(item.path("timestamp")), item);
+        });
         return new OpenCliBrowserConsoleResult(text(json.path("session")), text(json.path("captured_at")), messages, json);
     }
 
