@@ -134,7 +134,11 @@ def execute(args, root, evidence):
     xml = reports / f'TEST-{SUITE}.xml'
     xml.unlink(missing_ok=True)
     java = subprocess.run(['java', '-version'], check=True, capture_output=True, text=True)
-    maven = subprocess.run([*args.maven, '-version'], check=True, capture_output=True, text=True)
+    maven_launcher = shutil.which(args.maven[0])
+    if not maven_launcher:
+        raise RuntimeError(f'Maven launcher is unavailable: {args.maven[0]}')
+    maven_command = [maven_launcher, *args.maven[1:]]
+    maven = subprocess.run([*maven_command, '-version'], check=True, capture_output=True, text=True)
     daemon = browser = None
     with ThreadingHTTPServer(('127.0.0.1', 0), FixtureHandler) as server:
         threading.Thread(target=server.serve_forever, daemon=True).start()
@@ -148,10 +152,13 @@ def execute(args, root, evidence):
                 '--headless=new', '--no-first-run', '--no-default-browser-check',
                 '--disable-background-networking', '--disable-component-update',
                 '--disable-sync', '--remote-debugging-port=0', '--no-proxy-server',
-                '--host-resolver-rules=MAP localhost 127.0.0.1, MAP * ~NOTFOUND',
+                '--host-resolver-rules=MAP localhost 127.0.0.1',
                 '--user-data-dir=' + str(root / 'profile'),
                 '--disable-extensions-except=' + str(extension), '--load-extension=' + str(extension),
             ]
+            if sys.platform == 'linux' and os.environ.get('GITHUB_ACTIONS') == 'true':
+                # Hosted Ubuntu blocks unprivileged user namespaces for this pinned Chrome.
+                chrome_args.append('--no-sandbox')
             if sys.platform == 'darwin':
                 chrome_args.append('--use-mock-keychain')
             with (evidence / 'chrome.log').open('w') as log:
@@ -159,7 +166,7 @@ def execute(args, root, evidence):
                                            cwd=root, env=env, stdout=log, stderr=subprocess.STDOUT)
             wait_for_bridge(daemon, browser)
             with (evidence / 'maven.log').open('w') as log:
-                result = subprocess.run([*args.maven, '-B', '--no-transfer-progress', '-Dtest=OpenCliBrowserBridgeIT', 'test'],
+                result = subprocess.run([*maven_command, '-B', '--no-transfer-progress', '-Dtest=OpenCliBrowserBridgeIT', 'test'],
                                         env=env, stdout=log, stderr=subprocess.STDOUT, timeout=180)
             status = wait_for_bridge(daemon, browser)
             (evidence / 'bridge.json').write_text(json.dumps({
