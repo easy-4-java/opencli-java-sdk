@@ -185,6 +185,7 @@ cli.gemini().deepResearch("topic",
 | `remoteOutputFormat` | `json` | 向 Agent 请求的输出格式 |
 | `remoteCdpEndpoint` | — | 可选，覆盖 Agent 默认 CDP 端点 |
 | `remoteCaptureRawHttpResponse` | `false` | 在 `OpenCliResult#getRemoteRawHttpBody()` 中保留原始 HTTP 报文（大响应请谨慎开启） |
+| `maxRemoteResponseBytes` | `10485760` | HTTP 解压后的响应体字节上限，须为正数。超限抛出 `OpenCliRemoteResponseLimitException`，含 HTTP 状态和上限。原文捕获受同一上限约束。 |
 
 注意事项：
 

@@ -186,6 +186,7 @@ Configuration is object-based via `OpenCliProperties`:
 | `remoteOutputFormat` | `json` | Output format requested from the agent |
 | `remoteCdpEndpoint` | — | Optional CDP endpoint overriding the agent default |
 | `remoteCaptureRawHttpResponse` | `false` | Keep the raw HTTP body in `OpenCliResult#getRemoteRawHttpBody()` (large responses — use with care) |
+| `maxRemoteResponseBytes` | `10485760` | Positive byte limit after HTTP decompression. An oversized response raises `OpenCliRemoteResponseLimitException` with its HTTP status and limit. Raw capture only applies to accepted bodies. |
 
 Notes:
 
