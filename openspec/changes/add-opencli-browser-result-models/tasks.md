@@ -56,3 +56,7 @@ Java 17 基线 `b1d83867` 的定向测试把含重复回车的分隔行误判为
 锁定版 CLI 的 console 过滤同时识别 `type` 和 `level`。Java 17 基线 `115b0955` 在仅含 `level` 的 [CLI 输出](evidence/2026-11-19-find-console-network-analyze.md) 上返回空级别，定向测试退出 1。补齐兼容读取后，调用方通过 `getType()` 取得原级别，元数据仍保留原始键。
 
 以 `a0c66c9`、`115b0955`、`7992972` 为基线，在 Java 8、17、21 执行 `./mvnw -B -ntp clean verify`，分别通过 2224、2225、2224 项，全量零失败、零错误、零跳过。每条线均运行 5 项 `OpenCliBrowserEvidenceResultTest`，报告见 `target/surefire-reports`。
+
+## OC-BROWSER-001/002/004 真实 Browser Bridge
+
+`OpenCliBrowserBridgeIT` 使用 Chrome for Testing 158.0.8127.18、OpenCLI 1.8.8 和发布版 Browser Bridge 1.0.24，在 macOS arm64 的临时 Chrome profile 和本地测试页面上验证 open、tab list、DOM、AX 和双源对比。Java 8、17、21 各执行 1 项，零失败、零错误、零跳过。详见 [真实 Browser Bridge 验收及复跑条件](evidence/2026-11-19-real-browser-bridge.md)。
