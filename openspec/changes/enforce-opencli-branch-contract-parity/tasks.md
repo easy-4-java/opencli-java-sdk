@@ -80,3 +80,30 @@ tar -xOf opencli-1.8.8.tgz package/cli-manifest.json > cli-manifest.json
 ### OpenCLI 1.8.8 全量样本复跑
 
 [上游来源锁定](../../../src/test/resources/opencli-contracts/v1/upstream-1.8.8.lock.json) 记录 manifest 采集命令及逐项差异，以及帮助和浏览器输出的校验清单与复跑入口。使用 Node 24.18.0 和已安装的 1.8.8 包，在独立临时配置、缓存及用户目录中执行。11 份帮助、12 份浏览器叶子输出均与已归档的 stdout 逐字节相同，全部退出 0，stderr 为空。帮助包含非 JSON 输出。浏览器叶子使用真实 CLI 与隔离页面桩，真实浏览器联调证据单独见 [Browser Bridge 验收](../add-opencli-browser-result-models/evidence/2026-11-19-real-browser-bridge.md)。历史覆盖基线的升级仍须评审。
+
+### 2026-11-19 三线契约与追溯记录
+
+以下提交为本次验证输入。三条线在 macOS arm64 使用各自 Wrapper 运行 `./mvnw -B -ntp -o clean verify`。退出码均为 0，Surefire 零失败、零错误、零跳过。GitHub 链接指向同一 SHA 的独立托管运行，具体执行平台和结果以运行报告为准。
+
+| JDK | Jackson | Maven Wrapper | 验证提交 | 全量测试 | JaCoCo 行覆盖率 | 托管运行 |
+| --- | --- | --- | --- | ---: | ---: | --- |
+| 8u504 | 2.18.9 | 3.9.16 | `8da04d3fe92dfc03572e6fb1d710262753309250` | 2,240 | 3,913/4,236（92.37%） | [Intel macOS、Windows](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44399149359) |
+| 17.0.21 | 2.22.1 | 3.9.16 | `4fb8c735c38ebd6f30311d4b163a084f6cc4a377` | 2,241 | 3,908/4,227（92.45%） | [Linux 构建](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44399165709) · [契约矩阵](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44399150013) |
+| 21.0.13.0.2 | 3.2.1 | 4.0.0-rc-5 | `df3b58cb4dc24d5f270d78e889006a621b99826d` | 2,240 | 3,907/4,226（92.45%） | [两种 macOS、Windows](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44399148656) |
+
+使用 `scripts/contract_report.py` 和 Java 17 JVM 契约工作流的同一组 18 个必选套件，读取三份 `target/surefire-reports`。各线均执行枚举 10 项、argv 48 项、进程 43 项、协议 93 项、类型化结果 16 项，各层零跳过。真实 CLI 层在本地全量报告中为 `NOT_RUN`。本地全量和托管平台分别核对，实际 OpenCLI 安装版、Browser Bridge 和服务端能力以各变化的专项证据为准。各线也通过了三份样本清单的 30 项 SHA-256 校验。
+
+| 规格 | 可回查的测试与范围 |
+| --- | --- |
+| [C01](../harden-opencli-argv-contract/tasks.md) OC-ARGV-001–005 | `OpenCliArgvContractTest`、`OpenCliStructuredArgvContractTest`。子进程实际观察 argv，包括空字符串、有序重复选项、显式 false、分隔符以及拒绝非法组合。完整差异的合入评审仍开放。 |
+| [C02](../harden-opencli-process-lifecycle/tasks.md) OC-PROC-001–006 | `OpenCliProcessContractTest`、`OpenCliProcessBoundaryTest`、`SubprocessCleanupFaultTest`、`SubprocessCompletionRaceTest`、`SubprocessStreamFailureTest` 及 `SubprocessExecutionSupportTest`。覆盖取消、超限、等待、清理不确定性、迟到的读取失败和旧输出流兼容。真实 Browser Bridge 的有界 follow 见 C02 的专项记录。未知后代的回收边界仍开放。 |
+| [C03](../preserve-opencli-error-envelope/tasks.md) OC-ERR-001–006 | `OpenCliErrorEnvelopeTest`。覆盖 YAML、JSON、未知字段、退出来源、畸形输入、原始 stderr 以及主失败和禁止重复写操作的行为。 |
+| [C04](../harden-opencli-remote-collect/tasks.md) OC-REMOTE-001–006 | `OpenCliRemoteAgentHttpClientTest`。回环 HTTP/TLS 验证转换拒绝、响应预算、超时、认证与异常字符集，保留实际 HTTP 状态。远端扩展需要独立的服务端契约。 |
+| [C05](../harden-opencli-reverse-agent/tasks.md) OC-WS-001–006 | `OpenCliWsReverseAgentSessionTest`、`OpenCliWsCollectRequestsTest`。本地 WS 夹具覆盖注册门限、限流、去重、代际和关闭。 |
+| [C06](../add-opencli-capability-discovery/tasks.md) OC-CAP-001–006 | `OpenCliStructuredHelpFixtureTest`、`OpenCliHelpParserTest`、`OpenCliCapabilityDiscoveryTest`、`OpenCliCapabilityCommandTest`。覆盖真实帮助样本、scope、会话占位、快照和有界探测。真实覆盖范围以 C06 样本和运行时证据为准。 |
+| [C07](../add-opencli-browser-result-models/tasks.md) OC-BROWSER-001–006 | `OpenCliBrowserResultTest`、`OpenCliBrowserEvidenceResultTest`。覆盖声明的叶子、透明字段、大 ID、严格失败、AX 选项和旧返回类型。真实浏览器验证见 C07 的 Bridge 证据。 |
+| [C08](../add-opencli-context-and-diagnostics/tasks.md) OC-CTX-001–006 | `OpenCliInvocationContextTest`、`OpenCliDiagnosticsTest`。覆盖并发调用隔离、scope、诊断未知状态、只读动作和 sitemap 数据边界。 |
+| [C09](../harden-opencli-diagnostics-privacy/tasks.md) OC-PRIV-001–006 | `OpenCliProcessPrivacyTest`、`OpenCliDiagnosticExportTest`、`OpenCliErrorEnvelopeTest`、HTTP/WS 回归。覆盖已登记的日志、异常链和有界导出标记。完整日志点清册及其评审仍开放。 |
+| [C10](specs/opencli-branch-contract-parity/spec.md) OC-PARITY-001–006 | 上述精确 SHA、分支工具链矩阵、清单校验、分层报告及历史真实执行记录。OpenSpec strict 校验只证明规格有效。最终验收依据第 3 节。 |
+
+Java 17 的独立定向评审以 `c6d544638e44dba3c53ec3e5a6f65f2f20a16340` 的 SDK 源码为准。基线已编译的调用方可链接旧签名、读取并修改有界输出视图。该视图的后续写入不会改变原执行证据。独立探针确认读取异常与子进程退出同时发生时保留 `IO_FAILURE`，以及 HTTP 200/503 遇到无效字符集时分别保留协议失败及 HTTP 失败。Java 17 本次验证提交在该源码之上增加 CI 和规格记录。此次复审只覆盖这些具体修复，最终全量评审和归档仍开放。
