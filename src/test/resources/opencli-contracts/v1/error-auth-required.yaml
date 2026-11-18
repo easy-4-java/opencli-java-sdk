@@ -1,0 +1,6 @@
+ok: false
+error:
+  code: AUTH_REQUIRED
+  message: Not logged in to example.invalid
+  help: Please open Chrome or Chromium and log in to https://example.invalid
+  exitCode: 77
