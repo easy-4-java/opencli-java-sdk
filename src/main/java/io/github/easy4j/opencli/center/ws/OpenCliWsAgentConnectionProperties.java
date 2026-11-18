@@ -59,6 +59,12 @@ public class OpenCliWsAgentConnectionProperties {
      */
     private String nodeType = "shell";
 
+    /** 并行执行的 collect 任务上限，必须为正数。 */
+    private int maxConcurrentCollects = 4;
+
+    /** 排队的 collect 任务上限，零表示没有等待队列。 */
+    private int maxPendingCollects = 32;
+
     /**
      * 首次 {@code registered} 应答等待上限（毫秒）。
      */
