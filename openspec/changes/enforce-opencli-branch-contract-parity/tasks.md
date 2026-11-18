@@ -114,3 +114,10 @@ Java 17 的独立定向评审以 `c6d544638e44dba3c53ec3e5a6f65f2f20a16340` 的 
 独立于全量构建，使用已从 npm 取得的 OpenCLI 1.8.8 和 Node 24.18.0，运行 `OpenCliCapabilityOverrideIT` 与 `OpenCliReadOnlyDiagnosticsIT`。Java 8 和 21 使用上表验证提交，Java 17 使用 `c4a6646b9c8592bfae17cc641c74e031f4bcb7f4`，其 SDK 源码与上表一致。三线各自使用 Wrapper，旧 Surefire 报告先移出测试目录。每线真实执行层均为 `PASS`，各执行 2 项，零失败、零错误、零跳过，命令和报告退出 0。范围为隔离的插件发现及只读诊断。
 
 用各线报告的独立副本做两项反例。移除 `OpenCliReadOnlyDiagnosticsIT` 报告时，该套件出现在 `missingSuites`。保留报告文件但将实测用例数置零时，该套件出现在 `unprovenSuites`。六次报告均在另一套件通过且 Maven 退出 0 的输入下返回 `FAIL`，报告命令退出 1。报告以必选套件和执行层分别判定。平台覆盖和最终集成验收继续按第 3 节执行。
+
+
+### OC-PARITY-003 能力发现的必选报告
+
+独立评审确认 GitHub 的 JVM 报告漏列 `OpenCliCapabilityDiscoveryTest` 和 `OpenCliCapabilityCommandTest`。用原工作流的四组报告参数逐一重放，任一个能力套件的 XML 缺失、零用例或全跳过时，24 个反例仍返回成功。
+
+三线平台作业现在显式运行两个套件，在枚举层登记 DiscoveryTest，在 argv 层登记 CommandTest。Java 17 的完整 JVM 报告也登记这两个套件。使用现有 Surefire 结果重放更新后的四组参数，完整报告均退出 0，24 个反例均退出 1，准确标识缺失或未执行的套件。各线的报告脚本回归均通过 17 项。
