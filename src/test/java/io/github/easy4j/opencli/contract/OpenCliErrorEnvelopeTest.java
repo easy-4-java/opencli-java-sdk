@@ -2,6 +2,10 @@ package io.github.easy4j.opencli.contract;
 
 import io.github.easy4j.opencli.OpenCliClient;
 import io.github.easy4j.opencli.OpenCliProperties;
+import io.github.easy4j.opencli.browser.OpenCliBrowserSession;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserDecoder;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserResult;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserTab;
 import io.github.easy4j.opencli.core.OpenCliResult;
 import io.github.easy4j.opencli.exception.OpenCliNonZeroExitException;
 import io.github.easy4j.opencli.exception.OpenCliTimeoutException;
@@ -16,6 +20,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Scanner;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -114,6 +119,27 @@ class OpenCliErrorEnvelopeTest {
     }
 
     @Test
+    void typedBrowserListPreservesProcessFailureEvenWithAnEmptyArray(@TempDir Path temp) throws Exception {
+        Path marker = temp.resolve("browser-commands");
+        try (OpenCliClient client = new OpenCliClient(child(marker))) {
+            OpenCliBrowserSession session = new OpenCliBrowserSession(client.getExecutor(), "fixture", null);
+            OpenCliNonZeroExitException failure = assertThrows(OpenCliNonZeroExitException.class, session::tabListTyped);
+            OpenCliResult raw = failure.getPartialResult();
+            OpenCliBrowserResult<List<OpenCliBrowserTab>> decoded = OpenCliBrowserDecoder.tabList(raw);
+
+            assertEquals("[]", raw.getStdout());
+            assertEquals(Integer.valueOf(1), raw.getExitCode());
+            assertEquals("BROWSER_FIXTURE", raw.getErrorEnvelope().getCode());
+            assertEquals(Integer.valueOf(77), raw.getErrorEnvelope().getReportedExit());
+            assertEquals("missing-fixture.json", raw.getErrorEnvelope().getTrace().get("summaryPath"));
+            assertSame(raw, decoded.getRaw());
+            assertEquals(OpenCliBrowserResult.Status.EXECUTION_FAILED, decoded.getStatus());
+            assertNull(decoded.getValue());
+        }
+        assertEquals(Collections.singletonList("fixture tab list"), Files.readAllLines(marker, StandardCharsets.UTF_8));
+    }
+
+    @Test
     void incompleteTimeoutKeepsPrimaryFailure(@TempDir Path temp) {
         OpenCliProperties properties = child(temp.resolve("unused"));
         properties.setCommandTimeoutMillis(2_000);
@@ -158,6 +184,15 @@ class OpenCliErrorEnvelopeTest {
                     Files.write(Paths.get(args[0]), Collections.singletonList("attempt"), StandardOpenOption.CREATE,
                         StandardOpenOption.APPEND);
                     System.err.print(fixture("empty-result-autofix"));
+                    System.exit(1);
+                    break;
+                case "browser":
+                    Files.write(Paths.get(args[0]),
+                        Collections.singletonList(String.join(" ", Arrays.copyOfRange(args, 2, args.length))),
+                        StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+                    System.out.print("[]");
+                    System.err.print("ok: false\nerror: {code: BROWSER_FIXTURE, message: failed, exitCode: 77}\n"
+                        + "trace: {summaryPath: missing-fixture.json}\n");
                     System.exit(1);
                     break;
                 case "malformed":
