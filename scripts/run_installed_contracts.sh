@@ -39,11 +39,16 @@ fi
 
 java -version > "$report_dir/installed-java.txt" 2>&1
 "$@" -version > "$report_dir/installed-maven.txt" 2>&1
+reports=target/surefire-reports
+if [[ -d "$reports" ]]; then
+  prior_reports=$(mktemp -d "$report_dir/pre-install-surefire.XXXXXX")
+  mv "$reports" "$prior_reports/"
+fi
 result=0
 "$@" -B --no-transfer-progress "-Dtest=$tests" test > "$report_dir/installed-maven.log" 2>&1 || result=$?
 tail -80 "$report_dir/installed-maven.log"
 python scripts/contract_report.py \
-  --reports target/surefire-reports \
+  --reports "$reports" \
   --head "$(git rev-parse HEAD)" \
   --branch "${GITHUB_REF_NAME:-$(git branch --show-current)}" \
   --java-version-file "$report_dir/installed-java.txt" \

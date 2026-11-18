@@ -1,6 +1,10 @@
 import importlib.util
 import json
+import os
 import pathlib
+import shutil
+import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -113,6 +117,51 @@ class ContractReportTest(unittest.TestCase):
         path = self.root / ('TEST-' + SUITE + '.xml')
         path.write_text(path.read_text().replace('</testcase>', '<failure/></testcase>', 1), encoding='utf-8')
         self.assertEqual('FAIL', self.report()['status'])
+
+
+class InstalledContractsTest(unittest.TestCase):
+    def test_existing_reports_do_not_prove_an_invocation_that_executed_no_tests(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            bin_dir = root / 'bin'
+            bin_dir.mkdir()
+            scripts = root / 'scripts'
+            scripts.mkdir()
+            runner = SCRIPT.with_name('run_installed_contracts.sh')
+            for script in (SCRIPT, runner):
+                shutil.copy(script, scripts)
+            reports = root / 'target' / 'surefire-reports'
+            reports.mkdir(parents=True)
+            names = ['OpenCliCapabilityOverrideIT', 'OpenCliReadOnlyDiagnosticsIT']
+            for name in names:
+                (reports / ('TEST-' + name + '.xml')).write_text(
+                    '<testsuite name="io.github.easy4j.opencli.contract.' + name + '" tests="1">'
+                    '<testcase name="previousRun"/></testsuite>', encoding='utf-8')
+
+            commands = {
+                'npm': 'exit 0',
+                'node': 'case "$1" in --version) echo v24.18.0;; -p) echo /fixture/node;; *) echo 1.8.8;; esac',
+                'java': 'echo fixture-jdk',
+                'mvn': 'if [[ "$1" == -version ]]; then echo fixture-maven; fi',
+                'git': 'echo ' + HEAD,
+                'python': 'exec "$OPENCLI_TEST_PYTHON" "$@"',
+            }
+            for name, body in commands.items():
+                command = bin_dir / name
+                command.write_text('#!/usr/bin/env bash\n' + body + '\n', encoding='utf-8')
+                command.chmod(0o755)
+
+            env = dict(os.environ, PATH=str(bin_dir) + os.pathsep + os.environ['PATH'],
+                       RUNNER_OS='Linux', RUNNER_TEMP=directory, GITHUB_REF_NAME='feature/2.0.x',
+                       OPENCLI_TEST_PYTHON=sys.executable)
+            result = subprocess.run(['bash', 'scripts/run_installed_contracts.sh', 'mvn'],
+                                    cwd=root, env=env, capture_output=True, text=True, timeout=15)
+            report = json.loads((root / 'platform-evidence' / 'installed-report.json').read_text(encoding='utf-8'))
+            self.assertEqual(1, result.returncode, result.stdout + result.stderr)
+            self.assertEqual('FAIL', report['layers']['real-execution']['status'])
+            self.assertEqual(0, report['layers']['real-execution']['executed'])
+            archived = list((root / 'platform-evidence').glob('pre-install-surefire.*/surefire-reports/TEST-*.xml'))
+            self.assertCountEqual(['TEST-' + name + '.xml' for name in names], [p.name for p in archived])
 
 
 if __name__ == '__main__':
