@@ -46,4 +46,7 @@ public class OpenCliResult {
      * 远端 Agent HTTP 响应全文；本地子进程模式或非调试场景下为 null。
      */
     private final String remoteRawHttpBody;
+
+    /** Bounded local execution evidence, when available. */
+    private final OpenCliExecutionDetails executionDetails;
 }

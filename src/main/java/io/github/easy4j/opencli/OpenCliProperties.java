@@ -126,10 +126,20 @@ public class OpenCliProperties {
         c.setWorkingDirectory(this.workingDirectory);
         c.setCommandTimeoutMillis(this.commandTimeoutMillis);
         c.setMaxConcurrentExecutions(this.maxConcurrentExecutions);
+        c.setMaxStdoutBytes(this.maxStdoutBytes);
+        c.setMaxStderrBytes(this.maxStderrBytes);
+        c.setCleanupGraceMillis(this.cleanupGraceMillis);
         c.setStartupProbeTimeoutMillis(this.startupProbeTimeoutMillis);
         c.setLeadingArguments(new ArrayList<>(this.leadingArguments));
         c.setEnvironment(new LinkedHashMap<>(this.environment));
         c.setExecutionTarget(OpenCliExecutionTarget.LOCAL_PROCESS);
         return c;
     }
+
+    /** Maximum stdout bytes captured per invocation. */
+    private int maxStdoutBytes = 8 * 1024 * 1024;
+    /** Maximum stderr bytes captured per invocation. */
+    private int maxStderrBytes = 2 * 1024 * 1024;
+    /** Maximum time to wait for owned resources after execution ends. */
+    private long cleanupGraceMillis = 5_000L;
 }
