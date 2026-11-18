@@ -20,6 +20,7 @@ import io.github.easy4j.opencli.adapter.publicapi.wikipedia.WikipediaOpenCliClie
 import io.github.easy4j.opencli.browser.OpenCliBrowserClient;
 import io.github.easy4j.opencli.capability.OpenCliCapabilityDiscovery;
 import io.github.easy4j.opencli.capability.OpenCliCapabilitySnapshot;
+import io.github.easy4j.opencli.capability.OpenCliDiagnostics;
 import io.github.easy4j.opencli.capability.OpenCliHelpScope;
 import io.github.easy4j.opencli.core.OpenCliAdapterChannel;
 import io.github.easy4j.opencli.meta.OpenCliMetaClient;
@@ -89,6 +90,14 @@ import lombok.Getter;
      */
     public OpenCliAdapterChannel adapter(String adapterId) {
         return new OpenCliAdapterChannel(executor, adapterId);
+    }
+
+    /**
+     * Checks the configured local executable and version without starting runtime discovery.
+     * @return independent observations and the evidence used for each check
+     */
+    public OpenCliDiagnostics diagnose() {
+        return capabilityDiscovery.diagnose();
     }
 
     /**

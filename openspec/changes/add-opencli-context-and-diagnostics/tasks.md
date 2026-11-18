@@ -12,13 +12,13 @@
 ## 2. 增量API
 
 - [ ] 2.1 实现不可变context与优先级合并，复用原meta/auth/skills入口。
-- [ ] 2.2 实现per-check只读诊断，审计每个probe副作用；不能确认时保留unknown。
-- [ ] 2.3 保留sitemap raw/optional metadata，不自动访问overlay或trace文件。
+- [x] 2.2 实现per-check只读诊断，审计每个probe副作用；不能确认时保留unknown。
+- [x] 2.3 保留sitemap raw/optional metadata，不自动访问overlay或trace文件。
 
 ## 3. 边界评审
 
-- [ ] 3.1 证明诊断不会执行login/refresh/restart/install/profile use等变更操作。
-- [ ] 3.2 更新DEFERRED清单，移除未经证实的pipelineCLI/单进程承诺。
+- [x] 3.1 证明诊断不会执行login/refresh/restart/install/profile use等变更操作。
+- [x] 3.2 更新DEFERRED清单，移除未经证实的pipelineCLI/单进程承诺。
 - [ ] 3.3 三线验证上下文与诊断状态一致，并在指南中给出明确的只读使用示例。
 
 ## 证据交付模板（实施时填写）
@@ -38,3 +38,10 @@
 Java 17 基线 `2eb97e49` 的独立 JVM 定向测试在帮助探测暂停期间替换调用者列表的元素，原实现随后执行了新参数，测试退出 1。修复后，在启动探测前固定位置参数，继续由绑定器根据观测到的 schema 校验。本次执行使用初始值。
 
 以 `68c5b19`、`2eb97e49`、`5a464a3` 为基线加入修复，在 Java 8、17、21 执行 `./mvnw -B -ntp clean verify`，全量分别通过 2228、2229、2228 项。每条线均执行 15 项发现测试和 3 项上下文测试，零失败、零错误、零跳过。报告见 `target/surefire-reports`。
+
+
+## OC-CTX-003/004/005/006 只读诊断
+
+`diagnose()` 独立报告可执行文件、版本、历史帮助、Browser Bridge、认证、daemon 和远端传输。历史帮助有来源和观察时刻，配置或版本不匹配时保持 UNKNOWN。远端只读诊断跳过本机命令并保持传输未验证。三个本地运行时状态无法确认只读探测，保持 UNKNOWN。见 [只读边界与集成验证](evidence/2026-11-19-read-only-diagnostics.md)。
+
+`OpenCliDiagnosticsTest` 初始缺少公开 API，编译失败。实现后回归记录只运行 `--version`，并验证显式发现的历史证据不提升为当前健康。已发布 CLI 的 opt-in `OpenCliReadOnlyDiagnosticsIT` 区分版本探测与执行启动钩子的显式帮助。报告位于 `target/surefire-reports`。
