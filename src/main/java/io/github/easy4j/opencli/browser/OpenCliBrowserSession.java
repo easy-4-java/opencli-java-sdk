@@ -1,6 +1,10 @@
 package io.github.easy4j.opencli.browser;
 
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserAnalysisResult;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserConsoleResult;
 import io.github.easy4j.opencli.browser.result.OpenCliBrowserDecoder;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserFindResult;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserNetworkResult;
 import io.github.easy4j.opencli.browser.result.OpenCliBrowserOpenResult;
 import io.github.easy4j.opencli.browser.result.OpenCliBrowserResult;
 import io.github.easy4j.opencli.browser.result.OpenCliBrowserSnapshot;
@@ -302,6 +306,19 @@ public final class OpenCliBrowserSession {
     }
 
     /**
+     * @param tab optional target tab
+     * @param options one-shot console collection options
+     * @return strict console capture
+     */
+    public OpenCliBrowserResult<OpenCliBrowserConsoleResult> consoleTyped(OpenCliBrowserTabOptions tab,
+        OpenCliBrowserConsoleOptions options) {
+        if (Objects.nonNull(options) && Boolean.TRUE.equals(options.getFollow())) {
+            throw new IllegalArgumentException("Use the raw console API for --follow");
+        }
+        return OpenCliBrowserDecoder.console(console(tab, options));
+    }
+
+    /**
      * @deprecated 使用 {@link #console(OpenCliBrowserTabOptions, OpenCliBrowserConsoleOptions)}；
      *     CLI 无 {@code --limit}
      */
@@ -323,6 +340,15 @@ public final class OpenCliBrowserSession {
     }
 
     /**
+     * @param url requested analysis URL
+     * @param tab optional target tab
+     * @return strict analysis observation
+     */
+    public OpenCliBrowserResult<OpenCliBrowserAnalysisResult> analyzeTyped(String url, OpenCliBrowserTabOptions tab) {
+        return OpenCliBrowserDecoder.analyze(analyze(url, tab));
+    }
+
+    /**
      * {@code browser find}，对齐 {@code --css}、{@code --limit}、{@code --text-max}。
      */
     public OpenCliResult find(
@@ -336,6 +362,17 @@ public final class OpenCliBrowserSession {
         }
         appendTabAndLocator(args, tab, locator);
         return invokeSub(args);
+    }
+
+    /**
+     * @param locator optional semantic locator
+     * @param tab optional target tab
+     * @param options selector and entry limits
+     * @return strict selector matches
+     */
+    public OpenCliBrowserResult<OpenCliBrowserFindResult> findTyped(OpenCliBrowserSemanticLocator locator,
+        OpenCliBrowserTabOptions tab, OpenCliBrowserFindOptions options) {
+        return OpenCliBrowserDecoder.find(find(locator, tab, options));
     }
 
     /**
@@ -749,6 +786,20 @@ public final class OpenCliBrowserSession {
             options.appendTo(args);
         }
         return invokeSub(args);
+    }
+
+    /**
+     * @param options one-shot network listing options
+     * @param tab optional target tab
+     * @return strict network capture
+     */
+    public OpenCliBrowserResult<OpenCliBrowserNetworkResult> networkTyped(OpenCliBrowserNetworkOptions options,
+        OpenCliBrowserTabOptions tab) {
+        if (Objects.nonNull(options) && (Boolean.TRUE.equals(options.getFollow())
+            || Objects.nonNull(options.getDetailKey()))) {
+            throw new IllegalArgumentException("Use the raw network API for --follow or --detail");
+        }
+        return OpenCliBrowserDecoder.network(network(options, tab));
     }
 
     /** {@code browser init <site/command>} */

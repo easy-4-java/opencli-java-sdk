@@ -32,3 +32,7 @@
 ## OC-BROWSER-001/002/004 state 与 AX
 
 `OpenCliBrowserResultTest` 在缺少 state 类型模型和门面入口时无法编译。实现后验收 DOM 与 AX 文本、对比 JSON、单侧失败、无法识别的输出及 typed null source 拒绝。原有 String source 和 compareSources 继续由既有 Options 传递。见 [四份上游入口样本](evidence/2026-11-19-state-dom-and-ax.md)。
+
+## OC-BROWSER-001/002/003/005 find、console、network 与 analyze
+
+`OpenCliBrowserEvidenceResultTest` 首先因缺少模型和门面而无法编译。实现后验收有限的 find 条目、整数 ref 保真、采集 count 与数组一致性、分析扩展信息和原有执行失败。流式采集及网络详情在 typed 入口启动前拒绝，保留 raw 方法。见 [输出证据、支持表和迁移方式](evidence/2026-11-19-find-console-network-analyze.md)。

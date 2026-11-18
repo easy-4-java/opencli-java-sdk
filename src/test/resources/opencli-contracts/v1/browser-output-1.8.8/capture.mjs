@@ -9,7 +9,11 @@ const browserDir = path.join(path.dirname(process.argv[1]), 'browser');
 const { BrowserBridge } = await import(pathToFileURL(path.join(browserDir, 'index.js')));
 const { buildAxSnapshot } = await import(pathToFileURL(path.join(browserDir, 'ax-snapshot.js')));
 if (process.env.OPENCLI_FIXTURE_FIXED_CLOCK === '1') {
-  Date.now = () => 1735689600000;
+  const OriginalDate = Date;
+  globalThis.Date = class extends OriginalDate {
+    constructor(...args) { super(...(args.length ? args : [1735689600000])); }
+    static now() { return 1735689600000; }
+  };
 }
 const resultUrl = 'http://127.0.0.1:18765/basic.html';
 BrowserBridge.prototype.connect = async ({ session }) => {
@@ -33,6 +37,37 @@ BrowserBridge.prototype.connect = async ({ session }) => {
         { nodeId: '1', role: { value: 'RootWebArea' }, childIds: ['2'] },
         { nodeId: '2', backendDOMNodeId: 22, role: { value: 'button' }, name: { value: 'Continue' } },
       ] }).text;
+    },
+    async consoleMessages() {
+      return [{ type: 'warning', text: 'Fixture warning', timestamp: 1735689600000 }];
+    },
+    async readNetworkCapture() {
+      return [{
+        url: 'http://127.0.0.1:18765/api/items',
+        method: 'GET',
+        responseStatus: 200,
+        responseContentType: 'application/json',
+        responsePreview: '{"items":[{"id":17,"name":"Fixture"}]}',
+        timestamp: 1735689600000,
+      }];
+    },
+    async getCookies() { return []; },
+    async evaluate(script) {
+      if (script.includes('cookieNames:')) {
+        return {
+          cookieNames: [],
+          initialState: { __INITIAL_STATE__: false, __NUXT__: false, __NEXT_DATA__: false, __APOLLO_STATE__: false },
+          title: 'Fixture page',
+          finalUrl: resultUrl,
+        };
+      }
+      if (script.includes('document.querySelectorAll')) {
+        return {
+          matches_n: 2,
+          entries: [{ nth: 0, ref: 17, tag: 'button', role: 'button', text: 'Continue', attrs: { id: 'fixture' }, visible: true }],
+        };
+      }
+      throw new Error('Unexpected evaluation');
     },
     async startNetworkCapture() { return true; },
     async goto(url) { if (url !== resultUrl) throw new Error('Unexpected fixture URL'); },
