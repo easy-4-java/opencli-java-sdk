@@ -6,9 +6,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.easy4j.opencli.OpenCliProperties;
 import io.github.easy4j.opencli.contract.ContractProbe;
 import io.github.easy4j.opencli.contract.LifecycleProbe;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -26,6 +28,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import javax.net.ssl.KeyManagerFactory;
@@ -106,9 +109,11 @@ class OpenCliWsReverseAgentSessionTest {
             try (OpenCliWsReverseAgentClient agent = new OpenCliWsReverseAgentClient(probe(ContractProbe.class.getName()), connection)) {
                 agent.start();
                 WireMessage registration = center.receive("register");
+                assertEquals(5, registration.body.size());
                 assertEquals(AGENT_URL, registration.body.path("agent_url").asText());
                 assertEquals("cdp", registration.body.path("mode").asText());
                 assertEquals("shell", registration.body.path("node_type").asText());
+                assertTrue(registration.body.path("label").isTextual());
                 assertTrue(registration.body.path("label").asText().isEmpty());
 
                 registration.socket.send("{\"type\":\"registered\"}");
@@ -116,7 +121,7 @@ class OpenCliWsReverseAgentSessionTest {
                 registration.socket.send("malformed-json");
                 registration.socket.send("{\"type\":\"pong\"}");
                 registration.socket.send("{\"type\":\"ping\"}");
-                center.receive("pong");
+                assertEquals(1, center.receive("pong").body.size());
 
                 registration.socket.send("{\"type\":\"collect\",\"request_id\":\"valid\","
                     + "\"site\":\"demo\",\"command\":\"echo\",\"format\":\"text\","
@@ -124,6 +129,7 @@ class OpenCliWsReverseAgentSessionTest {
                     + "\"flag\":null,\"boolean\":false,\"count\":7,\"long\":2147483648,"
                     + "\"double\":1.5,\"text\":\"a b\",\"structured\":{\"key\":1}}}");
                 JsonNode result = center.receive("result").body;
+                assertEquals(5, result.size());
                 assertEquals("valid", result.path("request_id").asText());
                 assertTrue(result.path("success").asBoolean());
                 assertTrue(result.path("error").isNull());
@@ -137,6 +143,7 @@ class OpenCliWsReverseAgentSessionTest {
 
                 registration.socket.send("{\"type\":\"collect\",\"request_id\":\"invalid\",\"command\":\"echo\"}");
                 JsonNode invalid = center.receive("result").body;
+                assertEquals(5, invalid.size());
                 assertEquals("invalid", invalid.path("request_id").asText());
                 assertFalse(invalid.path("success").asBoolean());
                 assertTrue(invalid.path("items").isEmpty());
@@ -471,8 +478,9 @@ class OpenCliWsReverseAgentSessionTest {
         verifyReconnectReplay(temporary, null, false);
     }
 
-    @Test
-    void verifiedTlsReconnectReplaysOnlyAfterAnExplicitRetry(@TempDir Path temporary) throws Exception {
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void verifiedTlsReconnectReplaysOnlyAfterAnExplicitRetry(boolean failDelivery, @TempDir Path temporary) throws Exception {
         Path storePath = temporary.resolve("center.p12");
         String keytool = System.getProperty("os.name").startsWith("Windows") ? "keytool.exe" : "keytool";
         Path tool = Paths.get(System.getProperty("java.home"), "bin", keytool);
@@ -503,10 +511,62 @@ class OpenCliWsReverseAgentSessionTest {
         SSLContext previous = SSLContext.getDefault();
         try {
             SSLContext.setDefault(trustedClient);
-            verifyReconnectReplay(temporary, server, true);
+            if (failDelivery) {
+                verifyFailedDeliveryReplay(temporary, server);
+            } else {
+                verifyReconnectReplay(temporary, server, true);
+            }
         } finally {
             SSLContext.setDefault(previous);
         }
+    }
+
+    private static void verifyFailedDeliveryReplay(Path temporary, SSLContext tls) throws Exception {
+        Path marker = temporary.resolve("delivery-start");
+        Path release = Files.createFile(temporary.resolve("delivery-release"));
+        ObjectNode request = collect("delivery", "count-hold", marker);
+        request.putArray("positional_args").add(release.toString());
+        String canary = "delivery-exception-private-canary";
+        AtomicBoolean firstSend = new AtomicBoolean(true);
+        ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+        PrintStream previousErr = System.err;
+        try (LocalCenter center = new LocalCenter(tls);
+             OpenCliWsReverseAgentClient agent = new OpenCliWsReverseAgentClient(
+                 probe(LifecycleProbe.class.getName()), center.agentProperties(), (socket, json) -> {
+                     if (firstSend.getAndSet(false)) {
+                         throw new IllegalStateException(canary);
+                     }
+                     socket.send(json);
+                 });
+             PrintStream capture = new PrintStream(diagnostics, true, "UTF-8")) {
+            System.setErr(capture);
+            try {
+                agent.start();
+                WebSocket first = center.receive("register").socket;
+                first.send("{\"type\":\"registered\"}");
+                first.send(request.toString());
+
+                WebSocket second = center.receive("register").socket;
+                assertNotSame(first, second);
+                second.send("{\"type\":\"registered\"}");
+                second.send("{\"type\":\"ping\"}");
+                center.receive("pong");
+                assertEquals(Arrays.asList("started"), Files.readAllLines(marker, StandardCharsets.UTF_8));
+
+                second.send(request.toString());
+                JsonNode replayed = center.receive("result").body;
+                assertEquals("delivery", replayed.path("request_id").asText());
+                assertTrue(replayed.path("success").asBoolean());
+                assertTrue(replayed.path("cached").asBoolean());
+                assertTrue(replayed.path("error").isNull());
+                assertEquals(Arrays.asList("started"), Files.readAllLines(marker, StandardCharsets.UTF_8));
+            } finally {
+                System.setErr(previousErr);
+            }
+        }
+        String logText = diagnostics.toString(StandardCharsets.UTF_8.name());
+        assertTrue(logText.contains("failed to send WS result"));
+        assertFalse(logText.contains(canary));
     }
 
     private static void verifyReconnectReplay(Path temporary, SSLContext tls, boolean expectCache) throws Exception {

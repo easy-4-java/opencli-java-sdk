@@ -32,6 +32,7 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 import lombok.extern.slf4j.Slf4j;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft_6455;
@@ -62,6 +63,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
     private static final long CLOSE_WAIT_NANOS = TimeUnit.SECONDS.toNanos(5);
 
     private final OpenCliExecutor localExecutor;
+    private final BiConsumer<WebSocketClient, String> resultSender;
 
     private final OpenCliWsAgentConnectionProperties connectionProperties;
 
@@ -85,6 +87,12 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
      */
     public OpenCliWsReverseAgentClient(
         OpenCliProperties openCliProperties, OpenCliWsAgentConnectionProperties connectionProperties) {
+        this(openCliProperties, connectionProperties, WebSocketClient::send);
+    }
+
+    OpenCliWsReverseAgentClient(OpenCliProperties openCliProperties,
+        OpenCliWsAgentConnectionProperties connectionProperties, BiConsumer<WebSocketClient, String> resultSender) {
+        this.resultSender = Objects.requireNonNull(resultSender, "resultSender");
         Objects.requireNonNull(openCliProperties, "openCliProperties");
         this.connectionProperties =
             Objects.requireNonNull(connectionProperties, "connectionProperties");
@@ -454,7 +462,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
         }
     }
 
-    private void admitCollect(WebSocketClient ws, Object centerIdentity, String requestId, JsonNode payload)
+    private void admitCollect(WorkerSession ws, Object centerIdentity, String requestId, JsonNode payload)
         throws Exception {
         OpenCliWsCollectRequests.Key key = new OpenCliWsCollectRequests.Key(centerIdentity, requestId);
         byte[] digest = MessageDigest.getInstance("SHA-256").digest(MAPPER.writeValueAsBytes(payload));
@@ -499,13 +507,13 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
     }
 
     private final class CollectTask implements Runnable {
-        private final WebSocketClient socket;
+        private final WorkerSession socket;
         private final OpenCliWsCollectRequests.Key key;
         private final JsonNode message;
         private final long epoch;
         private final OpenCliCancellationToken cancellation = new OpenCliCancellationToken();
 
-        CollectTask(WebSocketClient socket, OpenCliWsCollectRequests.Key key, JsonNode message, long epoch) {
+        CollectTask(WorkerSession socket, OpenCliWsCollectRequests.Key key, JsonNode message, long epoch) {
             this.socket = socket;
             this.key = key;
             this.message = message;
@@ -620,11 +628,13 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
         return out;
     }
 
-    private static void sendResult(WebSocketClient ws, ObjectNode result) {
+    private void sendResult(WorkerSession ws, ObjectNode result) {
         try {
-            ws.send(MAPPER.writeValueAsString(result));
+            resultSender.accept(ws, MAPPER.writeValueAsString(result));
         } catch (Exception e) {
             log.error("failed to send WS result");
+            ws.retire(e);
+            closeSession(ws);
         }
     }
 }
