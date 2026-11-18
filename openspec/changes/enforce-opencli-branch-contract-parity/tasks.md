@@ -7,7 +7,7 @@
 ## 1. 基础阶段可先行
 
 - [ ] 1.1 记录三个精确HEAD和允许差异矩阵，确定first-implementation分支经评审认可。
-- [ ] 1.2 建立共享contractfixture目录、来源lock与测试runner，复用现有coverage而不删除其它测试。
+- [x] 1.2 建立共享contractfixture目录、来源lock与测试runner，复用现有coverage而不删除其它测试。
 - [ ] 1.3 定义完整argv/协议/typed/live分层报告，加入0测试和missingreport失败规则。
 
 ## 2. 上游与文档
@@ -19,7 +19,7 @@
 ## 3. 最终集成门禁
 
 - [ ] 3.1 在C01–C09选定实现完成后，分别在三线执行全部对应正负fixtures，记录HEAD与真实退出结果。
-- [ ] 3.2 运行官方OpenSpec逐Change与all strict校验，保存CLI版本和报告；环境失败保持NOT_RUN。
+- [x] 3.2 运行官方OpenSpec逐Change与all strict校验，保存CLI版本和报告；环境失败保持NOT_RUN。
 - [ ] 3.3 核对Requirement到测试/commit的闭环并进行独立代码评审，才允许勾选和archive。
 - [ ] 3.4 提交/推送/PR/发布仅在用户明确授权时执行；观察实际CI，不承诺未发生的远端结果。
 
@@ -56,3 +56,11 @@ JVM 和平台报告显式登记错误报文、浏览器 typed 结果、上下文
 在 `6da93d05` 用两个旧的通过报告和一个成功退出但未执行测试的 Maven 替身复现错误通过。安装契约脚本现在在启动 Maven 前将已有 Surefire 报告归档到 `platform-evidence/pre-install-surefire.*`，本次门禁只读取重新生成的 `target/surefire-reports`。回归中真实执行层从错误的 `PASS` 改为 `FAIL`，执行数为 0，退出码为 1，旧报告仍可回查。
 
 在 `e858cc0`、`6da93d05`、`c22fe45` 加入修复后，三线的 `python3 -m unittest discover -s scripts/tests` 各通过 16 项。使用本地缓存的已安装 OpenCLI 1.8.8 依赖运行同一脚本，Java 8、17、21 分别用本线 Wrapper 实际执行覆盖和只读诊断集成测试，各通过 2 项，零跳过。报告为 `platform-evidence/installed-report.json`。
+
+### OC-PARITY-002/004 共享来源锁定与三线报告核对
+
+基线 Java 8 `876a48a`、Java 17 `004c3286`、Java 21 `a384a5b` 的托管 JVM 报告分别记录 2231、2232、2231 项执行，零失败、零错误、零跳过。对应 Windows 工件的真实安装层各执行 4 项，零跳过。Windows 进程层分别记录 40、38、40 项。Java 17 文件树包含 `SubprocessStreamFailureTest`，但该套件未进入它的平台执行和报告配置。补齐后，JVM 和平台报告都要求该套件执行。
+
+Java 21 基线的共享校验清单引用了未被 Git 跟踪的 `sources.lock.json`，`shasum -a 256 -c SHA256SUMS` 返回非零。从 Java 17 基线恢复相同的来源锁定文件后，三条线均校验 28 个文件。临时副本中追加一个换行会使校验退出 1。三条常规 CI 在 Maven 构建前校验共享来源锁定、结构化帮助及浏览器输出三份清单。
+
+使用 OpenSpec 1.14.1 在三条基线逐项运行 `openspec validate <change> --strict --no-interactive` 并执行 `openspec validate --all --strict --no-interactive`，每条线均通过 10 个变更，退出 0。Java 17 基线的 [托管工件](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44382023710) 另记录固定版本 1.13.1 的逐项结果和 `all.log`，同样通过。此处记录规格校验与工件事实。独立评审与归档仍按最终门禁验收。
