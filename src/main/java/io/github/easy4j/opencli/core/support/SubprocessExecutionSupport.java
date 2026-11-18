@@ -172,12 +172,12 @@ public final class SubprocessExecutionSupport {
                     stdoutReader.start();
                     stderrReader.start();
                     long remaining = remaining(request.submittedAtNanos, budget);
-                    watchdog = watchdogFactory.create(
-                        Math.max(1L, TimeUnit.NANOSECONDS.toMillis(Math.max(0L, remaining))));
                     try {
+                        watchdog = watchdogFactory.create(
+                            Math.max(1L, TimeUnit.NANOSECONDS.toMillis(Math.max(0L, remaining))));
                         watchdog.start(process);
                     } catch (RuntimeException ex) {
-                        ioFailure = new IOException("Failed to start execution watchdog", ex);
+                        ioFailure = new IOException("Failed to initialize execution watchdog", ex);
                         reason = TerminationReason.IO_FAILURE;
                     }
                     while (reason == null) {
@@ -207,6 +207,9 @@ public final class SubprocessExecutionSupport {
                 reason = TerminationReason.CANCELLED;
             } catch (IOException ex) {
                 ioFailure = ex;
+                reason = process == null ? TerminationReason.SPAWN_FAILED : TerminationReason.IO_FAILURE;
+            } catch (RuntimeException ex) {
+                ioFailure = new IOException("Native process setup or execution failure", ex);
                 reason = process == null ? TerminationReason.SPAWN_FAILED : TerminationReason.IO_FAILURE;
             } finally {
                 try {

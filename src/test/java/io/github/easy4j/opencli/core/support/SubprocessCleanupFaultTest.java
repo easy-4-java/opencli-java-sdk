@@ -57,6 +57,70 @@ class SubprocessCleanupFaultTest {
     }
 
     @Test
+    void watchdogCreationFailureAfterSpawnStillCleansChildAndReleasesPermit() throws Exception {
+        int[] starts = new int[1];
+        int[] watchdogCreations = new int[1];
+        FakeProcess[] last = new FakeProcess[1];
+        SubprocessExecutionSupport.Runtime runtime = new SubprocessExecutionSupport.Runtime(1,
+            builder -> {
+                starts[0]++;
+                last[0] = new FakeProcess(false);
+                return last[0];
+            }, timeout -> {
+                if (++watchdogCreations[0] % 2 == 0) {
+                    throw new IllegalStateException("injected watchdog creation failure");
+                }
+                return new FakeWatchdog(false);
+            });
+
+        for (int attempt = 0; attempt < 2; attempt++) {
+            SubprocessExecutionSupport.ExecutionRequest request = new SubprocessExecutionSupport.ExecutionRequest(
+                CommandLine.parse("fake"), null, null, 1000L, 16, 16, 200L,
+                System.nanoTime(), new OpenCliCancellationToken());
+
+            SubprocessExecutionSupport.RunSession session = runtime.execute(request);
+
+            assertEquals(TerminationReason.IO_FAILURE,
+                session.getExecutionDetails().getTerminationReason());
+            assertInstanceOf(IllegalStateException.class, session.getIoFailure().getCause());
+            assertEquals(CleanupState.ROOT_EXIT_CONFIRMED,
+                session.getExecutionDetails().getCleanupState());
+            assertFalse(last[0].isAlive());
+            assertFalse(runtime.isQuarantined());
+        }
+        assertEquals(2, starts[0]);
+    }
+
+    @Test
+    void processStreamSetupFailureStillCleansChildAndReleasesPermit() throws Exception {
+        int[] starts = new int[1];
+        FakeProcess[] last = new FakeProcess[1];
+        SubprocessExecutionSupport.Runtime runtime = new SubprocessExecutionSupport.Runtime(1,
+            builder -> {
+                starts[0]++;
+                last[0] = new FakeProcess(false, false, true);
+                return last[0];
+            }, timeout -> new FakeWatchdog(false));
+
+        for (int attempt = 0; attempt < 2; attempt++) {
+            SubprocessExecutionSupport.ExecutionRequest request = new SubprocessExecutionSupport.ExecutionRequest(
+                CommandLine.parse("fake"), null, null, 1000L, 16, 16, 200L,
+                System.nanoTime(), new OpenCliCancellationToken());
+
+            SubprocessExecutionSupport.RunSession session = runtime.execute(request);
+
+            assertEquals(TerminationReason.IO_FAILURE,
+                session.getExecutionDetails().getTerminationReason());
+            assertInstanceOf(IllegalStateException.class, session.getIoFailure().getCause());
+            assertEquals(CleanupState.ROOT_EXIT_CONFIRMED,
+                session.getExecutionDetails().getCleanupState());
+            assertFalse(last[0].isAlive());
+            assertFalse(runtime.isQuarantined());
+        }
+        assertEquals(2, starts[0]);
+    }
+
+    @Test
     void unconfirmedForcedStopQuarantinesRuntimeWithoutFabricatingExit() throws Exception {
         OpenCliCancellationToken token = new OpenCliCancellationToken();
         int[] starts = new int[1];
@@ -157,16 +221,27 @@ class SubprocessCleanupFaultTest {
         private boolean alive = true;
 
         private final boolean failForce;
+        private final boolean failStreamSetup;
 
-        FakeProcess(boolean failDestroy) { this(failDestroy, false); }
+        FakeProcess(boolean failDestroy) { this(failDestroy, false, false); }
 
         FakeProcess(boolean failDestroy, boolean failForce) {
+            this(failDestroy, failForce, false);
+        }
+
+        FakeProcess(boolean failDestroy, boolean failForce, boolean failStreamSetup) {
             this.failDestroy = failDestroy;
             this.failForce = failForce;
+            this.failStreamSetup = failStreamSetup;
         }
 
         @Override
-        public OutputStream getOutputStream() { return new ByteArrayOutputStream(); }
+        public OutputStream getOutputStream() {
+            if (failStreamSetup) {
+                throw new IllegalStateException("injected process stream setup failure");
+            }
+            return new ByteArrayOutputStream();
+        }
 
         @Override
         public InputStream getInputStream() { return new ByteArrayInputStream(new byte[0]); }
