@@ -30,7 +30,7 @@ Multi-adapter CLI integration SDK for OpenCLI: browser / desktop / public-API ad
 
 ### 1.1 What it is
 
-**opencli-java-sdk** integrates Java applications with the [OpenCLI](https://github.com/partme-ai/opencli) multi-adapter CLI ecosystem. It executes `opencli <adapter> ...` subprocesses via Commons Exec, exposes typed results (`OpenCliResult` / `OpenCliTypedResult`), unified exception semantics, remote HTTP agent support (Unirest) and a center WebSocket reverse-agent client (Java-WebSocket). It compiles and runs on JDK 8.
+**opencli-java-sdk** integrates Java applications with the [OpenCLI](https://github.com/partme-ai/opencli) multi-adapter CLI ecosystem. It executes `opencli <adapter> ...` subprocesses via Commons Exec, exposes typed results (`OpenCliResult` / `OpenCliTypedResult`), unified exception semantics, remote HTTP agent support (Apache HttpClient) and a center WebSocket reverse-agent client (Java-WebSocket). It compiles and runs on JDK 8.
 
 ### 1.2 What it is not
 
@@ -73,7 +73,7 @@ Multi-adapter CLI integration SDK for OpenCLI: browser / desktop / public-API ad
 | JDK | 21+ | 3.0.x line baseline |
 | Maven | 4.0.0-rc-5 | Repository Maven Wrapper version |
 | commons-exec | 1.6.0 | Local subprocess execution |
-| Unirest Java | 3.14.5 | Remote agent HTTP |
+| Apache HttpClient | Provided by Unirest Java 3.14.5 | Remote agent HTTP |
 | Java-WebSocket | 1.6.0 | Center WebSocket |
 | `tools.jackson.core:jackson-databind` | 3.2.1 | JSON parsing |
 | SLF4J | 2.0.18 | Logging facade |
@@ -102,7 +102,7 @@ Version-line matrix:
 |            typed wrappers (codex, npm...) |
 |  meta      list / validate / plugin / ... |
 |  browser   session API (wait, extract...) |
-|  remote    POST {base}/collect (Unirest)  |
+|  remote    POST {base}/collect (Apache HttpClient)  |
 |  center    WebSocket reverse agent        |
 +------------------------------------------+
         |
@@ -177,7 +177,7 @@ Configuration is object-based via `OpenCliProperties`:
 | `executionTarget` | `LOCAL_PROCESS` | `LOCAL_PROCESS` or `REMOTE_AGENT_HTTP` |
 | `executable` | `opencli` | Executable name or absolute path |
 | `workingDirectory` | — | Subprocess working directory |
-| `commandTimeoutMillis` | `300000` | Command timeout (ms; reused as HTTP timeout in remote mode) |
+| `commandTimeoutMillis` | `300000` | Command timeout in milliseconds. Remote pool acquisition, connection and response reading share the invocation budget. |
 | `maxConcurrentExecutions` | `0` | Max concurrent subprocesses (0 = unlimited) |
 | `startupProbeTimeoutMillis` | `30000` | Availability-probe timeout |
 | `environment` | `{}` | Extra environment variables (e.g. `OPENCLI_CDP_ENDPOINT`) |
@@ -193,6 +193,7 @@ Notes:
 - In remote mode the `stdout` is the JSON `items` the agent returned (parsed into line items per `format`), which may differ from local raw subprocess text; `leadingArguments` are local-only and are not injected on the remote path.
 - A legacy HTTP `/collect` reply must contain a JSON boolean `success`. Invalid envelopes raise `OpenCliRemoteProtocolException`, which extends `OpenCliExecutableFailureException`. A valid reply with `success: true` and omitted or null `items` still returns `[]`.
 - Legacy HTTP argv dispatch accepts SDK-listed adapters and one subcommand. Root metadata, Browser sessions, external passthrough, repeated options, `--`, and tokens whose spacing or leading dash cannot be preserved are rejected before HTTP. Place positionals before options. Use local execution for commands that need the original argv. A deployment with its own adapter contract can use the explicit `OpenCliCollectRequest` API.
+- A collect timeout raises `OpenCliRemoteTimeoutException`. After dispatch to the HTTP transport, `isRemoteOutcomeUnknown()` is true. Collect does not automatically retry or follow redirects.
 - `execution-target=REMOTE_AGENT_HTTP` makes the availability probe report `SKIPPED_REMOTE_MODE` (treated as startable).
 
 <a id="8-core-usage"></a>
