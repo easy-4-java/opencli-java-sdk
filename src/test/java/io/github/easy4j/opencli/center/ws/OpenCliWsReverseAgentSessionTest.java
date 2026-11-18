@@ -239,6 +239,84 @@ class OpenCliWsReverseAgentSessionTest {
     }
 
     @Test
+    void disconnectAndCloseReleaseBoundedWorkerResources(@TempDir Path temporary) throws Exception {
+        Set<Thread> baseline = Thread.getAllStackTraces().keySet();
+        Path gate = temporary.resolve("resource-release");
+        Path queued = temporary.resolve("resource-queued");
+        Path overflow = temporary.resolve("resource-overflow");
+        List<Path> pulses = Arrays.asList(temporary.resolve("heartbeat-0"), temporary.resolve("heartbeat-1"));
+        List<Path> starts = Arrays.asList(temporary.resolve("start-0"), temporary.resolve("start-1"));
+        try (LocalCenter center = new LocalCenter()) {
+            OpenCliWsAgentConnectionProperties connection = center.agentProperties();
+            connection.setMaxConcurrentCollects(2);
+            connection.setMaxPendingCollects(1);
+            OpenCliProperties cli = probe(LifecycleProbe.class.getName());
+            cli.setCommandTimeoutMillis(20_000L);
+            try (OpenCliWsReverseAgentClient agent = new OpenCliWsReverseAgentClient(cli, connection)) {
+                agent.start();
+                WebSocket first = center.receive("register").socket;
+                first.send("{\"type\":\"registered\"}");
+                try {
+                    for (int index = 0; index < pulses.size(); index++) {
+                        ObjectNode payload = collect("resource-" + index, "heartbeat-log", pulses.get(index));
+                        payload.putArray("positional_args").add(gate.toString()).add(starts.get(index).toString());
+                        first.send(payload.toString());
+                        assertTrue(awaitMarker(pulses.get(index), 5_000L));
+                    }
+                    first.send(collect("queued-resource", "write", queued).toString());
+                    first.send(collect("overflow-resource", "write", overflow).toString());
+                    JsonNode rejected = center.receive("result").body;
+                    assertEquals("overflow-resource", rejected.path("request_id").asText());
+                    assertEquals("worker is busy", rejected.path("error").asText());
+                    assertFalse(Files.exists(queued));
+                    assertFalse(Files.exists(overflow));
+
+                    first.close();
+                    WebSocket second = center.receive("register").socket;
+                    assertNotSame(first, second);
+                    second.send("{\"type\":\"registered\"}");
+                    second.send("{\"type\":\"ping\"}");
+                    center.receive("pong");
+
+                    Set<Thread> running = workerThreadsSince(baseline);
+                    assertEquals(2, running.stream().filter(t -> "opencli-ws-collect".equals(t.getName())).count());
+                    assertEquals(1, running.stream().filter(t -> "opencli-ws-agent-runner".equals(t.getName())).count());
+                    assertEquals(2, running.stream().filter(t -> "opencli-stdout".equals(t.getName())).count());
+                    assertEquals(2, running.stream().filter(t -> "opencli-stderr".equals(t.getName())).count());
+
+                    agent.close();
+                    long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(2L);
+                    while (!workerThreadsSince(baseline).isEmpty() && System.nanoTime() < deadline) {
+                        Thread.sleep(20L);
+                    }
+                    assertTrue(workerThreadsSince(baseline).isEmpty(), "worker threads survived close");
+                    byte[] firstPulse = Files.readAllBytes(pulses.get(0));
+                    byte[] secondPulse = Files.readAllBytes(pulses.get(1));
+                    Thread.sleep(300L);
+                    assertTrue(Arrays.equals(firstPulse, Files.readAllBytes(pulses.get(0))));
+                    assertTrue(Arrays.equals(secondPulse, Files.readAllBytes(pulses.get(1))));
+                    for (Path started : starts) {
+                        assertEquals(Arrays.asList("started"), Files.readAllLines(started, StandardCharsets.UTF_8));
+                    }
+                    assertFalse(Files.exists(queued));
+                    assertFalse(Files.exists(overflow));
+                    System.out.println("C05 resources: started=2 workerThreads=2 runnerThreads=1 readers=4 threadsAfterClose=0");
+                } finally {
+                    Files.createFile(gate);
+                }
+            }
+        }
+    }
+
+    private static Set<Thread> workerThreadsSince(Set<Thread> baseline) {
+        List<String> names = Arrays.asList("opencli-ws-collect", "opencli-ws-agent-runner",
+            "opencli-stdout", "opencli-stderr", "opencli-stop", "opencli-force-stop");
+        return Thread.getAllStackTraces().keySet().stream()
+            .filter(thread -> !baseline.contains(thread) && names.contains(thread.getName()))
+            .collect(Collectors.toSet());
+    }
+
+    @Test
     void defaultsToFourActiveCollects(@TempDir Path temporary) throws Exception {
         Path release = temporary.resolve("release");
         OpenCliProperties properties = probe(LifecycleProbe.class.getName());
