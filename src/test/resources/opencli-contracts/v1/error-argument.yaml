@@ -1,0 +1,6 @@
+ok: false
+error:
+  code: ARGUMENT
+  message: Argument "keyword" is required.
+  help: Chinese substring (上海), telecode (AOH), or pinyin (shanghai)
+  exitCode: 2

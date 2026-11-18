@@ -1,12 +1,12 @@
 # C03 Tasks · 上游错误协议解析与证据保真
 
-> 全部为待执行实现任务。文档/格式检查通过不允许提前勾选。
+> 已采集上游 stderr 样本，decoder 实现待评审。文档/格式检查通过不允许提前勾选。
 
 关联规范：[spec](specs/opencli-error-envelope/spec.md)。
 
 ## 1. 错误 fixture
 
-- [ ] 1.1 从锁定上游 renderError/真实只读负例建立 YAML fixture，保存版本与 hash。
+- [x] 1.1 从锁定上游 renderError/真实只读负例建立 YAML fixture，保存版本与 hash。见 [上游 stderr 采样](evidence/2026-11-18-upstream-stderr.md)。
 - [ ] 1.2 补 JSON、纯文本、AutoFix 注释、exit mismatch、unknown code、malformed 和恶意 YAML 失败测试。
 
 ## 2. decoder 与结果
