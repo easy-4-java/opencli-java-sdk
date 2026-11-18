@@ -173,7 +173,7 @@ class OpenCliCapabilityDiscoveryTest {
         props.setMaxConcurrentExecutions(2);
         ExecutorService callers = Executors.newSingleThreadExecutor();
         try (OpenCliClient client = new OpenCliClient(props)) {
-            Future<OpenCliCapabilitySnapshot> older = callers.submit(client::discoverCapabilities);
+            Future<OpenCliCapabilitySnapshot> older = callers.submit(() -> client.discoverCapabilities());
             long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
             while (!Files.exists(entered) && System.nanoTime() < deadline) {
                 Thread.sleep(10);
@@ -193,6 +193,50 @@ class OpenCliCapabilityDiscoveryTest {
             assertEquals(newest.getHelpSha256(), stale.getHelpSha256());
         } finally {
             callers.shutdownNow();
+        }
+    }
+
+    @Test
+    void fixedQueriesReturnTheirCapturedScopeAndKeepUnsupportedFormats() {
+        OpenCliHelpScope[] scopes = {OpenCliHelpScope.BROWSER_TAB, OpenCliHelpScope.BROWSER_GET,
+            OpenCliHelpScope.BROWSER_STATE, OpenCliHelpScope.META_AUTH, OpenCliHelpScope.SITE_NPM,
+            OpenCliHelpScope.SITE_NPM_SEARCH};
+        try (OpenCliClient client = new OpenCliClient(properties("structured"))) {
+            for (OpenCliHelpScope scope : scopes) {
+                OpenCliCapabilitySnapshot snapshot = client.discoverCapabilities(scope);
+                assertEquals(OpenCliCapabilitySnapshot.Status.AVAILABLE, snapshot.getStatus(), scope.name());
+                assertEquals(scope.name(), snapshot.getScope());
+                assertEquals("UNKNOWN", snapshot.getCommandOrigin());
+            }
+            assertEquals("opencli browser <session> state",
+                client.discoverCapabilities(OpenCliHelpScope.BROWSER_STATE).getHelp().getSchema().getCommand());
+            assertEquals("UNSUPPORTED_FORMAT", client.discoverCapabilities(OpenCliHelpScope.META_LIST).getReason());
+            assertEquals("INVALID_JSON", client.discoverCapabilities(OpenCliHelpScope.BROWSER).getReason());
+        }
+    }
+
+    @Test
+    void freshnessIsScopedAndVersionChangesClearOldQueries(@TempDir Path directory) throws Exception {
+        Path control = directory.resolve("mode");
+        writeMode(control, "structured");
+        try (OpenCliClient client = new OpenCliClient(controlledProperties(control))) {
+            OpenCliCapabilitySnapshot root = client.discoverCapabilities();
+            OpenCliCapabilitySnapshot state = client.discoverCapabilities(OpenCliHelpScope.BROWSER_STATE);
+            assertEquals(OpenCliCapabilitySnapshot.Status.AVAILABLE, state.getStatus());
+
+            writeMode(control, "wrong-help");
+            OpenCliCapabilitySnapshot stale = client.discoverCapabilities(OpenCliHelpScope.BROWSER_STATE);
+            assertEquals(OpenCliCapabilitySnapshot.Status.STALE, stale.getStatus());
+            assertEquals("UNEXPECTED_HELP_SCOPE", stale.getReason());
+            assertEquals(state.getHelpSha256(), stale.getHelpSha256());
+            assertNotEquals(root.getHelpSha256(), stale.getHelpSha256());
+
+            writeMode(control, "new-version-error");
+            OpenCliCapabilitySnapshot upgraded = client.discoverCapabilities(OpenCliHelpScope.BROWSER_STATE);
+            assertEquals(OpenCliCapabilitySnapshot.Status.UNSUPPORTED, upgraded.getStatus());
+            assertEquals("UNVERIFIED_HELP_VERSION", upgraded.getReason());
+            writeMode(control, "error");
+            assertEquals(OpenCliCapabilitySnapshot.Status.UNKNOWN, client.discoverCapabilities().getStatus());
         }
     }
 
@@ -232,6 +276,27 @@ class OpenCliCapabilityDiscoveryTest {
                 System.out.print("raw available");
                 return;
             }
+            if (args.length > 3 && Arrays.asList("--help", "-f", "json")
+                .equals(Arrays.asList(args).subList(args.length - 3, args.length))) {
+                if ("new-version-error".equals(mode) || "error".equals(mode)) {
+                    System.exit(3);
+                }
+                String path = String.join(" ", Arrays.asList(args).subList(0, args.length - 3));
+                String fixture;
+                switch (path) {
+                    case "browser": fixture = "browser.stdout"; break;
+                    case "browser fixture tab": fixture = "browser-tab.json"; break;
+                    case "browser fixture get": fixture = "browser-get.json"; break;
+                    case "browser fixture state": fixture = "browser-state.json"; break;
+                    case "auth": fixture = "meta-auth.json"; break;
+                    case "list": fixture = "meta-list.txt"; break;
+                    case "npm": fixture = "site-npm.json"; break;
+                    case "npm search": fixture = "site-npm-search.json"; break;
+                    default: throw new IllegalArgumentException("Unapproved fixture command");
+                }
+                System.out.print(readFixture("wrong-help".equals(mode) ? "root.json" : fixture));
+                return;
+            }
             if (!Arrays.equals(args, new String[]{"--help", "-f", "json"})) {
                 System.exit(2);
             }
@@ -256,12 +321,18 @@ class OpenCliCapabilityDiscoveryTest {
                 System.out.print("{\"name\":\"opencli\",\"commands\":[],\"site_adapters\":{}}");
                 return;
             }
+            String root = readFixture("root.json").trim();
+            System.out.print(root.substring(0, root.length() - 1)
+                + ",\"description_fixture\":\"do not run this example " + mode + "\"}");
+        }
+
+        private static String readFixture(String fixture) {
             try (InputStream input = DiscoveryFixture.class.getResourceAsStream(
-                "/opencli-contracts/v1/structured-help-1.8.8/root.json");
+                "/opencli-contracts/v1/structured-help-1.8.8/" + fixture);
                 Scanner scan = new Scanner(input, "UTF-8").useDelimiter("\\A")) {
-                String root = scan.next().trim();
-                System.out.print(root.substring(0, root.length() - 1)
-                    + ",\"description_fixture\":\"do not run this example " + mode + "\"}");
+                return scan.next();
+            } catch (java.io.IOException ex) {
+                throw new java.io.UncheckedIOException(ex);
             }
         }
     }

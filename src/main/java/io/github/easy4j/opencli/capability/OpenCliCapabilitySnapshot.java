@@ -5,12 +5,14 @@ import java.time.Instant;
 import lombok.Builder;
 import lombok.Getter;
 
-/** Immutable observation of the configured local CLI's root help. */
+/** Immutable observation of the configured local CLI's help for one query. */
 @Getter
 @Builder(toBuilder = true)
 public final class OpenCliCapabilitySnapshot {
     public enum Status { AVAILABLE, STALE, UNKNOWN, UNSUPPORTED }
 
+    @Builder.Default
+    private final OpenCliHelpScope helpScope = OpenCliHelpScope.ROOT_HELP;
     private final Status status;
     private final String reason;
     private final String executable;
@@ -24,7 +26,7 @@ public final class OpenCliCapabilitySnapshot {
 
     /** @return scope of the metadata probe */
     public String getScope() {
-        return "ROOT_HELP";
+        return helpScope.name();
     }
 
     /** @return unresolved origin, since help does not attribute overrides or plugins */
