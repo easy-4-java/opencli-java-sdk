@@ -226,6 +226,8 @@ Protocol: edge sends `register`; center replies `registered`; center sends `coll
 
 The reverse agent accepts up to four concurrent collect tasks and 32 queued tasks by default. Set `maxConcurrentCollects` and `maxPendingCollects` on the connection properties before constructing the agent to change the limits. A queue capacity of zero disables waiting. When full, the agent replies with a failed `result` and the error `worker is busy`.
 
+The reverse agent accepts collect only after the current connection acknowledges registration. Incoming WebSocket messages are capped at 1 MiB by default, including the assembled size of fragments. Set `maxInboundMessageBytes` before constructing the agent to configure the finite byte limit. Oversized messages close the affected connection before any command is queued.
+
 Collect request IDs must be nonblank strings of at most 128 UTF-8 bytes. The agent suppresses identical in-flight requests and rejects a reused ID with a different payload. An explicit retry may return a result marked `cached: true`. The in-memory cache keeps up to 1,024 completed results for at most ten minutes. Replay across reconnects requires the same TLS-verified endpoint. Plain WebSocket connections keep session-local deduplication. A new agent instance starts with an empty cache.
 
 `stop()` stops admission, discards queued tasks and allows in-flight work up to five seconds to finish before requesting cancellation. After the runner has stopped, `start()` can reconnect the same instance. `close()` immediately requests cancellation and closes the instance permanently.

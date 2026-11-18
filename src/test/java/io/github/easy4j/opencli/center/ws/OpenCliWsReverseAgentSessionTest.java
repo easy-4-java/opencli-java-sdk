@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,6 +33,7 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 import org.java_websocket.WebSocket;
+import org.java_websocket.enums.Opcode;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.DefaultSSLWebSocketServerFactory;
 import org.java_websocket.server.WebSocketServer;
@@ -166,6 +168,68 @@ class OpenCliWsReverseAgentSessionTest {
             assertFalse(rejected.path("success").asBoolean());
             assertEquals("worker is not registered", rejected.path("error").asText());
         }
+    }
+
+    @Test
+    void trailingJsonCannotAcknowledgeRegistration(@TempDir Path temporary) throws Exception {
+        Path rejectedMarker = temporary.resolve("invalid-ack-child");
+        Path readyMarker = temporary.resolve("ready-child");
+        try (LocalCenter center = new LocalCenter();
+             OpenCliWsReverseAgentClient agent = new OpenCliWsReverseAgentClient(
+                 probe(LifecycleProbe.class.getName()), center.agentProperties())) {
+            agent.start();
+            WebSocket socket = center.receive("register").socket;
+            socket.send("{\"type\":\"registered\"} {\"type\":\"ping\"}");
+            socket.send(collect("invalid-ack", "write", rejectedMarker).toString());
+            JsonNode rejected = center.receive("result").body;
+            assertFalse(rejected.path("success").asBoolean(), "malformed acknowledgement enabled collection");
+            assertFalse(Files.exists(rejectedMarker));
+
+            socket.send("{\"type\":\"registered\"}");
+            socket.send(collect("valid-ack", "write", readyMarker).toString());
+            assertTrue(center.receive("result").body.path("success").asBoolean());
+            assertTrue(Files.exists(readyMarker));
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void oversizedMessageRetiresGenerationBeforeCollect(boolean fragmented, @TempDir Path temporary) throws Exception {
+        Path marker = temporary.resolve("oversized-child");
+        char[] padding = new char[1024 * 1024];
+        Arrays.fill(padding, 'x');
+        byte[] bytes = collect("oversized", "write", marker).put("fixture", new String(padding))
+            .toString().getBytes(StandardCharsets.UTF_8);
+        try (LocalCenter center = new LocalCenter();
+             OpenCliWsReverseAgentClient agent = new OpenCliWsReverseAgentClient(
+                 probe(LifecycleProbe.class.getName()), center.agentProperties())) {
+            agent.start();
+            WebSocket socket = center.receive("register").socket;
+            socket.send("{\"type\":\"registered\"}");
+            if (fragmented) {
+                int midpoint = bytes.length / 2;
+                socket.sendFragmentedFrame(Opcode.TEXT, ByteBuffer.wrap(bytes, 0, midpoint).slice(), false);
+                socket.sendFragmentedFrame(Opcode.TEXT,
+                    ByteBuffer.wrap(bytes, midpoint, bytes.length - midpoint).slice(), true);
+            } else {
+                socket.send(new String(bytes, StandardCharsets.UTF_8));
+            }
+            Integer code = center.closeCodes.poll(3, TimeUnit.SECONDS);
+            // Rejecting a complete frame from its header can reset the peer's still-active write.
+            assertTrue(Integer.valueOf(1009).equals(code) || (!fragmented && Integer.valueOf(1006).equals(code)),
+                "oversized message should close the socket, observed code=" + code);
+            assertFalse(Files.exists(marker), "oversized request started a child");
+            assertNotSame(socket, center.receive("register").socket);
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {0, -1, Integer.MAX_VALUE})
+    void rejectsUnboundedInboundLimitBeforeConnection(int limit) {
+        OpenCliWsAgentConnectionProperties connection = new OpenCliWsAgentConnectionProperties();
+        connection.setMaxInboundMessageBytes(limit);
+        assertThrows(IllegalArgumentException.class, () -> new OpenCliWsReverseAgentClient(
+            probe(LifecycleProbe.class.getName()), connection));
     }
 
     @Test
@@ -553,6 +617,7 @@ class OpenCliWsReverseAgentSessionTest {
     private static final class LocalCenter extends WebSocketServer implements AutoCloseable {
         private final CountDownLatch started = new CountDownLatch(1);
         private final BlockingQueue<WireMessage> messages = new LinkedBlockingQueue<>();
+        private final BlockingQueue<Integer> closeCodes = new LinkedBlockingQueue<>();
         private final AtomicReference<Exception> failure = new AtomicReference<>();
 
         private final boolean secure;
@@ -596,7 +661,9 @@ class OpenCliWsReverseAgentSessionTest {
         public void onOpen(WebSocket socket, ClientHandshake handshake) { }
 
         @Override
-        public void onClose(WebSocket socket, int code, String reason, boolean remote) { }
+        public void onClose(WebSocket socket, int code, String reason, boolean remote) {
+            closeCodes.add(code);
+        }
 
         @Override
         public void onMessage(WebSocket socket, String payload) {
