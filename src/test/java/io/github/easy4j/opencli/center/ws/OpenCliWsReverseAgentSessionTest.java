@@ -211,6 +211,37 @@ class OpenCliWsReverseAgentSessionTest {
             () -> new OpenCliWsReverseAgentClient(new OpenCliProperties(), connection));
     }
 
+    @Test
+    void closeDropsQueuedCollectsAndRejectsRestart(@TempDir Path temporary) throws Exception {
+        Path release = temporary.resolve("release");
+        Path active = temporary.resolve("active");
+        Path queued = temporary.resolve("queued");
+        try (LocalCenter center = new LocalCenter()) {
+            OpenCliWsAgentConnectionProperties connection = center.agentProperties();
+            connection.setMaxConcurrentCollects(1);
+            connection.setMaxPendingCollects(1);
+            try (OpenCliWsReverseAgentClient agent = new OpenCliWsReverseAgentClient(
+                probe(LifecycleProbe.class.getName()), connection)) {
+                agent.start();
+                WebSocket socket = center.receive("register").socket;
+                socket.send("{\"type\":\"registered\"}");
+                try {
+                    sendHeldCollect(socket, "active", active, release);
+                    assertTrue(awaitMarker(active, 3_000), "first collect did not start");
+                    sendHeldCollect(socket, "queued", queued, release);
+                    socket.send("{\"type\":\"ping\"}");
+                    center.receive("pong");
+                    agent.close();
+                } finally {
+                    Files.createFile(release);
+                }
+                assertFalse(awaitMarker(queued, 1_250), "queued collect started after close");
+                agent.close();
+                assertThrows(IllegalStateException.class, agent::start);
+            }
+        }
+    }
+
     private static void sendHeldCollect(WebSocket socket, String id, Path marker, Path release) {
         ObjectNode message = MAPPER.createObjectNode()
             .put("type", "collect").put("request_id", id).put("site", "hold").put("command", marker.toString());

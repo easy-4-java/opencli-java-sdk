@@ -52,6 +52,7 @@ import org.java_websocket.handshake.ServerHandshake;
 public final class OpenCliWsReverseAgentClient implements AutoCloseable {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final long CLOSE_WAIT_NANOS = TimeUnit.SECONDS.toNanos(5);
 
     private final OpenCliExecutor localExecutor;
 
@@ -92,6 +93,9 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
      * 启动后台重连线程。
      */
     public synchronized void start() {
+        if (collectPool.isShutdown()) {
+            throw new IllegalStateException("WebSocket worker is closed");
+        }
         if (runnerThread != null && runnerThread.isAlive()) {
             return;
         }
@@ -122,8 +126,25 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
 
     @Override
     public void close() {
-        stop();
-        collectPool.shutdown();
+        Thread runner;
+        synchronized (this) {
+            if (collectPool.isShutdown()) {
+                return;
+            }
+            stop();
+            collectPool.shutdownNow();
+            runner = runnerThread;
+        }
+        long deadline = System.nanoTime() + CLOSE_WAIT_NANOS;
+        try {
+            collectPool.awaitTermination(CLOSE_WAIT_NANOS, TimeUnit.NANOSECONDS);
+            long remaining = deadline - System.nanoTime();
+            if (remaining > 0 && Objects.nonNull(runner) && runner != Thread.currentThread()) {
+                TimeUnit.NANOSECONDS.timedJoin(runner, remaining);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 
     private void runLoop() {
@@ -318,6 +339,9 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
     }
 
     private void runCollectSafe(WebSocketClient ws, JsonNode msg) {
+        if (collectPool.isShutdown() || Thread.currentThread().isInterrupted()) {
+            return;
+        }
         String requestId = msg.path("request_id").asText("");
         try {
             String site = msg.path("site").asText("");
