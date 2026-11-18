@@ -2,6 +2,7 @@ package io.github.easy4j.opencli.center.ws;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.github.easy4j.opencli.OpenCliProperties;
 import io.github.easy4j.opencli.contract.ContractProbe;
 import io.github.easy4j.opencli.contract.LifecycleProbe;
@@ -13,6 +14,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
@@ -26,12 +29,16 @@ import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OpenCliWsReverseAgentSessionTest {
@@ -110,6 +117,113 @@ class OpenCliWsReverseAgentSessionTest {
             assertFalse(rejected.path("success").asBoolean());
             assertEquals("worker is not registered", rejected.path("error").asText());
         }
+    }
+
+    @Test
+    void defaultsToFourActiveCollects(@TempDir Path temporary) throws Exception {
+        Path release = temporary.resolve("release");
+        OpenCliProperties properties = probe(LifecycleProbe.class.getName());
+        properties.setMaxConcurrentExecutions(8);
+        properties.setCommandTimeoutMillis(10_000);
+        try (LocalCenter center = new LocalCenter();
+             OpenCliWsReverseAgentClient agent = new OpenCliWsReverseAgentClient(properties, center.agentProperties())) {
+            agent.start();
+            WebSocket socket = center.receive("register").socket;
+            socket.send("{\"type\":\"registered\"}");
+            try {
+                for (int index = 0; index < 4; index++) {
+                    sendHeldCollect(socket, "collect-" + index, temporary.resolve("child-" + index), release);
+                }
+                for (int index = 0; index < 4; index++) {
+                    assertTrue(awaitMarker(temporary.resolve("child-" + index), 5_000), "initial child did not start");
+                }
+                Path queued = temporary.resolve("child-4");
+                sendHeldCollect(socket, "collect-4", queued, release);
+                assertFalse(awaitMarker(queued, 1_250), "a fifth collect started before a worker was free");
+            } finally {
+                Files.createFile(release);
+            }
+            Set<String> completed = new HashSet<>();
+            for (int index = 0; index < 5; index++) {
+                JsonNode result = center.receive("result").body;
+                assertTrue(result.path("success").asBoolean(), result::toString);
+                completed.add(result.path("request_id").asText());
+            }
+            assertEquals(new HashSet<>(Arrays.asList("collect-0", "collect-1", "collect-2", "collect-3", "collect-4")),
+                completed);
+            assertTrue(Files.exists(temporary.resolve("child-4")));
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1})
+    void rejectsOverflowWithoutLaunchingAnotherChild(int queueCapacity, @TempDir Path temporary) throws Exception {
+        Path release = temporary.resolve("release");
+        Path active = temporary.resolve("active");
+        Path queued = temporary.resolve("queued");
+        Path rejected = temporary.resolve("rejected");
+        try (LocalCenter center = new LocalCenter()) {
+            OpenCliWsAgentConnectionProperties connection = center.agentProperties();
+            connection.setMaxConcurrentCollects(1);
+            connection.setMaxPendingCollects(queueCapacity);
+            try (OpenCliWsReverseAgentClient agent = new OpenCliWsReverseAgentClient(
+                probe(LifecycleProbe.class.getName()), connection)) {
+                agent.start();
+                WebSocket socket = center.receive("register").socket;
+                socket.send("{\"type\":\"registered\"}");
+                try {
+                    sendHeldCollect(socket, "active", active, release);
+                    assertTrue(awaitMarker(active, 3_000), "first collect did not start");
+                    if (queueCapacity > 0) {
+                        sendHeldCollect(socket, "queued", queued, release);
+                    }
+                    sendHeldCollect(socket, "overflow", rejected, release);
+                    JsonNode busy = center.receive("result").body;
+                    assertEquals("overflow", busy.path("request_id").asText());
+                    assertFalse(busy.path("success").asBoolean());
+                    assertEquals("worker is busy", busy.path("error").asText());
+                    assertFalse(Files.exists(rejected));
+                    assertFalse(Files.exists(queued));
+                } finally {
+                    Files.createFile(release);
+                }
+                JsonNode completed = center.receive("result").body;
+                assertEquals("active", completed.path("request_id").asText());
+                assertTrue(completed.path("success").asBoolean());
+                if (queueCapacity > 0) {
+                    JsonNode drained = center.receive("result").body;
+                    assertEquals("queued", drained.path("request_id").asText());
+                    assertTrue(drained.path("success").asBoolean());
+                    assertTrue(Files.exists(queued));
+                }
+                assertFalse(Files.exists(rejected));
+            }
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource({"0,32", "-1,32", "4,-1", "4,2147483647", "4,2147483644"})
+    void rejectsInvalidCapacityBeforeConnection(int workers, int pending) {
+        OpenCliWsAgentConnectionProperties connection = new OpenCliWsAgentConnectionProperties();
+        connection.setMaxConcurrentCollects(workers);
+        connection.setMaxPendingCollects(pending);
+        assertThrows(IllegalArgumentException.class,
+            () -> new OpenCliWsReverseAgentClient(new OpenCliProperties(), connection));
+    }
+
+    private static void sendHeldCollect(WebSocket socket, String id, Path marker, Path release) {
+        ObjectNode message = MAPPER.createObjectNode()
+            .put("type", "collect").put("request_id", id).put("site", "hold").put("command", marker.toString());
+        message.putArray("positional_args").add(release.toString());
+        socket.send(message.toString());
+    }
+
+    private static boolean awaitMarker(Path marker, long timeoutMillis) throws InterruptedException {
+        long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeoutMillis);
+        while (!Files.exists(marker) && System.nanoTime() < deadline) {
+            Thread.sleep(10);
+        }
+        return Files.exists(marker);
     }
 
     @Test

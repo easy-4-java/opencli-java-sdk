@@ -18,9 +18,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
@@ -53,13 +57,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
 
     private final OpenCliWsAgentConnectionProperties connectionProperties;
 
-    private final ExecutorService collectPool =
-        Executors.newCachedThreadPool(
-            r -> {
-                Thread t = new Thread(r, "opencli-ws-collect");
-                t.setDaemon(true);
-                return t;
-            });
+    private final ExecutorService collectPool;
 
     private volatile boolean shutdownRequested;
 
@@ -76,6 +74,17 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
         Objects.requireNonNull(openCliProperties, "openCliProperties");
         this.connectionProperties =
             Objects.requireNonNull(connectionProperties, "connectionProperties");
+        int workers = connectionProperties.getMaxConcurrentCollects();
+        int pending = connectionProperties.getMaxPendingCollects();
+        if (workers <= 0 || pending < 0 || (long) workers + pending >= Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("Collect capacity requires positive concurrency and a finite pending queue");
+        }
+        BlockingQueue<Runnable> queue = pending == 0 ? new SynchronousQueue<>() : new LinkedBlockingQueue<>(pending);
+        this.collectPool = new ThreadPoolExecutor(workers, workers, 0L, TimeUnit.MILLISECONDS, queue, runnable -> {
+            Thread thread = new Thread(runnable, "opencli-ws-collect");
+            thread.setDaemon(true);
+            return thread;
+        });
         this.localExecutor = new OpenCliExecutor(openCliProperties.copyForLocalCliExecution());
     }
 
@@ -300,8 +309,11 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
                     "worker is not registered");
                 return;
             }
-            final JsonNode msg = root;
-            collectPool.submit(() -> runCollectSafe(ws, msg));
+            try {
+                collectPool.execute(() -> runCollectSafe(ws, root));
+            } catch (RejectedExecutionException e) {
+                sendResult(ws, root.path("request_id").asText(""), false, Collections.emptyList(), "worker is busy");
+            }
         }
     }
 

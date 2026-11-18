@@ -239,6 +239,8 @@ agent.close();
 
 Protocol: edge sends `register`; center replies `registered`; center sends `collect` (request_id, site, command, args, positional_args, format, mode); the SDK executes `opencli` locally (via `copyForLocalCliExecution()` to avoid loops) and replies `result`; plus `ping` / `pong`.
 
+The reverse agent accepts up to four concurrent collect tasks and 32 queued tasks by default. Set `maxConcurrentCollects` and `maxPendingCollects` on the connection properties before constructing the agent to change the limits. A queue capacity of zero disables waiting. When full, the agent replies with a failed `result` and the error `worker is busy`.
+
 ### Diagnostic export
 
 Call `OpenCliDiagnosticExport.export(result, 512)` explicitly with an `OpenCliResult` or an exception's partial result. The byte budget applies to UTF-8 text. Output contains only status and field lengths, with a `truncated=true` marker when fields do not fit. Field lengths can disclose how much data was present.
