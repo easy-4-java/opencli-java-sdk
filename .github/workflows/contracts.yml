@@ -189,6 +189,23 @@ jobs:
             --suite process=io.github.easy4j.opencli.contract.OpenCliProcessBoundaryTest \
             --output platform-evidence/report.json
           exit "$result"
+      - name: Verify npm-installed OpenCLI on Windows
+        if: runner.os == 'Windows'
+        run: |
+          install_dir="$RUNNER_TEMP/opencli-launcher-check"
+          npm install --prefix "$install_dir" --ignore-scripts --no-audit --no-fund @jackwener/opencli@1.8.8
+          package_dir="$install_dir/node_modules/@jackwener/opencli"
+          cli_entry="$package_dir/dist/src/main.js"
+          registry="$install_dir/registry.json"
+          node "$cli_entry" --version | tee platform-evidence/installed-opencli-version.txt
+          grep -Fx '1.8.8' platform-evidence/installed-opencli-version.txt
+          node "$cli_entry" list -f json > "$registry"
+          OPENCLI_INSTALLED_NODE="$(node -p 'process.execPath')"
+          OPENCLI_INSTALLED_ENTRY="$(cygpath -w "$cli_entry")"
+          OPENCLI_INSTALLED_REGISTRY="$(cygpath -w "$registry")"
+          OPENCLI_INSTALLED_BATCH_SHIM="$(cygpath -w "$install_dir/node_modules/.bin/opencli.cmd")"
+          export OPENCLI_INSTALLED_NODE OPENCLI_INSTALLED_ENTRY OPENCLI_INSTALLED_REGISTRY OPENCLI_INSTALLED_BATCH_SHIM
+          mvn -B --no-transfer-progress -Dtest=OpenCliInstalledLauncherIT test
       - name: Upload platform subprocess evidence
         if: always()
         uses: actions/upload-artifact@v7

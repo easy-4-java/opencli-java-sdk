@@ -196,6 +196,16 @@ cli.gemini().deepResearch("topic",
 - 远程模式下 `stdout` 为 Agent 返回的 `items` 的 JSON（已按 `format` 解析为行列表），与本地原始子进程文本可能不同；`leadingArguments` 等仅影响本地进程拼装，**远程路径不注入**。
 - `execution-target=REMOTE_AGENT_HTTP` 时可用性探测报告 `SKIPPED_REMOTE_MODE`（视为可启动）。
 
+### Windows npm 启动入口
+
+通过 npm 安装 OpenCLI 时，将 `executable` 配为 `node.exe` 的完整路径，并将包的 JavaScript 入口放在 `leadingArguments` 首位。入口以已安装包的 `bin.opencli` 字段为准。Windows 批处理通过 Shell 解析参数，SDK 会明确拒绝将 `.cmd` 或 `.bat` 用作可执行文件。
+
+```java
+OpenCliProperties props = new OpenCliProperties();
+props.setExecutable("C:/Program Files/nodejs/node.exe");
+props.getLeadingArguments().add("C:/path/to/node_modules/@jackwener/opencli/dist/src/main.js");
+```
+
 <a id="8-core-usage"></a>
 ## 8. 核心用法
 

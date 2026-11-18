@@ -196,6 +196,16 @@ Notes:
 - In remote mode the `stdout` is the JSON `items` the agent returned (parsed into line items per `format`), which may differ from local raw subprocess text; `leadingArguments` are local-only and are not injected on the remote path.
 - `execution-target=REMOTE_AGENT_HTTP` makes the availability probe report `SKIPPED_REMOTE_MODE` (treated as startable).
 
+### Windows npm launcher
+
+For an npm-installed OpenCLI, configure the full path to `node.exe` and place the package's JavaScript entry point first in `leadingArguments`. Use the entry declared in the installed package's `bin.opencli` field. The SDK rejects `.cmd` and `.bat` executables because Windows batch shims parse arguments through a shell.
+
+```java
+OpenCliProperties props = new OpenCliProperties();
+props.setExecutable("C:/Program Files/nodejs/node.exe");
+props.getLeadingArguments().add("C:/path/to/node_modules/@jackwener/opencli/dist/src/main.js");
+```
+
 <a id="8-core-usage"></a>
 ## 8. Core Usage
 
