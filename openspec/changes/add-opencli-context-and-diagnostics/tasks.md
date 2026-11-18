@@ -1,17 +1,17 @@
 # C08 Tasks · 隔离执行上下文与只读诊断
 
-> 全部为待执行实现任务。文档/格式检查通过不允许提前勾选。
+> 上下文与只读诊断验收已在三条功能分支核对，待 PR 评审与合并。
 
 关联规范：[spec](specs/opencli-context-diagnostics/spec.md)。
 
 ## 1. 上下文契约
 
 - [x] 1.1 核实锁定版本profile与Browser公共options的scope和真实输出fixture。见调用上下文证据。
-- [ ] 1.2 编写并发context隔离、false覆盖、scope冲突与诊断UNKNOWN的失败测试。
+- [x] 1.2 编写并发context隔离、false覆盖、scope冲突与诊断UNKNOWN的失败测试。
 
 ## 2. 增量API
 
-- [ ] 2.1 实现不可变context与优先级合并，复用原meta/auth/skills入口。
+- [x] 2.1 实现不可变context与优先级合并，复用原meta/auth/skills入口。
 - [x] 2.2 实现per-check只读诊断，审计每个probe副作用；不能确认时保留unknown。
 - [x] 2.3 保留sitemap raw/optional metadata，不自动访问overlay或trace文件。
 
@@ -49,3 +49,12 @@ Java 17 基线 `2eb97e49` 的独立 JVM 定向测试在帮助探测暂停期间�
 ### 三线只读验证
 
 以 `afeb522`、`3c9979ec`、`5c35d33` 为基线，使用 Java 8、17、21 执行 `./mvnw -B -ntp clean verify`，分别通过 2231、2232、2231 项，零失败、零错误、零跳过。每条线均执行 3 项 `OpenCliDiagnosticsTest`。配置 Node 24.18.0 与实际 OpenCLI 1.8.8 后，分别执行 `./mvnw -B -ntp -Dtest=OpenCliReadOnlyDiagnosticsIT test`，每条线均执行并通过 1 项。报告位于 `target/surefire-reports`。调用方式与各检查的证据类型见[只读诊断示例](evidence/2026-11-19-read-only-diagnostics.md)。
+
+
+## C08 失败隔离与只读复验
+
+一个 Java 客户端通过独立 JVM 子进程并发执行两个不同 profile/window 的调用。故意失败的调用及其 partial result 保留自己的 argv，另一调用保留自己的 argv。随后没有覆盖值的调用继续使用客户端的原默认值。现有回归同时验证显式 `false`、scope 冲突和未经验证诊断的 UNKNOWN。
+
+使用发布版 OpenCLI 1.8.8 的独立配置目录验证默认诊断只取版本，不执行安装版 CLI 的 startup hook。显式发起帮助探测会触发 fixture hook，后续默认诊断不会再次执行它。sitemap 和 trace 路径保持数据，pipeline CLI 仍为 DEFERRED。
+
+本分支以 `a2b226875bf584289cde63d7b18bd8e3cc5dae23` 为基线，使用 JDK 17，提供安装版 CLI 对应的 `OPENCLI_INSTALLED_NODE` 与 `OPENCLI_INSTALLED_ENTRY` 后执行 `./mvnw -B -ntp -o -Dtest=OpenCliInvocationContextTest,OpenCliDiagnosticsTest,OpenCliReadOnlyDiagnosticsIT test`。8 项实际执行，零失败、零错误、零跳过，退出码为 0。报告位于 `target/surefire-reports`。
