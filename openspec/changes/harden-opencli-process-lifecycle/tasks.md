@@ -89,3 +89,11 @@ JDK 17 使用系统 Maven 执行 `-B -ntp -o clean verify`，2,117 项通过，0
 修复后，第一次非空写入才分配对应捕获数组，仍受流的配置上限约束。预取消路径的 stdout、stderr 容量均为零，读取线程的工作缓冲和 JVM 总堆内存属独立指标。红灯 2 项失败，修复后 JDK 17 定向 33 项通过。
 
 JDK 17 使用系统 Maven 执行 `-B -ntp -o clean verify`，2,118 项通过，0 失败、0 错误、0 跳过。
+
+## 2026-11-18 OC-PROC-005 终止操作阻塞
+
+故障注入让调用独占根进程的普通和强制终止分别等待释放信号。验证显式取消以及 Commons Exec watchdog 到期两条路径。设置清理宽限 250 ms，以 1,250 ms 为回归断言窗口。修复前两项均等待超时。
+
+修复将 native 终止调用交给每次执行最多两个守护工作线程，普通和强制终止各发出一次。watchdog 回调只提交终止请求，既有锁不覆盖 native 终止操作。原始 `CANCELLED` 或 `EXECUTION_TIMEOUT` 保留。终止操作未结束时保留 `UNCONFIRMED`，不伪造退出码，并隔离当前运行时。测试最后释放注入的阻塞线程。该修复范围为 SDK 已持有的根进程，后代所有权仍待验收。
+
+JDK 17 定向 29 项通过。JDK 17 使用系统 Maven 执行 `-B -ntp -o clean verify`，2,120 项通过，0 失败、0 错误、0 跳过。平台契约证据增加 `SubprocessCleanupFaultTest`。

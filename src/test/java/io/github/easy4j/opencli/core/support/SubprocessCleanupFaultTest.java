@@ -7,6 +7,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.ExecuteWatchdog;
@@ -149,6 +154,71 @@ class SubprocessCleanupFaultTest {
     }
 
     @Test
+    void blockedGracefulAndForcedStopDoNotHoldCallerPastCleanupGrace() throws Exception {
+        assertBoundedStop(false, TerminationReason.CANCELLED);
+    }
+
+    @Test
+    void watchdogTimeoutDoesNotHoldCallerWhileNativeStopIsBlocked() throws Exception {
+        assertBoundedStop(true, TerminationReason.EXECUTION_TIMEOUT);
+    }
+
+    private static void assertBoundedStop(boolean watchdogExpires, TerminationReason expected) throws Exception {
+        CountDownLatch gracefulEntered = new CountDownLatch(1);
+        CountDownLatch forceEntered = new CountDownLatch(1);
+        CountDownLatch release = new CountDownLatch(1);
+        FakeProcess child = new FakeProcess(false) {
+            @Override
+            public void destroy() {
+                waitForRelease(gracefulEntered, release);
+                super.destroy();
+            }
+
+            @Override
+            public Process destroyForcibly() {
+                waitForRelease(forceEntered, release);
+                return super.destroyForcibly();
+            }
+        };
+        OpenCliCancellationToken token = new OpenCliCancellationToken();
+        SubprocessExecutionSupport.Runtime runtime = new SubprocessExecutionSupport.Runtime(1,
+            builder -> {
+                if (!watchdogExpires) {
+                    token.cancel();
+                }
+                return child;
+            }, timeout -> watchdogExpires ? new ExecuteWatchdog(20L) : new FakeWatchdog(false));
+        SubprocessExecutionSupport.ExecutionRequest request = new SubprocessExecutionSupport.ExecutionRequest(
+            CommandLine.parse("fake"), null, null, 1000L, 16, 16, 250L, System.nanoTime(), token);
+
+        ExecutorService worker = Executors.newSingleThreadExecutor();
+        try {
+            Future<SubprocessExecutionSupport.RunSession> pending = worker.submit(() -> runtime.execute(request));
+            assertTrue(gracefulEntered.await(1, TimeUnit.SECONDS));
+            SubprocessExecutionSupport.RunSession session = pending.get(1250, TimeUnit.MILLISECONDS);
+            assertEquals(0, forceEntered.getCount());
+            assertEquals(expected, session.getExecutionDetails().getTerminationReason());
+            assertEquals(CleanupState.UNCONFIRMED, session.getExecutionDetails().getCleanupState());
+            assertTrue(session.getExecutionDetails().isCleanupOperationFailed());
+            assertNull(session.getObservedExitCode());
+            assertTrue(runtime.isQuarantined());
+        } finally {
+            release.countDown();
+            worker.shutdownNow();
+            assertTrue(worker.awaitTermination(2, TimeUnit.SECONDS));
+        }
+    }
+
+    private static void waitForRelease(CountDownLatch entered, CountDownLatch release) {
+        entered.countDown();
+        try {
+            release.await(3, TimeUnit.SECONDS);
+        } catch (InterruptedException failure) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    @Test
     void cancelledSubmissionDoesNotInitializeWatchdogOrSpawn() throws Exception {
         OpenCliCancellationToken token = new OpenCliCancellationToken();
         token.cancel();
@@ -233,9 +303,9 @@ class SubprocessCleanupFaultTest {
         public synchronized boolean killedProcess() { return false; }
     }
 
-    private static final class FakeProcess extends Process {
+    private static class FakeProcess extends Process {
         private final boolean failDestroy;
-        private boolean alive = true;
+        private volatile boolean alive = true;
 
         private final boolean failForce;
         private final boolean failStreamSetup;
