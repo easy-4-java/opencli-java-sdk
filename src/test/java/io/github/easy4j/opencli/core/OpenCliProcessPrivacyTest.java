@@ -1,23 +1,26 @@
 package io.github.easy4j.opencli.core;
 
 import io.github.easy4j.opencli.OpenCliProperties;
+import io.github.easy4j.opencli.contract.LifecycleProbe;
 import io.github.easy4j.opencli.exception.OpenCliException;
 import io.github.easy4j.opencli.exception.OpenCliNonZeroExitException;
 import io.github.easy4j.opencli.exception.OpenCliTimeoutException;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.function.Executable;
 import org.junit.jupiter.api.io.TempDir;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OpenCliProcessPrivacyTest {
 
@@ -33,32 +36,52 @@ class OpenCliProcessPrivacyTest {
     }
 
     @Test
-    @EnabledOnOs({OS.LINUX, OS.MAC})
     void preservesStderrOnNonzeroExitWithoutLeakingArgsOrStderr() throws Exception {
         String canary = "stderr-" + UUID.randomUUID();
-        OpenCliProperties properties = new OpenCliProperties();
-        properties.setExecutable("/bin/sh");
-
-        try (OpenCliExecutor executor = new OpenCliExecutor(properties)) {
+        try (OpenCliExecutor executor = new OpenCliExecutor(childProperties())) {
             OpenCliNonZeroExitException failure = assertPrivateFailure(OpenCliNonZeroExitException.class, canary,
-                () -> executor.invoke("-c", "printf '%s' \"$1\" >&2; exit 7", "fixture", canary));
+                () -> executor.invoke("privacy", "nonzero", canary));
             assertEquals(canary, failure.getPartialResult().getStderr());
             assertEquals(Integer.valueOf(7), failure.getPartialResult().getExitCode());
         }
     }
 
     @Test
-    @EnabledOnOs({OS.LINUX, OS.MAC})
-    void keepsArgumentsOutOfTimeoutDiagnostics() throws Exception {
+    void keepsArgumentsAndPartialStderrOutOfTimeoutDiagnostics() throws Exception {
         String canary = "timeout-" + UUID.randomUUID();
-        OpenCliProperties properties = new OpenCliProperties();
-        properties.setExecutable("/bin/sh");
-        properties.setCommandTimeoutMillis(200);
+        OpenCliProperties properties = childProperties();
+        properties.setCommandTimeoutMillis(2500);
 
         try (OpenCliExecutor executor = new OpenCliExecutor(properties)) {
-            assertPrivateFailure(OpenCliTimeoutException.class, canary,
-                () -> executor.invoke("-c", "exec sleep 5", "fixture", canary));
+            OpenCliTimeoutException failure = assertPrivateFailure(OpenCliTimeoutException.class, canary,
+                () -> executor.invoke("privacy", "timeout", canary));
+            assertEquals(canary, failure.getPartialResult().getStderr());
         }
+    }
+
+    @Test
+    void keepsPartialStdoutOutOfOutputLimitDiagnostics() throws Exception {
+        String canary = "overflow-" + UUID.randomUUID();
+        OpenCliProperties properties = childProperties();
+        properties.setMaxStdoutBytes(128);
+
+        try (OpenCliExecutor executor = new OpenCliExecutor(properties)) {
+            OpenCliException failure = assertPrivateFailure(OpenCliException.class, canary,
+                () -> executor.invoke("privacy", "overflow", canary));
+            assertEquals("OUTPUT_LIMIT", failure.getPartialResult().getExecutionDetails().getTerminationReason().name());
+            assertEquals(128, failure.getPartialResult().getStdout().length());
+            assertTrue(failure.getPartialResult().getStdout().startsWith(canary));
+        }
+    }
+
+    private static OpenCliProperties childProperties() {
+        OpenCliProperties properties = new OpenCliProperties();
+        String executable = System.getProperty("os.name").startsWith("Windows") ? "java.exe" : "java";
+        properties.setExecutable(new File(new File(System.getProperty("java.home"), "bin"), executable).getAbsolutePath());
+        properties.setLeadingArguments(new ArrayList<>(Arrays.asList("-cp",
+            System.getProperty("surefire.test.class.path", System.getProperty("java.class.path")),
+            LifecycleProbe.class.getName())));
+        return properties;
     }
 
     private static <T extends OpenCliException> T assertPrivateFailure(
