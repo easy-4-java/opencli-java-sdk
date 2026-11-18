@@ -21,8 +21,8 @@ import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
@@ -39,7 +39,8 @@ public final class OpenCliCapabilityDiscovery {
     private final OpenCliExecutor executor;
     private long nextAttempt;
     private long lastPublishedAttempt;
-    private OpenCliCapabilitySnapshot lastAvailable;
+    private final Map<OpenCliHelpScope, OpenCliCapabilitySnapshot> lastAvailable =
+        new EnumMap<>(OpenCliHelpScope.class);
 
     /** @param executor client executor whose local process capacity is shared */
     public OpenCliCapabilityDiscovery(OpenCliExecutor executor) {
@@ -62,11 +63,21 @@ public final class OpenCliCapabilityDiscovery {
      * @return current observation, or a clearly marked stale snapshot or failure
      */
     public OpenCliCapabilitySnapshot refresh() {
+        return refresh(OpenCliHelpScope.ROOT_HELP);
+    }
+
+    /**
+     * Queries a fixed help scope on the pinned protocol version and tracks its snapshot.
+     * @param scope help query from the locked protocol fixture set
+     * @return current scoped observation or the explicit stale or failure status
+     */
+    public OpenCliCapabilitySnapshot refresh(OpenCliHelpScope scope) {
+        Objects.requireNonNull(scope, "scope");
         long attempt;
         synchronized (this) {
             attempt = ++nextAttempt;
         }
-        return publish(attempt, observe());
+        return publish(attempt, observe(scope));
     }
 
     private synchronized OpenCliCapabilitySnapshot publish(long attempt, OpenCliCapabilitySnapshot current) {
@@ -74,26 +85,28 @@ public final class OpenCliCapabilityDiscovery {
             return current;
         }
         lastPublishedAttempt = attempt;
+        lastAvailable.values().removeIf(old ->
+            !old.getConfigurationSha256().equals(current.getConfigurationSha256())
+                || (Objects.nonNull(current.getObservedVersion())
+                    && !old.getObservedVersion().equals(current.getObservedVersion())));
+        OpenCliHelpScope scope = current.getHelpScope();
         if (current.getStatus() == Status.AVAILABLE) {
-            lastAvailable = current;
+            lastAvailable.put(scope, current);
             return current;
         }
-        if (current.getStatus() == Status.UNKNOWN
-            && Objects.nonNull(lastAvailable)
-            && lastAvailable.getConfigurationSha256().equals(current.getConfigurationSha256())
-            && (Objects.isNull(current.getObservedVersion())
-                || lastAvailable.getObservedVersion().equals(current.getObservedVersion()))) {
-            return lastAvailable.toBuilder().status(Status.STALE).reason(current.getReason())
+        OpenCliCapabilitySnapshot previous = lastAvailable.get(scope);
+        if (current.getStatus() == Status.UNKNOWN && Objects.nonNull(previous)) {
+            return previous.toBuilder().status(Status.STALE).reason(current.getReason())
                 .failedRefresh(current).build();
         }
-        lastAvailable = null;
+        lastAvailable.remove(scope);
         return current;
     }
 
-    private OpenCliCapabilitySnapshot observe() {
+    private OpenCliCapabilitySnapshot observe(OpenCliHelpScope scope) {
         OpenCliProperties configured = executor.getProperties();
         OpenCliCapabilitySnapshot.OpenCliCapabilitySnapshotBuilder snapshot =
-            OpenCliCapabilitySnapshot.builder().observedAt(Instant.now());
+            OpenCliCapabilitySnapshot.builder().helpScope(scope).observedAt(Instant.now());
         if (configured.getExecutionTarget() != OpenCliExecutionTarget.LOCAL_PROCESS) {
             return snapshot.status(Status.UNSUPPORTED).reason("LOCAL_DISCOVERY_ONLY").build();
         }
@@ -132,8 +145,11 @@ public final class OpenCliCapabilityDiscovery {
                     return snapshot.status(Status.UNKNOWN).reason("INVALID_VERSION_OUTPUT").build();
                 }
                 snapshot.observedVersion(version);
+                if (scope != OpenCliHelpScope.ROOT_HELP && !"1.8.8".equals(version)) {
+                    return snapshot.status(Status.UNSUPPORTED).reason("UNVERIFIED_HELP_VERSION").build();
+                }
                 phase = "HELP";
-                OpenCliResult helpResult = local.invokeLocalOnly(Arrays.asList("--help", "-f", "json"));
+                OpenCliResult helpResult = local.invokeLocalOnly(scope.arguments());
                 if (helpResult.getExecutionDetails().isStdoutTruncated()) {
                     return snapshot.status(Status.UNKNOWN).reason("HELP_TRUNCATED").build();
                 }
@@ -141,7 +157,8 @@ public final class OpenCliCapabilityDiscovery {
                 OpenCliHelpResult help = OpenCliHelpParser.parse(stdout);
                 snapshot.help(help).helpSha256(hex(sha256().digest(stdout.getBytes(StandardCharsets.UTF_8))));
                 if (help.getStatus() == OpenCliHelpResult.Status.AVAILABLE) {
-                    return snapshot.status(Status.AVAILABLE).build();
+                    return scope.matches(help.getSchema()) ? snapshot.status(Status.AVAILABLE).build()
+                        : snapshot.status(Status.UNKNOWN).reason("UNEXPECTED_HELP_SCOPE").build();
                 }
                 return snapshot.status(Status.UNKNOWN).reason(help.getReason().name()).build();
             } catch (OpenCliTimeoutException ex) {

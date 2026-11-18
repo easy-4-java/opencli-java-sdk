@@ -20,6 +20,7 @@ import io.github.easy4j.opencli.adapter.publicapi.wikipedia.WikipediaOpenCliClie
 import io.github.easy4j.opencli.browser.OpenCliBrowserClient;
 import io.github.easy4j.opencli.capability.OpenCliCapabilityDiscovery;
 import io.github.easy4j.opencli.capability.OpenCliCapabilitySnapshot;
+import io.github.easy4j.opencli.capability.OpenCliHelpScope;
 import io.github.easy4j.opencli.core.OpenCliAdapterChannel;
 import io.github.easy4j.opencli.meta.OpenCliMetaClient;
 import io.github.easy4j.opencli.core.OpenCliExecutor;
@@ -93,6 +94,15 @@ import lombok.Getter;
      */
     public OpenCliCapabilitySnapshot discoverCapabilities() {
         return capabilityDiscovery.refresh();
+    }
+
+    /**
+     * Probes a fixed help query from the verified OpenCLI protocol fixture set.
+     * @param scope versioned local help query
+     * @return scoped observation or explicit failure status
+     */
+    public OpenCliCapabilitySnapshot discoverCapabilities(OpenCliHelpScope scope) {
+        return capabilityDiscovery.refresh(scope);
     }
 
     // ----- 参考强类型门面（Desktop） -----
