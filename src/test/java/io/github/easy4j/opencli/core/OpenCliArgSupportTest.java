@@ -1,6 +1,8 @@
 package io.github.easy4j.opencli.core;
 
 import static org.junit.jupiter.api.Assertions.*;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -104,6 +106,29 @@ class OpenCliArgSupportTest {
 
         assertThrows(IllegalArgumentException.class,
             () -> OpenCliArgSupport.addOptionPairIfPresent(target, "--flag", value));
+        assertTrue(target.isEmpty());
+    }
+
+    @Test
+    void shouldKeepConversionExceptionAndNestedCausePrivate() {
+        List<String> target = new ArrayList<>();
+        String canary = "private-conversion-" + UUID.randomUUID();
+        Object value = new Object() {
+            @Override
+            public String toString() {
+                IllegalArgumentException failure = new IllegalArgumentException("conversion failed",
+                    new IllegalStateException(canary));
+                failure.addSuppressed(new IllegalStateException(canary));
+                throw failure;
+            }
+        };
+
+        IllegalArgumentException failure = assertThrows(IllegalArgumentException.class,
+            () -> OpenCliArgSupport.addOptionPairIfPresent(target, "--flag", value));
+        StringWriter diagnostics = new StringWriter();
+        failure.printStackTrace(new PrintWriter(diagnostics));
+        assertFalse(diagnostics.toString().contains(canary));
+        assertTrue(failure.getMessage().contains("value"));
         assertTrue(target.isEmpty());
     }
 
