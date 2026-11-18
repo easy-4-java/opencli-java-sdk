@@ -37,4 +37,11 @@ JDK 17 两项定向红灯实际退出 1。选项对象的 `toString()` 抛出带
 | WebSocket 断线和投递异常、配置 URL、日志测试密钥 | `OpenCliWsReverseAgentSessionTest`、`OpenCliWsReverseAgentClientTest` |
 | JSON 解析 DEBUG、默认不写入的有界导出 | `OpenCliStdoutJsonTest`、`OpenCliDiagnosticExportTest` |
 
-JDK 8 使用系统 Maven 执行 `-B -ntp -o clean verify`，2,133 项通过，0 失败、0 错误、0 跳过。中英文 README 记录应用显式访问原始低层诊断的责任。C03 的 YAML 解码器仍待实施，对其解析日志的验证保留在后续矩阵中。
+JDK 8 使用系统 Maven 执行 `-B -ntp -o clean verify`，2,133 项通过，0 失败、0 错误、0 跳过。中英文 README 记录应用显式访问原始低层诊断的责任。畸形 YAML 的验证见 C03 的隐私回归及下文。
+
+
+## 本地失败诊断关联
+
+OC-PRIV-001/004。OpenCliProcessPrivacyTest 的新用例在 Java 17 基线复现缺少 correlationId，退出 1。现在本地进程失败时由 SDK 生成随机 UUID，在 DEBUG 日志及返回的异常消息中使用同一值。日志只记录终止原因、退出码和捕获字节数。测试扫描捕获的日志和完整异常栈，同时通过 partialResult 校验 stderr 原值。C03 的 OpenCliErrorEnvelopeTest 覆盖含敏感标记的畸形 YAML，并确认解析器原文不进入默认诊断。
+
+Java 8、17、21 分别用各自 Wrapper 运行 OpenCliProcessPrivacyTest、OpenCliErrorEnvelopeTest 和 OpenCliProcessContractTest，每条线执行 31 项，零失败、零错误、零跳过。报告位于 target/surefire-reports。Java 21 的先前运行曾出现继承管道用例的 JUnit 临时目录清理竞态，本次重跑通过。该竞态需要独立处理。
