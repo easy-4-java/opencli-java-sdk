@@ -1,6 +1,6 @@
 # Legacy HTTP collect 边界与保真
 
-> Proposal specification. Status: DRAFT / NOT_IMPLEMENTED.
+> The declared legacy collect scope is verified on the feature branches. PR review and merge are pending.
 
 ## ADDED Requirements
 

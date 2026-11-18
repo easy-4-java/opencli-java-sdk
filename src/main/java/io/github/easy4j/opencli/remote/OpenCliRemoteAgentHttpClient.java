@@ -137,8 +137,10 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
             .build());
 
         ScheduledFuture<?> abort = DEADLINES.schedule(post::abort, deadline - System.nanoTime(), TimeUnit.NANOSECONDS);
+        int observedStatus = 0;
         try (CloseableHttpResponse response = client.execute(post)) {
             int status = response.getStatusLine().getStatusCode();
+            observedStatus = status;
             Optional<String> body = readBoundedBody(response.getEntity(), maxResponseBytes);
             if (post.isAborted() || deadline - System.nanoTime() <= 0) {
                 throw new OpenCliRemoteTimeoutException(timeout, true, correlationId);
@@ -157,12 +159,15 @@ public final class OpenCliRemoteAgentHttpClient implements AutoCloseable {
             throw failure("Failed to parse agent response", correlationId);
         } catch (SocketTimeoutException | ConnectTimeoutException e) {
             throw new OpenCliRemoteTimeoutException(timeout, true, correlationId);
-        } catch (IOException | IllegalArgumentException e) {
+        } catch (IOException e) {
             if (post.isAborted() || deadline - System.nanoTime() <= 0) {
                 throw new OpenCliRemoteTimeoutException(timeout, true, correlationId);
             }
             log.warn("Agent HTTP I/O failed correlationId={}", correlationId);
-            throw failure("Agent HTTP I/O error", correlationId);
+            throw new OpenCliExecutableFailureException("Agent HTTP I/O error correlationId=" + correlationId,
+                null, failureSnapshot(observedStatus, Outcome.TRANSPORT_FAILURE, null));
+        } catch (IllegalArgumentException e) {
+            throw failure("Failed to interpret agent HTTP response", correlationId);
         } finally {
             abort.cancel(false);
         }
