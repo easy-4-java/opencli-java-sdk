@@ -8,6 +8,7 @@ import io.github.easy4j.opencli.exception.OpenCliException;
 import io.github.easy4j.opencli.exception.OpenCliExecutableFailureException;
 import io.github.easy4j.opencli.exception.OpenCliNonZeroExitException;
 import io.github.easy4j.opencli.exception.OpenCliTimeoutException;
+import io.github.easy4j.opencli.registry.OpenCliAdapterTaxonomy;
 import io.github.easy4j.opencli.remote.OpenCliArgvToCollectParser;
 import io.github.easy4j.opencli.remote.OpenCliCollectRequest;
 import io.github.easy4j.opencli.remote.OpenCliRemoteAgentHttpClient;
@@ -55,7 +56,7 @@ public class OpenCliExecutor implements AutoCloseable {
 
     /** @param adapterAndRest command and literal values @return execution result */
     public OpenCliResult invoke(List<String> adapterAndRest) {
-        return invokeInternal(adapterAndRest, new OpenCliCancellationToken(), false);
+        return invokeInternal(adapterAndRest, new OpenCliCancellationToken(), false, false);
     }
 
     /**
@@ -67,11 +68,22 @@ public class OpenCliExecutor implements AutoCloseable {
      * @return execution result
      */
     public OpenCliResult invoke(List<String> adapterAndRest, OpenCliCancellationToken cancellationToken) {
-        return invokeInternal(adapterAndRest, Objects.requireNonNull(cancellationToken, "cancellationToken"), true);
+        return invokeInternal(adapterAndRest, Objects.requireNonNull(cancellationToken, "cancellationToken"), true, false);
+    }
+
+    /**
+     * Executes argv whose semantics require a local process, such as external CLI passthrough.
+     *
+     * @param argv command and literal values
+     * @return local execution result
+     * @throws UnsupportedOperationException when configured for legacy HTTP collect
+     */
+    public OpenCliResult invokeLocalOnly(List<String> argv) {
+        return invokeInternal(argv, new OpenCliCancellationToken(), false, true);
     }
 
     private OpenCliResult invokeInternal(List<String> adapterAndRest,
-        OpenCliCancellationToken cancellationToken, boolean explicitCancellation) {
+        OpenCliCancellationToken cancellationToken, boolean explicitCancellation, boolean localOnly) {
         long submittedAtNanos = System.nanoTime();
         long timeoutMillis = properties.getCommandTimeoutMillis();
         List<String> tokens = OpenCliArgSupport.snapshotValues(adapterAndRest, "adapterAndRest");
@@ -82,8 +94,15 @@ public class OpenCliExecutor implements AutoCloseable {
             throw new IllegalArgumentException("adapterAndRest[0] command identifier must not be blank");
         }
         if (properties.getExecutionTarget() == OpenCliExecutionTarget.REMOTE_AGENT_HTTP) {
+            if (localOnly) {
+                throw new UnsupportedOperationException("This command requires local process execution");
+            }
             if (explicitCancellation) {
                 throw new UnsupportedOperationException("Explicit process cancellation is local-only for legacy collect");
+            }
+            String site = tokens.get(0);
+            if (!OpenCliAdapterTaxonomy.BROWSER_IDS.contains(site) && !OpenCliAdapterTaxonomy.isDesktopAdapter(site)) {
+                throw new IllegalArgumentException("Legacy collect requires an adapter registered in the SDK");
             }
             OpenCliCollectRequest req = OpenCliArgvToCollectParser.parse(tokens,
                 properties.getRemoteOutputFormat(), properties.getRemoteCollectMode(), properties.getRemoteCdpEndpoint());
