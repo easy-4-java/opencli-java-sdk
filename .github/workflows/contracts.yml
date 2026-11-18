@@ -122,6 +122,7 @@ jobs:
             --maven-version-file contract-evidence/maven.txt \
             --exit-code "$(cat contract-evidence/maven.exit)" \
             --suite enumeration=io.github.easy4j.opencli.contract.OpenCliStructuredHelpFixtureTest \
+            --suite enumeration=io.github.easy4j.opencli.contract.OpenCliHelpParserTest \
             --suite argv=io.github.easy4j.opencli.contract.OpenCliArgvContractTest \
             --suite argv=io.github.easy4j.opencli.contract.OpenCliStructuredArgvContractTest \
             --suite process=io.github.easy4j.opencli.contract.OpenCliProcessContractTest \

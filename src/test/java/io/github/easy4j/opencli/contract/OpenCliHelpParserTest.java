@@ -86,6 +86,16 @@ class OpenCliHelpParserTest {
         assertUnknown(" ", OpenCliHelpResult.Reason.EMPTY);
     }
 
+    @Test
+    void rejectsControlBytesOutsideAJsonHelpDocument() {
+        String control = String.valueOf((char) 0);
+        String valid = "{\"site\":\"npm\",\"commands\":[]}";
+        assertUnknown(valid + control, OpenCliHelpResult.Reason.INVALID_JSON);
+        assertUnknown(control + valid, OpenCliHelpResult.Reason.INVALID_JSON);
+        assertUnknown(control, OpenCliHelpResult.Reason.INVALID_JSON);
+        assertEquals(OpenCliHelpResult.Status.AVAILABLE, OpenCliHelpParser.parse(" \t" + valid + "\r\n").getStatus());
+    }
+
     private static void assertUnknown(String raw, OpenCliHelpResult.Reason reason) {
         OpenCliHelpResult result = OpenCliHelpParser.parse(raw);
         assertEquals(OpenCliHelpResult.Status.UNKNOWN, result.getStatus());
