@@ -56,6 +56,45 @@ class OpenCliWsReverseAgentSessionTest {
     private static final String AGENT_URL = "http://127.0.0.1:19823";
 
     @Test
+    void stopDuringConnectionSetupDoesNotPublishAnotherGeneration() throws Exception {
+        CountDownLatch resolving = new CountDownLatch(1);
+        CountDownLatch release = new CountDownLatch(1);
+        try (LocalCenter center = new LocalCenter()) {
+            OpenCliWsAgentConnectionProperties connection = new OpenCliWsAgentConnectionProperties() {
+                @Override
+                public String getCentralApiBaseUrl() {
+                    resolving.countDown();
+                    boolean interrupted = false;
+                    while (release.getCount() > 0) {
+                        try {
+                            release.await();
+                        } catch (InterruptedException failure) {
+                            interrupted = true;
+                        }
+                    }
+                    if (interrupted) {
+                        Thread.currentThread().interrupt();
+                    }
+                    return super.getCentralApiBaseUrl();
+                }
+            };
+            connection.setCentralApiBaseUrl(center.agentProperties().getCentralApiBaseUrl());
+            connection.setAgentAdvertiseUrl(AGENT_URL);
+            try (OpenCliWsReverseAgentClient agent = new OpenCliWsReverseAgentClient(
+                    probe(ContractProbe.class.getName()), connection)) {
+                try {
+                    agent.start();
+                    assertTrue(resolving.await(5, TimeUnit.SECONDS));
+                    agent.stop();
+                } finally {
+                    release.countDown();
+                }
+                assertNull(center.messages.poll(1, TimeUnit.SECONDS), "stopped worker published a registration");
+            }
+        }
+    }
+
+    @Test
     void exchangesRegistrationAndCollectResultsAndReconnectsAfterRemoteClose() throws Exception {
         try (LocalCenter center = new LocalCenter()) {
             OpenCliWsAgentConnectionProperties connection = center.agentProperties();
