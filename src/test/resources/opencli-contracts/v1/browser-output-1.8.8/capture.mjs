@@ -3,7 +3,7 @@ import { syncBuiltinESMExports } from 'node:module';
 import { pathToFileURL } from 'node:url';
 import path from 'node:path';
 
-os.homedir = () => process.env.HOME;
+os.homedir = () => process.env.OPENCLI_FIXTURE_HOME;
 syncBuiltinESMExports();
 const browserDir = path.join(path.dirname(process.argv[1]), 'browser');
 const { BrowserBridge } = await import(pathToFileURL(path.join(browserDir, 'index.js')));
