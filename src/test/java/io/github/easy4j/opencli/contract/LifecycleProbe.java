@@ -12,6 +12,10 @@ public final class LifecycleProbe {
 
     public static void main(String[] args) throws Exception {
         String mode = args[0];
+        if ("network-follow".equals(mode)) {
+            networkFollow(args);
+            return;
+        }
         if ("utf8".equals(mode)) {
             System.out.write("中文".getBytes(StandardCharsets.UTF_8));
             return;
@@ -39,6 +43,34 @@ public final class LifecycleProbe {
                 Files.write(marker, Integer.toString(++tick).getBytes(StandardCharsets.UTF_8));
             }
             Thread.sleep(20L);
+        }
+    }
+
+    private static void networkFollow(String[] args) throws Exception {
+        if (!Arrays.asList("browser", "fixture", "network", "--follow")
+            .equals(Arrays.asList(args).subList(3, args.length))) {
+            throw new IllegalArgumentException("unexpected network follow argv");
+        }
+        System.out.print("event-one\n");
+        System.out.flush();
+        switch (args[1]) {
+            case "complete":
+                Thread.sleep(30L);
+                System.out.print("event-two\n");
+                break;
+            case "overflow":
+                main(new String[]{"stdout", "4096"});
+                break;
+            case "failed":
+                System.err.print("fixture failed");
+                System.exit(23);
+                break;
+            case "wait":
+                Files.write(Paths.get(args[2]), new byte[]{1});
+                Thread.sleep(8000L);
+                break;
+            default:
+                throw new IllegalArgumentException("unexpected network follow mode");
         }
     }
 }
