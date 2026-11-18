@@ -1,0 +1,8 @@
+ok: false
+error:
+  code: EMPTY_RESULT
+  message: fixture/check returned no data
+  help: No rows in the offline fixture
+  exitCode: 66
+# AutoFix: re-run with --trace=retain-on-failure for trace artifact
+# opencli fixture check --trace retain-on-failure
