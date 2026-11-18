@@ -1,0 +1,25 @@
+{
+  "session": "fixture",
+  "captured_at": "2025-01-01T00:00:00.000Z",
+  "count": 1,
+  "filtered_out": 0,
+  "entries": [
+    {
+      "key": "GET 127.0.0.1:18765/api/items",
+      "method": "GET",
+      "timestamp": "2025-01-01T00:00:00.000Z",
+      "status": 200,
+      "url": "http://127.0.0.1:18765/api/items",
+      "ct": "application/json",
+      "size": 38,
+      "shape": {
+        "$": "object",
+        "$.items": "array(1)",
+        "$.items[0]": "object",
+        "$.items[0].id": "number",
+        "$.items[0].name": "string"
+      }
+    }
+  ],
+  "detail_hint": "Run \"browser network --detail <key>\" for full body."
+}

@@ -9,6 +9,7 @@ import io.github.easy4j.opencli.browser.result.OpenCliBrowserResult.Status;
 import io.github.easy4j.opencli.browser.result.OpenCliBrowserSourceComparison.Metrics;
 import io.github.easy4j.opencli.core.OpenCliExecutionDetails;
 import io.github.easy4j.opencli.core.OpenCliResult;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -70,6 +71,26 @@ public final class OpenCliBrowserDecoder {
     /** @param raw browser state --compare-sources result @return strict DOM and AX comparison */
     public static OpenCliBrowserResult<OpenCliBrowserSourceComparison> compareSources(OpenCliResult raw) {
         return decode(raw, OpenCliBrowserDecoder::readComparison);
+    }
+
+    /** @param raw browser find result @return strict selector matches */
+    public static OpenCliBrowserResult<OpenCliBrowserFindResult> find(OpenCliResult raw) {
+        return decode(raw, OpenCliBrowserDecoder::readFind);
+    }
+
+    /** @param raw one-shot browser console result @return strict console capture */
+    public static OpenCliBrowserResult<OpenCliBrowserConsoleResult> console(OpenCliResult raw) {
+        return decode(raw, OpenCliBrowserDecoder::readConsole);
+    }
+
+    /** @param raw one-shot browser network listing @return strict network capture */
+    public static OpenCliBrowserResult<OpenCliBrowserNetworkResult> network(OpenCliResult raw) {
+        return decode(raw, OpenCliBrowserDecoder::readNetwork);
+    }
+
+    /** @param raw browser analyze result @return strict analysis observation */
+    public static OpenCliBrowserResult<OpenCliBrowserAnalysisResult> analyze(OpenCliResult raw) {
+        return decode(raw, OpenCliBrowserDecoder::readAnalysis);
     }
 
     private static Status unavailableStatus(OpenCliResult raw) {
@@ -162,6 +183,94 @@ public final class OpenCliBrowserDecoder {
         return new Metrics(true, elapsed, counter(json.path("chars")), counter(json.path("bytes")),
             counter(json.path("lines")), counter(json.path("approx_tokens")), counter(json.path("refs")),
             counter(json.path("frame_sections")), interactive.isMissingNode() ? null : counter(interactive), null, null);
+    }
+
+    private static OpenCliBrowserFindResult readFind(JsonNode json) {
+        long total = counter(json.path("matches_n"));
+        JsonNode reported = json.path("entries");
+        if (total < reported.size()) {
+            throw invalidShape();
+        }
+        List<OpenCliBrowserFindResult.Entry> entries = entries(reported, item -> {
+            JsonNode ref = item.path("ref");
+            JsonNode visible = item.path("visible");
+            BigInteger numericRef = ref.isNull() ? null : unsignedInteger(ref);
+            if (!visible.isBoolean() || !item.path("attrs").isObject()) {
+                throw invalidShape();
+            }
+            return new OpenCliBrowserFindResult.Entry(counter(item.path("nth")), numericRef, text(item.path("tag")),
+                text(item.path("role")), text(item.path("text")), visible.booleanValue(), item);
+        });
+        return new OpenCliBrowserFindResult(total, entries, json);
+    }
+
+    private static OpenCliBrowserConsoleResult readConsole(JsonNode json) {
+        JsonNode reported = json.path("messages");
+        validateCount(json, reported);
+        List<OpenCliBrowserConsoleResult.Message> messages = entries(reported, item ->
+            new OpenCliBrowserConsoleResult.Message(optionalText(item.path("type")), optionalText(item.path("text")),
+                text(item.path("timestamp")), item));
+        return new OpenCliBrowserConsoleResult(text(json.path("session")), text(json.path("captured_at")), messages, json);
+    }
+
+    private static OpenCliBrowserNetworkResult readNetwork(JsonNode json) {
+        JsonNode reported = json.path("entries");
+        validateCount(json, reported);
+        List<OpenCliBrowserNetworkResult.Entry> entries = entries(reported, item -> {
+            JsonNode status = item.path("status");
+            if (!status.isIntegralNumber() || !status.canConvertToInt() || status.intValue() < 0) {
+                throw invalidShape();
+            }
+            return new OpenCliBrowserNetworkResult.Entry(text(item.path("key")), text(item.path("method")),
+                status.intValue(), text(item.path("url")), text(item.path("ct")), counter(item.path("size")),
+                optionalText(item.path("timestamp")), item);
+        });
+        return new OpenCliBrowserNetworkResult(text(json.path("session")), text(json.path("captured_at")),
+            counter(json.path("filtered_out")), entries, json);
+    }
+
+    private static OpenCliBrowserAnalysisResult readAnalysis(JsonNode json) {
+        JsonNode pattern = json.path("pattern");
+        if (!json.path("anti_bot").isObject() || !json.path("initial_state").isObject()
+            || !json.path("api_candidates").isArray() || !json.path("recommended_next_step").isTextual()) {
+            throw invalidShape();
+        }
+        return new OpenCliBrowserAnalysisResult(text(json.path("requested_url")), text(json.path("final_url")),
+            text(json.path("title")), text(pattern.path("pattern")), json);
+    }
+
+    private static <T> List<T> entries(JsonNode array, Function<JsonNode, T> entry) {
+        if (!array.isArray()) {
+            throw invalidShape();
+        }
+        List<T> result = new ArrayList<>(array.size());
+        for (JsonNode item : array) {
+            if (!item.isObject()) {
+                throw invalidShape();
+            }
+            result.add(entry.apply(item));
+        }
+        return Collections.unmodifiableList(result);
+    }
+
+    private static void validateCount(JsonNode json, JsonNode entries) {
+        if (counter(json.path("count")) != entries.size()) {
+            throw invalidShape();
+        }
+    }
+
+    private static BigInteger unsignedInteger(JsonNode node) {
+        if (!node.isIntegralNumber() || node.bigIntegerValue().signum() < 0) {
+            throw invalidShape();
+        }
+        return node.bigIntegerValue();
+    }
+
+    private static String text(JsonNode node) {
+        if (!node.isTextual()) {
+            throw invalidShape();
+        }
+        return node.textValue();
     }
 
     private static long counter(JsonNode node) {
