@@ -32,3 +32,14 @@
 OC-PARITY-003/004：当同一层含一个已执行套件及一个零用例套件时，旧报告返回 PASS。把同一套件注册到 argv 与 real-execution 也会重复记账。新增两个失败回归后，报告逐套件检查非零执行、零跳过、零失败及零错误，并拒绝同一套件跨层归因。问题套件列在 `unprovenSuites`。
 
 JVM 和平台报告显式登记错误报文、浏览器 typed 结果、上下文和诊断测试。Windows npm 安装版检查用独立 `installed-report.json`，保留实际 Node、OpenCLI、Java 和 Maven 版本、源码 SHA 与执行退出码。真实 CLI 层的范围为安装版 launcher 与隔离的 help、插件和诊断测试。普通 JVM 或平台报告缺少此层时保持 NOT_RUN。用于 Browser 结果解析的全部归档样本继续按 SHA-256 验证。
+
+### 2026-11-19 上游 manifest 采集
+
+OC-PARITY-002：从 npm 发布包提取 `package/cli-manifest.json`。源为 https://registry.npmjs.org/@jackwener/opencli/-/opencli-1.8.8.tgz，包的 SHA-512 完整性与 npm registry 元数据一致。原始 manifest 的 SHA-256 为 `b6f44ab5973dfd46b001f42562ad520b184bf1dd27ec4ae807f849df70b98e6a`。范围为发布包自带的 adapter 命令枚举，共 1,366 条、179 个 site。按 `(site, name)` 逐项对比仓库历史快照，新增 89 条，移除 0 条。任务 2.1 仍待汇总 help 和输出样本并评审快照变更。
+
+在临时目录采集并运行生成器后，报告只记录公开来源、原始字节的 SHA-256、观察日期、获取命令和枚举范围。历史报告仍用于原有 Java 测试。生成器通过 `--manifest` 或 `OPENCLI_MANIFEST` 读取本地输入，移植验证覆盖含空格的临时路径。
+
+```bash
+curl -fsSLo opencli-1.8.8.tgz https://registry.npmjs.org/@jackwener/opencli/-/opencli-1.8.8.tgz
+tar -xOf opencli-1.8.8.tgz package/cli-manifest.json > cli-manifest.json
+```
