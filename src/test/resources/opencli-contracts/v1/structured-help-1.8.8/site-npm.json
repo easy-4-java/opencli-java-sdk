@@ -1,0 +1,154 @@
+{
+  "site": "npm",
+  "command_count": 3,
+  "commands": [
+    {
+      "name": "downloads",
+      "command": "opencli npm downloads",
+      "usage": "opencli npm downloads <name> [options]",
+      "access": "read",
+      "description": "Daily download counts for an npm package over a window",
+      "browser": false,
+      "domain": "api.npmjs.org",
+      "positionals": [
+        {
+          "name": "name",
+          "type": "str",
+          "positional": true,
+          "required": true,
+          "help": "npm package name (e.g. \"react\", \"@vercel/og\")"
+        }
+      ],
+      "command_options": [
+        {
+          "name": "period",
+          "type": "str",
+          "default": "last-week",
+          "help": "last-day / last-week / last-month / last-year, or YYYY-MM-DD:YYYY-MM-DD"
+        }
+      ],
+      "example": "opencli npm downloads <name> -f yaml",
+      "columns": [
+        "rank",
+        "package",
+        "day",
+        "downloads"
+      ]
+    },
+    {
+      "name": "package",
+      "command": "opencli npm package",
+      "usage": "opencli npm package <name> [options]",
+      "access": "read",
+      "description": "Single npm package metadata (latest version, license, homepage, repository). Use `npm downloads` for stats.",
+      "browser": false,
+      "domain": "registry.npmjs.org",
+      "positionals": [
+        {
+          "name": "name",
+          "type": "str",
+          "positional": true,
+          "required": true,
+          "help": "npm package name (e.g. \"react\", \"@vercel/og\")"
+        }
+      ],
+      "command_options": [],
+      "example": "opencli npm package <name> -f yaml",
+      "columns": [
+        "name",
+        "latestVersion",
+        "description",
+        "license",
+        "homepage",
+        "repository",
+        "bugs",
+        "maintainers",
+        "keywords",
+        "created",
+        "modified",
+        "url"
+      ]
+    },
+    {
+      "name": "search",
+      "command": "opencli npm search",
+      "usage": "opencli npm search <query> [options]",
+      "access": "read",
+      "description": "Search the public npm registry by keyword",
+      "browser": false,
+      "domain": "registry.npmjs.org",
+      "positionals": [
+        {
+          "name": "query",
+          "type": "str",
+          "positional": true,
+          "required": true,
+          "help": "Search keyword (e.g. \"react\", \"graphql client\")"
+        }
+      ],
+      "command_options": [
+        {
+          "name": "limit",
+          "type": "int",
+          "default": 20,
+          "help": "Max results (1-250)"
+        }
+      ],
+      "example": "opencli npm search <query> -f yaml",
+      "columns": [
+        "rank",
+        "name",
+        "version",
+        "description",
+        "weeklyDownloads",
+        "dependents",
+        "license",
+        "publisher",
+        "updated",
+        "url"
+      ]
+    }
+  ],
+  "common_options": [
+    {
+      "name": "format",
+      "flags": "-f, --format <fmt>",
+      "help": "Output format: table, plain, json, yaml, md, csv",
+      "default": "table",
+      "choices": [
+        "table",
+        "plain",
+        "json",
+        "yaml",
+        "md",
+        "csv"
+      ]
+    },
+    {
+      "name": "trace",
+      "flags": "--trace <mode>",
+      "help": "Trace capture: off, on, retain-on-failure",
+      "default": "off",
+      "choices": [
+        "off",
+        "on",
+        "retain-on-failure"
+      ]
+    },
+    {
+      "name": "verbose",
+      "flags": "-v, --verbose",
+      "help": "Debug output",
+      "default": false
+    },
+    {
+      "name": "help",
+      "flags": "-h, --help",
+      "help": "display help for command"
+    }
+  ],
+  "next": [
+    "opencli npm <command> --help -f yaml",
+    "opencli npm <command> -f yaml"
+  ]
+}
