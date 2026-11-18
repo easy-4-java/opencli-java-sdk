@@ -38,10 +38,8 @@ public final class LifecycleProbe {
                 LifecycleProbe.class.getName(), "heartbeat", args[3], args[2], args[4]);
             if ("inherited-pipes".equals(mode)) {
                 descendant.inheritIO();
-            } else {
-                Path log = Paths.get(args[3]).resolveSibling("descendant.log");
-                descendant.redirectErrorStream(true).redirectOutput(log.toFile());
             }
+            // The default pipes belong to the fixture parent, separate from the SDK's pipes.
             descendant.start();
         }
         if ("capture-hold".equals(mode)) {

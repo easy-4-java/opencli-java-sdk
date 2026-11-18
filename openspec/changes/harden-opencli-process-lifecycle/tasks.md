@@ -109,6 +109,8 @@ Java 8、21 功能线的平台矩阵加入 Ubuntu，Java 17 保留现有 Ubuntu 
 
 OC-PROC-004/005。Java 17 基线 `1946d9f` 的两个故障注入场景均将运行时读取或关闭异常误报为 `PROCESS_EXIT`。Reader 现在报告 `IO_FAILURE`，保留已读取字节、实际直属退出码和显式低层原因。SDK 的默认异常摘要保留固定消息。故障注入用例确认原始 provider 标记不会进入默认诊断。
 
-真实 JVM 进程夹具分别使用继承管道和独立输出文件。两种情况下，取消父进程后，未追踪的后代都继续更新心跳。独立输出用例确认 SDK 可报告 `ROOT_EXIT_CONFIRMED` 和已排空自己的读取线程，同时 `descendantsExitConfirmed` 为 false。继承管道未排空时继续标记 `UNCONFIRMED`。用例通过释放文件停止自己的后代，并等待其最后一次写入的确认。
+真实 JVM 进程夹具分别使用继承管道和独立输出管道。两种情况下，取消父进程后，未追踪的后代都继续更新心跳。独立输出用例确认 SDK 可报告 `ROOT_EXIT_CONFIRMED` 和已排空自己的读取线程，同时 `descendantsExitConfirmed` 为 false。继承管道未排空时继续标记 `UNCONFIRMED`。用例通过释放文件停止自己的后代，并等待其最后一次写入的确认。
 
 Java 8 `1310c54`、Java 17 `1946d9f`、Java 21 `89da70e` 为修改前基线。各线使用 Wrapper 执行 `./mvnw -B -ntp -o clean verify`，分别通过 2,254、2,255、2,254 项，零失败、零错误、零跳过。报告为 `SubprocessStreamFailureTest` 与 `OpenCliProcessContractTest` 的 Surefire XML。此处给出直属进程和管道边界的运行证据。多平台的已声明能力与未追踪后代的限制继续由 3.2 验收。
+
+独立复审发现 Windows 下重定向输出文件的句柄可能在心跳确认后仍被后代持有。夹具改用 ProcessBuilder 的独立默认管道，避免临时输出文件的删除竞态。新增断言区分已观察到的根退出码 0 与 SDK 的 IO_FAILURE。三条线分别重跑两个受影响的测试套件，各通过 7 项，零失败、零错误、零跳过。
