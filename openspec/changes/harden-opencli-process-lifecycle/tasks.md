@@ -24,3 +24,9 @@
 ## 证据交付模板（实施时填写）
 
 每项任务的完成记录包含：Requirement/Scenario、分支HEAD、测试命令、失败→通过证据、测试数/跳过数、退出码、报告位置。没有记录的任务保持未完成。
+
+## OC-PROC-006 本地同步采集验证
+
+`OpenCliProcessContractTest` 经 typed `browser network --follow` 入口运行真实 JVM fixture，校验 CLI argv，并覆盖正常退出、CLI 非零退出、输出超限、调用线程中断、执行超时，以及禁用时限时启动前拒绝。超时测试同时启动独立进程，确认该进程仍运行并可自行正常退出。JDK 8 执行 `mvn -B -ntp -o clean verify` 退出 0，全量 2,095 项（其中该类 14 项），0 失败、0 错误、0 跳过。
+
+本记录覆盖当前本地同步入口。平台矩阵、真实 OpenCLI 持续输出、受控 sink 和后代进程所有权仍需独立证据。
