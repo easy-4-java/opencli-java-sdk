@@ -201,6 +201,7 @@ cli.gemini().deepResearch("topic",
 - 远程调用超时抛出 `OpenCliRemoteTimeoutException`。请求提交给 HTTP 传输后，`isRemoteOutcomeUnknown()` 为 true。客户端不会自动重试或跟随重定向。
 - 通过结果或异常的 `getPartialResult()` 调用 `getRemoteExecutionDetails()`，查看 HTTP 状态、Agent 业务状态和 `items` 的来源。`getExitCode()` 的 0/1 是兼容映射。HTTP 或协议失败快照没有退出码。仅在开启原文捕获时，失败快照才携带已通过字节上限检查的响应正文。
 - Agent 支持认证请求头时，可调用 `setRemoteAuthentication(new OpenCliRemoteAuthentication("Authorization", System.getenv("OPENCLI_AGENT_AUTHORIZATION")))`，传入完整请求头值。认证须使用 HTTPS，Agent 基础地址须省略用户信息、查询参数和片段。SDK 只在 `/collect` 请求上发送已配置的认证头。OAuth 发现和请求签名尚不支持。
+- 对已采集的 CLI 帮助调用 `OpenCliHelpParser.parse(stdout)`，可读取结构化命令、占位符、不同作用域的选项和原文。纯文本、混合输出或无效结构会返回未知状态及原因。
 - `execution-target=REMOTE_AGENT_HTTP` 时可用性探测报告 `SKIPPED_REMOTE_MODE`（视为可启动）。
 
 ### Windows npm 启动入口

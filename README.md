@@ -201,6 +201,7 @@ Notes:
 - A collect timeout raises `OpenCliRemoteTimeoutException`. After dispatch to the HTTP transport, `isRemoteOutcomeUnknown()` is true. Collect does not automatically retry or follow redirects.
 - Inspect `getRemoteExecutionDetails()` on the result or on an exception’s `getPartialResult()` to distinguish HTTP status, Agent business status and the source of `items`. The legacy 0/1 returned by `getExitCode()` is synthetic. HTTP and protocol failure snapshots have no exit code. Accepted response text is available in those snapshots only when raw capture is enabled.
 - If your Agent accepts a credential header, configure `setRemoteAuthentication(new OpenCliRemoteAuthentication("Authorization", System.getenv("OPENCLI_AGENT_AUTHORIZATION")))`. Supply the complete header value. The Agent base URL must use HTTPS for credentials and contain no user info, query or fragment. The SDK sends the configured header on `/collect`. OAuth discovery and request signing are unsupported.
+- Parse previously captured CLI help with `OpenCliHelpParser.parse(stdout)`. The result retains the original text and reports whether the schema is available. Structured commands preserve placeholders and separate command, namespace, global and common options.
 - `execution-target=REMOTE_AGENT_HTTP` makes the availability probe report `SKIPPED_REMOTE_MODE` (treated as startable).
 
 ### Windows npm launcher
