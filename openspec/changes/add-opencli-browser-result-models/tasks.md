@@ -59,4 +59,4 @@ Java 17 基线 `b1d83867` 的定向测试把含重复回车的分隔行误判为
 
 ## OC-BROWSER-001/002/004 真实 Browser Bridge
 
-`OpenCliBrowserBridgeIT` 使用 Chrome for Testing 158.0.8127.18、OpenCLI 1.8.8 和发布版 Browser Bridge 1.0.24，在 macOS arm64 的临时 Chrome profile 和本地测试页面上验证 open、tab list、DOM、AX 和双源对比。Java 8、17、21 各执行 1 项，零失败、零错误、零跳过。详见 [真实 Browser Bridge 验收及复跑条件](evidence/2026-11-19-real-browser-bridge.md)。
+`OpenCliBrowserBridgeIT` 使用 Chrome for Testing 158.0.8127.18、OpenCLI 1.8.8 和发布版 Browser Bridge 1.0.24，在 macOS arm64 的临时 Chrome profile 和本地测试页面上验证 open、tab list、DOM、AX、双源对比、find、console、network 和 analyze。Java 8、17、21 各执行 2 项，零失败、零错误、零跳过。详见 [真实 Browser Bridge 验收及复跑条件](evidence/2026-11-19-real-browser-bridge.md)。
