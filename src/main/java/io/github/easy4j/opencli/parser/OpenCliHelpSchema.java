@@ -15,6 +15,7 @@ public final class OpenCliHelpSchema {
     private final String command;
     private final String namespace;
     private final String site;
+    private final Boolean browser;
     private final List<String> aliases;
     private final List<OpenCliHelpSchema> commands;
     private final List<Argument> positionals;
@@ -22,6 +23,7 @@ public final class OpenCliHelpSchema {
     private final List<Argument> namespaceOptions;
     private final List<Argument> globalOptions;
     private final List<Argument> commonOptions;
+    private final List<Argument> browserCommonOptions;
     /** Source JSON for this entry, including fields the SDK does not interpret. */
     private final String sourceJson;
 

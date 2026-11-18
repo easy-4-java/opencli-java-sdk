@@ -1,6 +1,7 @@
 package io.github.easy4j.opencli.capability;
 
 import io.github.easy4j.opencli.OpenCliExecutionTarget;
+import io.github.easy4j.opencli.OpenCliInvocationContext;
 import io.github.easy4j.opencli.OpenCliProperties;
 import io.github.easy4j.opencli.capability.OpenCliCapabilitySnapshot.Status;
 import io.github.easy4j.opencli.core.OpenCliExecutionDetails.TerminationReason;
@@ -10,6 +11,7 @@ import io.github.easy4j.opencli.exception.OpenCliException;
 import io.github.easy4j.opencli.exception.OpenCliTimeoutException;
 import io.github.easy4j.opencli.parser.OpenCliHelpParser;
 import io.github.easy4j.opencli.parser.OpenCliHelpResult;
+import io.github.easy4j.opencli.parser.OpenCliHelpSchema.Argument;
 import io.github.easy4j.opencli.util.OpenCliStrings;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -89,20 +91,61 @@ public final class OpenCliCapabilityDiscovery {
      */
     public OpenCliResult invoke(OpenCliHelpScope scope, String command, String session,
         List<String> positionals, Map<String, String> options) {
+        return invoke(scope, command, session, positionals, options, null);
+    }
+
+    /**
+     * Executes a local leaf with immutable invocation overrides.
+     * @param scope verified query containing the leaf
+     * @param command exact leaf display path
+     * @param session explicit browser session, or null
+     * @param positionals literal arguments in schema order, or null
+     * @param options declared flags and values, or null
+     * @param context invocation overrides, or null
+     * @return local execution result
+     */
+    public OpenCliResult invoke(OpenCliHelpScope scope, String command, String session,
+        List<String> positionals, Map<String, String> options, OpenCliInvocationContext context) {
         OpenCliProperties configured = executor.getProperties();
         if (configured.getExecutionTarget() != OpenCliExecutionTarget.LOCAL_PROCESS) {
             throw new UnsupportedOperationException("Discovered command execution requires a local process");
         }
         OpenCliProperties local = configured.copyForLocalCliExecution();
+        Map<String, String> effectiveOptions =
+            OpenCliInvocationContext.mergeOptions(local.getInvocationDefaults(), context, options);
         OpenCliCapabilitySnapshot snapshot = refresh(scope, local);
         if (snapshot.getStatus() == Status.AVAILABLE && !VERIFIED_HELP_VERSION.equals(snapshot.getObservedVersion())) {
             throw new UnsupportedOperationException("Discovered command execution requires the verified help version");
         }
-        List<String> argv = OpenCliCapabilityCommand.bind(snapshot, command, session, positionals, options);
+        List<Argument> globals = verifiedAdapterGlobals(snapshot, local, effectiveOptions);
+        List<String> argv = OpenCliCapabilityCommand.bind(snapshot, command, session, positionals, effectiveOptions, globals);
         local.setExecutable(snapshot.getExecutable());
         try (OpenCliExecutor invocation = new OpenCliExecutor(local, executor.getProcessRuntime())) {
             return invocation.invokeLocalOnly(argv);
         }
+    }
+
+    private List<Argument> verifiedAdapterGlobals(OpenCliCapabilitySnapshot snapshot, OpenCliProperties local,
+        Map<String, String> options) {
+        if (snapshot.getStatus() != Status.AVAILABLE || snapshot.getHelpScope() != OpenCliHelpScope.SITE_ZHIHU_HOT
+            || !options.containsKey("--profile") || !Boolean.TRUE.equals(snapshot.getHelp().getSchema().getBrowser())) {
+            return Collections.emptyList();
+        }
+        if (snapshot.getHelp().getSchema().getGlobalOptions().stream().anyMatch(OpenCliCapabilityDiscovery::isProfileFlag)) {
+            return Collections.emptyList();
+        }
+        OpenCliCapabilitySnapshot metadata = refresh(OpenCliHelpScope.META_PROFILE, local);
+        if (metadata.getStatus() != Status.AVAILABLE) {
+            throw new IllegalStateException("Current global profile help is unavailable");
+        }
+        Argument profile = metadata.getHelp().getSchema().getGlobalOptions().stream()
+            .filter(OpenCliCapabilityDiscovery::isProfileFlag)
+            .findFirst().orElseThrow(() -> new IllegalStateException("Current global profile flag is unverified"));
+        return Collections.singletonList(profile);
+    }
+
+    private static boolean isProfileFlag(Argument argument) {
+        return "profile".equals(argument.getName()) && "--profile <name>".equals(argument.getFlags());
     }
 
     private OpenCliCapabilitySnapshot refresh(OpenCliHelpScope scope, OpenCliProperties configured) {

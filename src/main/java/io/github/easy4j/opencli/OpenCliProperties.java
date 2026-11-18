@@ -85,6 +85,8 @@ public class OpenCliProperties {
      * OpenCLI 可执行文件名或绝对路径；默认假定已在 {@code PATH} 中。
      */
     private String executable = "opencli";
+    /** Defaults applied when dispatching a schema-validated local command. */
+    private OpenCliInvocationContext invocationDefaults;
 
     /**
      * 子进程工作目录；为空时使用 JVM 当前目录。
@@ -131,6 +133,7 @@ public class OpenCliProperties {
     public OpenCliProperties copyForLocalCliExecution() {
         OpenCliProperties c = new OpenCliProperties();
         c.setExecutable(this.executable);
+        c.setInvocationDefaults(this.invocationDefaults);
         c.setWorkingDirectory(this.workingDirectory);
         c.setCommandTimeoutMillis(this.commandTimeoutMillis);
         c.setMaxConcurrentExecutions(this.maxConcurrentExecutions);
