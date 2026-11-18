@@ -11,7 +11,7 @@
 
 ## 2. decoder 与结果
 
-- [ ] 2.1 选定三线可用的安全 YAML 实现并验证安全配置，不复制不兼容 Jackson imports。
+- [ ] 2.1 选定三线可用的安全 YAML 实现并验证安全配置，不复制不兼容 Jackson imports。见 [三线候选探针](evidence/2026-11-18-yaml-parser-review.md)。
 - [ ] 2.2 实现有界 shape 校验和 provenance 模型，保留 help/trace/unknown fields。
 - [ ] 2.3 接入本地异常与 partial result，避免 parser 抢占 primary failure。
 
