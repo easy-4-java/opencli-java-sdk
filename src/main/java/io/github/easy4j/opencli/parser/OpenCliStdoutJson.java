@@ -43,7 +43,7 @@ public final class OpenCliStdoutJson {
         try {
             return MAPPER.readTree(trim);
         } catch (JsonProcessingException e) {
-            log.debug("stdout is not strict JSON, wrapping as text: {}", e.getMessage());
+            log.debug("stdout is not strict JSON; wrapping as text chars={}", stdout.length());
             return MAPPER.getNodeFactory().textNode(stdout);
         }
     }

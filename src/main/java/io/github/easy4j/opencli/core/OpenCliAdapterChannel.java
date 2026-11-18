@@ -61,7 +61,7 @@ public final class OpenCliAdapterChannel {
                 tokens.add(s.trim());
             }
         }
-        log.debug("OpenCLI adapter invoke adapterId={} subcommandSummary={}", adapterId, summarizeSubcommand(tokens));
+        log.debug("OpenCLI adapter invoke argvSize={}", tokens.size());
         return executor.invoke(tokens);
     }
 
@@ -92,23 +92,5 @@ public final class OpenCliAdapterChannel {
             }
         }
         return invoke(list);
-    }
-
-    private static String summarizeSubcommand(List<String> tokens) {
-        if (tokens.size() <= 1) {
-            return "(root)";
-        }
-        int limit = Math.min(tokens.size(), 4);
-        StringBuilder sb = new StringBuilder();
-        for (int i = 1; i < limit; i++) {
-            if (i > 1) {
-                sb.append(' ');
-            }
-            sb.append(tokens.get(i));
-        }
-        if (tokens.size() > limit) {
-            sb.append(" ...");
-        }
-        return sb.toString();
     }
 }

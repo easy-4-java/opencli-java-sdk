@@ -56,7 +56,7 @@ import java.util.Objects;
         Objects.requireNonNull(name, "name");
         Objects.requireNonNull(value, "value");
         if (!name.startsWith("--")) {
-            throw new IllegalArgumentException("name must start with '--', got: " + name);
+            throw new IllegalArgumentException("name must start with '--'");
         }
         String key = name.endsWith("=") ? name.substring(0, name.length() - 1) : name;
         target.add(key + "=" + value);

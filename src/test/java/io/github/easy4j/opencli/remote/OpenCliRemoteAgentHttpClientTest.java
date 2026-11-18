@@ -6,12 +6,20 @@ import com.sun.net.httpserver.HttpServer;
 import io.github.easy4j.opencli.OpenCliExecutionTarget;
 import io.github.easy4j.opencli.OpenCliProperties;
 import io.github.easy4j.opencli.core.OpenCliResult;
+import io.github.easy4j.opencli.exception.OpenCliExecutableFailureException;
 import io.github.easy4j.opencli.exception.OpenCliNonZeroExitException;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -80,6 +88,105 @@ class OpenCliRemoteAgentHttpClientTest {
         }
     }
 
+    @Test
+    void nonSuccessHttpResponseDoesNotExposeBodyCanaryInException() throws IOException {
+        String canary = "body-secret-" + UUID.randomUUID();
+        String urlCanary = "url-secret-" + UUID.randomUUID();
+        try (JsonCollectStub stub = JsonCollectStub.start(canary, 503)) {
+            OpenCliProperties props = baseProps(stub.port());
+            props.setRemoteAgentBaseUrl("http://127.0.0.1:" + stub.port()
+                + "/collect?token=" + urlCanary);
+            OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(props);
+            ByteArrayOutputStream diagnostics = new ByteArrayOutputStream();
+            PrintStream previousErr = System.err;
+            OpenCliExecutableFailureException ex;
+            try (PrintStream capture = new PrintStream(diagnostics, true, "UTF-8")) {
+                System.setErr(capture);
+                try {
+                    ex = Assertions.assertThrows(OpenCliExecutableFailureException.class,
+                        () -> client.collect(OpenCliCollectRequest.builder().site("x").command("y").build()));
+                } finally {
+                    System.setErr(previousErr);
+                }
+            }
+            Assertions.assertTrue(ex.getMessage().contains("503"));
+            Assertions.assertFalse(ex.toString().contains(canary));
+            Assertions.assertFalse(ex.toString().contains(urlCanary));
+            String logText = diagnostics.toString(StandardCharsets.UTF_8.name());
+            Assertions.assertTrue(logText.contains("Agent HTTP non-2xx"));
+            Matcher correlation = Pattern.compile("correlationId=([0-9a-f-]{36})")
+                .matcher(ex.getMessage());
+            Assertions.assertTrue(correlation.find());
+            Assertions.assertDoesNotThrow(() -> UUID.fromString(correlation.group(1)));
+            Assertions.assertTrue(logText.contains(correlation.group(0)));
+            Assertions.assertFalse(logText.contains(canary));
+            Assertions.assertFalse(logText.contains(urlCanary));
+            for (Throwable cause = ex.getCause(); cause != null; cause = cause.getCause()) {
+                Assertions.assertFalse(cause.toString().contains(canary));
+                Assertions.assertFalse(cause.toString().contains(urlCanary));
+            }
+        }
+    }
+
+    @Test
+    void malformedHttpEndpointDoesNotExposeCredentialsInPublicStackTrace() {
+        String credential = "private-" + UUID.randomUUID();
+        OpenCliProperties properties = baseProps(1);
+        properties.setRemoteAgentBaseUrl("http://operator:" + credential + "@invalid host");
+        try (OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(properties)) {
+            OpenCliCollectRequest request = OpenCliCollectRequest.builder().site("x").command("y").build();
+            OpenCliExecutableFailureException failure = Assertions.assertThrows(
+                OpenCliExecutableFailureException.class, () -> client.collect(request));
+            StringWriter stack = new StringWriter();
+            failure.printStackTrace(new PrintWriter(stack));
+            Assertions.assertFalse(stack.toString().contains(credential));
+            Assertions.assertTrue(failure.getMessage().contains("correlationId="));
+        }
+    }
+
+    @Test
+    void nullEnvelopeUsesSafeCorrelatedParseFailure() throws IOException {
+        try (JsonCollectStub stub = JsonCollectStub.start("null");
+             OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(baseProps(stub.port()))) {
+            OpenCliCollectRequest request = OpenCliCollectRequest.builder().site("x").command("y").build();
+            OpenCliExecutableFailureException failure = Assertions.assertThrows(
+                OpenCliExecutableFailureException.class, () -> client.collect(request));
+            Assertions.assertTrue(failure.getMessage().contains("response envelope"));
+            Assertions.assertTrue(failure.getMessage().contains("correlationId="));
+            Assertions.assertNull(failure.getCause());
+        }
+    }
+
+    @Test
+    void malformedResponseDoesNotExposeParserSnippetInException() throws IOException {
+        String canary = "parser-secret-" + UUID.randomUUID();
+        try (JsonCollectStub stub = JsonCollectStub.start("{\"error\":\"" + canary)) {
+            OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(baseProps(stub.port()));
+            OpenCliExecutableFailureException ex = Assertions.assertThrows(
+                OpenCliExecutableFailureException.class,
+                () -> client.collect(OpenCliCollectRequest.builder().site("x").command("y").build()));
+            Assertions.assertFalse(ex.toString().contains(canary));
+            for (Throwable cause = ex.getCause(); cause != null; cause = cause.getCause()) {
+                Assertions.assertFalse(cause.toString().contains(canary));
+            }
+        }
+    }
+
+    @Test
+    void remoteFailureKeepsRawResultWithoutExposingErrorCanaryInException() throws IOException {
+        String canary = "agent-secret-" + UUID.randomUUID();
+        String json = "{\"success\":false,\"items\":null,\"error\":\"" + canary + "\"}";
+        try (JsonCollectStub stub = JsonCollectStub.start(json)) {
+            OpenCliRemoteAgentHttpClient client = new OpenCliRemoteAgentHttpClient(baseProps(stub.port()));
+            OpenCliNonZeroExitException ex = Assertions.assertThrows(
+                OpenCliNonZeroExitException.class,
+                () -> client.collect(OpenCliCollectRequest.builder().site("x").command("y").build()));
+            Assertions.assertFalse(ex.toString().contains(canary));
+            Assertions.assertEquals(canary, ex.getPartialResult().getStderr());
+            Assertions.assertNull(ex.getPartialResult().getRemoteRawHttpBody());
+        }
+    }
+
     private static OpenCliProperties baseProps(int port) {
         OpenCliProperties props = new OpenCliProperties();
         props.setExecutionTarget(OpenCliExecutionTarget.REMOTE_AGENT_HTTP);
@@ -109,6 +216,10 @@ class OpenCliRemoteAgentHttpClientTest {
          * @return 可关闭的桩对象
          */
         static JsonCollectStub start(String jsonBody) throws IOException {
+            return start(jsonBody, 200);
+        }
+
+        static JsonCollectStub start(String jsonBody, int status) throws IOException {
             byte[] bytes = jsonBody.getBytes(StandardCharsets.UTF_8);
             HttpServer server = HttpServer.create(new InetSocketAddress(0), 0);
             server.createContext(
@@ -125,7 +236,7 @@ class OpenCliRemoteAgentHttpClientTest {
                         exchange
                             .getResponseHeaders()
                             .set("Content-Type", "application/json; charset=utf-8");
-                        exchange.sendResponseHeaders(200, bytes.length);
+                        exchange.sendResponseHeaders(status, bytes.length);
                         try (OutputStream os = exchange.getResponseBody()) {
                             os.write(bytes);
                         }
