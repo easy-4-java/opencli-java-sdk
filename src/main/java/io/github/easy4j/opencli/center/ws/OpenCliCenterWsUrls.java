@@ -35,7 +35,7 @@ import io.github.easy4j.opencli.util.OpenCliStrings;
             wsBase = "ws://" + base.substring("http://".length());
         } else {
             throw new IllegalArgumentException(
-                "centralHttpApiBase must start with http:// or https://, got: " + base);
+                "centralHttpApiBase must start with http:// or https://");
         }
         return wsBase + path.getPath();
     }

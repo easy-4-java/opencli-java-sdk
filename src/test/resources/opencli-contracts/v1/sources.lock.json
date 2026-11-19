@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-09-21",
+  "scope": "Synthetic offline argv vectors; not captures from OpenCLI or websites.",
+  "source": {
+    "kind": "specification",
+    "requirements": [
+      "OC-ARGV-001",
+      "OC-ARGV-002",
+      "OC-ARGV-004",
+      "OC-ARGV-005"
+    ],
+    "ref": "d0c8056990f7a47fcc202acffa387ba066bcfc67",
+    "path": "openspec/changes/harden-opencli-argv-contract/specs/opencli-argv-contract/spec.md"
+  },
+  "files": [
+    {
+      "path": "argv.tsv",
+      "sha256": "e7e6dd57e81e24e92a7cb0de0e1204f95025f80310f5dc34d820aa7419636f78",
+      "vectors": 6,
+      "encoding": "case-id then tab-separated base64 UTF-8 tokens; preserve trailing empty fields"
+    }
+  ],
+  "branches": [
+    {
+      "branch": "feature/1.0.x",
+      "base": "abba809f11dae68437c39d2ea5a2f4cf8798c0ef",
+      "java": 8,
+      "jackson": 2,
+      "mavenMajor": 3
+    },
+    {
+      "branch": "feature/2.0.x",
+      "base": "d0c8056990f7a47fcc202acffa387ba066bcfc67",
+      "java": 17,
+      "jackson": 2,
+      "mavenMajor": 3,
+      "canonical": true
+    },
+    {
+      "branch": "feature/3.0.x",
+      "base": "6e38904bdfcae90ec617e8d29bf3d8cf2f002893",
+      "java": 21,
+      "jackson": 3,
+      "mavenMajor": 4
+    }
+  ],
+  "allowedDifferences": [
+    "JDK baseline",
+    "Jackson imports/decoder internals",
+    "Maven wrapper/POM schema"
+  ],
+  "forbiddenDifferences": [
+    "raw token contents/order/count",
+    "null validation",
+    "observable semantics of shared vectors"
+  ]
+}

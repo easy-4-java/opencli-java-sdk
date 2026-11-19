@@ -3,6 +3,7 @@ package io.github.easy4j.opencli.core;
 import static org.junit.jupiter.api.Assertions.*;
 import io.github.easy4j.opencli.OpenCliExecutionTarget;
 import io.github.easy4j.opencli.OpenCliProperties;
+import io.github.easy4j.opencli.exception.OpenCliException;
 import java.util.Arrays;
 import org.apache.commons.exec.CommandLine;
 import org.junit.jupiter.api.Test;
@@ -35,19 +36,23 @@ class OpenCliExecutorFullTest {
     }
 
     @Test
-    void shouldTruncateOversizedOutputWithMarker() {
+    void shouldReportBoundedOutputLimitWithPartialEvidence() {
         OpenCliProperties props = new OpenCliProperties();
         props.setExecutable("/bin/sh");
         props.setMaxOutputBytes(64L);
         props.setCommandTimeoutMillis(30_000L);
         OpenCliExecutor executor = new OpenCliExecutor(props);
 
-        OpenCliResult result = executor.invoke("-c",
-            "printf 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'");
-
-        assertTrue(result.isSuccess(), "truncation must not fail the run");
-        assertTrue(result.getStdout().contains("truncated"),
-            "overflow must leave a truncation marker: " + result.getStdout());
+        OpenCliException failure = assertThrows(OpenCliException.class, () -> executor.invoke("-c",
+            "printf 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'"));
+        OpenCliResult result = failure.getPartialResult();
+        assertNotNull(result);
+        assertFalse(result.isSuccess());
+        assertEquals(OpenCliExecutionDetails.TerminationReason.OUTPUT_LIMIT,
+            result.getExecutionDetails().getTerminationReason());
+        assertTrue(result.getExecutionDetails().isStdoutTruncated());
+        assertEquals(64L, result.getExecutionDetails().getStdoutCapturedBytes());
+        assertEquals(64, result.getStdout().getBytes(java.nio.charset.StandardCharsets.UTF_8).length);
     }
 
     @Test

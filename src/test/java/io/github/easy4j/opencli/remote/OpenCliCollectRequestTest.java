@@ -7,6 +7,27 @@ import org.junit.jupiter.api.Test;
 class OpenCliCollectRequestTest {
 
     @Test
+    void requestAndBuilderDiagnosticsExcludePayload() {
+        OpenCliCollectRequest.OpenCliCollectRequestBuilder builder = OpenCliCollectRequest.builder()
+            .site("site-canary")
+            .command("command-canary")
+            .args(Collections.singletonMap("prompt", "named-canary"))
+            .positionalArgs(Collections.singletonList("positional-canary"))
+            .cdpEndpoint("https://example.test/?token=cdp-canary");
+
+        OpenCliCollectRequest request = builder.build();
+        for (String value : Arrays.asList("site-canary", "command-canary", "named-canary", "positional-canary",
+                "cdp-canary")) {
+            assertFalse(request.toString().contains(value), value);
+            assertFalse(builder.toString().contains(value), value);
+        }
+        assertEquals("named-canary", request.getArgs().get("prompt"));
+        assertEquals(Collections.singletonList("positional-canary"), request.getPositionalArgs());
+        assertEquals("https://example.test/?token=cdp-canary", request.getCdpEndpoint());
+    }
+
+
+    @Test
     void shouldBuildWithDefaults() {
         OpenCliCollectRequest req = OpenCliCollectRequest.builder().build();
         assertEquals("json", req.getFormat());

@@ -7,6 +7,27 @@ import org.junit.jupiter.api.Test;
 class OpenCliPropertiesTest {
 
     @Test
+    void defaultDiagnosticStringExcludesSensitiveExecutionConfiguration() {
+        OpenCliProperties properties = new OpenCliProperties();
+        properties.setRemoteCdpEndpoint("https://browser.example/?token=cdp-canary");
+        properties.setExecutable("/private/executable-canary/opencli");
+        properties.setWorkingDirectory("/private/working-directory-canary");
+        properties.setLeadingArguments(Collections.singletonList("argument-canary"));
+        properties.setEnvironment(Collections.singletonMap("API_TOKEN", "environment-canary"));
+
+        String diagnostic = properties.toString();
+        assertTrue(diagnostic.contains("executionTarget=LOCAL_PROCESS"));
+        assertTrue(diagnostic.contains("commandTimeoutMillis="));
+        for (String canary : Arrays.asList("cdp-canary", "executable-canary", "working-directory-canary",
+                "argument-canary", "environment-canary")) {
+            assertFalse(diagnostic.contains(canary), canary);
+        }
+        assertEquals("environment-canary", properties.getEnvironment().get("API_TOKEN"));
+        assertEquals(Collections.singletonList("argument-canary"), properties.getLeadingArguments());
+    }
+
+
+    @Test
     void shouldHaveDefaults() {
         OpenCliProperties p = new OpenCliProperties();
         assertEquals(OpenCliExecutionTarget.LOCAL_PROCESS, p.getExecutionTarget());

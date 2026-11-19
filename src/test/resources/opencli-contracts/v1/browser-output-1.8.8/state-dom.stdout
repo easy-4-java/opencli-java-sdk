@@ -1,0 +1,7 @@
+URL: http://127.0.0.1:18765/basic.html
+
+title: Fixture page
+---
+[1] button "Continue"
+---
+interactive: 1 | iframes: 0

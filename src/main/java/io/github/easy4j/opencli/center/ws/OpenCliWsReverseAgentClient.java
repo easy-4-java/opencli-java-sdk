@@ -1,30 +1,41 @@
 package io.github.easy4j.opencli.center.ws;
 
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
-import tools.jackson.databind.json.JsonMapper;
 import io.github.easy4j.opencli.OpenCliProperties;
+import io.github.easy4j.opencli.core.OpenCliCancellationToken;
 import io.github.easy4j.opencli.core.OpenCliExecutor;
 import io.github.easy4j.opencli.core.OpenCliResult;
 import io.github.easy4j.opencli.exception.OpenCliException;
-import io.github.easy4j.opencli.exception.OpenCliNonZeroExitException;
 import io.github.easy4j.opencli.util.OpenCliStrings;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 import lombok.extern.slf4j.Slf4j;
 import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.drafts.Draft_6455;
 import org.java_websocket.handshake.ServerHandshake;
 
 /**
@@ -48,24 +59,27 @@ import org.java_websocket.handshake.ServerHandshake;
 public final class OpenCliWsReverseAgentClient implements AutoCloseable {
 
     private static final JsonMapper MAPPER = new JsonMapper();
+    private static final ObjectReader MESSAGE_READER = MAPPER.reader().with(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
+    private static final long CLOSE_WAIT_NANOS = TimeUnit.SECONDS.toNanos(5);
 
     private final OpenCliExecutor localExecutor;
+    private final BiConsumer<WebSocketClient, String> resultSender;
 
     private final OpenCliWsAgentConnectionProperties connectionProperties;
 
-    private final ExecutorService collectPool =
-        Executors.newCachedThreadPool(
-            r -> {
-                Thread t = new Thread(r, "opencli-ws-collect");
-                t.setDaemon(true);
-                return t;
-            });
+    private final int maxInboundMessageBytes;
+    private final ThreadPoolExecutor collectPool;
+    private final Set<CollectTask> collectTasks = new HashSet<>();
+    private final OpenCliWsCollectRequests collectRequests =
+        new OpenCliWsCollectRequests(1024, TimeUnit.MINUTES.toNanos(10), System::nanoTime);
 
     private volatile boolean shutdownRequested;
 
-    private volatile WebSocketClient activeClient;
+    private final AtomicReference<WorkerSession> activeClient = new AtomicReference<>();
 
     private Thread runnerThread;
+    private boolean stopping;
+    private long admissionEpoch;
 
     /**
      * @param openCliProperties    本地 opencli 配置
@@ -73,9 +87,30 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
      */
     public OpenCliWsReverseAgentClient(
         OpenCliProperties openCliProperties, OpenCliWsAgentConnectionProperties connectionProperties) {
+        this(openCliProperties, connectionProperties, WebSocketClient::send);
+    }
+
+    OpenCliWsReverseAgentClient(OpenCliProperties openCliProperties,
+        OpenCliWsAgentConnectionProperties connectionProperties, BiConsumer<WebSocketClient, String> resultSender) {
+        this.resultSender = Objects.requireNonNull(resultSender, "resultSender");
         Objects.requireNonNull(openCliProperties, "openCliProperties");
         this.connectionProperties =
             Objects.requireNonNull(connectionProperties, "connectionProperties");
+        this.maxInboundMessageBytes = connectionProperties.getMaxInboundMessageBytes();
+        if (maxInboundMessageBytes <= 0 || maxInboundMessageBytes == Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("Inbound WebSocket message size must have a positive finite limit");
+        }
+        int workers = connectionProperties.getMaxConcurrentCollects();
+        int pending = connectionProperties.getMaxPendingCollects();
+        if (workers <= 0 || pending < 0 || (long) workers + pending >= Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("Collect capacity requires positive concurrency and a finite pending queue");
+        }
+        BlockingQueue<Runnable> queue = pending == 0 ? new SynchronousQueue<>() : new LinkedBlockingQueue<>(pending);
+        this.collectPool = new ThreadPoolExecutor(workers, workers, 0L, TimeUnit.MILLISECONDS, queue, runnable -> {
+            Thread thread = new Thread(runnable, "opencli-ws-collect");
+            thread.setDaemon(true);
+            return thread;
+        });
         this.localExecutor = new OpenCliExecutor(openCliProperties.copyForLocalCliExecution());
     }
 
@@ -83,7 +118,10 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
      * 启动后台重连线程。
      */
     public synchronized void start() {
-        if (runnerThread != null && runnerThread.isAlive()) {
+        if (collectPool.isShutdown()) {
+            throw new IllegalStateException("WebSocket worker is closed");
+        }
+        if (stopping || (Objects.nonNull(runnerThread) && runnerThread.isAlive())) {
             return;
         }
         shutdownRequested = false;
@@ -93,36 +131,108 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
     }
 
     /**
-     * 请求停止并关闭当前 WebSocket。
+     * 停止接单并丢弃未开始的任务。在有限时间内等待已在途任务，随后请求取消。
+     * 停止完成后可重新启动同一实例。
      */
-    public synchronized void stop() {
-        shutdownRequested = true;
-        WebSocketClient client = activeClient;
-        activeClient = null;
-        if (Objects.nonNull(client)) {
-            try {
-                client.close();
-            } catch (Exception e) {
-                log.debug("ws close ignored: {}", e.getMessage());
+    public void stop() {
+        long deadline = System.nanoTime() + CLOSE_WAIT_NANOS;
+        WorkerSession client;
+        Thread runner;
+        synchronized (this) {
+            if (shutdownRequested || collectPool.isShutdown()) {
+                return;
             }
+            stopping = true;
+            client = stopAdmission();
+            runner = runnerThread;
         }
-        if (runnerThread != null) {
-            runnerThread.interrupt();
+        try {
+            if (Objects.nonNull(client)) {
+                closeSession(client);
+            }
+            synchronized (this) {
+                long remaining = deadline - System.nanoTime();
+                while (!collectTasks.isEmpty() && remaining > 0) {
+                    TimeUnit.NANOSECONDS.timedWait(this, remaining);
+                    remaining = deadline - System.nanoTime();
+                }
+            }
+            awaitRunner(runner, deadline);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            synchronized (this) {
+                cancelOutstandingCollects();
+                stopping = false;
+            }
         }
     }
 
     @Override
     public void close() {
-        stop();
-        collectPool.shutdown();
+        long deadline = System.nanoTime() + CLOSE_WAIT_NANOS;
+        WorkerSession client;
+        Thread runner;
+        synchronized (this) {
+            if (collectPool.isShutdown()) {
+                return;
+            }
+            client = stopAdmission();
+            cancelOutstandingCollects();
+            collectPool.shutdownNow();
+            collectRequests.clear();
+            runner = runnerThread;
+        }
+        if (Objects.nonNull(client)) {
+            closeSession(client);
+        }
+        try {
+            long remaining = deadline - System.nanoTime();
+            if (remaining > 0) {
+                collectPool.awaitTermination(remaining, TimeUnit.NANOSECONDS);
+            }
+            awaitRunner(runner, deadline);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    // The caller holds this worker's monitor while invalidating admission and the queue.
+    private WorkerSession stopAdmission() {
+        shutdownRequested = true;
+        admissionEpoch++;
+        WorkerSession client = activeClient.getAndSet(null);
+        List<Runnable> pending = new ArrayList<>();
+        collectPool.getQueue().drainTo(pending);
+        for (Runnable waiting : pending) {
+            finishCollect((CollectTask) waiting, null);
+        }
+        if (Objects.nonNull(runnerThread)) {
+            runnerThread.interrupt();
+        }
+        return client;
+    }
+
+    private void cancelOutstandingCollects() {
+        for (CollectTask task : collectTasks) {
+            task.cancellation.cancel();
+        }
+    }
+
+    private static void awaitRunner(Thread runner, long deadline) throws InterruptedException {
+        long remaining = deadline - System.nanoTime();
+        if (remaining > 0 && Objects.nonNull(runner) && runner != Thread.currentThread()) {
+            TimeUnit.NANOSECONDS.timedJoin(runner, remaining);
+        }
     }
 
     private void runLoop() {
         int attempt = 0;
         while (!shutdownRequested) {
             attempt++;
+            UUID correlationId = UUID.randomUUID();
             try {
-                runOneSession();
+                runOneSession(correlationId);
                 attempt = 0;
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -130,7 +240,7 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
                 break;
             } catch (Exception e) {
                 if (!shutdownRequested) {
-                    log.warn("opencli ws session failed (attempt {}): {}", attempt, e.getMessage());
+                    log.warn("opencli ws session failed correlationId={} attempt={}", correlationId, attempt);
                 }
             }
             if (shutdownRequested) {
@@ -151,86 +261,130 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
         log.info("opencli ws agent runner stopped");
     }
 
-    private void runOneSession() throws Exception {
+    private void runOneSession(UUID correlationId) throws Exception {
         validateConnectionProperties();
-        String wsUrl =
-            OpenCliCenterWsUrls.toAgentWebSocketUrl(
-                connectionProperties.getCentralApiBaseUrl(), connectionProperties.getWebSocketPath());
+        URI endpoint = URI.create(OpenCliCenterWsUrls.toAgentWebSocketUrl(
+            connectionProperties.getCentralApiBaseUrl(), connectionProperties.getWebSocketPath()));
+        // The default TLS client verifies the endpoint hostname. Plain WS has session-local identity.
+        Object centerIdentity = "wss".equalsIgnoreCase(endpoint.getScheme()) ? endpoint : new Object();
 
-        final CountDownLatch registered = new CountDownLatch(1);
-        final CountDownLatch sessionClosed = new CountDownLatch(1);
-        final AtomicReference<Throwable> handshakeFailure = new AtomicReference<>();
-
-        log.info("opencli ws connecting: {}", wsUrl);
-        WebSocketClient client =
-            new WebSocketClient(URI.create(wsUrl)) {
-                @Override
-                public void onOpen(ServerHandshake handshake) {
-                    try {
-                        send(buildRegisterJson());
-                    } catch (Exception e) {
-                        handshakeFailure.set(e);
-                        registered.countDown();
-                        close();
-                    }
-                }
-
-                @Override
-                public void onMessage(String message) {
-                    try {
-                        handleTextMessage(this, message, registered, handshakeFailure);
-                    } catch (Exception e) {
-                        log.warn("handle ws message failed: {}", e.getMessage());
-                    }
-                }
-
-                @Override
-                public void onClose(int code, String reason, boolean remote) {
-                    if (registered.getCount() > 0) {
-                        handshakeFailure.compareAndSet(
-                            null,
-                            new IllegalStateException(
-                                "WebSocket closed before 'registered' (code="
-                                    + code
-                                    + " reason="
-                                    + reason
-                                    + ")"));
-                        registered.countDown();
-                    }
-                    sessionClosed.countDown();
-                }
-
-                @Override
-                public void onError(Exception ex) {
-                    log.warn("WebSocket error: {}", ex.toString());
-                    if (registered.getCount() > 0) {
-                        handshakeFailure.compareAndSet(null, ex);
-                        registered.countDown();
-                    }
-                    sessionClosed.countDown();
-                }
-            };
-
-        activeClient = client;
-        if (!client.connectBlocking(30, TimeUnit.SECONDS)) {
-            throw new IllegalStateException("WebSocket connectBlocking returned false: " + wsUrl);
+        log.info("opencli ws connecting correlationId={}", correlationId);
+        WorkerSession client = new WorkerSession(endpoint, centerIdentity, correlationId);
+        if (!publishSession(client)) {
+            return;
         }
-
-        if (!registered.await(connectionProperties.getHandshakeTimeoutMillis(), TimeUnit.MILLISECONDS)) {
-            client.close();
-            throw new IllegalStateException("Timeout waiting for 'registered' from center");
-        }
-        Throwable hf = handshakeFailure.get();
-        if (Objects.nonNull(hf)) {
-            client.close();
-            if (hf instanceof Exception) {
-                throw (Exception) hf;
+        try {
+            if (!client.connectBlocking(30, TimeUnit.SECONDS)) {
+                throw new IllegalStateException("WebSocket connectBlocking returned false");
             }
-            throw new IllegalStateException(hf);
+            if (!client.registered.await(connectionProperties.getHandshakeTimeoutMillis(), TimeUnit.MILLISECONDS)) {
+                throw new IllegalStateException("Timeout waiting for 'registered' from center");
+            }
+            Throwable hf = client.handshakeFailure.get();
+            if (Objects.nonNull(hf)) {
+                if (hf instanceof Exception) {
+                    throw (Exception) hf;
+                }
+                throw new IllegalStateException(hf);
+            }
+            client.sessionClosed.await();
+        } finally {
+            client.retire(null);
+            closeSession(client);
+        }
+    }
+
+    private enum SessionPhase {
+        CONNECTING, REGISTERING, READY, RETIRED
+    }
+
+    private final class WorkerSession extends WebSocketClient {
+        private final Object centerIdentity;
+        private final UUID correlationId;
+        private final AtomicReference<SessionPhase> phase = new AtomicReference<>(SessionPhase.CONNECTING);
+        private final CountDownLatch registered = new CountDownLatch(1);
+        private final CountDownLatch sessionClosed = new CountDownLatch(1);
+        private final AtomicReference<Throwable> handshakeFailure = new AtomicReference<>();
+
+        WorkerSession(URI endpoint, Object centerIdentity, UUID correlationId) {
+            super(endpoint, new Draft_6455(Collections.emptyList(), maxInboundMessageBytes));
+            this.centerIdentity = centerIdentity;
+            this.correlationId = correlationId;
         }
 
-        sessionClosed.await();
-        activeClient = null;
+        @Override
+        public void onOpen(ServerHandshake handshake) {
+            if (!isCurrentSession(this) || !phase.compareAndSet(SessionPhase.CONNECTING, SessionPhase.REGISTERING)) {
+                closeSession(this);
+                return;
+            }
+            try {
+                send(buildRegisterJson());
+            } catch (Exception e) {
+                retire(e);
+                closeSession(this);
+            }
+        }
+
+        @Override
+        public void onMessage(String message) {
+            try {
+                handleTextMessage(this, message);
+            } catch (Exception e) {
+                log.warn("handle ws message failed correlationId={}", correlationId);
+            }
+        }
+
+        @Override
+        public void onClose(int code, String reason, boolean remote) {
+            retire(new IllegalStateException("WebSocket closed before 'registered' (code=" + code + ")"));
+        }
+
+        @Override
+        public void onError(Exception ex) {
+            log.warn("WebSocket error correlationId={}", correlationId);
+            retire(ex);
+        }
+
+        void acknowledgeRegistration() {
+            if (phase.compareAndSet(SessionPhase.REGISTERING, SessionPhase.READY)) {
+                registered.countDown();
+            }
+        }
+
+        boolean isReady() {
+            return phase.get() == SessionPhase.READY;
+        }
+
+        void retire(Throwable cause) {
+            SessionPhase previous = phase.getAndSet(SessionPhase.RETIRED);
+            activeClient.compareAndSet(this, null);
+            if (previous == SessionPhase.CONNECTING || previous == SessionPhase.REGISTERING) {
+                handshakeFailure.compareAndSet(null, cause);
+                registered.countDown();
+            }
+            sessionClosed.countDown();
+        }
+    }
+
+    private synchronized boolean publishSession(WorkerSession client) {
+        if (shutdownRequested) {
+            return false;
+        }
+        activeClient.set(client);
+        return true;
+    }
+
+    private boolean isCurrentSession(WorkerSession client) {
+        return !shutdownRequested && activeClient.get() == client;
+    }
+
+    private static void closeSession(WorkerSession client) {
+        try {
+            client.close();
+        } catch (Exception e) {
+            log.debug("ws session close failed correlationId={}", client.correlationId);
+        }
     }
 
     private void validateConnectionProperties() {
@@ -276,16 +430,17 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
         return MAPPER.writeValueAsString(reg);
     }
 
-    private void handleTextMessage(
-        WebSocketClient ws,
-        String payload,
-        CountDownLatch registered,
-        AtomicReference<Throwable> handshakeFailure)
-        throws Exception {
-        JsonNode root = MAPPER.readTree(payload);
+    private void handleTextMessage(WorkerSession ws, String payload) throws Exception {
+        if (!isCurrentSession(ws)) {
+            return;
+        }
+        JsonNode root = MESSAGE_READER.readTree(payload);
+        if (Objects.isNull(root) || !root.isObject()) {
+            return;
+        }
         String type = root.path("type").asText("");
         if ("registered".equals(type)) {
-            registered.countDown();
+            ws.acknowledgeRegistration();
             return;
         }
         if ("ping".equals(type)) {
@@ -296,13 +451,96 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
             return;
         }
         if ("collect".equals(type)) {
-            final JsonNode msg = root;
-            collectPool.submit(() -> runCollectSafe(ws, msg));
+            JsonNode id = root.path("request_id");
+            String requestId = id.isTextual() ? id.asText() : "";
+            if (OpenCliStrings.isBlank(requestId.strip()) || requestId.getBytes(StandardCharsets.UTF_8).length > 128) {
+                sendResult(ws, result("", false, Collections.emptyList(), "invalid worker request ID"));
+                return;
+            }
+            if (!isCurrentSession(ws) || !ws.isOpen() || !ws.isReady()) {
+                sendResult(ws, result(requestId, false, Collections.emptyList(), "worker is not registered"));
+                return;
+            }
+            admitCollect(ws, ws.centerIdentity, requestId, root);
         }
     }
 
-    private void runCollectSafe(WebSocketClient ws, JsonNode msg) {
-        String requestId = msg.path("request_id").asText("");
+    private void admitCollect(WorkerSession ws, Object centerIdentity, String requestId, JsonNode payload)
+        throws Exception {
+        OpenCliWsCollectRequests.Key key = new OpenCliWsCollectRequests.Key(centerIdentity, requestId);
+        byte[] digest = MessageDigest.getInstance("SHA-256").digest(MAPPER.writeValueAsBytes(payload));
+        OpenCliWsCollectRequests.Admission admission;
+        boolean busy = false;
+        synchronized (this) {
+            if (!isCurrentSession(ws)) {
+                return;
+            }
+            admission = collectRequests.reserve(key, digest);
+            if (admission.status() == OpenCliWsCollectRequests.Status.ACCEPTED) {
+                CollectTask task = new CollectTask(ws, key, payload, admissionEpoch);
+                collectTasks.add(task);
+                try {
+                    collectPool.execute(task);
+                } catch (RejectedExecutionException e) {
+                    finishCollect(task, null);
+                    busy = true;
+                }
+            }
+        }
+        if (!isCurrentSession(ws)) {
+            return;
+        }
+        if (busy) {
+            sendResult(ws, result(requestId, false, Collections.emptyList(), "worker is busy"));
+        } else if (admission.status() == OpenCliWsCollectRequests.Status.CONFLICT) {
+            sendResult(ws, result(requestId, false, Collections.emptyList(), "worker request ID conflict"));
+        } else if (admission.status() == OpenCliWsCollectRequests.Status.CACHED) {
+            sendResult(ws, admission.cachedResult());
+        }
+    }
+
+    private synchronized void finishCollect(CollectTask task, ObjectNode response) {
+        collectRequests.complete(task.key, response);
+        collectTasks.remove(task);
+        notifyAll();
+    }
+
+    private synchronized boolean mayStartCollect(long epoch) {
+        return !shutdownRequested && epoch == admissionEpoch && !Thread.currentThread().isInterrupted();
+    }
+
+    private final class CollectTask implements Runnable {
+        private final WorkerSession socket;
+        private final OpenCliWsCollectRequests.Key key;
+        private final JsonNode message;
+        private final long epoch;
+        private final OpenCliCancellationToken cancellation = new OpenCliCancellationToken();
+
+        CollectTask(WorkerSession socket, OpenCliWsCollectRequests.Key key, JsonNode message, long epoch) {
+            this.socket = socket;
+            this.key = key;
+            this.message = message;
+            this.epoch = epoch;
+        }
+
+        @Override
+        public void run() {
+            ObjectNode response = null;
+            try {
+                if (mayStartCollect(epoch)) {
+                    response = executeCollect(key.requestId(), message, cancellation, socket.correlationId);
+                }
+            } finally {
+                finishCollect(this, response);
+            }
+            if (Objects.nonNull(response) && isCurrentSession(socket) && socket.isOpen()) {
+                sendResult(socket, response);
+            }
+        }
+    }
+
+    private ObjectNode executeCollect(String requestId, JsonNode msg, OpenCliCancellationToken cancellation,
+        UUID correlationId) {
         try {
             String site = msg.path("site").asText("");
             String command = msg.path("command").asText("");
@@ -312,30 +550,20 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
 
             List<String> argv =
                 OpenCliCenterWsCollectToArgv.toArgv(site, command, positional, args, format);
-            OpenCliResult r = localExecutor.invoke(argv);
+            OpenCliResult r = localExecutor.invoke(argv, cancellation);
             List<JsonNode> items = OpenCliWsCollectStdoutItems.parseItems(r.getStdout(), format);
             if (!r.isSuccess()) {
-                sendResult(ws, requestId, false, items, "opencli reported failure");
-                return;
+                return result(requestId, false, items, "opencli reported failure");
             }
-            sendResult(ws, requestId, true, items, null);
-        } catch (OpenCliNonZeroExitException e) {
-            OpenCliResult partial = e.getPartialResult();
-            String err =
-                Objects.nonNull(partial) && OpenCliStrings.isNotBlank(partial.getStderr())
-                    ? partial.getStderr()
-                    : e.getMessage();
-            sendResult(ws, requestId, false, Collections.<JsonNode>emptyList(), err);
+            return result(requestId, true, items, null);
         } catch (OpenCliException e) {
             OpenCliResult partial = e.getPartialResult();
-            String err =
-                Objects.nonNull(partial) && OpenCliStrings.isNotBlank(partial.getStderr())
-                    ? partial.getStderr()
-                    : e.getMessage();
-            sendResult(ws, requestId, false, Collections.<JsonNode>emptyList(), err);
+            String err = Objects.nonNull(partial) && OpenCliStrings.isNotBlank(partial.getStderr())
+                ? partial.getStderr() : e.getMessage();
+            return result(requestId, false, Collections.emptyList(), err);
         } catch (Exception e) {
-            log.warn("collect execution error request_id={}: {}", requestId, e.getMessage());
-            sendResult(ws, requestId, false, Collections.<JsonNode>emptyList(), e.getMessage());
+            log.warn("collect execution failed correlationId={}", correlationId);
+            return result(requestId, false, Collections.emptyList(), "collect execution failed");
         }
     }
 
@@ -385,28 +613,30 @@ public final class OpenCliWsReverseAgentClient implements AutoCloseable {
         return list;
     }
 
-    private static void sendResult(
-        WebSocketClient ws, String requestId, boolean success, List<JsonNode> items, String error) {
+    private static ObjectNode result(String requestId, boolean success, List<JsonNode> items, String error) {
+        ObjectNode out = MAPPER.createObjectNode();
+        out.put("type", "result");
+        out.put("request_id", requestId);
+        out.put("success", success);
+        ArrayNode arr = out.putArray("items");
+        if (Objects.nonNull(items)) {
+            items.forEach(arr::add);
+        }
+        if (Objects.isNull(error) || error.isEmpty()) {
+            out.putNull("error");
+        } else {
+            out.put("error", error);
+        }
+        return out;
+    }
+
+    private void sendResult(WorkerSession ws, ObjectNode result) {
         try {
-            ObjectNode out = MAPPER.createObjectNode();
-            out.put("type", "result");
-            out.put("request_id", requestId);
-            out.put("success", success);
-            ArrayNode arr = MAPPER.createArrayNode();
-            if (Objects.nonNull(items)) {
-                for (JsonNode i : items) {
-                    arr.add(i);
-                }
-            }
-            out.set("items", arr);
-            if (Objects.isNull(error) || error.isEmpty()) {
-                out.putNull("error");
-            } else {
-                out.put("error", error);
-            }
-            ws.send(MAPPER.writeValueAsString(out));
+            resultSender.accept(ws, MAPPER.writeValueAsString(result));
         } catch (Exception e) {
-            log.error("failed to send WS result request_id={}: {}", requestId, e.getMessage());
+            log.error("failed to send WS result correlationId={}", ws.correlationId);
+            ws.retire(e);
+            closeSession(ws);
         }
     }
 }

@@ -1,6 +1,6 @@
 # 上游错误协议解析与证据保真
 
-> Proposal specification. Status: DRAFT / NOT_IMPLEMENTED.
+> Implementation verified on the feature branches. PR review and merge are pending.
 
 ## ADDED Requirements
 

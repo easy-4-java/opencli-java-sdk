@@ -1,0 +1,56 @@
+{
+  "requested_url": "http://127.0.0.1:18765/basic.html",
+  "final_url": "http://127.0.0.1:18765/basic.html",
+  "title": "Fixture page",
+  "pattern": {
+    "pattern": "A",
+    "reason": "1 captured response look like real data — inspect api_candidates before choosing a strategy",
+    "json_responses": 1,
+    "real_data_candidates": 1,
+    "auth_failures": 0
+  },
+  "anti_bot": {
+    "detected": false,
+    "vendor": null,
+    "evidence": [],
+    "implication": "No known anti-bot signatures. Try Node-side COOKIE fetch first; if endpoint validation is blocked, retry from browser context."
+  },
+  "initial_state": {
+    "__INITIAL_STATE__": false,
+    "__NUXT__": false,
+    "__NEXT_DATA__": false,
+    "__APOLLO_STATE__": false
+  },
+  "api_candidates": [
+    {
+      "url": "http://127.0.0.1:18765/api/items",
+      "status": 200,
+      "contentType": "application/json",
+      "real_data_score": 0.82,
+      "verdict": "likely_data",
+      "reasons": [
+        "2xx status",
+        "json content-type",
+        "json object body",
+        "3 business-like keys",
+        "nested non-empty array"
+      ],
+      "sample_paths": [
+        "$.items",
+        "$.items:array(1)"
+      ]
+    }
+  ],
+  "nearest_adapter": {
+    "site": "antigravity",
+    "example_commands": [
+      "antigravity add-context",
+      "antigravity cookies",
+      "antigravity copy-code",
+      "antigravity copy-message",
+      "antigravity delete"
+    ],
+    "reason": "19 existing adapters target this site — reuse strategy/cookie config"
+  },
+  "recommended_next_step": "Inspect `api_candidates`, then replay the best endpoint and record the status/content-type/sample shape in your strategy note; do not choose API strategy from XHR count alone."
+}

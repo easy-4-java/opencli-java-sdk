@@ -1,6 +1,6 @@
 # Browser 领域结果与严格解析
 
-> Proposal specification. Status: DRAFT / NOT_IMPLEMENTED.
+> The declared typed scope is verified on the feature branches. PR review and merge are pending.
 
 ## ADDED Requirements
 

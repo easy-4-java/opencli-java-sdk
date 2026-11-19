@@ -1,0 +1,99 @@
+{
+  "namespace": "browser",
+  "group": "tab",
+  "command": "opencli browser <session> tab",
+  "usage": "opencli browser <session> tab <command> [args] [options]",
+  "description": "Tab management — list, create, and close tabs in the browser session",
+  "command_count": 4,
+  "commands": [
+    {
+      "name": "tab close",
+      "command": "opencli browser <session> tab close",
+      "usage": "opencli browser <session> tab close [targetId] [options]",
+      "description": "Close a tab by target ID",
+      "positionals": [
+        {
+          "name": "targetId",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\""
+        }
+      ],
+      "command_options": [
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "tab list",
+      "command": "opencli browser <session> tab list",
+      "usage": "opencli browser <session> tab list [options]",
+      "description": "List tabs in the browser session with target IDs",
+      "positionals": [],
+      "command_options": []
+    },
+    {
+      "name": "tab new",
+      "command": "opencli browser <session> tab new",
+      "usage": "opencli browser <session> tab new [url] [options]",
+      "description": "Create a new tab and print its target ID",
+      "positionals": [
+        {
+          "name": "url",
+          "help": "Optional URL to open in the new tab"
+        }
+      ],
+      "command_options": []
+    },
+    {
+      "name": "tab select",
+      "command": "opencli browser <session> tab select",
+      "usage": "opencli browser <session> tab select [targetId] [options]",
+      "description": "Select a tab by target ID and make it the default browser tab",
+      "positionals": [
+        {
+          "name": "targetId",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\""
+        }
+      ],
+      "command_options": [
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    }
+  ],
+  "namespace_options": [
+    {
+      "name": "window",
+      "flags": "--window <mode>",
+      "help": "Browser window mode: foreground or background",
+      "takes_value": "required"
+    }
+  ],
+  "global_options": [
+    {
+      "name": "version",
+      "flags": "-V, --version",
+      "help": "output the version number"
+    },
+    {
+      "name": "profile",
+      "flags": "--profile <name>",
+      "help": "Chrome profile/context alias for Browser Bridge commands",
+      "takes_value": "required"
+    }
+  ],
+  "structured_help": {
+    "formats": [
+      "yaml",
+      "json"
+    ],
+    "usage": "opencli browser <session> tab --help -f yaml"
+  }
+}
