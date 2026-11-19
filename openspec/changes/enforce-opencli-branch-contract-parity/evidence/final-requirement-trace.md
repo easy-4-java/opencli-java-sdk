@@ -2,6 +2,20 @@
 
 此表把 59 项现行 Requirement 指向实际测试方法和 Java 17 线的关键提交；同名方法已在 Java 8、17、21 源码逐项核对。测试名称链接固定在 Java 17 源码 `360cbc5`。各线提交和覆盖率以本页对应矩阵为准。
 
+## 三条测试分支的托管证据
+
+| JDK | 测试分支 | 已验证源码和工作流提交 | GitHub Actions |
+| --- | --- | --- | --- |
+| 8 | `test/20261119-1.0.x` | `427d828c0d55dddc8df2b172c318bdc801d58b35` | [44425698386](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44425698386) |
+| 17 | `test/20261119-2.0.x` | `b1169d234d92c7dd1060a8a48c9273f2e4b581af` | [44425698286](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44425698286) · [常规全量 CI](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44425706221) |
+| 21 | `test/20261119-3.0.x` | `c1f30c48dcfcd8882a4c1f4a0d3148eb846daded` | [44425698650](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44425698650) |
+
+三条测试分支的远端 SHA 与表中通过的托管构建一致。逐项核对 59 项需求关联的 102 个具名方法，每条线的 Surefire 报告均包含全部方法的成功执行记录。10 份平台报告各执行枚举 25 项、argv 53 项、进程 48 项、协议 112 项、类型结果 21 项。六份 Browser Bridge 报告和三份 npm 安装版报告各执行 4 项。加上 Java 17 的全量 JVM 报告，共核对 20 份 JSON，命令均退出 0。
+
+Java 17 全量 JVM 报告旧配置漏列四个必选套件。用该次构建的 XML 重放并分别移除 `OpenCliArgSupportTest`、`SubprocessExecutionSupportTest`、`OpenCliArgvToCollectParserFullTest`、`OpenCliDiagnosticExportTest`，旧配置四次均返回 0。全量 JVM 报告与平台报告登记相同套件后，完整证据返回 0，四个缺失用例均返回 1。前述平台和真实执行报告已经覆盖这四个套件关联的追溯方法。
+
+## 历史 C04 候选证据
+
 | JDK | 已验证平台基线 | 当前 C04 候选 | 本地全量 | JaCoCo 行覆盖率 | 当前候选托管矩阵 |
 | --- | --- | --- | ---: | ---: | --- |
 | 8 | [`ebeb4de`](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44414786839) | [`b480d6f`](https://github.com/easy-4-java/opencli-java-sdk/commit/b480d6f19863633c34c705d0399ef4abb75ec063) | 2,263 | 3956/4262（92.82%） | [CI](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44415816379) |
@@ -14,7 +28,7 @@
 
 独立复审核对 59 项 ID 与 Java 17 固定源码链接，复核缺值选项的零派发证据并技术认可 Java 17 先实现、再移植到另外两线。D1 的正式确认及归档按既有流程处理。
 
-### 当前候选托管报告
+### C04 候选托管报告
 
 上表三个候选的 GitHub workflow 都已完成且结论为 success。逐份核对 10 份平台报告、6 份真实 Bridge 报告和 Java 17 全量 JVM 报告。每份均记录对应候选的精确 SHA 和退出 0，必选套件零失败、零错误、零跳过。
 

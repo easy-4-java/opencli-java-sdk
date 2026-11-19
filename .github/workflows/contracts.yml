@@ -142,6 +142,10 @@ jobs:
             --suite typed-result=io.github.easy4j.opencli.contract.OpenCliBrowserEvidenceResultTest \
             --suite typed-result=io.github.easy4j.opencli.capability.OpenCliDiagnosticsTest \
             --suite argv=io.github.easy4j.opencli.capability.OpenCliInvocationContextTest \
+            --suite argv=io.github.easy4j.opencli.core.OpenCliArgSupportTest \
+            --suite process=io.github.easy4j.opencli.core.support.SubprocessExecutionSupportTest \
+            --suite protocol=io.github.easy4j.opencli.remote.OpenCliArgvToCollectParserFullTest \
+            --suite typed-result=io.github.easy4j.opencli.core.OpenCliDiagnosticExportTest \
             --output contract-evidence/report.json
       - name: Upload actual JVM evidence
         if: always()
