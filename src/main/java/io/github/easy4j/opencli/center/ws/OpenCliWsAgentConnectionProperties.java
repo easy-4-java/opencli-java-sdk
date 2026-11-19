@@ -1,6 +1,7 @@
 package io.github.easy4j.opencli.center.ws;
 
 import lombok.Data;
+import lombok.ToString;
 
 /**
  * 边缘 JVM 作为「反向 WebSocket Agent」连入 opencli-admin 中心所需的连接参数。
@@ -9,6 +10,7 @@ import lombok.Data;
  * {@code register}，随后在处理 {@code collect} 时本地执行 opencli，并以 {@code result} 回传。
  * </p>
  */
+@ToString(onlyExplicitlyIncluded = true)
 @Data/**
 
  * Connection parameters for an edge JVM acting as a reverse WebSocket Agent
@@ -41,6 +43,7 @@ public class OpenCliWsAgentConnectionProperties {
     /**
      * 连接中心的 WebSocket 路径枚举。
      */
+    @ToString.Include
     private OpenCliCenterWebSocketPath webSocketPath = OpenCliCenterWebSocketPath.NODES_WS;
 
     /**
@@ -59,18 +62,33 @@ public class OpenCliWsAgentConnectionProperties {
      */
     private String nodeType = "shell";
 
+    /** 并行执行的 collect 任务上限，必须为正数。 */
+    @ToString.Include
+    private int maxConcurrentCollects = 4;
+
+    /** 排队的 collect 任务上限，零表示没有等待队列。 */
+    @ToString.Include
+    private int maxPendingCollects = 32;
+
+    /** 单条入站 WebSocket 消息的 UTF-8 字节上限，包括分片聚合。 */
+    @ToString.Include
+    private int maxInboundMessageBytes = 1024 * 1024;
+
     /**
      * 首次 {@code registered} 应答等待上限（毫秒）。
      */
+    @ToString.Include
     private long handshakeTimeoutMillis = 15_000L;
 
     /**
      * 断线后最小重连间隔（毫秒）。
      */
+    @ToString.Include
     private long minReconnectDelayMillis = 3_000L;
 
     /**
      * 断线后最大重连间隔（毫秒）。
      */
+    @ToString.Include
     private long maxReconnectDelayMillis = 60_000L;
 }

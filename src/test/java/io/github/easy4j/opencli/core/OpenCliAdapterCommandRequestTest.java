@@ -7,6 +7,49 @@ import org.junit.jupiter.api.Test;
 class OpenCliAdapterCommandRequestTest {
 
     @Test
+    void builderDiagnosticExcludesLiteralCommandAndArguments() {
+        OpenCliAdapterCommandRequest.OpenCliAdapterCommandRequestBuilder builder = OpenCliAdapterCommandRequest.builder()
+            .subcommand("command-canary")
+            .positional("positional-canary")
+            .options(Collections.singletonMap("prompt", "option-canary"));
+
+        String diagnostic = builder.toString();
+        for (String value : Arrays.asList("command-canary", "positional-canary", "option-canary")) {
+            assertFalse(diagnostic.contains(value), value);
+        }
+        assertEquals(Arrays.asList("command-canary", "positional-canary", "--prompt", "option-canary"),
+            builder.build().toSubcommandAndArgs());
+    }
+
+
+    @Test
+    void shouldRejectLegacyOptionWithNullStringFormBeforeSnapshot() {
+        Map<String, Object> opts = new LinkedHashMap<>();
+        opts.put("--value", new Object() {
+            @Override
+            public String toString() {
+                return null;
+            }
+        });
+
+        assertThrows(IllegalArgumentException.class,
+            () -> OpenCliAdapterCommandRequest.builder().subcommand("ask").options(opts));
+    }
+
+    @Test
+    void shouldRejectOrderedOptionWithNullStringForm() {
+        Object value = new Object() {
+            @Override
+            public String toString() {
+                return null;
+            }
+        };
+
+        assertThrows(IllegalArgumentException.class,
+            () -> OpenCliOption.value(OpenCliOptionSchema.value("--value", false), value));
+    }
+
+    @Test
     void shouldBuildWithPositionals() {
         OpenCliAdapterCommandRequest req = OpenCliAdapterCommandRequest.builder()
             .subcommand("ask")
@@ -116,7 +159,7 @@ class OpenCliAdapterCommandRequestTest {
     }
 
     @Test
-    void shouldSkipNullPositionalInToSubcommandAndArgs() {
+    void shouldPreserveEmptyPositionalInToSubcommandAndArgs() {
         OpenCliAdapterCommandRequest req = OpenCliAdapterCommandRequest.builder()
             .subcommand("sub")
             .positional("a")
@@ -124,7 +167,7 @@ class OpenCliAdapterCommandRequestTest {
             .positional("b")
             .build();
         List<String> argv = req.toSubcommandAndArgs();
-        assertEquals(Arrays.asList("sub", "a", "b"), argv);
+        assertEquals(Arrays.asList("sub", "a", "", "b"), argv);
     }
 
     @Test

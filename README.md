@@ -30,7 +30,7 @@ Multi-adapter CLI integration SDK for OpenCLI: browser / desktop / public-API ad
 
 ### 1.1 What it is
 
-**opencli-java-sdk** integrates Java applications with the [OpenCLI](https://github.com/partme-ai/opencli) multi-adapter CLI ecosystem. It executes `opencli <adapter> ...` subprocesses via Commons Exec, exposes typed results (`OpenCliResult` / `OpenCliTypedResult`), unified exception semantics, remote HTTP agent support (Unirest) and a center WebSocket reverse-agent client (Java-WebSocket). It compiles and runs on JDK 8.
+**opencli-java-sdk** integrates Java applications with the [OpenCLI](https://github.com/partme-ai/opencli) multi-adapter CLI ecosystem. It executes `opencli <adapter> ...` subprocesses via Commons Exec, exposes typed results (`OpenCliResult` / `OpenCliTypedResult`), unified exception semantics, remote HTTP agent support (Apache HttpClient) and a center WebSocket reverse-agent client (Java-WebSocket). It compiles and runs on JDK 8.
 
 ### 1.2 What it is not
 
@@ -73,7 +73,7 @@ Multi-adapter CLI integration SDK for OpenCLI: browser / desktop / public-API ad
 | JDK | 17+ | 2.0.x line baseline |
 | Maven | 3.9.16 | Repository Maven Wrapper version |
 | commons-exec | 1.6.0 | Local subprocess execution |
-| Unirest Java | 3.14.5 | Remote agent HTTP |
+| Apache HttpClient | Provided by Unirest Java 3.14.5 | Remote agent HTTP |
 | Java-WebSocket | 1.6.0 | Center WebSocket |
 | `com.fasterxml.jackson.core:jackson-databind` | 2.22.1 | JSON parsing |
 | SLF4J | 2.0.18 | Logging facade |
@@ -102,7 +102,7 @@ Version-line matrix:
 |            typed wrappers (codex, npm...) |
 |  meta      list / validate / plugin / ... |
 |  browser   session API (wait, extract...) |
-|  remote    POST {base}/collect (Unirest)  |
+|  remote    POST {base}/collect (Apache HttpClient)  |
 |  center    WebSocket reverse agent        |
 +------------------------------------------+
         |
@@ -177,23 +177,53 @@ Configuration is object-based via `OpenCliProperties`:
 | `executionTarget` | `LOCAL_PROCESS` | `LOCAL_PROCESS` or `REMOTE_AGENT_HTTP` |
 | `executable` | `opencli` | Executable name or absolute path |
 | `workingDirectory` | — | Subprocess working directory |
-| `commandTimeoutMillis` | `300000` | Command timeout (ms; reused as HTTP timeout in remote mode) |
-| `maxConcurrentExecutions` | `0` | Max concurrent subprocesses (0 = unlimited) |
+| `commandTimeoutMillis` | `300000` | Positive timeout in milliseconds. Local queueing and execution share one monotonic deadline. Remote pool acquisition, connection and response reading share the invocation budget. |
+| `maxConcurrentExecutions` | `0` | Per-client subprocess capacity, fixed at construction. Zero uses `max(2, availableProcessors)`. Negative values are invalid. |
+| `maxStdoutBytes` | `8388608` | Positive local stdout capture limit in bytes. |
+| `maxStderrBytes` | `2097152` | Positive local stderr capture limit in bytes. |
+| `maxOutputBytes` | `10485760` | Legacy ceiling for each local stream. A positive value can reduce either limit. A nonpositive value leaves the two stream limits in effect. |
+| `cleanupGraceMillis` | `5000` | Positive, separate local cleanup grace in milliseconds. Timeout values must fit the monotonic nanosecond budget. |
 | `startupProbeTimeoutMillis` | `30000` | Availability-probe timeout |
 | `environment` | `{}` | Extra environment variables (e.g. `OPENCLI_CDP_ENDPOINT`) |
-| `remoteAgentBaseUrl` | — | Remote agent base URL |
+| `remoteAgentBaseUrl` | — | Remote Agent HTTP(S) base URL. Keep any deployment path prefix and omit user info, queries and fragments. |
 | `remoteCollectMode` | `cdp` | `bridge` or `cdp` (must match the agent side) |
 | `remoteOutputFormat` | `json` | Output format requested from the agent |
 | `remoteCdpEndpoint` | — | Optional CDP endpoint overriding the agent default |
 | `remoteCaptureRawHttpResponse` | `false` | Keep the raw HTTP body in `OpenCliResult#getRemoteRawHttpBody()` (large responses — use with care) |
+| `maxRemoteResponseBytes` | `10485760` | Positive byte limit after HTTP decompression. An oversized response raises `OpenCliRemoteResponseLimitException` with its HTTP status and limit. Raw capture only applies to accepted bodies. |
 
 Notes:
 
+- Local `browser console --follow` and `browser network --follow` use synchronous capture with a finite execution timeout and stdout/stderr byte limits. A successful CLI exit returns the collected output. Timeout, cancellation, excess output, and nonzero exit expose the termination reason and available partial output through the execution exception. A disabled command timeout is rejected before launch. Live streaming is unsupported.
 - In remote mode the `stdout` is the JSON `items` the agent returned (parsed into line items per `format`), which may differ from local raw subprocess text; `leadingArguments` are local-only and are not injected on the remote path.
+- A legacy HTTP `/collect` reply must contain a JSON boolean `success`. Invalid envelopes raise `OpenCliRemoteProtocolException`, which extends `OpenCliExecutableFailureException`. A valid reply with `success: true` and omitted or null `items` still returns `[]`.
+- Legacy HTTP argv dispatch accepts SDK-listed adapters and one subcommand. Root metadata, Browser sessions, external passthrough, repeated options, `--`, and tokens whose spacing or leading dash cannot be preserved are rejected before HTTP. Place positionals before options and supply an explicit value for each option. The legacy server appends a value to every option, so bare flags require local execution. Use local execution for commands that need the original argv. A deployment with its own adapter contract can use the explicit `OpenCliCollectRequest` API.
+- A collect timeout raises `OpenCliRemoteTimeoutException`. After dispatch to the HTTP transport, `isRemoteOutcomeUnknown()` is true. Collect does not automatically retry or follow redirects.
+- Inspect `getRemoteExecutionDetails()` on the result or on an exception’s `getPartialResult()` to distinguish HTTP status, Agent business status and the source of `items`. The legacy 0/1 returned by `getExitCode()` is synthetic. HTTP and protocol failure snapshots have no exit code. Accepted response text is available in those snapshots only when raw capture is enabled.
+- If a collect connection breaks before a complete response, the failure snapshot reports `TRANSPORT_FAILURE` and `isRemoteOutcomeUnknown()`. `getObservedHttpStatus()` is empty when no headers arrived. The snapshot has no CLI exit code or incomplete response body. Server-specific extensions require a verified Agent contract.
+- If your Agent accepts a credential header, configure `setRemoteAuthentication(new OpenCliRemoteAuthentication("Authorization", System.getenv("OPENCLI_AGENT_AUTHORIZATION")))`. Supply the complete header value. The Agent base URL must use HTTPS for credentials and contain no user info, query or fragment. The SDK sends the configured header on `/collect`. OAuth discovery and request signing are unsupported.
+- Parse previously captured CLI help with `OpenCliHelpParser.parse(stdout)`. The result retains the original text and reports whether the schema is available. Structured commands preserve placeholders and separate command, namespace, global and common options.
 - `execution-target=REMOTE_AGENT_HTTP` makes the availability probe report `SKIPPED_REMOTE_MODE` (treated as startable).
+
+### Windows npm launcher
+
+For an npm-installed OpenCLI, configure the full path to `node.exe` and place the package's JavaScript entry point first in `leadingArguments`. Use the entry declared in the installed package's `bin.opencli` field. The SDK rejects `.cmd` and `.bat` executables because Windows batch shims parse arguments through a shell.
+
+```java
+OpenCliProperties props = new OpenCliProperties();
+props.setExecutable("C:/Program Files/nodejs/node.exe");
+props.getLeadingArguments().add("C:/path/to/node_modules/@jackwener/opencli/dist/src/main.js");
+```
 
 <a id="8-core-usage"></a>
 ## 8. Core Usage
+
+### Local argv migration
+
+- Local invocation preserves empty strings, padding, Unicode, line breaks, and literal option terminators. If your application relied on trimming or dropping values, normalize its inputs explicitly before calling the SDK.
+- Use the adapter's no-argument invocation or an empty list for a root command. A null varargs array or null token is invalid. An empty string token remains a valid value.
+- In the legacy options map, Boolean `false` still omits the option. Use `OpenCliOption.value` for a schema-supported literal `false`, or `OpenCliOption.negated` for a schema-supported negative flag. A negatable option reserves both its positive and negative names, so duplicate definitions across ordered and legacy options are rejected.
+- On Windows, use the full path to a native executable such as `node.exe`, with the installed OpenCLI JavaScript entry point in `leadingArguments`. The SDK rejects batch launchers. If the JVM is running in strict process mode, a literal double quote in an argument to a native EXE or an extensionless launcher (the shell `cmd.exe` follows its own command contract) is rejected before spawn with its index and an explanation.
 
 ### 8.1 meta() and browser()
 
@@ -224,6 +254,24 @@ agent.close();
 ```
 
 Protocol: edge sends `register`; center replies `registered`; center sends `collect` (request_id, site, command, args, positional_args, format, mode); the SDK executes `opencli` locally (via `copyForLocalCliExecution()` to avoid loops) and replies `result`; plus `ping` / `pong`.
+
+The reverse agent accepts up to four concurrent collect tasks and 32 queued tasks by default. Set `maxConcurrentCollects` and `maxPendingCollects` on the connection properties before constructing the agent to change the limits. A queue capacity of zero disables waiting. When full, the agent replies with a failed `result` and the error `worker is busy`.
+
+The reverse agent accepts collect only after the current connection acknowledges registration. Incoming WebSocket messages are capped at 1 MiB by default, including the assembled size of fragments. Set `maxInboundMessageBytes` before constructing the agent to configure the finite byte limit. Oversized messages close the affected connection before any command is queued.
+
+Collect request IDs must be nonblank strings of at most 128 UTF-8 bytes. The agent suppresses identical in-flight requests and rejects a reused ID with a different payload. An explicit retry may return a result marked `cached: true`. The in-memory cache keeps up to 1,024 completed results for at most ten minutes. Replay across reconnects requires the same TLS-verified endpoint. Plain WebSocket connections keep session-local deduplication. A new agent instance starts with an empty cache.
+
+`stop()` stops admission, discards queued tasks and allows in-flight work up to five seconds to finish before requesting cancellation. After the runner has stopped, `start()` can reconnect the same instance. `close()` immediately requests cancellation and closes the instance permanently.
+
+### Diagnostic export
+
+Call `OpenCliDiagnosticExport.export(result, 512)` explicitly with an `OpenCliResult` or an exception's partial result. The byte budget applies to UTF-8 text. Output contains only status and field lengths, with a `truncated=true` marker when fields do not fit. Field lengths can disclose how much data was present.
+
+The SDK returns the text in memory. Your application controls the destination and retention. SDK diagnostics omit argv values, raw content, URLs and filesystem paths. Applications that use or log raw results should protect that data. `remoteCaptureRawHttpResponse` is still opt-in.
+
+`OpenCliAvailabilityReport.toDiagnosticMessage()` is suitable for startup logs and reports readiness and status. Read the executable paths or probe message through their dedicated getters when needed.
+
+At the low-level process boundary, `RunSession.getHandler().getException()` returns a safe I/O summary. `RunSession.getIoFailure()` is the explicit raw diagnostic accessor. Handle that exception as sensitive data because it can include local paths.
 
 <a id="9-testing--build"></a>
 ## 9. Testing & Build

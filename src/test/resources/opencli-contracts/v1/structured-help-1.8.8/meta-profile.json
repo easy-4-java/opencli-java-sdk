@@ -1,0 +1,71 @@
+{
+  "namespace": "profile",
+  "command": "opencli profile",
+  "usage": "opencli profile <command> [args] [options]",
+  "description": "Manage Browser Bridge Chrome profiles",
+  "command_count": 3,
+  "commands": [
+    {
+      "name": "list",
+      "command": "opencli profile list",
+      "usage": "opencli profile list [options]",
+      "description": "List Chrome profiles connected through the Browser Bridge extension",
+      "positionals": [],
+      "command_options": []
+    },
+    {
+      "name": "rename",
+      "command": "opencli profile rename",
+      "usage": "opencli profile rename <contextId> <alias> [options]",
+      "description": "Assign a local alias to a connected Browser Bridge profile",
+      "positionals": [
+        {
+          "name": "contextId",
+          "required": true,
+          "help": "Profile contextId from opencli profile list"
+        },
+        {
+          "name": "alias",
+          "required": true,
+          "help": "Local alias, e.g. work or personal"
+        }
+      ],
+      "command_options": []
+    },
+    {
+      "name": "use",
+      "command": "opencli profile use",
+      "usage": "opencli profile use <profile> [options]",
+      "description": "Set the default Browser Bridge profile for future commands",
+      "positionals": [
+        {
+          "name": "profile",
+          "required": true,
+          "help": "Profile alias or contextId"
+        }
+      ],
+      "command_options": []
+    }
+  ],
+  "namespace_options": [],
+  "global_options": [
+    {
+      "name": "version",
+      "flags": "-V, --version",
+      "help": "output the version number"
+    },
+    {
+      "name": "profile",
+      "flags": "--profile <name>",
+      "help": "Chrome profile/context alias for Browser Bridge commands",
+      "takes_value": "required"
+    }
+  ],
+  "structured_help": {
+    "formats": [
+      "yaml",
+      "json"
+    ],
+    "usage": "opencli profile --help -f yaml"
+  }
+}

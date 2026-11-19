@@ -1,0 +1,23 @@
+{
+  "url": "http://127.0.0.1:18765/basic.html",
+  "sources": {
+    "dom": {
+      "ok": true,
+      "chars": 77,
+      "bytes": 77,
+      "lines": 5,
+      "approx_tokens": 20,
+      "refs": 1,
+      "frame_sections": 0,
+      "elapsed_ms": 0
+    },
+    "ax": {
+      "ok": false,
+      "elapsed_ms": 0,
+      "error": {
+        "code": "BROWSER_AX_UNAVAILABLE",
+        "message": "Fixture CDP unavailable"
+      }
+    }
+  }
+}

@@ -29,7 +29,7 @@
 
 ### 1.1 是什么
 
-**opencli-java-sdk** 将 Java 应用与 [OpenCLI](https://github.com/partme-ai/opencli) 多适配器 CLI 生态对接。它通过 Commons Exec 执行 `opencli <adapter> ...` 子进程，提供类型化结果（`OpenCliResult` / `OpenCliTypedResult`）与统一异常语义，并支持远程 HTTP Agent（Unirest）与中心 WebSocket 反向 Agent 客户端（Java-WebSocket）。可在 JDK 8 线编译运行。
+**opencli-java-sdk** 将 Java 应用与 [OpenCLI](https://github.com/partme-ai/opencli) 多适配器 CLI 生态对接。它通过 Commons Exec 执行 `opencli <adapter> ...` 子进程，提供类型化结果（`OpenCliResult` / `OpenCliTypedResult`）与统一异常语义，并支持远程 HTTP Agent（Apache HttpClient）与中心 WebSocket 反向 Agent 客户端（Java-WebSocket）。可在 JDK 8 线编译运行。
 
 ### 1.2 不是什么
 
@@ -72,7 +72,7 @@
 | JDK | 17+ | 2.0.x 线基线 |
 | Maven | 3.9.16 | 仓库 Maven Wrapper 版本 |
 | commons-exec | 1.6.0 | 本地子进程执行 |
-| Unirest Java | 3.14.5 | 远程 Agent HTTP |
+| Apache HttpClient | 由 Unirest Java 3.14.5 提供 | 远程 Agent HTTP |
 | Java-WebSocket | 1.6.0 | 中心 WebSocket |
 | `com.fasterxml.jackson.core:jackson-databind` | 2.22.1 | JSON 解析 |
 | SLF4J | 2.0.18 | 日志门面 |
@@ -101,7 +101,7 @@
 |            强类型封装（codex、npm...）     |
 |  meta      list / validate / plugin / ... |
 |  browser   会话 API（wait、extract...）    |
-|  remote    POST {base}/collect（Unirest） |
+|  remote    POST {base}/collect（Apache HttpClient） |
 |  center    WebSocket 反向 Agent           |
 +------------------------------------------+
         |
@@ -176,23 +176,54 @@ cli.gemini().deepResearch("topic",
 | `executionTarget` | `LOCAL_PROCESS` | `LOCAL_PROCESS` 或 `REMOTE_AGENT_HTTP` |
 | `executable` | `opencli` | 可执行文件名或绝对路径 |
 | `workingDirectory` | — | 子进程工作目录 |
-| `commandTimeoutMillis` | `300000` | 命令超时（毫秒；远程模式复用为 HTTP 超时） |
-| `maxConcurrentExecutions` | `0` | 最大并发子进程数（0 = 不限） |
+| `commandTimeoutMillis` | `300000` | 正数，单位毫秒。本地排队与执行共享同一个单调时钟预算，远程连接池等待、建连和读取响应共享调用预算。 |
+| `maxConcurrentExecutions` | `0` | 每个客户端的子进程并发数，构造时固定。零使用 `max(2, availableProcessors)`，负数无效。 |
+| `maxStdoutBytes` | `8388608` | 本地标准输出采集上限，单位字节，必须为正数。 |
+| `maxStderrBytes` | `2097152` | 本地标准错误采集上限，单位字节，必须为正数。 |
+| `maxOutputBytes` | `10485760` | 每个本地输出流的兼容上限。正数可进一步降低各流的上限，非正数沿用分别配置的上限。 |
+| `cleanupGraceMillis` | `5000` | 独立的本地清理等待上限，单位毫秒，必须为正数。时间配置必须可换算成单调时钟的纳秒预算。 |
 | `startupProbeTimeoutMillis` | `30000` | 可用性探测超时 |
 | `environment` | `{}` | 额外环境变量（如 `OPENCLI_CDP_ENDPOINT`） |
-| `remoteAgentBaseUrl` | — | 远程 Agent 根地址 |
+| `remoteAgentBaseUrl` | — | 远程 Agent 的 HTTP(S) 基址，可以保留部署路径前缀。省略用户信息、查询参数和片段。 |
 | `remoteCollectMode` | `cdp` | `bridge` 或 `cdp`（须与 Agent 侧一致） |
 | `remoteOutputFormat` | `json` | 向 Agent 请求的输出格式 |
 | `remoteCdpEndpoint` | — | 可选，覆盖 Agent 默认 CDP 端点 |
 | `remoteCaptureRawHttpResponse` | `false` | 在 `OpenCliResult#getRemoteRawHttpBody()` 中保留原始 HTTP 报文（大响应请谨慎开启） |
+| `maxRemoteResponseBytes` | `10485760` | HTTP 解压后的响应体字节上限，须为正数。超限抛出 `OpenCliRemoteResponseLimitException`，含 HTTP 状态和上限。原文捕获受同一上限约束。 |
+
+本地 `browser console --follow` 和 `browser network --follow` 使用同步采集，受有限执行时限以及 stdout、stderr 字节上限约束。CLI 正常退出后返回采集结果。超时、中断、输出超限和非零退出时，可从执行异常取得终止原因与已有部分输出。禁用命令时限会在启动前被拒绝。当前接口仅支持同步采集。
 
 注意事项：
 
 - 远程模式下 `stdout` 为 Agent 返回的 `items` 的 JSON（已按 `format` 解析为行列表），与本地原始子进程文本可能不同；`leadingArguments` 等仅影响本地进程拼装，**远程路径不注入**。
+- 旧版 HTTP `/collect` 响应须包含 JSON 布尔字段 `success`。无效响应抛出 `OpenCliRemoteProtocolException`，它继承 `OpenCliExecutableFailureException`。当 `success: true` 且 `items` 缺失或为 null 时，仍返回 `[]`。
+- 旧版 HTTP argv 调用仅接收 SDK 清单中的适配器及其子命令。根命令、Browser 会话、外部程序透传、重复选项、`--` 以及无法保留边界空格或前导短横的参数会在发请求前被拒绝。位置参数应在选项前，每个选项必须显式带值。旧版服务会给每个选项补一个值，裸开关应使用本地执行。需要原样传递 argv 时使用本地执行，已有自定义 Agent 契约时可用显式 `OpenCliCollectRequest` API。
+- 远程调用超时抛出 `OpenCliRemoteTimeoutException`。请求提交给 HTTP 传输后，`isRemoteOutcomeUnknown()` 为 true。客户端不会自动重试或跟随重定向。
+- 通过结果或异常的 `getPartialResult()` 调用 `getRemoteExecutionDetails()`，查看 HTTP 状态、Agent 业务状态和 `items` 的来源。`getExitCode()` 的 0/1 是兼容映射。HTTP 或协议失败快照没有退出码。仅在开启原文捕获时，失败快照才携带已通过字节上限检查的响应正文。
+- collect 连接在完整响应到达前中断时，失败快照标记 `TRANSPORT_FAILURE`，`isRemoteOutcomeUnknown()` 为 true。未收到响应头时，`getObservedHttpStatus()` 为空。快照不包含 CLI 退出码或不完整响应正文。服务端扩展须经过对应 Agent 契约验证。
+- Agent 支持认证请求头时，可调用 `setRemoteAuthentication(new OpenCliRemoteAuthentication("Authorization", System.getenv("OPENCLI_AGENT_AUTHORIZATION")))`，传入完整请求头值。认证须使用 HTTPS，Agent 基础地址须省略用户信息、查询参数和片段。SDK 只在 `/collect` 请求上发送已配置的认证头。OAuth 发现和请求签名尚不支持。
+- 对已采集的 CLI 帮助调用 `OpenCliHelpParser.parse(stdout)`，可读取结构化命令、占位符、不同作用域的选项和原文。纯文本、混合输出或无效结构会返回未知状态及原因。
 - `execution-target=REMOTE_AGENT_HTTP` 时可用性探测报告 `SKIPPED_REMOTE_MODE`（视为可启动）。
+
+### Windows npm 启动入口
+
+通过 npm 安装 OpenCLI 时，将 `executable` 配为 `node.exe` 的完整路径，并将包的 JavaScript 入口放在 `leadingArguments` 首位。入口以已安装包的 `bin.opencli` 字段为准。Windows 批处理通过 Shell 解析参数，SDK 会明确拒绝将 `.cmd` 或 `.bat` 用作可执行文件。
+
+```java
+OpenCliProperties props = new OpenCliProperties();
+props.setExecutable("C:/Program Files/nodejs/node.exe");
+props.getLeadingArguments().add("C:/path/to/node_modules/@jackwener/opencli/dist/src/main.js");
+```
 
 <a id="8-core-usage"></a>
 ## 8. 核心用法
+
+### 本地 argv 迁移
+
+- 本地调用原样保留空字符串、边界空白、Unicode、换行和字面参数终止符。此前依赖 SDK 裁剪或丢弃参数的调用方，应在调用前显式处理自己的输入。
+- 调用适配器根命令时使用无参调用或空列表。varargs 数组与 token 不能为 null，空字符串仍是有效参数值。
+- 旧选项 Map 的布尔 `false` 继续表示省略。显式布尔值使用有对应 schema 的 `OpenCliOption.value`，否定选项使用 `OpenCliOption.negated`。可否定的结构化选项同时占用正向名和否定别名，避免与旧 Map 或其他结构化选项冲突。
+- Windows 使用 `node.exe` 等原生可执行文件的完整路径，并在 `leadingArguments` 中指定已安装的 OpenCLI JavaScript 入口。SDK 拒绝批处理入口。在 JVM 严格进程模式下，原生 EXE 或无扩展名的启动名参数中的字面双引号（`cmd.exe` 遵循自身的命令契约）在启动前被明确拒绝，错误包含参数索引。
 
 ### 8.1 meta() 与 browser()
 
@@ -223,6 +254,24 @@ agent.close();
 ```
 
 协议摘要：边缘发送 `register`；中心回执 `registered`；中心下发 `collect`（request_id、site、command、args、positional_args、format、mode）；SDK 在本机执行 `opencli`（通过 `copyForLocalCliExecution()` 强制本地子进程，避免回路）并回执 `result`；另有 `ping` / `pong`。
+
+反向 Agent 默认最多同时执行 4 个 collect 任务，另有 32 个等待名额。构建 Agent 前，可在连接配置中设置 `maxConcurrentCollects` 和 `maxPendingCollects`。等待容量为零时直接拒绝超额请求。容量用尽时返回失败的 `result`，错误为 `worker is busy`。
+
+当前连接收到合法注册确认后，反向 Agent 才开始收单。入站 WebSocket 消息默认上限为 1 MiB，分片按聚合后的字节数计量。需要调整上限时，在创建 Agent 前设置有限的 `maxInboundMessageBytes`。超限消息会关闭对应连接，不会提交命令。
+
+collect 请求 ID 必须为非空白字符串，长度上限 128 个 UTF-8 字节。相同的在途请求只执行一次，同一个 ID 对应不同载荷时会明确拒绝。显式重试已完成的请求有可能收到标记为 `cached: true` 的结果。内存缓存最多保留 1,024 条完成结果，每条最长 10 分钟。跨连接重放要求使用同一个经过 TLS 校验的端点，明文 WebSocket 的去重范围为当前连接。创建新 Agent 实例时从空缓存开始。
+
+`stop()` 停止接单并丢弃等待任务，为已在途任务保留最多 5 秒的收尾时间，随后请求取消。连接线程退出后，同一实例可再次调用 `start()` 重连。`close()` 立即请求取消，并永久关闭该实例。
+
+### 诊断导出
+
+如需导出诊断，请调用 `OpenCliDiagnosticExport.export(result, 512)`，传入 `OpenCliResult` 或异常中的部分结果。上限按 UTF-8 字节计算。输出只包含状态和字段长度，字段放不下时会标明 `truncated=true`。字段长度仍可能反映数据规模。
+
+SDK 在内存中返回文本，由应用决定目的地和保留时间。SDK 诊断会排除命令参数、原始内容、URL 和文件路径。应用读取或记录原始结果时应自行保护这些数据。`remoteCaptureRawHttpResponse` 仍需显式开启。
+
+`OpenCliAvailabilityReport.toDiagnosticMessage()` 可用于启动日志，只输出就绪状态和状态码。需要查看可执行文件路径或原始探测消息时，调用对应的 getter。
+
+低层进程接口的 `RunSession.getHandler().getException()` 返回安全的 I/O 摘要。`RunSession.getIoFailure()` 是显式读取原始诊断的入口，异常可能包含本地路径，应按敏感数据处理。
 
 <a id="9-testing--build"></a>
 ## 9. 测试与构建

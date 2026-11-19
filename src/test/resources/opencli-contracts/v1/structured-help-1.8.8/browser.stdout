@@ -1,0 +1,1624 @@
+{
+  "namespace": "browser",
+  "command": "opencli browser",
+  "usage": "opencli browser <session> <command> [options]",
+  "description": "Browser control — navigate, click, type, extract, wait (no LLM needed)",
+  "command_count": 42,
+  "commands": [
+    {
+      "name": "analyze",
+      "command": "opencli browser <session> analyze",
+      "usage": "opencli browser <session> analyze <url> [options]",
+      "description": "Classify site: anti-bot vendor, real-data API candidates, pattern (A/B/C/D), nearest adapter, next step",
+      "positionals": [
+        {
+          "name": "url",
+          "required": true
+        }
+      ],
+      "command_options": [
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "back",
+      "command": "opencli browser <session> back",
+      "usage": "opencli browser <session> back [options]",
+      "description": "Go back in browser history",
+      "positionals": [],
+      "command_options": [
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "bind",
+      "command": "opencli browser <session> bind",
+      "usage": "opencli browser <session> bind [options]",
+      "description": "Bind the current Chrome tab/window to the browser session named by <session>",
+      "positionals": [],
+      "command_options": []
+    },
+    {
+      "name": "check",
+      "command": "opencli browser <session> check",
+      "usage": "opencli browser <session> check [target] [options]",
+      "description": "Ensure a checkbox/radio/aria-checked control is checked — JSON envelope {checked, changed, target, matches_n}",
+      "positionals": [
+        {
+          "name": "target",
+          "help": "Numeric ref (from browser state / find), CSS selector, or omit when using --role/--name/etc."
+        }
+      ],
+      "command_options": [
+        {
+          "name": "role",
+          "flags": "--role <role>",
+          "help": "Semantic role (button, link, textbox, option, etc.)",
+          "takes_value": "required"
+        },
+        {
+          "name": "name",
+          "flags": "--name <text>",
+          "help": "Accessible name contains text (aria-label, label, title, placeholder, or visible text)",
+          "takes_value": "required"
+        },
+        {
+          "name": "label",
+          "flags": "--label <text>",
+          "help": "Associated label contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "text",
+          "flags": "--text <text>",
+          "help": "Visible text contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "testid",
+          "flags": "--testid <id>",
+          "help": "data-testid / data-test / test-id contains id",
+          "takes_value": "required"
+        },
+        {
+          "name": "nth",
+          "flags": "--nth <n>",
+          "help": "When <target> is a multi-match CSS selector, pick the nth match (0-based)",
+          "takes_value": "required"
+        },
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "click",
+      "command": "opencli browser <session> click",
+      "usage": "opencli browser <session> click [target] [options]",
+      "description": "Click element — JSON envelope {clicked, target, matches_n}",
+      "positionals": [
+        {
+          "name": "target",
+          "help": "Numeric ref (from browser state / find), CSS selector, or omit when using --role/--name/etc."
+        }
+      ],
+      "command_options": [
+        {
+          "name": "role",
+          "flags": "--role <role>",
+          "help": "Semantic role (button, link, textbox, option, etc.)",
+          "takes_value": "required"
+        },
+        {
+          "name": "name",
+          "flags": "--name <text>",
+          "help": "Accessible name contains text (aria-label, label, title, placeholder, or visible text)",
+          "takes_value": "required"
+        },
+        {
+          "name": "label",
+          "flags": "--label <text>",
+          "help": "Associated label contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "text",
+          "flags": "--text <text>",
+          "help": "Visible text contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "testid",
+          "flags": "--testid <id>",
+          "help": "data-testid / data-test / test-id contains id",
+          "takes_value": "required"
+        },
+        {
+          "name": "nth",
+          "flags": "--nth <n>",
+          "help": "When <target> is a multi-match CSS selector, pick the nth match (0-based)",
+          "takes_value": "required"
+        },
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "close",
+      "command": "opencli browser <session> close",
+      "usage": "opencli browser <session> close [options]",
+      "description": "Release the current browser session tab lease",
+      "positionals": [],
+      "command_options": []
+    },
+    {
+      "name": "console",
+      "command": "opencli browser <session> console",
+      "usage": "opencli browser <session> console [options]",
+      "description": "Read recent browser console messages",
+      "positionals": [],
+      "command_options": [
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        },
+        {
+          "name": "level",
+          "flags": "--level <level>",
+          "help": "Console level: all, error, warning, log, info, debug",
+          "takes_value": "required",
+          "default": "all"
+        },
+        {
+          "name": "since",
+          "flags": "--since <duration>",
+          "help": "Only include messages from the last duration (for example: 30s, 2m)",
+          "takes_value": "required"
+        },
+        {
+          "name": "until",
+          "flags": "--until <duration>",
+          "help": "Only include messages older than the duration from now",
+          "takes_value": "required"
+        },
+        {
+          "name": "follow",
+          "flags": "--follow",
+          "help": "Continuously print new console messages as JSON lines",
+          "default": false
+        }
+      ]
+    },
+    {
+      "name": "dblclick",
+      "command": "opencli browser <session> dblclick",
+      "usage": "opencli browser <session> dblclick [target] [options]",
+      "description": "Double-click element — JSON envelope {dblclicked, target, matches_n}",
+      "positionals": [
+        {
+          "name": "target",
+          "help": "Numeric ref (from browser state / find), CSS selector, or omit when using --role/--name/etc."
+        }
+      ],
+      "command_options": [
+        {
+          "name": "role",
+          "flags": "--role <role>",
+          "help": "Semantic role (button, link, textbox, option, etc.)",
+          "takes_value": "required"
+        },
+        {
+          "name": "name",
+          "flags": "--name <text>",
+          "help": "Accessible name contains text (aria-label, label, title, placeholder, or visible text)",
+          "takes_value": "required"
+        },
+        {
+          "name": "label",
+          "flags": "--label <text>",
+          "help": "Associated label contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "text",
+          "flags": "--text <text>",
+          "help": "Visible text contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "testid",
+          "flags": "--testid <id>",
+          "help": "data-testid / data-test / test-id contains id",
+          "takes_value": "required"
+        },
+        {
+          "name": "nth",
+          "flags": "--nth <n>",
+          "help": "When <target> is a multi-match CSS selector, pick the nth match (0-based)",
+          "takes_value": "required"
+        },
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "dialog accept",
+      "command": "opencli browser <session> dialog accept",
+      "usage": "opencli browser <session> dialog accept [options]",
+      "description": "Accept the currently open JavaScript dialog",
+      "positionals": [],
+      "command_options": [
+        {
+          "name": "text",
+          "flags": "--text <text>",
+          "help": "Prompt text to submit for prompt() dialogs",
+          "takes_value": "required"
+        },
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "dialog dismiss",
+      "command": "opencli browser <session> dialog dismiss",
+      "usage": "opencli browser <session> dialog dismiss [options]",
+      "description": "Dismiss the currently open JavaScript dialog",
+      "positionals": [],
+      "command_options": [
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "drag",
+      "command": "opencli browser <session> drag",
+      "usage": "opencli browser <session> drag [source] [target] [options]",
+      "description": "Drag one element to another — JSON envelope {dragged, source, target, source_matches_n, target_matches_n}",
+      "positionals": [
+        {
+          "name": "source",
+          "help": "Numeric ref/CSS selector to drag from, or omit with --from-role/--from-name/etc."
+        },
+        {
+          "name": "target",
+          "help": "Numeric ref/CSS selector to drop onto, or omit with --to-role/--to-name/etc."
+        }
+      ],
+      "command_options": [
+        {
+          "name": "fromRole",
+          "flags": "--from-role <role>",
+          "help": "from semantic role",
+          "takes_value": "required"
+        },
+        {
+          "name": "fromName",
+          "flags": "--from-name <text>",
+          "help": "from accessible name contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "fromLabel",
+          "flags": "--from-label <text>",
+          "help": "from associated label contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "fromText",
+          "flags": "--from-text <text>",
+          "help": "from visible text contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "fromTestid",
+          "flags": "--from-testid <id>",
+          "help": "from data-testid / data-test / test-id contains id",
+          "takes_value": "required"
+        },
+        {
+          "name": "toRole",
+          "flags": "--to-role <role>",
+          "help": "to semantic role",
+          "takes_value": "required"
+        },
+        {
+          "name": "toName",
+          "flags": "--to-name <text>",
+          "help": "to accessible name contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "toLabel",
+          "flags": "--to-label <text>",
+          "help": "to associated label contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "toText",
+          "flags": "--to-text <text>",
+          "help": "to visible text contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "toTestid",
+          "flags": "--to-testid <id>",
+          "help": "to data-testid / data-test / test-id contains id",
+          "takes_value": "required"
+        },
+        {
+          "name": "fromNth",
+          "flags": "--from-nth <n>",
+          "help": "When <source> is a multi-match CSS selector, pick the nth match (0-based)",
+          "takes_value": "required"
+        },
+        {
+          "name": "toNth",
+          "flags": "--to-nth <n>",
+          "help": "When <target> is a multi-match CSS selector, pick the nth match (0-based)",
+          "takes_value": "required"
+        },
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "eval",
+      "command": "opencli browser <session> eval",
+      "usage": "opencli browser <session> eval <js> [options]",
+      "description": "Execute JS in page context, return result",
+      "positionals": [
+        {
+          "name": "js",
+          "required": true,
+          "help": "JavaScript code"
+        }
+      ],
+      "command_options": [
+        {
+          "name": "frame",
+          "flags": "--frame <index>",
+          "help": "Cross-origin iframe index from \"browser frames\"",
+          "takes_value": "required"
+        },
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "extract",
+      "command": "opencli browser <session> extract",
+      "usage": "opencli browser <session> extract [options]",
+      "description": "Extract page content as markdown, paragraph-aware chunks for long pages",
+      "positionals": [],
+      "command_options": [
+        {
+          "name": "selector",
+          "flags": "--selector <css>",
+          "help": "CSS selector scope; defaults to <main>/<article>/<body>",
+          "takes_value": "required"
+        },
+        {
+          "name": "chunkSize",
+          "flags": "--chunk-size <chars>",
+          "help": "Target chunk size in chars",
+          "takes_value": "required",
+          "default": "20000"
+        },
+        {
+          "name": "start",
+          "flags": "--start <char>",
+          "help": "Start offset (use next_start_char from a previous extract)",
+          "takes_value": "required",
+          "default": "0"
+        },
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "fill",
+      "command": "opencli browser <session> fill",
+      "usage": "opencli browser <session> fill [targetOrText] [text] [options]",
+      "description": "Set input/textarea/contenteditable text exactly and verify the value — JSON envelope {filled, verified, text, actual}",
+      "positionals": [
+        {
+          "name": "targetOrText",
+          "help": "Numeric ref/CSS target, or text when using --role/--name/etc."
+        },
+        {
+          "name": "text",
+          "help": "Text to set exactly"
+        }
+      ],
+      "command_options": [
+        {
+          "name": "role",
+          "flags": "--role <role>",
+          "help": "Semantic role (button, link, textbox, option, etc.)",
+          "takes_value": "required"
+        },
+        {
+          "name": "name",
+          "flags": "--name <text>",
+          "help": "Accessible name contains text (aria-label, label, title, placeholder, or visible text)",
+          "takes_value": "required"
+        },
+        {
+          "name": "label",
+          "flags": "--label <text>",
+          "help": "Associated label contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "text",
+          "flags": "--text <text>",
+          "help": "Visible text contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "testid",
+          "flags": "--testid <id>",
+          "help": "data-testid / data-test / test-id contains id",
+          "takes_value": "required"
+        },
+        {
+          "name": "nth",
+          "flags": "--nth <n>",
+          "help": "When <target> is a multi-match CSS selector, pick the nth match (0-based)",
+          "takes_value": "required"
+        },
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "find",
+      "command": "opencli browser <session> find",
+      "usage": "opencli browser <session> find [options]",
+      "description": "Find DOM elements by CSS or semantic locator — returns JSON {matches_n, entries[]}",
+      "positionals": [],
+      "command_options": [
+        {
+          "name": "role",
+          "flags": "--role <role>",
+          "help": "Semantic role (button, link, textbox, option, etc.)",
+          "takes_value": "required"
+        },
+        {
+          "name": "name",
+          "flags": "--name <text>",
+          "help": "Accessible name contains text (aria-label, label, title, placeholder, or visible text)",
+          "takes_value": "required"
+        },
+        {
+          "name": "label",
+          "flags": "--label <text>",
+          "help": "Associated label contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "text",
+          "flags": "--text <text>",
+          "help": "Visible text contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "testid",
+          "flags": "--testid <id>",
+          "help": "data-testid / data-test / test-id contains id",
+          "takes_value": "required"
+        },
+        {
+          "name": "css",
+          "flags": "--css <selector>",
+          "help": "CSS selector (required)",
+          "takes_value": "required"
+        },
+        {
+          "name": "limit",
+          "flags": "--limit <n>",
+          "help": "Max entries returned",
+          "takes_value": "required",
+          "default": "50"
+        },
+        {
+          "name": "textMax",
+          "flags": "--text-max <n>",
+          "help": "Max chars of trimmed text per entry",
+          "takes_value": "required",
+          "default": "120"
+        },
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "focus",
+      "command": "opencli browser <session> focus",
+      "usage": "opencli browser <session> focus [target] [options]",
+      "description": "Focus an element — JSON envelope {focused, target, matches_n}",
+      "positionals": [
+        {
+          "name": "target",
+          "help": "Numeric ref (from browser state / find), CSS selector, or omit when using --role/--name/etc."
+        }
+      ],
+      "command_options": [
+        {
+          "name": "role",
+          "flags": "--role <role>",
+          "help": "Semantic role (button, link, textbox, option, etc.)",
+          "takes_value": "required"
+        },
+        {
+          "name": "name",
+          "flags": "--name <text>",
+          "help": "Accessible name contains text (aria-label, label, title, placeholder, or visible text)",
+          "takes_value": "required"
+        },
+        {
+          "name": "label",
+          "flags": "--label <text>",
+          "help": "Associated label contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "text",
+          "flags": "--text <text>",
+          "help": "Visible text contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "testid",
+          "flags": "--testid <id>",
+          "help": "data-testid / data-test / test-id contains id",
+          "takes_value": "required"
+        },
+        {
+          "name": "nth",
+          "flags": "--nth <n>",
+          "help": "When <target> is a multi-match CSS selector, pick the nth match (0-based)",
+          "takes_value": "required"
+        },
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "frames",
+      "command": "opencli browser <session> frames",
+      "usage": "opencli browser <session> frames [options]",
+      "description": "List cross-origin iframe targets in snapshot order",
+      "positionals": [],
+      "command_options": [
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "get attributes",
+      "command": "opencli browser <session> get attributes",
+      "usage": "opencli browser <session> get attributes [target] [options]",
+      "description": "Element attributes — JSON envelope {value, matches_n}",
+      "positionals": [
+        {
+          "name": "target",
+          "help": "Numeric ref (from browser state / find), CSS selector, or omit when using --role/--name/etc."
+        }
+      ],
+      "command_options": [
+        {
+          "name": "role",
+          "flags": "--role <role>",
+          "help": "Semantic role (button, link, textbox, option, etc.)",
+          "takes_value": "required"
+        },
+        {
+          "name": "name",
+          "flags": "--name <text>",
+          "help": "Accessible name contains text (aria-label, label, title, placeholder, or visible text)",
+          "takes_value": "required"
+        },
+        {
+          "name": "label",
+          "flags": "--label <text>",
+          "help": "Associated label contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "text",
+          "flags": "--text <text>",
+          "help": "Visible text contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "testid",
+          "flags": "--testid <id>",
+          "help": "data-testid / data-test / test-id contains id",
+          "takes_value": "required"
+        },
+        {
+          "name": "nth",
+          "flags": "--nth <n>",
+          "help": "Pick the nth match (0-based) when <target> is a multi-match CSS selector",
+          "takes_value": "required"
+        },
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "get html",
+      "command": "opencli browser <session> get html",
+      "usage": "opencli browser <session> get html [options]",
+      "description": "Page HTML (or scoped); use --as json for a {tag, attrs, text, children} tree",
+      "positionals": [],
+      "command_options": [
+        {
+          "name": "selector",
+          "flags": "--selector <css>",
+          "help": "CSS selector scope (first match)",
+          "takes_value": "required"
+        },
+        {
+          "name": "as",
+          "flags": "--as <format>",
+          "help": "Output format: \"html\" (default) or \"json\" for structured tree",
+          "takes_value": "required",
+          "default": "html"
+        },
+        {
+          "name": "max",
+          "flags": "--max <n>",
+          "help": "Max characters of raw HTML to return (0 = unlimited)",
+          "takes_value": "required",
+          "default": "0"
+        },
+        {
+          "name": "depth",
+          "flags": "--depth <n>",
+          "help": "(--as json) Max tree depth below root (0 = root only, 0 disables = unlimited via empty)",
+          "takes_value": "required",
+          "default": ""
+        },
+        {
+          "name": "childrenMax",
+          "flags": "--children-max <n>",
+          "help": "(--as json) Max element children kept per node (empty = unlimited)",
+          "takes_value": "required",
+          "default": ""
+        },
+        {
+          "name": "textMax",
+          "flags": "--text-max <n>",
+          "help": "(--as json) Max chars of direct text kept per node (empty = unlimited)",
+          "takes_value": "required",
+          "default": ""
+        },
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "get text",
+      "command": "opencli browser <session> get text",
+      "usage": "opencli browser <session> get text [target] [options]",
+      "description": "Element text content — JSON envelope {value, matches_n}",
+      "positionals": [
+        {
+          "name": "target",
+          "help": "Numeric ref (from browser state / find), CSS selector, or omit when using --role/--name/etc."
+        }
+      ],
+      "command_options": [
+        {
+          "name": "role",
+          "flags": "--role <role>",
+          "help": "Semantic role (button, link, textbox, option, etc.)",
+          "takes_value": "required"
+        },
+        {
+          "name": "name",
+          "flags": "--name <text>",
+          "help": "Accessible name contains text (aria-label, label, title, placeholder, or visible text)",
+          "takes_value": "required"
+        },
+        {
+          "name": "label",
+          "flags": "--label <text>",
+          "help": "Associated label contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "text",
+          "flags": "--text <text>",
+          "help": "Visible text contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "testid",
+          "flags": "--testid <id>",
+          "help": "data-testid / data-test / test-id contains id",
+          "takes_value": "required"
+        },
+        {
+          "name": "nth",
+          "flags": "--nth <n>",
+          "help": "Pick the nth match (0-based) when <target> is a multi-match CSS selector",
+          "takes_value": "required"
+        },
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "get title",
+      "command": "opencli browser <session> get title",
+      "usage": "opencli browser <session> get title [options]",
+      "description": "Page title",
+      "positionals": [],
+      "command_options": [
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "get url",
+      "command": "opencli browser <session> get url",
+      "usage": "opencli browser <session> get url [options]",
+      "description": "Current page URL",
+      "positionals": [],
+      "command_options": [
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "get value",
+      "command": "opencli browser <session> get value",
+      "usage": "opencli browser <session> get value [target] [options]",
+      "description": "Input/textarea value — JSON envelope {value, matches_n}",
+      "positionals": [
+        {
+          "name": "target",
+          "help": "Numeric ref (from browser state / find), CSS selector, or omit when using --role/--name/etc."
+        }
+      ],
+      "command_options": [
+        {
+          "name": "role",
+          "flags": "--role <role>",
+          "help": "Semantic role (button, link, textbox, option, etc.)",
+          "takes_value": "required"
+        },
+        {
+          "name": "name",
+          "flags": "--name <text>",
+          "help": "Accessible name contains text (aria-label, label, title, placeholder, or visible text)",
+          "takes_value": "required"
+        },
+        {
+          "name": "label",
+          "flags": "--label <text>",
+          "help": "Associated label contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "text",
+          "flags": "--text <text>",
+          "help": "Visible text contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "testid",
+          "flags": "--testid <id>",
+          "help": "data-testid / data-test / test-id contains id",
+          "takes_value": "required"
+        },
+        {
+          "name": "nth",
+          "flags": "--nth <n>",
+          "help": "Pick the nth match (0-based) when <target> is a multi-match CSS selector",
+          "takes_value": "required"
+        },
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "hover",
+      "command": "opencli browser <session> hover",
+      "usage": "opencli browser <session> hover [target] [options]",
+      "description": "Move the mouse over an element — JSON envelope {hovered, target, matches_n}",
+      "positionals": [
+        {
+          "name": "target",
+          "help": "Numeric ref (from browser state / find), CSS selector, or omit when using --role/--name/etc."
+        }
+      ],
+      "command_options": [
+        {
+          "name": "role",
+          "flags": "--role <role>",
+          "help": "Semantic role (button, link, textbox, option, etc.)",
+          "takes_value": "required"
+        },
+        {
+          "name": "name",
+          "flags": "--name <text>",
+          "help": "Accessible name contains text (aria-label, label, title, placeholder, or visible text)",
+          "takes_value": "required"
+        },
+        {
+          "name": "label",
+          "flags": "--label <text>",
+          "help": "Associated label contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "text",
+          "flags": "--text <text>",
+          "help": "Visible text contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "testid",
+          "flags": "--testid <id>",
+          "help": "data-testid / data-test / test-id contains id",
+          "takes_value": "required"
+        },
+        {
+          "name": "nth",
+          "flags": "--nth <n>",
+          "help": "When <target> is a multi-match CSS selector, pick the nth match (0-based)",
+          "takes_value": "required"
+        },
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "init",
+      "command": "opencli browser <session> init",
+      "usage": "opencli browser <session> init <name> [options]",
+      "description": "Generate adapter scaffold in ~/.opencli/clis/",
+      "positionals": [
+        {
+          "name": "name",
+          "required": true,
+          "help": "Adapter name in site/command format (e.g. hn/top)"
+        }
+      ],
+      "command_options": []
+    },
+    {
+      "name": "keys",
+      "command": "opencli browser <session> keys",
+      "usage": "opencli browser <session> keys <key> [options]",
+      "description": "Press keyboard key",
+      "positionals": [
+        {
+          "name": "key",
+          "required": true,
+          "help": "Key to press (Enter, Escape, Tab, Control+a)"
+        }
+      ],
+      "command_options": [
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "network",
+      "command": "opencli browser <session> network",
+      "usage": "opencli browser <session> network [options]",
+      "description": "Capture network requests as shape previews; retrieve full bodies by key",
+      "positionals": [],
+      "command_options": [
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        },
+        {
+          "name": "detail",
+          "flags": "--detail <key>",
+          "help": "Emit full body for the entry with this key",
+          "takes_value": "required"
+        },
+        {
+          "name": "all",
+          "flags": "--all",
+          "help": "Include static resources (js/css/images/telemetry)"
+        },
+        {
+          "name": "raw",
+          "flags": "--raw",
+          "help": "Emit full bodies for every entry (skip shape preview)"
+        },
+        {
+          "name": "filter",
+          "flags": "--filter <fields>",
+          "help": "Comma-separated field names; keep only entries whose body shape has ALL names as path segments",
+          "takes_value": "required"
+        },
+        {
+          "name": "since",
+          "flags": "--since <duration>",
+          "help": "Only include entries from the last duration (for example: 30s, 2m)",
+          "takes_value": "required"
+        },
+        {
+          "name": "until",
+          "flags": "--until <duration>",
+          "help": "Only include entries older than the duration from now",
+          "takes_value": "required"
+        },
+        {
+          "name": "follow",
+          "flags": "--follow",
+          "help": "Continuously print new matching entries as JSON lines",
+          "default": false
+        },
+        {
+          "name": "failed",
+          "flags": "--failed",
+          "help": "Only include failed HTTP requests (status 0 or >= 400)",
+          "default": false
+        },
+        {
+          "name": "maxBody",
+          "flags": "--max-body <chars>",
+          "help": "With --detail: cap the emitted body at N chars (0 = unlimited, default)",
+          "takes_value": "required",
+          "default": "0"
+        },
+        {
+          "name": "ttl",
+          "flags": "--ttl <ms>",
+          "help": "Cache TTL in ms for --detail lookups",
+          "takes_value": "required",
+          "default": "86400000"
+        }
+      ]
+    },
+    {
+      "name": "open",
+      "command": "opencli browser <session> open",
+      "usage": "opencli browser <session> open <url> [options]",
+      "description": "Open URL in the browser session",
+      "positionals": [
+        {
+          "name": "url",
+          "required": true
+        }
+      ],
+      "command_options": [
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "screenshot",
+      "command": "opencli browser <session> screenshot",
+      "usage": "opencli browser <session> screenshot [path] [options]",
+      "description": "Take screenshot",
+      "positionals": [
+        {
+          "name": "path",
+          "help": "Save to file (base64 if omitted)"
+        }
+      ],
+      "command_options": [
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        },
+        {
+          "name": "fullPage",
+          "flags": "--full-page",
+          "help": "Capture the full scrollable page, not just the viewport",
+          "default": false
+        },
+        {
+          "name": "annotate",
+          "flags": "--annotate",
+          "help": "Overlay visible browser state ref labels on the screenshot",
+          "default": false
+        },
+        {
+          "name": "width",
+          "flags": "--width <n>",
+          "help": "Override viewport width in CSS pixels for this screenshot only",
+          "takes_value": "required"
+        },
+        {
+          "name": "height",
+          "flags": "--height <n>",
+          "help": "Override viewport height in CSS pixels for this screenshot only (ignored with --full-page)",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "scroll",
+      "command": "opencli browser <session> scroll",
+      "usage": "opencli browser <session> scroll <direction> [options]",
+      "description": "Scroll page",
+      "positionals": [
+        {
+          "name": "direction",
+          "required": true,
+          "help": "up or down"
+        }
+      ],
+      "command_options": [
+        {
+          "name": "amount",
+          "flags": "--amount <pixels>",
+          "help": "Pixels to scroll",
+          "takes_value": "required",
+          "default": "500"
+        },
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "select",
+      "command": "opencli browser <session> select",
+      "usage": "opencli browser <session> select [targetOrOption] [option] [options]",
+      "description": "Select dropdown option — JSON envelope {selected, target, matches_n}",
+      "positionals": [
+        {
+          "name": "targetOrOption",
+          "help": "Numeric ref/CSS target, or option text when using --role/--name/etc."
+        },
+        {
+          "name": "option",
+          "help": "Option text (or value) to select"
+        }
+      ],
+      "command_options": [
+        {
+          "name": "role",
+          "flags": "--role <role>",
+          "help": "Semantic role (button, link, textbox, option, etc.)",
+          "takes_value": "required"
+        },
+        {
+          "name": "name",
+          "flags": "--name <text>",
+          "help": "Accessible name contains text (aria-label, label, title, placeholder, or visible text)",
+          "takes_value": "required"
+        },
+        {
+          "name": "label",
+          "flags": "--label <text>",
+          "help": "Associated label contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "text",
+          "flags": "--text <text>",
+          "help": "Visible text contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "testid",
+          "flags": "--testid <id>",
+          "help": "data-testid / data-test / test-id contains id",
+          "takes_value": "required"
+        },
+        {
+          "name": "nth",
+          "flags": "--nth <n>",
+          "help": "When <target> is a multi-match CSS selector, pick the nth match (0-based)",
+          "takes_value": "required"
+        },
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "state",
+      "command": "opencli browser <session> state",
+      "usage": "opencli browser <session> state [options]",
+      "description": "Page state: URL, title, interactive elements with [N] indices",
+      "positionals": [],
+      "command_options": [
+        {
+          "name": "source",
+          "flags": "--source <source>",
+          "help": "Snapshot backend: dom (default) or ax prototype",
+          "takes_value": "required",
+          "default": "dom"
+        },
+        {
+          "name": "compareSources",
+          "flags": "--compare-sources",
+          "help": "Print DOM vs AX snapshot metrics for observation promotion decisions",
+          "default": false
+        },
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "tab close",
+      "command": "opencli browser <session> tab close",
+      "usage": "opencli browser <session> tab close [targetId] [options]",
+      "description": "Close a tab by target ID",
+      "positionals": [
+        {
+          "name": "targetId",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\""
+        }
+      ],
+      "command_options": [
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "tab list",
+      "command": "opencli browser <session> tab list",
+      "usage": "opencli browser <session> tab list [options]",
+      "description": "List tabs in the browser session with target IDs",
+      "positionals": [],
+      "command_options": []
+    },
+    {
+      "name": "tab new",
+      "command": "opencli browser <session> tab new",
+      "usage": "opencli browser <session> tab new [url] [options]",
+      "description": "Create a new tab and print its target ID",
+      "positionals": [
+        {
+          "name": "url",
+          "help": "Optional URL to open in the new tab"
+        }
+      ],
+      "command_options": []
+    },
+    {
+      "name": "tab select",
+      "command": "opencli browser <session> tab select",
+      "usage": "opencli browser <session> tab select [targetId] [options]",
+      "description": "Select a tab by target ID and make it the default browser tab",
+      "positionals": [
+        {
+          "name": "targetId",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\""
+        }
+      ],
+      "command_options": [
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "type",
+      "command": "opencli browser <session> type",
+      "usage": "opencli browser <session> type [targetOrText] [text] [options]",
+      "description": "Click element, then type text — JSON envelope {typed, text, target, matches_n, autocomplete}",
+      "positionals": [
+        {
+          "name": "targetOrText",
+          "help": "Numeric ref/CSS target, or text when using --role/--name/etc."
+        },
+        {
+          "name": "text",
+          "help": "Text to type"
+        }
+      ],
+      "command_options": [
+        {
+          "name": "role",
+          "flags": "--role <role>",
+          "help": "Semantic role (button, link, textbox, option, etc.)",
+          "takes_value": "required"
+        },
+        {
+          "name": "name",
+          "flags": "--name <text>",
+          "help": "Accessible name contains text (aria-label, label, title, placeholder, or visible text)",
+          "takes_value": "required"
+        },
+        {
+          "name": "label",
+          "flags": "--label <text>",
+          "help": "Associated label contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "text",
+          "flags": "--text <text>",
+          "help": "Visible text contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "testid",
+          "flags": "--testid <id>",
+          "help": "data-testid / data-test / test-id contains id",
+          "takes_value": "required"
+        },
+        {
+          "name": "nth",
+          "flags": "--nth <n>",
+          "help": "When <target> is a multi-match CSS selector, pick the nth match (0-based)",
+          "takes_value": "required"
+        },
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "unbind",
+      "command": "opencli browser <session> unbind",
+      "usage": "opencli browser <session> unbind [options]",
+      "description": "Detach the bound browser session named by <session> without closing the user tab/window",
+      "positionals": [],
+      "command_options": []
+    },
+    {
+      "name": "uncheck",
+      "command": "opencli browser <session> uncheck",
+      "usage": "opencli browser <session> uncheck [target] [options]",
+      "description": "Ensure a checkbox/aria-checked control is unchecked — JSON envelope {checked, changed, target, matches_n}",
+      "positionals": [
+        {
+          "name": "target",
+          "help": "Numeric ref (from browser state / find), CSS selector, or omit when using --role/--name/etc."
+        }
+      ],
+      "command_options": [
+        {
+          "name": "role",
+          "flags": "--role <role>",
+          "help": "Semantic role (button, link, textbox, option, etc.)",
+          "takes_value": "required"
+        },
+        {
+          "name": "name",
+          "flags": "--name <text>",
+          "help": "Accessible name contains text (aria-label, label, title, placeholder, or visible text)",
+          "takes_value": "required"
+        },
+        {
+          "name": "label",
+          "flags": "--label <text>",
+          "help": "Associated label contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "text",
+          "flags": "--text <text>",
+          "help": "Visible text contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "testid",
+          "flags": "--testid <id>",
+          "help": "data-testid / data-test / test-id contains id",
+          "takes_value": "required"
+        },
+        {
+          "name": "nth",
+          "flags": "--nth <n>",
+          "help": "When <target> is a multi-match CSS selector, pick the nth match (0-based)",
+          "takes_value": "required"
+        },
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "upload",
+      "command": "opencli browser <session> upload",
+      "usage": "opencli browser <session> upload [targetOrFile] [files...] [options]",
+      "description": "Attach local files to a file input — JSON envelope {uploaded, files, file_names, target, matches_n}",
+      "positionals": [
+        {
+          "name": "targetOrFile",
+          "help": "Numeric ref/CSS target, or first file when using --role/--name/etc."
+        },
+        {
+          "name": "files",
+          "variadic": true,
+          "help": "Local file path(s) to attach"
+        }
+      ],
+      "command_options": [
+        {
+          "name": "role",
+          "flags": "--role <role>",
+          "help": "Semantic role (button, link, textbox, option, etc.)",
+          "takes_value": "required"
+        },
+        {
+          "name": "name",
+          "flags": "--name <text>",
+          "help": "Accessible name contains text (aria-label, label, title, placeholder, or visible text)",
+          "takes_value": "required"
+        },
+        {
+          "name": "label",
+          "flags": "--label <text>",
+          "help": "Associated label contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "text",
+          "flags": "--text <text>",
+          "help": "Visible text contains text",
+          "takes_value": "required"
+        },
+        {
+          "name": "testid",
+          "flags": "--testid <id>",
+          "help": "data-testid / data-test / test-id contains id",
+          "takes_value": "required"
+        },
+        {
+          "name": "nth",
+          "flags": "--nth <n>",
+          "help": "When <target> is a multi-match CSS selector, pick the nth match (0-based)",
+          "takes_value": "required"
+        },
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        }
+      ]
+    },
+    {
+      "name": "verify",
+      "command": "opencli browser <session> verify",
+      "usage": "opencli browser <session> verify <name> [options]",
+      "description": "Execute an adapter and validate output; uses fixture at ~/.opencli/sites/<site>/verify/<cmd>.json when present",
+      "positionals": [
+        {
+          "name": "name",
+          "required": true,
+          "help": "Adapter name in site/command format (e.g. hn/top)"
+        }
+      ],
+      "command_options": [
+        {
+          "name": "writeFixture",
+          "flags": "--write-fixture",
+          "help": "Write a starter fixture to ~/.opencli/sites/<site>/verify/<command>.json if none exists"
+        },
+        {
+          "name": "updateFixture",
+          "flags": "--update-fixture",
+          "help": "Overwrite an existing fixture with one derived from current output"
+        },
+        {
+          "name": "fixture",
+          "flags": "--no-fixture",
+          "help": "Ignore any fixture file for this run (no value-level validation)",
+          "negate": true
+        },
+        {
+          "name": "strictMemory",
+          "flags": "--strict-memory",
+          "help": "Fail (not just warn) when ~/.opencli/sites/<site>/endpoints.json or notes.md is missing"
+        },
+        {
+          "name": "seedArgs",
+          "flags": "--seed-args <value>",
+          "help": "Seed args when no fixture exists; use JSON array/object for multiple args or flags",
+          "takes_value": "required"
+        },
+        {
+          "name": "trace",
+          "flags": "--trace <mode>",
+          "help": "Trace capture for the adapter subprocess: off, on, retain-on-failure",
+          "takes_value": "required",
+          "default": "off"
+        }
+      ]
+    },
+    {
+      "name": "wait",
+      "command": "opencli browser <session> wait",
+      "usage": "opencli browser <session> wait <type> [value] [options]",
+      "description": "Wait for selector, text, time, matching XHR, or browser download (e.g. wait selector \".loaded\", wait text \"Success\", wait time 3, wait xhr \"/api/search\", wait download receipt.pdf)",
+      "positionals": [
+        {
+          "name": "type",
+          "required": true,
+          "help": "selector, text, time, xhr, or download"
+        },
+        {
+          "name": "value",
+          "help": "CSS selector, text string, seconds, XHR URL regex, or download filename/URL pattern"
+        }
+      ],
+      "command_options": [
+        {
+          "name": "tab",
+          "flags": "--tab <targetId>",
+          "help": "Target tab/page identity returned by \"browser open\", \"browser tab new\", or \"browser tab list\"",
+          "takes_value": "required"
+        },
+        {
+          "name": "timeout",
+          "flags": "--timeout <ms>",
+          "help": "Timeout in milliseconds",
+          "takes_value": "required",
+          "default": "10000"
+        }
+      ]
+    }
+  ],
+  "namespace_options": [
+    {
+      "name": "window",
+      "flags": "--window <mode>",
+      "help": "Browser window mode: foreground or background",
+      "takes_value": "required"
+    }
+  ],
+  "global_options": [
+    {
+      "name": "version",
+      "flags": "-V, --version",
+      "help": "output the version number"
+    },
+    {
+      "name": "profile",
+      "flags": "--profile <name>",
+      "help": "Chrome profile/context alias for Browser Bridge commands",
+      "takes_value": "required"
+    }
+  ],
+  "structured_help": {
+    "formats": [
+      "yaml",
+      "json"
+    ],
+    "usage": "opencli browser --help -f yaml"
+  }
+}
+
+<session> is a required positional: pass the name of the browser session every subcommand should operate on. Reuse the same name across calls to keep the tab/state alive; pick a different name to isolate parallel browser work.
+
+Examples:
+  $ opencli browser work open https://x.com
+  $ opencli browser work open https://x.com --window background
+  $ opencli browser work click 12
+  $ opencli browser work state
+  $ opencli browser work bind
+  $ opencli browser work unbind
+

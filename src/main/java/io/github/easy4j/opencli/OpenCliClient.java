@@ -18,12 +18,19 @@ import io.github.easy4j.opencli.adapter.publicapi.npm.NpmOpenCliClient;
 import io.github.easy4j.opencli.adapter.publicapi.pypi.PypiOpenCliClient;
 import io.github.easy4j.opencli.adapter.publicapi.wikipedia.WikipediaOpenCliClient;
 import io.github.easy4j.opencli.browser.OpenCliBrowserClient;
+import io.github.easy4j.opencli.capability.OpenCliCapabilityDiscovery;
+import io.github.easy4j.opencli.capability.OpenCliCapabilitySnapshot;
+import io.github.easy4j.opencli.capability.OpenCliDiagnostics;
+import io.github.easy4j.opencli.capability.OpenCliHelpScope;
 import io.github.easy4j.opencli.core.OpenCliAdapterChannel;
 import io.github.easy4j.opencli.meta.OpenCliMetaClient;
 import io.github.easy4j.opencli.core.OpenCliExecutor;
+import io.github.easy4j.opencli.core.OpenCliResult;
 import io.github.easy4j.opencli.facade.BrowserClient;
 import io.github.easy4j.opencli.facade.DesktopClient;
 import io.github.easy4j.opencli.facade.PublicApiClient;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import lombok.Getter;
 
@@ -47,6 +54,8 @@ import lombok.Getter;
     @Getter
     private final OpenCliExecutor executor;
 
+    private final OpenCliCapabilityDiscovery capabilityDiscovery;
+
     /**
      * Constructs with default configuration (executable assumed to be {@code opencli} on PATH).
      */
@@ -58,8 +67,7 @@ import lombok.Getter;
      * @param properties 运行配置，不得为 null
      */
     public OpenCliClient(OpenCliProperties properties) {
-        this.properties = Objects.requireNonNull(properties, "properties");
-        this.executor = new OpenCliExecutor(properties);
+        this(properties, new OpenCliExecutor(properties));
     }
 
     /**
@@ -71,6 +79,7 @@ import lombok.Getter;
     public OpenCliClient(OpenCliProperties properties, OpenCliExecutor executor) {
         this.properties = Objects.requireNonNull(properties, "properties");
         this.executor = Objects.requireNonNull(executor, "executor");
+        this.capabilityDiscovery = new OpenCliCapabilityDiscovery(executor);
     }
 
     /**
@@ -81,6 +90,60 @@ import lombok.Getter;
      */
     public OpenCliAdapterChannel adapter(String adapterId) {
         return new OpenCliAdapterChannel(executor, adapterId);
+    }
+
+    /**
+     * Checks the configured local executable and version without starting runtime discovery.
+     * @return independent observations and the evidence used for each check
+     */
+    public OpenCliDiagnostics diagnose() {
+        return capabilityDiscovery.diagnose();
+    }
+
+    /**
+     * Probes version and root structured help on the configured absolute local executable.
+     * @return a current observation or a stale matching snapshot with the refresh failure
+     */
+    public OpenCliCapabilitySnapshot discoverCapabilities() {
+        return capabilityDiscovery.refresh();
+    }
+
+    /**
+     * Probes a fixed help query from the verified OpenCLI protocol fixture set.
+     * @param scope versioned local help query
+     * @return scoped observation or explicit failure status
+     */
+    public OpenCliCapabilitySnapshot discoverCapabilities(OpenCliHelpScope scope) {
+        return capabilityDiscovery.refresh(scope);
+    }
+
+    /**
+     * Refreshes structured help and invokes an explicitly selected, validated local command.
+     * @param scope verified help query containing the leaf
+     * @param command exact leaf display path from help
+     * @param session browser session identifier, or null when the command has no session
+     * @param positionals user-supplied positionals in schema order, or null
+     * @param options option spellings and values, with null for bare flags
+     * @return local execution result
+     */
+    public OpenCliResult invokeDiscovered(OpenCliHelpScope scope, String command, String session,
+        List<String> positionals, Map<String, String> options) {
+        return capabilityDiscovery.invoke(scope, command, session, positionals, options);
+    }
+
+    /**
+     * Dispatches a schema-validated command with explicit invocation context.
+     * @param scope verified help query containing the leaf
+     * @param command exact leaf display path
+     * @param session browser session identifier, or null
+     * @param positionals literal arguments in schema order, or null
+     * @param options explicit command flags, or null
+     * @param context immutable overrides of client context defaults
+     * @return local execution result
+     */
+    public OpenCliResult invokeDiscovered(OpenCliHelpScope scope, String command, String session,
+        List<String> positionals, Map<String, String> options, OpenCliInvocationContext context) {
+        return capabilityDiscovery.invoke(scope, command, session, positionals, options, context);
     }
 
     // ----- 参考强类型门面（Desktop） -----
@@ -120,7 +183,7 @@ import lombok.Getter;
     /** @return DeepSeek 浏览器适配器客户端 */
     /**
      * 释放底层资源：本地模式为空操作；REMOTE_AGENT_HTTP 模式下关闭
-     * 远程传输（实例级 shutdown，不影响 JVM 其它 Unirest 使用方）。
+     * 远程 HTTP 连接池（仅释放该实例持有的资源）。
      * close 之后远程调用抛 IllegalStateException，本地调用不受影响。
      */
     @Override

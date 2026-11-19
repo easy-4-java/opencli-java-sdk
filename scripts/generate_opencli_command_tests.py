@@ -9,28 +9,16 @@
 """
 from __future__ import annotations
 
+import argparse
+import hashlib
 import json
 import os
 import textwrap
+from datetime import date
 from pathlib import Path
 
 _SCRIPT_DIR = Path(__file__).resolve().parent
 _SDK_ROOT = _SCRIPT_DIR.parent
-_DEFAULT_MANIFEST = (
-    _SCRIPT_DIR.parents[4]
-    / "workspace-partme-ai"
-    / "opencli"
-    / "opencli"
-    / "cli-manifest.json"
-)
-if not _DEFAULT_MANIFEST.is_file():
-    _DEFAULT_MANIFEST = (
-        Path("/Users/wandl/workspaces/workspace-partme-ai/opencli/opencli/cli-manifest.json")
-    )
-
-MANIFEST_PATH = Path(
-    os.environ.get("OPENCLI_MANIFEST", _DEFAULT_MANIFEST)
-).resolve()
 
 COVERAGE_PKG = "io.github.hiwepy.opencli.coverage"
 COVERAGE_DIR = _SDK_ROOT / "src/test/java/io/github/hiwepy/opencli/coverage"
@@ -77,14 +65,7 @@ def build_command_request(entry: dict) -> dict:
     }
 
 
-def load_manifest() -> list[dict]:
-    data = json.loads(MANIFEST_PATH.read_text(encoding="utf-8"))
-    if not isinstance(data, list):
-        raise SystemExit("manifest must be a JSON array")
-    return data
-
-
-def write_manifest_resource(entries: list[dict]) -> None:
+def write_manifest_resource(entries: list[dict], provenance: dict) -> None:
     RESOURCES_DIR.mkdir(parents=True, exist_ok=True)
     payload = [build_command_request(e) for e in entries]
     out = RESOURCES_DIR / "manifest-coverage-commands.json"
@@ -93,7 +74,7 @@ def write_manifest_resource(entries: list[dict]) -> None:
     meta.write_text(
         json.dumps(
             {
-                "manifestPath": str(MANIFEST_PATH),
+                **provenance,
                 "manifestCommandCount": len(entries),
                 "siteCount": len({e["site"] for e in entries}),
             },
@@ -682,10 +663,29 @@ def write_coverage_summary_test(manifest_count: int, meta_count: int, browser_co
 
 
 def main() -> None:
-    if not MANIFEST_PATH.is_file():
-        raise SystemExit(f"missing manifest: {MANIFEST_PATH}")
-    entries = load_manifest()
-    write_manifest_resource(entries)
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--manifest", type=Path, default=os.environ.get("OPENCLI_MANIFEST"),
+                        help="Local copy of upstream cli-manifest.json; defaults to OPENCLI_MANIFEST")
+    parser.add_argument("--manifest-source", required=True,
+                        help="Upstream URL identifying the package version or source revision")
+    parser.add_argument("--observed-at", type=date.fromisoformat, required=True, help="Observation date (YYYY-MM-DD)")
+    parser.add_argument("--acquisition-command", required=True, help="Portable command to obtain the upstream input")
+    args = parser.parse_args()
+    if args.manifest is None:
+        parser.error("specify --manifest or OPENCLI_MANIFEST")
+    if not args.manifest.is_file():
+        parser.error(f"missing manifest: {args.manifest}")
+    manifest_bytes = args.manifest.read_bytes()
+    entries = json.loads(manifest_bytes)
+    if not isinstance(entries, list):
+        parser.error("manifest must be a JSON array")
+    write_manifest_resource(entries, {
+        "manifestPath": args.manifest_source,
+        "manifestSha256": hashlib.sha256(manifest_bytes).hexdigest(),
+        "observedAt": args.observed_at.isoformat(),
+        "acquisitionCommand": args.acquisition_command,
+        "scope": "Bundled adapter command enumeration from cli-manifest.json",
+    })
     write_adapter_coverage_test(len(entries))
     # meta_count 涵盖 list/validate/verify/doctor/completion/convention-audit +
     # plugin (install/uninstall/update/updateAll/list/create) +

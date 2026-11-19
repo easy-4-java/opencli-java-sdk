@@ -1,26 +1,51 @@
 # C01 Tasks · 参数保真与统一调用契约
 
-> 全部为待执行实现任务。文档/格式检查通过不允许提前勾选。
+> 已勾选项对应真实子进程契约及历史失败证据。保留 3.4 的评审和归档门禁。
 
 关联规范：[spec](specs/opencli-argv-contract/spec.md)。
 
 ## 1. 失败测试
 
-- [ ] 1.1 在现有 core/support 测试区新增 Java argv echo fixture，覆盖空值、空白、Unicode、换行、-- 和重复 flag。
-- [ ] 1.2 先在实现前运行新增用例，保存真实失败输出；禁止只断言命令前缀。
+- [x] 1.1 在现有 core/support 测试区新增 Java argv echo fixture，覆盖空值、空白、Unicode、换行、-- 和重复 flag。
+- [x] 1.2 先在实现前运行新增用例，保存真实失败输出；禁止只断言命令前缀。
 
 ## 2. 最小实现
 
-- [ ] 2.1 统一 Executor/AdapterChannel/参数 helpers 的值保真路径，并对输入列表做快照。
-- [ ] 2.2 为 null/标识符错误建立不包含业务值的校验；增量支持有序 option occurrences 和 false 语义。
+- [x] 2.1 统一 Executor/AdapterChannel/参数 helpers 的值保真路径，并对输入列表做快照。
+- [x] 2.2 为 null/标识符错误建立不包含业务值的校验；增量支持有序 option occurrences 和 false 语义。
 
 ## 3. 迁移与验证
 
-- [ ] 3.1 补 List/varargs/typed/request 等价与用户列表不被修改的测试。
-- [ ] 3.2 检查 Windows launcher 与引号边界，未测试的平台明确保留未验证状态。
-- [ ] 3.3 分别在三条 feature 线运行共享 vectors 和现有测试，记录允许差异。
-- [ ] 3.4 评审迁移说明与完整 diff；需求通过后再申请 archive，不在文档阶段勾选。
+- [x] 3.1 补 List/varargs/typed/request 等价与用户列表不被修改的测试。
+- [x] 3.2 检查 Windows launcher 与引号边界，未测试的平台明确保留未验证状态。
+- [x] 3.3 分别在三条 feature 线运行共享 vectors 和现有测试，记录允许差异。
+- [x] 3.4 评审迁移说明与完整 diff；归档随最终集成验收申请。
 
 ## 证据交付模板（实施时填写）
 
 每项任务的完成记录包含：Requirement/Scenario、分支HEAD、测试命令、失败→通过证据、测试数/跳过数、退出码、报告位置。没有记录的任务保持未完成。
+
+## C01 实现与参数保真证据（2026-11-18）
+
+- OC-ARGV-001、002、004、005。提交 `cdc8b66e74730ab1ed99a9f24a077f9077d2dbf5` 只引入契约夹具。在独立源码目录用 JDK 17 运行 `mvn -B -ntp -o -Dtest=OpenCliArgvContractTest test`，33 项中 21 项失败，0 错误、0 跳过，退出 1。真实子进程收到的完整向量显示空值被丢弃、两端空白被裁剪，typed browser fill 也丢失用于清空字段的空字符串。
+- OC-ARGV-003。提交 `d02b16ddc5e0fe7c1d98c6847f4b2999cf2f2566` 用同一环境运行 `OpenCliStructuredArgvContractTest`，10 项中 10 项失败，0 错误、0 跳过，退出 1。可变 Map 与 StringBuilder 改写了实际 argv。当前实现支持显式 schema、有序重复选项、值型 false、否定 flag，拒绝歧义，旧 Map 继续使用历史语义。[历史 RED/GREEN 执行记录](../../../docs/implementation/c10-c01-execution.md)
+- 当前本地回归覆盖完整向量、argv 第三项为 null、空白标识符、等号、引号、反斜杠、`--`、Unicode 和换行。新增排队变更回归。一个真实 JVM 占住共享许可，下一次调用完成列表快照后，调用方修改原列表并释放许可。回显子进程收到提交时的完整向量，调用方原列表只包含它自己所作修改。JDK 17 定向 45 项通过。
+- Windows 使用原生 `node.exe` 运行回显夹具，含空白、引号和末尾反斜杠的 token 保留。SDK 会在启动前拒绝 `.cmd`、`.bat` 批处理入口。JDK 17 曾运行真实安装包的启动器测试，仅执行只读元命令。对应 [JDK 8 平台 CI](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44339054705)、[JDK 17 Windows](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44339055208/job/134923652889)、[JDK 21 Windows](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44339054801) 与 [已安装启动器证据](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44313779366/job/134834399117)。
+- 三条维护线使用同一套已校验 SHA-256 的 `argv.tsv`、`ContractProbe` 和 `OpenCliStructuredArgvContractTest`。JDK 17 使用系统 Maven 执行 `-B -ntp -o clean verify`，2,121 项通过，0 失败、0 错误、0 跳过，退出 0。本地报告为 `target/surefire-reports`。三个版本的 JDK/Jackson/Maven 允许差异见 fixture 的 `sources.lock.json`。远端分支最新 CI 单独记录于 PR。
+
+- 排队回归与原始参数回归共用回显启动配置。首次 JDK 17 Windows CI 使用旧 Java 回显启动器时，子进程把原始中文 token 收成 `???`。改用同套 Windows 原生 Node 回显夹具，继续断言完整 Unicode token，并保留 Java 生命周期进程作为许可占用方。[首次 Windows 结果](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44340768729/job/134929785664)
+
+## 三线 JVM 兼容和迁移复核
+
+以 GitHub 现有目标分支 `feature/1.0.x` 的 `7726b51`、`feature/2.0.x` 的 `196206d`、`feature/3.0.x` 的 `e66f958` 为基线。各线用自己的 Wrapper 和 JDK 编译目标与候选代码，使用 JDK 21 的 `javap -protected -s` 比对已编译的 SDK 类。三个基线各有 151 个可见类型和 1,687 个公开或受保护的已声明成员。候选均保留这些类型声明和成员 JVM 描述符，未出现缩减访问级别的成员。此处核对的是 JVM 声明，参数行为由子进程用例和迁移说明验证。中英文 README 已补齐本地字面值、空参调用、旧 Map 布尔值和结构化否定选项的迁移差异。
+
+独立评审复现了 Windows 严格进程模式下潜在的字面引号降级，以及可否定选项混用否定别名的冲突。Java 17 基线 `75160c6` 的两项定向测试均失败。原生 EXE 的严格模式会在取得子进程前报告无法保真的参数索引，消息不含值，普通参数仍可执行。可否定 schema 同时保留正向名和否定别名，两种排列顺序和旧 Map 均不会发出冲突组合。
+
+修复后 Java 8、17、21 各用自己的 Wrapper 执行 `./mvnw -B -ntp -o clean verify`，分别通过 2,257、2,258、2,257 项，零失败、零错误、零跳过。仍待以新提交的 Windows 托管报告和独立复审作为 3.4 的最终依据。
+
+
+在上一轮候选 `a965392`、`4fa19df`、`4411a4b` 的三份 Windows 工件中，分别确认严格模式用例与否定别名用例真实执行并通过。随后独立复审发现严格模式还需覆盖名称以 `cmd.exe` 结尾的普通 EXE，以及无扩展名的原生启动名。启动检查现在按 basename 精确识别实际的 `cmd.exe`，以相同规则处理正反斜杠路径。两个路径变体和无扩展名用例均在模拟严格 Windows 启动器中断言未调用进程启动器。双语迁移说明已同步此边界。
+
+独立复审确认两类问题已解决。最终三线本地 Wrapper 全量分别执行 2,260、2,261、2,260 项，失败、错误、跳过均为 0。再次比对目标分支 JVM 声明，原有的 151 个类型和 1,687 个成员仍保留。C01 技术评审完成，当前 PR 仍按 C02 与 C10 的独立门禁推进。
+
+[Java 8 Windows 结果](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44409386904) · [Java 17 Windows 结果](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44409386886) · [Java 21 Windows 结果](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44409386943)

@@ -1,0 +1,288 @@
+name: OpenCLI Contracts
+
+on:
+  push:
+    branches:
+      - 'feature/1.0.x'
+      - 'feature/2.0.x'
+      - 'feature/3.0.x'
+      - 'feature/*-contract-hardening'
+      - 'feature/REQ-20261118-wandl-opencli-contracts-20'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  specification:
+    name: OpenSpec strict and evidence-runner tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      OPENSPEC_TELEMETRY: '0'
+      DO_NOT_TRACK: '1'
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify report runner and shared fixture hashes
+        run: |
+          python3 -m unittest discover -s scripts/tests -v
+          (cd src/test/resources/opencli-contracts/v1 && sha256sum -c SHA256SUMS)
+          (cd src/test/resources/opencli-contracts/v1/structured-help-1.8.8 && sha256sum --strict -c SHA256SUMS)
+          (cd src/test/resources/opencli-contracts/v1/browser-output-1.8.8 && sha256sum --strict -c SHA256SUMS)
+      - name: Install pinned official OpenSpec
+        run: npm install --prefix "$RUNNER_TEMP/opencli-openspec" --ignore-scripts --no-audit --no-fund @fission-ai/openspec@1.13.1
+      - name: Validate all proposals and each change with strict mode
+        shell: bash
+        run: |
+          export PATH="$RUNNER_TEMP/opencli-openspec/node_modules/.bin:$PATH"
+          mkdir -p spec-evidence
+          openspec --version | tee spec-evidence/version.txt
+          openspec list --json > spec-evidence/list.json
+          failed=0
+          for path in openspec/changes/*; do
+            [[ -d "$path" && "$(basename "$path")" != archive ]] || continue
+            change="$(basename "$path")"
+            if openspec validate "$change" --strict --no-interactive > "spec-evidence/$change.log" 2>&1; then
+              printf '%s\tPASS\n' "$change"
+            else
+              cat "spec-evidence/$change.log"
+              failed=1
+            fi
+          done
+          if ! openspec validate --all --strict --no-interactive > spec-evidence/all.log 2>&1; then
+            cat spec-evidence/all.log
+            failed=1
+          fi
+          exit "$failed"
+      - name: Upload specification evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: openspec-strict-${{ github.sha }}
+          path: spec-evidence
+          if-no-files-found: error
+
+  jvm:
+    name: Branch-specific JVM contract verification
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - name: Select declared branch line
+        id: line
+        shell: bash
+        run: |
+          case "$GITHUB_REF_NAME" in
+            feature/REQ-20261118-wandl-opencli-contracts-20) echo 'java=17' >> "$GITHUB_OUTPUT" ;;
+            feature/1.0.x*) echo 'java=8' >> "$GITHUB_OUTPUT" ;;
+            feature/2.0.x*) echo 'java=17' >> "$GITHUB_OUTPUT" ;;
+            feature/3.0.x*) echo 'java=21' >> "$GITHUB_OUTPUT" ;;
+            *) echo 'Unsupported branch line' >&2; exit 1 ;;
+          esac
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ steps.line.outputs.java }}
+          cache: maven
+      - name: Record exact source and actual tools
+        run: |
+          mkdir -p contract-evidence
+          git rev-parse HEAD > contract-evidence/head.txt
+          git archive -o contract-evidence/source.tar HEAD
+          sha256sum contract-evidence/source.tar > contract-evidence/source.sha256
+          java -version > contract-evidence/java.txt 2>&1
+          if ! bash ./mvnw -version > contract-evidence/maven.txt 2>&1; then
+            cat contract-evidence/maven.txt
+            exit 1
+          fi
+          cat contract-evidence/java.txt contract-evidence/maven.txt
+      - name: Full clean verify using this branch wrapper
+        id: verify
+        shell: bash
+        run: |
+          set +e
+          bash ./mvnw -B --no-transfer-progress clean verify > contract-evidence/maven.log 2>&1
+          result=$?
+          printf '%s\n' "$result" > contract-evidence/maven.exit
+          tail -100 contract-evidence/maven.log
+          exit "$result"
+      - name: Require nonempty, non-skipped contract evidence
+        if: always()
+        shell: bash
+        run: |
+          test -f contract-evidence/maven.exit
+          python3 scripts/contract_report.py \
+            --reports target/surefire-reports \
+            --trace openspec/changes/enforce-opencli-branch-contract-parity/evidence/final-requirement-trace.md \
+            --head "$(cat contract-evidence/head.txt)" \
+            --branch "$GITHUB_REF_NAME" \
+            --java-version-file contract-evidence/java.txt \
+            --maven-version-file contract-evidence/maven.txt \
+            --exit-code "$(cat contract-evidence/maven.exit)" \
+            --suite enumeration=io.github.easy4j.opencli.contract.OpenCliStructuredHelpFixtureTest \
+            --suite enumeration=io.github.easy4j.opencli.contract.OpenCliHelpParserTest \
+            --suite enumeration=io.github.easy4j.opencli.capability.OpenCliCapabilityDiscoveryTest \
+            --suite argv=io.github.easy4j.opencli.capability.OpenCliCapabilityCommandTest \
+            --suite argv=io.github.easy4j.opencli.contract.OpenCliArgvContractTest \
+            --suite argv=io.github.easy4j.opencli.contract.OpenCliStructuredArgvContractTest \
+            --suite process=io.github.easy4j.opencli.contract.OpenCliProcessContractTest \
+            --suite process=io.github.easy4j.opencli.contract.OpenCliProcessBoundaryTest \
+            --suite process=io.github.easy4j.opencli.core.support.SubprocessCleanupFaultTest \
+            --suite process=io.github.easy4j.opencli.core.support.SubprocessCompletionRaceTest \
+            --suite process=io.github.easy4j.opencli.core.support.SubprocessStreamFailureTest \
+            --suite process=io.github.easy4j.opencli.core.OpenCliProcessPrivacyTest \
+            --suite protocol=io.github.easy4j.opencli.center.ws.OpenCliWsReverseAgentSessionTest \
+            --suite protocol=io.github.easy4j.opencli.center.ws.OpenCliWsCollectRequestsTest \
+            --suite protocol=io.github.easy4j.opencli.remote.OpenCliRemoteAgentHttpClientTest \
+            --suite protocol=io.github.easy4j.opencli.contract.OpenCliErrorEnvelopeTest \
+            --suite typed-result=io.github.easy4j.opencli.contract.OpenCliBrowserResultTest \
+            --suite typed-result=io.github.easy4j.opencli.contract.OpenCliBrowserEvidenceResultTest \
+            --suite typed-result=io.github.easy4j.opencli.capability.OpenCliDiagnosticsTest \
+            --suite argv=io.github.easy4j.opencli.capability.OpenCliInvocationContextTest \
+            --suite argv=io.github.easy4j.opencli.core.OpenCliArgSupportTest \
+            --suite process=io.github.easy4j.opencli.core.support.SubprocessExecutionSupportTest \
+            --suite protocol=io.github.easy4j.opencli.remote.OpenCliArgvToCollectParserFullTest \
+            --suite typed-result=io.github.easy4j.opencli.core.OpenCliDiagnosticExportTest \
+            --output contract-evidence/report.json
+      - name: Upload actual JVM evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: contracts-jdk-${{ steps.line.outputs.java }}-${{ github.sha }}
+          path: |
+            contract-evidence
+            target/surefire-reports
+            target/site/jacoco
+          if-no-files-found: error
+
+  process-platform:
+    name: Subprocess contracts (${{ matrix.os }})
+    if: github.ref_name == 'feature/REQ-20261118-wandl-opencli-contracts-20'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, macos-15-intel, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        if: runner.os == 'Windows'
+        with:
+          node-version: '22'
+      - name: Exercise real subprocess contracts
+        run: |
+          mkdir -p platform-evidence
+          if [[ "$RUNNER_OS" == Windows ]]; then
+            OPENCLI_CONTRACT_NODE_EXECUTABLE="$(node -p 'process.execPath')"
+            export OPENCLI_CONTRACT_NODE_EXECUTABLE
+          fi
+          java -version > platform-evidence/java.txt 2>&1
+          mvn -version > platform-evidence/maven.txt 2>&1
+          result=0
+          mvn -B --no-transfer-progress \
+            -Dtest=OpenCliCapabilityDiscoveryTest,OpenCliCapabilityCommandTest,OpenCliErrorEnvelopeTest,OpenCliBrowserResultTest,OpenCliBrowserEvidenceResultTest,OpenCliDiagnosticsTest,OpenCliInvocationContextTest,OpenCliArgvContractTest,OpenCliStructuredArgvContractTest,OpenCliProcessContractTest,OpenCliProcessBoundaryTest,SubprocessCleanupFaultTest,SubprocessCompletionRaceTest,SubprocessStreamFailureTest,OpenCliWsReverseAgentSessionTest,OpenCliWsCollectRequestsTest,OpenCliRemoteAgentHttpClientTest,OpenCliProcessPrivacyTest,OpenCliArgSupportTest#shouldKeepConversionExceptionAndNestedCausePrivate,SubprocessExecutionSupportTest#shouldKeepNativePathOutOfDefaultHandlerException+legacyOutputStreamsAllowBoundedWritesWithoutChangingExecutionDetails,OpenCliStructuredHelpFixtureTest,OpenCliHelpParserTest,OpenCliArgvToCollectParserFullTest,OpenCliDiagnosticExportTest \
+            test > platform-evidence/maven.log 2>&1 || result=$?
+          tail -100 platform-evidence/maven.log
+          python scripts/contract_report.py \
+            --reports target/surefire-reports \
+            --trace openspec/changes/enforce-opencli-branch-contract-parity/evidence/final-requirement-trace.md \
+            --head "$(git rev-parse HEAD)" \
+            --branch "$GITHUB_REF_NAME" \
+            --java-version-file platform-evidence/java.txt \
+            --maven-version-file platform-evidence/maven.txt \
+            --exit-code "$result" \
+            --suite enumeration=io.github.easy4j.opencli.contract.OpenCliHelpParserTest \
+            --suite enumeration=io.github.easy4j.opencli.contract.OpenCliStructuredHelpFixtureTest \
+            --suite enumeration=io.github.easy4j.opencli.capability.OpenCliCapabilityDiscoveryTest \
+            --suite argv=io.github.easy4j.opencli.capability.OpenCliCapabilityCommandTest \
+            --suite argv=io.github.easy4j.opencli.contract.OpenCliArgvContractTest \
+            --suite argv=io.github.easy4j.opencli.contract.OpenCliStructuredArgvContractTest \
+            --suite process=io.github.easy4j.opencli.contract.OpenCliProcessContractTest \
+            --suite process=io.github.easy4j.opencli.contract.OpenCliProcessBoundaryTest \
+            --suite process=io.github.easy4j.opencli.core.support.SubprocessCleanupFaultTest \
+            --suite process=io.github.easy4j.opencli.core.support.SubprocessCompletionRaceTest \
+            --suite process=io.github.easy4j.opencli.core.support.SubprocessStreamFailureTest \
+            --suite protocol=io.github.easy4j.opencli.remote.OpenCliArgvToCollectParserFullTest \
+            --suite protocol=io.github.easy4j.opencli.center.ws.OpenCliWsReverseAgentSessionTest \
+            --suite protocol=io.github.easy4j.opencli.center.ws.OpenCliWsCollectRequestsTest \
+            --suite protocol=io.github.easy4j.opencli.remote.OpenCliRemoteAgentHttpClientTest \
+            --suite process=io.github.easy4j.opencli.core.OpenCliProcessPrivacyTest \
+            --suite argv=io.github.easy4j.opencli.core.OpenCliArgSupportTest \
+            --suite process=io.github.easy4j.opencli.core.support.SubprocessExecutionSupportTest \
+            --suite protocol=io.github.easy4j.opencli.contract.OpenCliErrorEnvelopeTest \
+            --suite typed-result=io.github.easy4j.opencli.core.OpenCliDiagnosticExportTest \
+            --suite typed-result=io.github.easy4j.opencli.contract.OpenCliBrowserResultTest \
+            --suite typed-result=io.github.easy4j.opencli.contract.OpenCliBrowserEvidenceResultTest \
+            --suite typed-result=io.github.easy4j.opencli.capability.OpenCliDiagnosticsTest \
+            --suite argv=io.github.easy4j.opencli.capability.OpenCliInvocationContextTest \
+            --output platform-evidence/report.json
+          exit "$result"
+      - name: Verify npm-installed OpenCLI on Windows
+        if: runner.os == 'Windows'
+        run: bash scripts/run_installed_contracts.sh mvn
+      - name: Upload platform subprocess evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: subprocess-${{ matrix.os }}-${{ github.sha }}
+          path: |
+            platform-evidence
+            target/surefire-reports
+          if-no-files-found: error
+
+
+  browser-bridge:
+    name: Real Browser Bridge (${{ matrix.os }})
+    if: github.ref_name == 'feature/REQ-20261118-wandl-opencli-contracts-20'
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.18.0'
+      - name: Install the published OpenCLI in the runner's temporary directory
+        run: npm install --prefix "$RUNNER_TEMP/opencli-browser-cli" --ignore-scripts --no-audit --no-fund @jackwener/opencli@1.8.8
+      - name: Exercise the real Chrome extension against the loopback daemon
+        run: |
+          python scripts/run_browser_bridge_contracts.py \
+            --cli-entry "$RUNNER_TEMP/opencli-browser-cli/node_modules/@jackwener/opencli/dist/src/main.js" \
+            --evidence browser-bridge-evidence -- mvn
+      - name: Upload real Bridge evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: browser-bridge-${{ matrix.os }}-${{ github.sha }}
+          path: browser-bridge-evidence
+          if-no-files-found: error

@@ -7,12 +7,9 @@ import org.junit.jupiter.api.Test;
 class OpenCliArgvToCollectParserFullTest {
 
     @Test
-    void shouldParseDashDashFlagWithNextOption() {
-        // --verbose followed by another flag means --verbose is boolean
-        OpenCliCollectRequest req = OpenCliArgvToCollectParser.parse(
-            Arrays.asList("npm", "search", "react", "--verbose", "--limit", "5"), "json", "cdp", "");
-        assertEquals(Boolean.TRUE, req.getArgs().get("verbose"));
-        assertEquals("5", req.getArgs().get("limit"));
+    void shouldRejectAnOptionWithoutAValueBeforeAnotherOption() {
+        assertThrows(IllegalArgumentException.class, () -> OpenCliArgvToCollectParser.parse(
+            Arrays.asList("npm", "search", "react", "--limit", "--verbose"), "json", "cdp", ""));
     }
 
     @Test
@@ -30,17 +27,15 @@ class OpenCliArgvToCollectParserFullTest {
     }
 
     @Test
-    void shouldSkipNullTokens() {
-        List<String> argv = new ArrayList<>(Arrays.asList("npm", "search", null, "react"));
-        OpenCliCollectRequest req = OpenCliArgvToCollectParser.parse(argv, "json", "cdp", "");
-        assertTrue(req.getPositionalArgs().contains("react"));
+    void shouldRejectNullTokens() {
+        assertThrows(IllegalArgumentException.class, () -> OpenCliArgvToCollectParser.parse(
+            Arrays.asList("npm", "search", null, "react"), "json", "cdp", ""));
     }
 
     @Test
-    void shouldSkipEmptyTokens() {
-        OpenCliCollectRequest req = OpenCliArgvToCollectParser.parse(
-            Arrays.asList("npm", "search", "", "react"), "json", "cdp", "");
-        assertTrue(req.getPositionalArgs().contains("react"));
+    void shouldRejectEmptyTokens() {
+        assertThrows(IllegalArgumentException.class, () -> OpenCliArgvToCollectParser.parse(
+            Arrays.asList("npm", "search", "", "react"), "json", "cdp", ""));
     }
 
     @Test

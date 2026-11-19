@@ -4,8 +4,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import io.github.easy4j.opencli.OpenCliExecutionTarget;
 import io.github.easy4j.opencli.OpenCliProperties;
 import io.github.easy4j.opencli.exception.OpenCliExecutableFailureException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.file.Path;
 import org.apache.commons.exec.CommandLine;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 class OpenCliExecutorTest {
 
@@ -73,5 +77,22 @@ class OpenCliExecutorTest {
         props.setWorkingDirectory("/nonexistent/path/xyz");
         OpenCliExecutor executor = new OpenCliExecutor(props);
         assertThrows(OpenCliExecutableFailureException.class, () -> executor.invoke("list"));
+    }
+    @Test
+    void spawnFailureStackTraceOmitsExecutablePath(@TempDir Path directory) {
+        String canary = "private-executable-path-canary";
+        OpenCliProperties props = new OpenCliProperties();
+        props.setExecutable(directory.resolve(canary).toString());
+
+        try (OpenCliExecutor executor = new OpenCliExecutor(props)) {
+            OpenCliExecutableFailureException failure = assertThrows(
+                OpenCliExecutableFailureException.class, () -> executor.invoke("list"));
+            StringWriter diagnostics = new StringWriter();
+            failure.printStackTrace(new PrintWriter(diagnostics));
+            assertFalse(diagnostics.toString().contains(canary));
+            assertEquals(OpenCliExecutionDetails.TerminationReason.SPAWN_FAILED,
+                failure.getPartialResult().getExecutionDetails().getTerminationReason());
+            assertNull(failure.getPartialResult().getExitCode());
+        }
     }
 }
