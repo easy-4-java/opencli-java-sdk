@@ -29,7 +29,7 @@ class ContractReportTest(unittest.TestCase):
         cases = []
         for i in range(tests):
             child = '<skipped/>' if i >= executed else ('<failure/>' if i < failures else ('<error/>' if i < failures + errors else ''))
-            cases.append('<testcase name="case' + str(i) + '">' + child + '</testcase>')
+            cases.append('<testcase classname="' + suite + '" name="case' + str(i) + '">' + child + '</testcase>')
         (self.root / ('TEST-' + suite + '.xml')).write_text(
             '<testsuite name="' + suite + '" tests="' + str(tests) + '" skipped="' + str(skipped)
             + '" failures="' + str(failures) + '" errors="' + str(errors) + '">' + ''.join(cases) + '</testsuite>', encoding='utf-8')
@@ -38,7 +38,8 @@ class ContractReportTest(unittest.TestCase):
         return self.module.build_report(self.root, head=kwargs.get('head', HEAD),
             branch='feature/2.0.x', java_version='openjdk 17 (test fixture)',
             maven_version='Apache Maven (test fixture)', exit_code=kwargs.get('exit_code', 0),
-            required_suites=kwargs.get('required_suites', {'argv': [SUITE]}))
+            required_suites=kwargs.get('required_suites', {'argv': [SUITE]}),
+            trace_methods=kwargs.get('trace_methods'))
 
     def test_complete_argv_evidence_passes_but_live_is_not_run(self):
         self.xml()
@@ -60,6 +61,47 @@ class ContractReportTest(unittest.TestCase):
 
     def test_missing_report_fails(self):
         self.assertEqual('FAIL', self.report()['status'])
+
+    def test_missing_traced_method_fails_despite_successful_suite(self):
+        self.xml()
+        result = self.report(trace_methods={SUITE: {'case0', 'missing'}})
+        self.assertEqual('FAIL', result['status'])
+        self.assertEqual(2, result['layers']['argv']['executed'])
+        self.assertEqual({SUITE: ['missing']}, result['layers']['argv']['missingMethods'])
+
+    def test_parameters_are_removed_from_observed_method_name(self):
+        self.xml()
+        path = self.root / ('TEST-' + SUITE + '.xml')
+        text = path.read_text(encoding='utf-8').replace('name="case0"', 'name="case0(Path)[1]"')
+        path.write_text(text, encoding='utf-8')
+        result = self.report(trace_methods={SUITE: {'case0'}, SECOND_SUITE: {'unselected'}})
+        self.assertEqual('PASS', result['status'])
+        self.assertEqual({}, result['layers']['argv']['missingMethods'])
+
+    def test_case_from_another_class_cannot_satisfy_traced_method(self):
+        self.xml()
+        path = self.root / ('TEST-' + SUITE + '.xml')
+        text = path.read_text(encoding='utf-8').replace(
+            'classname="' + SUITE + '"', 'classname="' + SECOND_SUITE + '"', 1)
+        path.write_text(text, encoding='utf-8')
+        result = self.report(trace_methods={SUITE: {'case0'}})
+        self.assertEqual({SUITE: ['case0']}, result['layers']['argv']['missingMethods'])
+
+    def test_trace_collects_pinned_test_method_links(self):
+        path = self.root / 'trace.md'
+        link = ('[`OpenCliArgvContractTest#case0`](https://github.com/easy-4-java/opencli-java-sdk/blob/'
+                + HEAD + '/src/test/java/' + SUITE.replace('.', '/') + '.java#L17)')
+        path.write_text(link + '\n' + link, encoding='utf-8')
+        self.assertEqual({SUITE: {'case0'}}, self.module.read_trace_methods(path))
+        path.write_text(link.replace('OpenCliArgvContractTest#', 'WrongTest#'), encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'another class'):
+            self.module.read_trace_methods(path)
+
+    def test_trace_requires_pinned_method_links(self):
+        path = self.root / 'trace.md'
+        path.write_text('missing method links', encoding='utf-8')
+        with self.assertRaisesRegex(ValueError, 'no pinned'):
+            self.module.read_trace_methods(path)
 
     def test_zero_tests_fails(self):
         self.xml(tests=0)
