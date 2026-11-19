@@ -56,6 +56,7 @@ jobs:
           tail -100 platform-evidence/maven.log
           python scripts/contract_report.py \
             --reports target/surefire-reports \
+            --trace openspec/changes/enforce-opencli-branch-contract-parity/evidence/final-requirement-trace.md \
             --head "$(git rev-parse HEAD)" \
             --branch "$GITHUB_REF_NAME" \
             --java-version-file platform-evidence/java.txt \
