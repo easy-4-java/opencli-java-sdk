@@ -1,6 +1,7 @@
 package io.github.easy4j.opencli.center.ws;
 
 import static org.junit.jupiter.api.Assertions.*;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 class OpenCliCenterWsUrlsTest {
@@ -42,5 +43,14 @@ class OpenCliCenterWsUrlsTest {
     void shouldThrowForInvalidScheme() {
         assertThrows(IllegalArgumentException.class,
             () -> OpenCliCenterWsUrls.toAgentWebSocketUrl("ftp://host", OpenCliCenterWebSocketPath.NODES_WS));
+    }
+
+    @Test
+    void invalidSchemeDiagnosticDoesNotEchoUrlCanary() {
+        String canary = "urlsecret" + UUID.randomUUID().toString().replace("-", "");
+        IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+            () -> OpenCliCenterWsUrls.toAgentWebSocketUrl(
+                "ftp://host?token=" + canary, OpenCliCenterWebSocketPath.NODES_WS));
+        assertFalse(error.toString().contains(canary));
     }
 }

@@ -12,7 +12,7 @@
 
 ## 2. 上游与文档
 
-- [ ] 2.1 采集锁定上游的实际help/manifest/output，保存hash与范围，移除对作者绝对路径的依赖。
+- [x] 2.1 采集锁定上游的实际help/manifest/output，保存hash与范围，移除对作者绝对路径的依赖。
 - [ ] 2.2 修正各分支README/POMdescription/Gradle示例，检查Java/Jackson/Maven实际声明。
 - [ ] 2.3 配置三线正确wrapper/JDK的独立构建与报告，不通过修改coverage阈值绕开行为问题。
 
@@ -26,3 +26,32 @@
 ## 证据交付模板（实施时填写）
 
 每项任务的完成记录包含：Requirement/Scenario、分支HEAD、测试命令、失败→通过证据、测试数/跳过数、退出码、报告位置。没有记录的任务保持未完成。
+
+### 每个必选套件的执行证据
+
+OC-PARITY-003/004：当同一层含一个已执行套件及一个零用例套件时，旧报告返回 PASS。把同一套件注册到 argv 与 real-execution 也会重复记账。新增两个失败回归后，报告逐套件检查非零执行、零跳过、零失败及零错误，并拒绝同一套件跨层归因。问题套件列在 `unprovenSuites`。
+
+JVM 和平台报告显式登记错误报文、浏览器 typed 结果、上下文和诊断测试。Windows npm 安装版检查用独立 `installed-report.json`，保留实际 Node、OpenCLI、Java 和 Maven 版本、源码 SHA 与执行退出码。真实 CLI 层的范围为安装版 launcher 与隔离的 help、插件和诊断测试。普通 JVM 或平台报告缺少此层时保持 NOT_RUN。用于 Browser 结果解析的全部归档样本继续按 SHA-256 验证。
+
+### 2026-11-19 上游 manifest 采集
+
+OC-PARITY-002：从 npm 发布包提取 `package/cli-manifest.json`。源为 https://registry.npmjs.org/@jackwener/opencli/-/opencli-1.8.8.tgz，包的 SHA-512 完整性与 npm registry 元数据一致。原始 manifest 的 SHA-256 为 `b6f44ab5973dfd46b001f42562ad520b184bf1dd27ec4ae807f849df70b98e6a`。范围为发布包自带的 adapter 命令枚举，共 1,366 条、179 个 site。按 `(site, name)` 逐项对比仓库历史快照，新增 89 条，移除 0 条。89 条新增命令的逐项差异保存在本节链接的来源锁定中。
+
+在临时目录采集并运行生成器后，报告只记录公开来源、原始字节的 SHA-256、观察日期、获取命令和枚举范围。历史报告仍用于原有 Java 测试。生成器通过 `--manifest` 或 `OPENCLI_MANIFEST` 读取本地输入，移植验证覆盖含空格的临时路径。
+
+```bash
+curl -fsSLo opencli-1.8.8.tgz https://registry.npmjs.org/@jackwener/opencli/-/opencli-1.8.8.tgz
+tar -xOf opencli-1.8.8.tgz package/cli-manifest.json > cli-manifest.json
+```
+
+
+### OpenCLI 1.8.8 全量样本复跑
+
+[上游来源锁定](../../../src/test/resources/opencli-contracts/v1/upstream-1.8.8.lock.json) 记录 manifest 采集命令及逐项差异，以及帮助和浏览器输出的校验清单与复跑入口。使用 Node 24.18.0 和已安装的 1.8.8 包，在独立临时配置、缓存及用户目录中执行。11 份帮助、12 份浏览器叶子输出均与已归档的 stdout 逐字节相同，全部退出 0，stderr 为空。帮助包含非 JSON 输出。浏览器叶子使用真实 CLI 与隔离页面桩，真实浏览器联调证据单独见 [Browser Bridge 验收](../add-opencli-browser-result-models/evidence/2026-11-19-real-browser-bridge.md)。历史覆盖基线的升级仍须评审。
+
+
+### OC-PARITY-003 能力发现的必选报告
+
+独立评审确认 GitHub 的 JVM 报告漏列 `OpenCliCapabilityDiscoveryTest` 和 `OpenCliCapabilityCommandTest`。用原工作流的四组报告参数逐一重放，任一个能力套件的 XML 缺失、零用例或全跳过时，24 个反例仍返回成功。
+
+三线平台作业现在显式运行两个套件，在枚举层登记 DiscoveryTest，在 argv 层登记 CommandTest。Java 17 的完整 JVM 报告也登记这两个套件。使用现有 Surefire 结果重放更新后的四组参数，完整报告均退出 0，24 个反例均退出 1，准确标识缺失或未执行的套件。各线的报告脚本回归均通过 17 项。

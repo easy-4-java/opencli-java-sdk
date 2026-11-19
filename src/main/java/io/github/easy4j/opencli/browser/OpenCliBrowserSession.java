@@ -1,5 +1,15 @@
 package io.github.easy4j.opencli.browser;
 
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserAnalysisResult;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserConsoleResult;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserDecoder;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserFindResult;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserNetworkResult;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserOpenResult;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserResult;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserSnapshot;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserSourceComparison;
+import io.github.easy4j.opencli.browser.result.OpenCliBrowserTab;
 import io.github.easy4j.opencli.browser.support.OpenCliBrowserConsoleOptions;
 import io.github.easy4j.opencli.browser.support.OpenCliBrowserDragLocator;
 import io.github.easy4j.opencli.browser.support.OpenCliBrowserExtractOptions;
@@ -7,6 +17,7 @@ import io.github.easy4j.opencli.browser.support.OpenCliBrowserFindOptions;
 import io.github.easy4j.opencli.browser.support.OpenCliBrowserGetHtmlOptions;
 import io.github.easy4j.opencli.browser.support.OpenCliBrowserScreenshotOptions;
 import io.github.easy4j.opencli.browser.support.OpenCliBrowserSemanticLocator;
+import io.github.easy4j.opencli.browser.support.OpenCliBrowserSnapshotSource;
 import io.github.easy4j.opencli.browser.support.OpenCliBrowserStateOptions;
 import io.github.easy4j.opencli.browser.support.OpenCliBrowserTabOptions;
 import io.github.easy4j.opencli.core.OpenCliArgSupport;
@@ -47,38 +58,18 @@ public final class OpenCliBrowserSession {
     private List<String> sessionPrefix() {
         List<String> tokens = new ArrayList<>();
         tokens.add("browser");
+        tokens.add(sessionName);
         if (Objects.nonNull(windowMode)) {
             OpenCliArgSupport.addOptionPair(tokens, "--window", windowMode);
         }
-        tokens.add(sessionName);
         return tokens;
     }
 
     private OpenCliResult invokeSub(List<String> subcommandAndOptions) {
         List<String> tokens = sessionPrefix();
         tokens.addAll(subcommandAndOptions);
-        log.debug("OpenCLI browser session={} subcommandSummary={}", sessionName, summarizeSubcommand(tokens));
+        log.debug("OpenCLI browser invoke argvSize={}", tokens.size());
         return executor.invoke(tokens);
-    }
-
-    private static String summarizeSubcommand(List<String> tokens) {
-        int start = tokens.indexOf("browser");
-        int from = start >= 0 && start + 2 < tokens.size() ? start + 2 : 0;
-        int limit = Math.min(tokens.size(), from + 3);
-        if (from >= tokens.size()) {
-            return "(root)";
-        }
-        StringBuilder sb = new StringBuilder();
-        for (int i = from; i < limit; i++) {
-            if (i > from) {
-                sb.append(' ');
-            }
-            sb.append(tokens.get(i));
-        }
-        if (tokens.size() > limit) {
-            sb.append(" ...");
-        }
-        return sb.toString();
     }
 
     private static void appendTabAndLocator(
@@ -104,6 +95,11 @@ public final class OpenCliBrowserSession {
     /** {@code browser tab list} */
     public OpenCliResult tabList() {
         return invokeSub(OpenCliLists.of("tab", "list"));
+    }
+
+    /** @return strict interpretation of the tab list; execution exceptions retain their partial results */
+    public OpenCliBrowserResult<List<OpenCliBrowserTab>> tabListTyped() {
+        return OpenCliBrowserDecoder.tabList(tabList());
     }
 
     /**
@@ -169,6 +165,15 @@ public final class OpenCliBrowserSession {
         return invokeSub(args);
     }
 
+    /**
+     * @param url requested navigation URL
+     * @param tab optional target tab
+     * @return strict interpretation of the navigation result
+     */
+    public OpenCliBrowserResult<OpenCliBrowserOpenResult> openTyped(String url, OpenCliBrowserTabOptions tab) {
+        return OpenCliBrowserDecoder.open(open(url, tab));
+    }
+
     /** {@code browser back} */
     public OpenCliResult back(OpenCliBrowserTabOptions tab) {
         List<String> args = new ArrayList<>();
@@ -221,6 +226,27 @@ public final class OpenCliBrowserSession {
             options = OpenCliBrowserStateOptions.builder().source("dom").build();
         }
         return state(tab, options);
+    }
+
+    /**
+     * @param tab optional target tab
+     * @param source explicit DOM or AX source
+     * @return strict URL and snapshot text from the selected source
+     */
+    public OpenCliBrowserResult<OpenCliBrowserSnapshot> snapshotTyped(OpenCliBrowserTabOptions tab,
+        OpenCliBrowserSnapshotSource source) {
+        OpenCliBrowserStateOptions options = OpenCliBrowserStateOptions.builder()
+            .source(Objects.requireNonNull(source, "source").getOptionValue()).build();
+        return OpenCliBrowserDecoder.snapshot(state(tab, options));
+    }
+
+    /**
+     * @param tab optional target tab
+     * @return strict comparison with each source's independent outcome
+     */
+    public OpenCliBrowserResult<OpenCliBrowserSourceComparison> compareStateSourcesTyped(OpenCliBrowserTabOptions tab) {
+        return OpenCliBrowserDecoder.compareSources(
+            state(tab, OpenCliBrowserStateOptions.builder().compareSources(true).build()));
     }
 
     /** {@code browser frames} */
@@ -280,6 +306,19 @@ public final class OpenCliBrowserSession {
     }
 
     /**
+     * @param tab optional target tab
+     * @param options one-shot console collection options
+     * @return strict console capture
+     */
+    public OpenCliBrowserResult<OpenCliBrowserConsoleResult> consoleTyped(OpenCliBrowserTabOptions tab,
+        OpenCliBrowserConsoleOptions options) {
+        if (Objects.nonNull(options) && Boolean.TRUE.equals(options.getFollow())) {
+            throw new IllegalArgumentException("Use the raw console API for --follow");
+        }
+        return OpenCliBrowserDecoder.console(console(tab, options));
+    }
+
+    /**
      * @deprecated 使用 {@link #console(OpenCliBrowserTabOptions, OpenCliBrowserConsoleOptions)}；
      *     CLI 无 {@code --limit}
      */
@@ -301,6 +340,15 @@ public final class OpenCliBrowserSession {
     }
 
     /**
+     * @param url requested analysis URL
+     * @param tab optional target tab
+     * @return strict analysis observation
+     */
+    public OpenCliBrowserResult<OpenCliBrowserAnalysisResult> analyzeTyped(String url, OpenCliBrowserTabOptions tab) {
+        return OpenCliBrowserDecoder.analyze(analyze(url, tab));
+    }
+
+    /**
      * {@code browser find}，对齐 {@code --css}、{@code --limit}、{@code --text-max}。
      */
     public OpenCliResult find(
@@ -314,6 +362,17 @@ public final class OpenCliBrowserSession {
         }
         appendTabAndLocator(args, tab, locator);
         return invokeSub(args);
+    }
+
+    /**
+     * @param locator optional semantic locator
+     * @param tab optional target tab
+     * @param options selector and entry limits
+     * @return strict selector matches
+     */
+    public OpenCliBrowserResult<OpenCliBrowserFindResult> findTyped(OpenCliBrowserSemanticLocator locator,
+        OpenCliBrowserTabOptions tab, OpenCliBrowserFindOptions options) {
+        return OpenCliBrowserDecoder.find(find(locator, tab, options));
     }
 
     /**
@@ -727,6 +786,20 @@ public final class OpenCliBrowserSession {
             options.appendTo(args);
         }
         return invokeSub(args);
+    }
+
+    /**
+     * @param options one-shot network listing options
+     * @param tab optional target tab
+     * @return strict network capture
+     */
+    public OpenCliBrowserResult<OpenCliBrowserNetworkResult> networkTyped(OpenCliBrowserNetworkOptions options,
+        OpenCliBrowserTabOptions tab) {
+        if (Objects.nonNull(options) && (Boolean.TRUE.equals(options.getFollow())
+            || Objects.nonNull(options.getDetailKey()))) {
+            throw new IllegalArgumentException("Use the raw network API for --follow or --detail");
+        }
+        return OpenCliBrowserDecoder.network(network(options, tab));
     }
 
     /** {@code browser init <site/command>} */

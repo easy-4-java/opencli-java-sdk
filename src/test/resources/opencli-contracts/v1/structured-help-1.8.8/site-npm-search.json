@@ -1,0 +1,86 @@
+{
+  "site": "npm",
+  "name": "search",
+  "command": "opencli npm search",
+  "usage": "opencli npm search <query> [options]",
+  "access": "read",
+  "description": "Search the public npm registry by keyword",
+  "browser": false,
+  "domain": "registry.npmjs.org",
+  "positionals": [
+    {
+      "name": "query",
+      "type": "str",
+      "positional": true,
+      "required": true,
+      "help": "Search keyword (e.g. \"react\", \"graphql client\")"
+    }
+  ],
+  "command_options": [
+    {
+      "name": "limit",
+      "type": "int",
+      "default": 20,
+      "help": "Max results (1-250)"
+    }
+  ],
+  "example": "opencli npm search <query> -f yaml",
+  "columns": [
+    "rank",
+    "name",
+    "version",
+    "description",
+    "weeklyDownloads",
+    "dependents",
+    "license",
+    "publisher",
+    "updated",
+    "url"
+  ],
+  "common_options": [
+    {
+      "name": "format",
+      "flags": "-f, --format <fmt>",
+      "help": "Output format: table, plain, json, yaml, md, csv",
+      "default": "table",
+      "choices": [
+        "table",
+        "plain",
+        "json",
+        "yaml",
+        "md",
+        "csv"
+      ]
+    },
+    {
+      "name": "trace",
+      "flags": "--trace <mode>",
+      "help": "Trace capture: off, on, retain-on-failure",
+      "default": "off",
+      "choices": [
+        "off",
+        "on",
+        "retain-on-failure"
+      ]
+    },
+    {
+      "name": "verbose",
+      "flags": "-v, --verbose",
+      "help": "Debug output",
+      "default": false
+    },
+    {
+      "name": "help",
+      "flags": "-h, --help",
+      "help": "display help for command"
+    }
+  ],
+  "output_formats": [
+    "table",
+    "plain",
+    "yaml",
+    "json",
+    "md",
+    "csv"
+  ]
+}

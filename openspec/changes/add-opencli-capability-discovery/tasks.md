@@ -1,26 +1,63 @@
 # C06 Tasks · 结构化能力发现与可追溯快照
 
-> 全部为待执行实现任务。文档/格式检查通过不允许提前勾选。
+> 勾选项有对应的执行证据。
 
 关联规范：[spec](specs/opencli-capability-discovery/spec.md)。
 
 ## 1. schema基线
 
-- [ ] 1.1 从锁定OpenCLI采集root/browser/meta/site结构化help，记录真实来源与hash，清楚标注不能采集的部分。
-- [ ] 1.2 为scope、optionalvalue、negate、false、aliases、session占位和旧格式编写失败测试。
+- [x] 1.1 从锁定 OpenCLI 采集 root、browser、meta 和 site 帮助，保存原文与 SHA-256。不能读取为单一 JSON 文档的输出单列为负例。见 [1.8.8 采集证据](evidence/2026-11-19-structured-help.md)。
+- [x] 1.2 为scope、optionalvalue、negate、false、aliases、session占位和旧格式编写失败测试。
 
 ## 2. 服务实现
 
-- [ ] 2.1 新增Java8可表达schema与快照模型，保留unknown字段和raw；复用已有adapter入口。
-- [ ] 2.2 实现有限version/help探测与可信executable校验，禁止自动业务操作。
-- [ ] 2.3 实现cache key、内容hash、失效与UNKNOWN/STALE/UNSUPPORTED原因。
+- [x] 2.1 新增Java8可表达schema与快照模型，保留unknown字段和raw；复用已有adapter入口。
+- [x] 2.2 实现有限version/help探测与可信executable校验，禁止自动业务操作。
+- [x] 2.3 实现cache key、内容hash、失效与UNKNOWN/STALE/UNSUPPORTED原因。
 
 ## 3. 边界验证
 
-- [ ] 3.1 测试本地override/插件来源未知时不伪造来源和全量覆盖率。
+- [x] 3.1 测试本地override/插件来源未知时不伪造来源和全量覆盖率。
 - [ ] 3.2 测试原有raw入口不会因为发现故障被无声禁用，remote拒绝范围仍受C04控制。
 - [ ] 3.3 三线同一schema fixture结果一致；报告未运行的真实上游采集项。
 
 ## 证据交付模板（实施时填写）
 
 每项任务的完成记录包含：Requirement/Scenario、分支HEAD、测试命令、失败→通过证据、测试数/跳过数、退出码、报告位置。没有记录的任务保持未完成。
+
+
+## OC-CAP-001/002/005 结构化帮助解析
+
+`OpenCliHelpParser` 在 Java 8 API 范围内提供帮助解析结果。根目录、站点、命名空间和叶子按真实 1.8.8 结构识别。Schema 保留命令显示路径、会话占位符、命令层级、位置参数、别名和分作用域选项。缺失字段、显式 false、可选取值、否定和默认值分别保留。原文和各节点的来源 JSON 可以追溯未解释字段。纯文本、JSON 后缀、重复字段或无效结构返回 `UNKNOWN` 及对应原因。
+
+基线的 API 验收先因缺少解析入口而无法编译。加入实现后，以 1.8.8 的七个 JSON 样本、两个原始负例和合成扩展验证，详见 `OpenCliHelpParserTest`。当前验证范围为原文解码，运行时探测、快照来源与失效、类型化会话绑定仍由其余任务验收。
+
+## OC-CAP-004/005/006 本地根发现
+
+`OpenCliClient.discoverCapabilities()` 接受调用者信任的绝对本地可执行文件配置，记录规范路径、观测版本、采集时刻、配置指纹及完整帮助文本的 SHA-256。探测固定为 `--version` 和 `--help -f json`，复用客户端执行器的本地并发容量、队列和进程清理。每次探测的队列与运行合计最多 10 秒，清理最多 1 秒，每路最多保留 1 MiB，调用者设置的更小预算优先。命令来源为 `UNKNOWN`，观察范围为 `ROOT_HELP`。采用按需重新观测，同版本改动可形成不同帮助摘要；缓存和 STALE 仍待实现。远端和 PATH 查找的发现请求返回 `UNSUPPORTED`，原有显式本地调用仍可使用。
+
+`OpenCliCapabilityDiscoveryTest` 先因缺少公开发现 API 无法编译。真实 JVM 子进程验收固定参数、同版本变更、无来源推断、文本降级、输出超限、非零退出、超时及 local raw。Maven 定向测试同时验证原有帮助解析。范围仍为根级目录，细粒度帮助探测及类型化执行仍未验收。
+
+## OC-CAP-004/005 根帮助快照失效
+
+客户端保存一个最近成功的根帮助快照，每次显式发现均重新探测。刷新失败且配置指纹一致、未观测到不同版本时，返回 `STALE`，保留成功时的采集时间、schema 和帮助摘要。失败的刷新另存于 `failedRefresh`，包括失败原因、尝试时间和可取得的原始帮助。配置或已观测版本改变会清除旧快照；成功刷新以新内容更新摘要。同一客户端并发探测时，较早发起但较晚完成的探测不会覆盖已发布的新结果。
+
+`OpenCliCapabilityDiscoveryTest` 的定向红灯为预期 `STALE`、实际 `UNKNOWN`。实现后验证同配置降级、失败原文、同版本帮助变化、配置与版本失效、并发完成顺序。当前缓存范围为根帮助。
+
+## OC-CAP-001/003/004/005/006 固定范围帮助探测
+
+`discoverCapabilities(OpenCliHelpScope)` 提供根目录、浏览器、浏览器 tab/get/state、auth、list 及 npm 站点和 search 的九个固定查询。细粒度参数只在已验证的 OpenCLI 1.8.8 启用。浏览器查询使用固定的帮助会话占位，不接受调用者提供的命令路径，也不执行帮助描述中的内容。结构化结果需匹配请求范围；纯文本和混合输出维持原有失败原因。
+
+每个范围只保存其最近成功的观察，且配置或已观测版本变化使其他不匹配的范围一并失效。OpenCLI 能力仍按请求观察，并保留来源未知标记。增加 `OpenCliCapabilityDiscoveryTest` 的进程验收后，缺少范围 API 时失败，加入实现后定向测试通过。类型化会话绑定及执行前参数校验仍待验收。
+
+## OC-CAP-002/003 类型化本地调用
+
+`OpenCliClient.invokeDiscovered` 对本地配置取快照，刷新指定范围，选择显式给定的叶子路径，校验后通过同一执行器运行时提交字面参数。需要提供浏览器会话时，必须填入合法会话标识。校验覆盖必选项和值、声明 choices、可选值 flag、显式 false、否定拼写和可变位置参数；用字面分隔符隔离可能像选项的位置参数。不可用或过期的帮助无法进入类型化执行。原有本地 raw 入口独立可用。
+
+`OpenCliCapabilityCommandTest` 和 `OpenCliCapabilityDiscoveryTest` 以失败→通过验证新 API、字段级错误和真实 JVM 子进程收到的 argv。当前仅对已验证的 OpenCLI 1.8.8 执行发现绑定；测试不依赖浏览器账户。
+
+## OC-CAP-004/006 运行时覆盖验收
+
+`OpenCliCapabilityOverrideIT` 使用 Node 24.18.0 和 npm 发布的 OpenCLI 1.8.8。测试以独立临时用户目录运行，每次刷新均查询 npm search 的同一叶子。依次观察内置定义、本地 adapter 覆盖、插件覆盖、移除插件后恢复本地定义。每次均返回 `AVAILABLE`，保留观测版本 1.8.8、原文、`SITE_NPM_SEARCH` 范围和 `UNKNOWN` 来源。配置指纹相同，内容摘要随有效覆盖变化。覆盖 handler 仅在业务执行时写入标记，帮助探测后标记始终不存在。
+
+在配置 `OPENCLI_INSTALLED_NODE` 和 `OPENCLI_INSTALLED_ENTRY` 后执行 `./mvnw -B -ntp -Dtest=OpenCliCapabilityOverrideIT test`。报告为 `target/surefire-reports/TEST-io.github.easy4j.opencli.contract.OpenCliCapabilityOverrideIT.xml`。本测试仅覆盖受控目录下的两个覆盖定义。真实 Browser Bridge 会话与外部插件生态仍未验收。
