@@ -14,6 +14,12 @@
 
 Java 17 全量 JVM 报告旧配置漏列四个必选套件。用该次构建的 XML 重放并分别移除 `OpenCliArgSupportTest`、`SubprocessExecutionSupportTest`、`OpenCliArgvToCollectParserFullTest`、`OpenCliDiagnosticExportTest`，旧配置四次均返回 0。全量 JVM 报告与平台报告登记相同套件后，完整证据返回 0，四个缺失用例均返回 1。前述平台和真实执行报告已经覆盖这四个套件关联的追溯方法。
 
+## 具名方法门禁
+
+平台报告和 Java 17 全量 JVM 报告读取本页固定源码中的测试方法链接。对已归属当前报告的套件，XML 必须包含同名测试类下成功执行的每个具名方法。报告记录每层的 `requiredMethodCount` 和 `missingMethods`。参数与参数化索引保留在原始 XML。真实 Browser Bridge 和安装版执行继续使用各自的证据。
+
+使用 [Java 17 的原始全量 XML](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44432735772) 重放，完整报告通过。分别去掉枚举、argv、进程、协议和类型结果层的一个具名方法，并保持原套件仍有通过用例及一致的计数。旧报告五次均通过，新报告五次均失败并指出具体套件和方法。再使用 [Java 8](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44425698386)、[Java 17](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44432735772) 和 [Java 21](https://github.com/easy-4-java/opencli-java-sdk/actions/runs/44425698650) 的 Windows 安装前 Surefire 工件重放，三条线均通过 96 个具名方法校验。真实执行的另外六个追溯方法由单独报告核对。
+
 ## 历史 C04 候选证据
 
 | JDK | 已验证平台基线 | 当前 C04 候选 | 本地全量 | JaCoCo 行覆盖率 | 当前候选托管矩阵 |
